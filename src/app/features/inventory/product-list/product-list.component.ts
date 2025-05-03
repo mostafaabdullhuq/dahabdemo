@@ -29,18 +29,40 @@ export class ProductListComponent {
   
     ngOnInit(): void {
       this.cols = [
-        { field: 'username', header: 'User Name' },
-        { field: 'email', header: 'Email' },
-        { field: 'phone_number', header: 'Phone No.' },
-        { field: 'address', header: 'Address' },
-        { field: 'role_name', header: 'Role Name' }
+        { field: "name", header: "Name" },
+    { field: "price", header: "Price" },
+    { field: "category", header: "Category" },
+    { field: "brand", header: "Brand" },
+    { field: "unit", header: "Unit" },
+    { field: "purity", header: "Purity" },
+    { field: "size", header: "Size" },
+    { field: "designer", header: "Designer" },
+    { field: "created_at", header: "Created At" },
+    { field: "total_quantity", header: "Stock" },
+    { field: "tag_number", header: "Tag No" },
+    { field: "stock_point", header: "Stock Point" },
       ];
       this.filterForm = this._formBuilder.group({
-        username: '',
         search: '',
-        phone_number:'',
-        isActive:null,
-        email:'',
+        stones: ['',],
+        stone_kr: [''],
+        stock_point: [''],
+        is_active: [''],
+        discount: [''],
+        max_discount: [''],
+        price: [''],
+        tag_number: [''],
+        making_charge: [''],
+        color: [''],
+        weight: [''],
+        designer_id: [''],
+        size_id: [''],
+        purity_id: [''],
+        unit_id: [''],
+        brand_id: [''],
+        category_id: [''],
+        description: [''],
+        name: [''],
       });
       this.getProducts();
     }

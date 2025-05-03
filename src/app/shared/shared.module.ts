@@ -1,3 +1,4 @@
+import { FileUploadModule } from 'primeng/fileupload';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -14,7 +15,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { ContextMenuModule } from 'primeng/contextmenu';
 
-// Your Components
+// Components
 import { InputTextComponent } from './components/input-text/input-text.component';
 import { FilterCollapseComponent } from './components/filter-collapse/filter-collapse.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
@@ -23,6 +24,7 @@ import { MultiSelectComponent } from './components/multi-select/multi-select.com
 import { DropdownsComponent } from './components/dropdowns/dropdowns.component';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmationPopUpService } from './services/confirmation-pop-up.service';
+import { UploadInputComponent } from './components/upload-input/upload-input.component';
 
 const components = [
   InputTextComponent,
@@ -30,7 +32,8 @@ const components = [
   DataTableComponent,
   CheckBoxComponent,
   MultiSelectComponent,
-  DropdownsComponent
+  DropdownsComponent,
+  UploadInputComponent
 ];
 
 const primeNgModules = [
@@ -41,7 +44,8 @@ const primeNgModules = [
   ToastModule,
   MultiSelectModule,
   SelectModule,
-  ContextMenuModule
+  ContextMenuModule,
+  FileUploadModule
 ]
 
 @NgModule({

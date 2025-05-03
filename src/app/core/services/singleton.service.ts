@@ -16,12 +16,19 @@ export class SingletonService {
 
   // POST REQUEST
   postRequest<T>(url: string, body: any, headers?: HttpHeaders): Observable<T> {
-    const httpOptions = {
-      headers: headers || new HttpHeaders({ 'Content-Type': 'application/json' }),
-    };
+    let httpOptions: { headers?: HttpHeaders };
+  
+    if (body instanceof FormData) {
+      httpOptions = {}; // No custom headers; Angular will auto-set multipart/form-data
+    } else {
+      httpOptions = {
+        headers: headers || new HttpHeaders({ 'Content-Type': 'application/json' }),
+      };
+    }
+  
     return this._httpClient.post<T>(url, body, httpOptions);
   }
-
+  
   // DELETE REQUEST
   deleteRequest<T>(api: string): Observable<T> {
     return this._httpClient.delete<T>(api);

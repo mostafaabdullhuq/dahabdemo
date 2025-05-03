@@ -1,0 +1,47 @@
+@use 'variables' as *;
+
+.image-uploader {
+  font-family: $font-family-base;
+
+  .upload-label {
+    display: inline-block;
+    cursor: pointer;
+    background-color: $btn-primary-bg;
+    color: $text-inverse;
+    padding: 0.6rem 1.2rem;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow-base;
+    transition: $transition-base;
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold;
+    .pi{
+        color: $white;
+    }
+    &:hover {
+      background-color: $btn-primary-hover;
+      box-shadow: $box-shadow-hover;
+    }
+
+    input[type='file'] {
+      display: none;
+    }
+
+    .upload-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  .preview {
+    margin-top: 1rem;
+
+    img {
+      max-width: 100%;
+      max-height: 150px;
+      border-radius: $border-radius;
+      box-shadow: $box-shadow-base;
+      border: 2px solid $emerald-100;
+    }
+  }
+}

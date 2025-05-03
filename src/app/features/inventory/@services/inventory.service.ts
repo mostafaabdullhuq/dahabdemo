@@ -19,13 +19,13 @@ export class InventoryService {
       .set('page_size', pageSize.toString());
     return this._http.getRequest(`${environment.api_url}Product`, params );
   }
-  addProduct(addForm:FormGroup): Observable<any>{
+  addProduct(addForm:FormGroup | FormData): Observable<any>{
     return this._http.postRequest(`${environment.api_url}Product/`,addForm);
   }
   getProductById(id:number | string){
     return this._http.getRequest(`${environment.api_url}Product/${id}`);
   }
-  updateProduct(id:number | string, editForm:FormGroup){
+  updateProduct(id:number | string, editForm:FormGroup | FormData){
     return this._http.putRequest(`${environment.api_url}Product/${id}` , editForm);
   }
   deleteProduct(id:number ){
