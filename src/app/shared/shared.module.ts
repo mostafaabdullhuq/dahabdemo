@@ -1,0 +1,71 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterOutlet } from '@angular/router';
+import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
+
+// PrimeNG Modules
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { ToastModule } from 'primeng/toast';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
+import { ContextMenuModule } from 'primeng/contextmenu';
+
+// Your Components
+import { InputTextComponent } from './components/input-text/input-text.component';
+import { FilterCollapseComponent } from './components/filter-collapse/filter-collapse.component';
+import { DataTableComponent } from './components/data-table/data-table.component';
+import { CheckBoxComponent } from './components/check-box/check-box.component';
+import { MultiSelectComponent } from './components/multi-select/multi-select.component';
+import { DropdownsComponent } from './components/dropdowns/dropdowns.component';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmationPopUpService } from './services/confirmation-pop-up.service';
+
+const components = [
+  InputTextComponent,
+  FilterCollapseComponent,
+  DataTableComponent,
+  CheckBoxComponent,
+  MultiSelectComponent,
+  DropdownsComponent
+];
+
+const primeNgModules = [
+  CheckboxModule,
+  InputTextModule,
+  ButtonModule,
+  TableModule,
+  ToastModule,
+  MultiSelectModule,
+  SelectModule,
+  ContextMenuModule
+]
+
+@NgModule({
+  declarations: [...components],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterOutlet,
+    LoadingBarHttpClientModule,
+    ...primeNgModules
+  ],
+  exports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterOutlet,
+    LoadingBarHttpClientModule,
+    ...primeNgModules,
+    ...components
+  ],
+  providers:[
+    ConfirmationService,
+    ConfirmationPopUpService
+  ]
+})
+export class SharedModule { }

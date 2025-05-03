@@ -1,0 +1,137 @@
+@use 'variables' as *;
+
+// RESET
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  color: $text-primary;
+  background-color: $background;
+  line-height: 1.6;
+  transition: $transition-base;
+}
+
+// TYPOGRAPHY
+h1, h2, h3, h4, h5, h6 {
+  color: $emerald-800;
+  font-weight: $font-weight-bold;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
+}
+
+p {
+  margin-bottom: 1rem;
+  color: $text-secondary;
+}
+
+a {
+  color: $emerald-600;
+  text-decoration: none;
+  transition: $transition-base;
+
+  &:hover {
+    color: $emerald-800;
+    text-decoration: underline;
+  }
+}
+
+// BUTTONS
+button,
+.btn {
+  font-family: inherit;
+  font-size: $font-size-base;
+  padding: 0.6rem 1.2rem;
+  border-radius: $border-radius;
+  border: none;
+  cursor: pointer;
+  transition: $transition-base;
+
+  &.primary {
+    background-color: $btn-primary-bg;
+    color: $text-inverse;
+
+    &:hover {
+      background-color: $btn-primary-hover;
+    }
+  }
+
+  &.secondary {
+    background-color: $btn-secondary-bg;
+    color: $text-primary;
+
+    &:hover {
+      background-color: $btn-secondary-hover;
+    }
+  }
+}
+
+// FORMS
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: $font-size-base;
+  padding: 0.5rem 0.75rem;
+  border-radius: $border-radius;
+  background-color: $white;
+  color: $text-primary;
+  transition: $transition-base;
+
+  &:focus {
+    border-color: $emerald-500;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($emerald-500, 0.2);
+  }
+}
+label{
+  text-transform: capitalize;
+  font-weight: 600;
+    padding: 10px 0;
+}
+// UTILITIES
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.shadow {
+  box-shadow: $box-shadow-base;
+}
+
+.shadow-hover:hover {
+  box-shadow: $box-shadow-hover;
+}
+a{
+    text-decoration: none !important;
+}
+.card{
+  border-radius: 15px;
+  border-top: 5px solid $emerald-700;
+
+}
+
+ngx-loading-bar {
+  height: 5px;
+  border-radius: 10px;
+  background-color: $emerald-700;
+  z-index: 9999;
+}

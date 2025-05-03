@@ -1,0 +1,45 @@
+@use 'variables' as *;
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, $emerald-100, $emerald-300);
+  font-family: $font-family-base;
+}
+
+.login-card {
+  background-color: $background-alt;
+  padding: 2rem;
+  border-radius: $border-radius;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: $box-shadow-hover;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.text-primary {
+  color: $text-primary;
+}
+
+.p-button-primary {
+  background-color: $btn-primary-bg !important;
+  border-color: $btn-primary-bg !important;
+  color: $text-inverse !important;
+  transition: $transition-base;
+
+  &:hover {
+    background-color: $btn-primary-hover !important;
+    border-color: $btn-primary-hover !important;
+  }
+}
+
+

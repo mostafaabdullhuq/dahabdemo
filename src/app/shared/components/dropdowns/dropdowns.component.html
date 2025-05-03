@@ -1,0 +1,20 @@
+<div class="input-group border-0 d-flex flex-column">
+    <!-- Conditional label -->
+    <label *ngIf="label" [for]="id">{{ label }}
+        @if (required) {
+            <sup class="text-danger">*</sup>
+        }
+    </label>
+  
+    <!-- Select Dropdown -->
+    <p-select
+    [options]="options"
+    [(ngModel)]="selectedValue"
+    [optionLabel]="optionLabel"
+    [optionValue]="optionValue"
+    [required]="required"
+    [placeholder]="placeholder"
+    (onChange)="onSelectionChange($event)"
+    (blur)="onBlur()"></p-select>
+  <ng-content></ng-content>
+  </div>

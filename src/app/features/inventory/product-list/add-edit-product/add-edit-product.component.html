@@ -1,0 +1,158 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Product</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditProductForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <!-- 🔹 Product Info -->
+                <h6 class="section-form-header">Product Info</h6>
+                <div class="container section-form">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <app-input-text formControlName="name" inputName="Product Name" [required]="true"
+                        placeholder="Enter product name">
+                        @if (addEditProductForm.get('name')?.hasError('required') && addEditProductForm.get('name')?.touched) {
+                        <div class="text-danger mt-1">
+                          <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>Name is required</small>
+                        </div>
+                        }
+                      </app-input-text>
+                    </div>
+                            
+                    <div class="col-md-4">
+                      <app-input-text formControlName="tag_number" inputName="Tag Number" placeholder="Enter tag number">
+                      </app-input-text>
+                    </div>
+                    <div class="col-md-4">
+                        <app-input-text formControlName="color" inputName="Color" placeholder="Enter color">
+                        </app-input-text>
+                      </div>
+
+                    <div class="col-md-12">
+                        <app-input-text formControlName="description" inputName="Description" placeholder="Product description">
+                        </app-input-text>
+                      </div>
+                  </div>
+                </div>
+              
+                <!-- 🔹 Pricing Info -->
+                <h6 class="section-form-header mt-4">Pricing Info</h6>
+                <div class="container section-form">
+                  <div class="row">
+                    <div class="col-md-4">
+                        <app-input-text formControlName="price" inputName="Price" type="number"
+                          placeholder="Enter Price"></app-input-text>
+                      </div>
+                    <!-- <div class="col-md-4">
+                      <app-input-text formControlName="discount" inputName="Discount" type="number"
+                        placeholder="Enter discount (%)"></app-input-text>
+                    </div> -->
+              
+                    <div class="col-md-4">
+                      <app-input-text formControlName="max_discount" inputName="Max Discount" type="number"
+                        placeholder="Enter max discount (%)"></app-input-text>
+                    </div>
+              
+                    <div class="col-md-4">
+                      <app-input-text formControlName="making_charge" inputName="Making Charge" type="number"
+                        placeholder="Enter making charge"></app-input-text>
+                    </div>
+              
+                    <div class="col-md-4">
+                      <app-input-text formControlName="weight" inputName="Weight" type="number"
+                        placeholder="Enter weight in grams"></app-input-text>
+                    </div>
+                  </div>
+                </div>
+              
+                <!-- 🔹 Categorization -->
+                <h6 class="section-form-header mt-4">Categorization</h6>
+                <div class="container section-form">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <app-dropdowns label="Brand" formControlName="brand_id" [options]="brands" optionLabel="name"
+                        optionValue="id" placeholder="Select a brand"></app-dropdowns>
+                    </div>
+              
+                    <div class="col-md-4">
+                      <app-dropdowns label="Category" formControlName="category_id" [options]="categories" optionLabel="name"
+                        optionValue="id" placeholder="Select a category"></app-dropdowns>
+                    </div>
+              
+                    <div class="col-md-4">
+                      <app-dropdowns label="Purity Rate" formControlName="purity_id" [options]="purities" optionLabel="name"
+                        optionValue="id" placeholder="Select purity"></app-dropdowns>
+                    </div>
+              
+                    <div class="col-md-4">
+                      <app-dropdowns label="Size" formControlName="size_id" [options]="sizes" optionLabel="name"
+                        optionValue="id" placeholder="Select size"></app-dropdowns>
+                    </div>
+              
+                    <div class="col-md-4">
+                      <app-dropdowns label="Designer" formControlName="designer_id" [options]="designers" optionLabel="name"
+                        optionValue="id" placeholder="Select designer"></app-dropdowns>
+                    </div>
+              
+                    <div class="col-md-4">
+                      <app-dropdowns label="Unit" formControlName="unit_id" [options]="units" optionLabel="name"
+                        optionValue="id" placeholder="Select unit"></app-dropdowns>
+                    </div>
+                  </div>
+                </div>
+              
+                <!-- 🔹 Stone Info -->
+                <h6 class="section-form-header mt-4">Stone Info</h6>
+                <div class="container section-form">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <app-input-text formControlName="stones" inputName="Stones" [required]="true"
+                        placeholder="Enter stone description">
+                        @if (addEditProductForm.get('stones')?.hasError('required') && addEditProductForm.get('stones')?.touched) {
+                        <div class="text-danger mt-1">
+                          <small><i class="pi pi-times-circle text-danger px-2" style="font-size: 0.8rem"></i>Stones are required</small>
+                        </div>
+                        }
+                      </app-input-text>
+                    </div>
+              
+                    <div class="col-md-4">
+                      <app-input-text formControlName="stone_kr" inputName="Stone KR" [required]="true"
+                        placeholder="Enter stone KR">
+                        @if (addEditProductForm.get('stone_kr')?.hasError('required') && addEditProductForm.get('stone_kr')?.touched) {
+                        <div class="text-danger mt-1">
+                          <small><i class="pi pi-times-circle text-danger px-2" style="font-size: 0.8rem"></i>Stone KR is required</small>
+                        </div>
+                        }
+                      </app-input-text>
+                    </div>
+                  </div>
+                </div>
+              
+                <!-- 🔹 Meta Info -->
+                <h6 class="section-form-header mt-4">Meta Info</h6>
+                <div class="container section-form">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <app-dropdowns label="Stock Point" formControlName="stock_point" [options]="stockPoints" optionLabel="name"
+                        optionValue="id" placeholder="Select stock point"></app-dropdowns>
+                    </div>
+              
+                        <div class="col-md-3 mt-2">
+                            <app-check-box formControlName="is_active" inputId="is_active" label="is active product ?"></app-check-box>
+                        </div>
+                  </div>
+                </div>
+              </section>
+              
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditProductForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

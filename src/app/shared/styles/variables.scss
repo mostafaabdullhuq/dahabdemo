@@ -1,0 +1,129 @@
+// Emerald Color Palette
+$emerald-50:  #e0f2f1;
+$emerald-100: #b2dfdb;
+$emerald-200: #80cbc4;
+$emerald-300: #4db6ac;
+$emerald-400: #26a69a;
+$emerald-500: #009688; // Primary
+$emerald-600: #00897b;
+$emerald-700: #00796b;
+$emerald-800: #00695c;
+$emerald-900: #004d40;
+
+// Accent Colors
+$emerald-accent-100: #a7ffeb;
+$emerald-accent-200: #64ffda;
+$emerald-accent-400: #1de9b6;
+$emerald-accent-700: #00bfa5;
+
+// Neutrals
+$white:        #ffffff;
+$gray-50:      #fafafa;
+$gray-100:     #f5f5f5;
+$gray-200:     #eeeeee;
+$gray-300:     #e0e0e0;
+$gray-400:     #bdbdbd;
+$gray-500:     #9e9e9e;
+$gray-600:     #757575;
+$gray-700:     #616161;
+$gray-800:     #424242;
+$gray-900:     #212121;
+$black:        #000000;
+
+// Text
+$text-primary:   $gray-900;
+$text-secondary: $gray-600;
+$text-inverse:   $white;
+
+// Backgrounds
+$background:         $gray-50;
+$background-alt:     $white;
+$background-dark:    $gray-900;
+$background-emerald: $emerald-50;
+
+// Buttons
+$btn-primary-bg:      $emerald-500;
+$btn-primary-hover:   $emerald-600;
+$btn-secondary-bg:    $gray-300;
+$btn-secondary-hover: $gray-400;
+
+// Borders & Shadows
+$border-radius:     0.5rem;
+$box-shadow-base:   0 2px 6px rgba(0, 0, 0, 0.1);
+$box-shadow-hover:  0 4px 12px rgba(0, 0, 0, 0.15);
+
+// Typography
+$font-family-base:    'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+$font-size-base:      1rem;
+$font-size-lg:        1.25rem;
+$font-size-sm:        0.875rem;
+$font-weight-normal:  400;
+$font-weight-bold:    700;
+
+// Transitions
+$transition-base: all 0.3s ease-in-out;
+
+// // Emerald Color Palette
+// $emerald-50:  #e0f2f1;
+// $emerald-100: #b2dfdb;
+// $emerald-200: #80cbc4;
+// $emerald-300: #4db6ac;
+// $emerald-400: #26a69a;
+// $emerald-500: #009688; // Primary
+// $emerald-600: #00897b;
+// $emerald-700: #00796b;
+// $emerald-800: #00695c;
+// $emerald-900: #004d40;
+
+// // Accent Colors
+// $emerald-accent-100: #a7ffeb;
+// $emerald-accent-200: #64ffda;
+// $emerald-accent-400: #1de9b6;
+// $emerald-accent-700: #00bfa5;
+
+// // Neutrals
+// $white:        #ffffff;
+// $gray-50:      #fafafa;
+// $gray-100:     #f5f5f5;
+// $gray-200:     #eeeeee;
+// $gray-300:     #e0e0e0;
+// $gray-400:     #bdbdbd;
+// $gray-500:     #9e9e9e;
+// $gray-600:     #757575;
+// $gray-700:     #616161;
+// $gray-800:     #424242;
+// $gray-900:     #212121;
+// $black:        #000000;
+
+// // Text
+// $text-primary:   $gray-900;
+// $text-secondary: $gray-600;
+// $text-inverse:   $white;
+
+// // Backgrounds
+// $background:         $gray-50;
+// $background-alt:     $white;
+// $background-dark:    $gray-900;
+// $background-emerald: $emerald-50;
+
+// // Buttons
+// $btn-primary-bg:      $emerald-500;
+// $btn-primary-hover:   $emerald-600;
+// $btn-secondary-bg:    $gray-300;
+// $btn-secondary-hover: $gray-400;
+
+// // Borders & Shadows
+// $border-radius:     0.5rem;
+// $box-shadow-base:   0 2px 6px rgba(0, 0, 0, 0.1);
+// $box-shadow-hover:  0 4px 12px rgba(0, 0, 0, 0.15);
+
+// // Typography
+// $font-family-base:    'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+// $font-size-base:      1rem;
+// $font-size-lg:        1.25rem;
+// $font-size-sm:        0.875rem;
+// $font-weight-normal:  400;
+// $font-weight-bold:    700;
+
+// // Transitions
+// $transition-base: all 0.3s ease-in-out;

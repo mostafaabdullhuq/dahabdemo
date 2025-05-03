@@ -1,0 +1,9 @@
+@use 'variables' as *; 
+
+::ng-deep .p-datatable-table-container{
+    max-height:35rem !important;
+    border-radius: 25px;
+    th{
+        background-color:  $background-emerald !important;
+    }
+}

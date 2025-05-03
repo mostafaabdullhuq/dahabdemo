@@ -1,0 +1,143 @@
+<a href="/" class="d-flex align-items-center justify-content-around mb-3 mb-md-0 me-md-auto">
+    <span class="fs-4">DAHAB</span>
+</a>
+<div class="menu-container d-flex flex-column flex-shrink-0 p-3">
+    <ul class="nav nav-pills flex-column mb-auto">
+        <!-- Super Admin -->
+        <li>
+            <a class="nav-link text-dark d-flex justify-content-between  d-flex justify-content-between"
+                data-bs-toggle="collapse" href="#submenuSuperAdmin" role="button" aria-expanded="false"
+                aria-controls="submenuSuperAdmin">
+                <i class="pi pi-dashboard me-2"></i> Super Admin
+                <i class="pi pi-chevron-down float-end"></i>
+            </a>
+            <div class="collapse ps-4" id="submenuSuperAdmin">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-building me-2"></i> All Business</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-box me-2"></i> Packages</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-calendar me-2"></i> All Subscription
+                            Packages</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-cog me-2"></i> Settings</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-bell me-2"></i> Notifications</a></li>
+                </ul>
+            </div>
+        </li>
+        <!-- Settings -->
+        <li>
+            <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
+                href="#submenuSuperAdminSettings" role="button" aria-expanded="false"
+                aria-controls="submenuSuperAdminSettings">
+                <i class="pi pi-cog me-2"></i> Settings
+                <i class="pi pi-chevron-down float-end"></i>
+            </a>
+            <div class="collapse ps-4" id="submenuSuperAdminSettings">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-bell me-2"></i> Notifications</a></li>
+                </ul>
+            </div>
+        </li>
+
+        <!-- User Management -->
+        <li>
+            <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
+                href="#submenuUserManagement" role="button" aria-expanded="false" aria-controls="submenuUserManagement">
+                <i class="pi pi-users me-2"></i> User Management
+                <i class="pi pi-chevron-down float-end"></i>
+            </a>
+            <div class="collapse ps-4" id="submenuUserManagement">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                    <a [routerLink]="['/user-management/users']" routerLinkActive="active-link"
+                        class="nav-link text-dark">
+                        <i class="pi pi-user me-2"></i> Users
+                    </a>
+                    <a  [routerLink]="['user-management/roles']" routerLinkActive="active-link"
+                    class="nav-link text-dark">
+                        <i class="pi pi-key me-2"></i> Roles
+                    </a>
+                </ul>
+            </div>
+        </li>
+
+        <!-- Contacts -->
+        <li>
+            <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
+                href="#submenuContacts" role="button" aria-expanded="false" aria-controls="submenuContacts">
+                <i class="pi pi-address-book me-2"></i> Contacts
+                <i class="pi pi-chevron-down float-end"></i>
+            </a>
+            <div class="collapse ps-4" id="submenuContacts">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-user me-2"></i> Customers</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-truck me-2"></i> Suppliers</a></li>
+                </ul>
+            </div>
+        </li>
+
+        <!-- Inventory -->
+        <li>
+            <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
+                href="#submenuInventory" role="button" aria-expanded="false" aria-controls="submenuInventory">
+                <i class="pi pi-box me-2"></i> Inventory
+                <i class="pi pi-chevron-down float-end"></i>
+            </a>
+            <div class="collapse ps-4" id="submenuInventory">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                    <a [routerLink]="['/inventory/products']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-cog me-2"></i> Product</a>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-ruler me-2"></i> Unit</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-chart-line me-2"></i> Purity</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-sort me-2"></i> Size</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-tag me-2"></i> Category</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-server me-2"></i> Stock Point</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-clone me-2"></i> Brand</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-palette me-2"></i> Designer</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-gem me-2"></i> Stone</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-palette me-2"></i> Color</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-random me-2"></i> Stock Transfer</a></li>
+                </ul>
+            </div>
+        </li>
+
+        <!-- Accounting -->
+        <li>
+            <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
+                href="#submenuAccounting" role="button" aria-expanded="false" aria-controls="submenuAccounting">
+                <i class="pi pi-credit-card me-2"></i> Accounting
+                <i class="pi pi-chevron-down float-end"></i>
+            </a>
+            <div class="collapse ps-4" id="submenuAccounting">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-exchange me-2"></i> Transactions</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-shopping-cart me-2"></i> Purchase</a>
+                    </li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-money-bill me-2"></i> Expenses</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-pie-chart me-2"></i> Chart Of
+                            Accounts</a></li>
+                </ul>
+            </div>
+        </li>
+
+        <!-- Settings -->
+        <li>
+            <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
+                href="#submenuSettings" role="button" aria-expanded="false" aria-controls="submenuSettings">
+                <i class="pi pi-cogs me-2"></i> Settings
+                <i class="pi pi-chevron-down float-end"></i>
+            </a>
+            <div class="collapse ps-4" id="submenuSettings">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-briefcase me-2"></i> Business</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-building me-2"></i> Branches</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-file me-2"></i> Invoice</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-tag me-2"></i> Tax Rates</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-credit-card me-2"></i> Payment
+                            Options</a></li>
+                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-money-bill me-2"></i> Currencies</a></li>
+                </ul>
+            </div>
+        </li>
+
+        <!-- Logout -->
+        <li><a href="#" class="nav-link text-dark"><i class="pi pi-sign-out me-2"></i> Logout</a></li>
+    </ul>
+</div>

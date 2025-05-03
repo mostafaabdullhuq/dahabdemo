@@ -1,0 +1,52 @@
+<div class="container">
+  <p-contextMenu #cm [model]="contextMenuItems" (onHide)="selectedRow = null"></p-contextMenu>
+  <p-table 
+  [(contextMenuSelection)]="selectedRow"
+  [contextMenu]="cm"
+  dataKey="id"
+  [paginator]="true"
+  [columns]="cols" 
+  [value]="data" 
+  [totalRecords]="totalRecords"
+  [first]="first"
+  [rows]="rows"
+  stripedRows 
+  [lazy]="true"
+  [size]="'small'"
+  [tableStyle]="{ 'min-width': '50rem', 'max-height': '10rem', 'min-height': '10rem' }"
+  (onPage)="onPageChange($event)"
+  [showCurrentPageReport]="true"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+  
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+      <th *ngFor="let col of columns">
+        {{ col?.header }}
+      </th>
+    </tr>
+  </ng-template>
+  
+  <ng-template pTemplate="body" let-rowData let-columns="columns">
+    <tr [pContextMenuRow]="rowData" (contextmenu)="onContextMenuRowSelect(rowData)" >
+      <td *ngFor="let col of columns">
+        {{ rowData[col?.field] }}
+      </td>
+    </tr>
+  </ng-template>
+  
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="5">No Data Found.</td>
+    </tr>
+  </ng-template>
+  
+  <ng-template pTemplate="paginatorleft">
+    <p-button type="button" icon="pi pi-plus" text></p-button>
+  </ng-template>
+  
+  <ng-template pTemplate="paginatorright">
+    <p-button type="button" icon="pi pi-cloud" text></p-button>
+  </ng-template>
+</p-table>
+</div>

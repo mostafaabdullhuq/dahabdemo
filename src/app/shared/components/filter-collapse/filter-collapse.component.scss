@@ -1,0 +1,17 @@
+@use "variables" as *;
+
+.filter-wrapper {
+    background-color: var(--surface-card);
+    transition: all 0.3s ease;
+  }
+  .filter-container{
+    background-color: $emerald-50 ;
+    border-radius: 15px;
+    border-top: 5px solid $emerald-700;
+
+  }
+  // .filter-head{
+  //   border-left: 5px solid $emerald-700;
+  //   border-radius: 5px;
+  //   padding: 0 10px;
+  // }

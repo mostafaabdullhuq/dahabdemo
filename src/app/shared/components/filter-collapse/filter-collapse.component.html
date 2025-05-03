@@ -1,0 +1,20 @@
+<div class="filter-container container">
+    <div>
+        <button class="p-3 btn w-100 d-flex justify-content-between" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            <div class="d-flex filter-head">
+                <i class="pi pi-filter px-2"></i>
+                <h6>{{title }}</h6>
+            </div>
+            <div>
+                <i class="pi pi-chevron-down float-end px-2"></i>
+            </div>
+        </button>
+    </div>
+    <div class="collapse" id="collapseExample">
+        <div class="card card-body border-0">
+            <ng-content></ng-content>
+        </div>
+    </div>
+    <hr class="mx-5">
+</div>

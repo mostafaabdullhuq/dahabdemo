@@ -1,0 +1,21 @@
+@use 'variables' as *; 
+
+.btns-group{
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    margin-top: 10px;
+    .submit-btn{
+        background-color: $btn-primary-bg !important;
+        border-color: $btn-primary-bg !important;
+        color: $text-inverse !important;
+        transition: $transition-base;
+        padding: 5px 15px;
+        border-radius: 15px;
+        &:hover {
+          background-color: $btn-primary-hover !important;
+          border-color: $btn-primary-hover !important;
+        }
+    }
+}

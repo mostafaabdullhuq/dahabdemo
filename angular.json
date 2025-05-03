@@ -32,9 +32,19 @@
               }
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/primeflex/primeflex.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.js"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/app/shared/styles"
+              ]
+            }
           },
           "configurations": {
             "production": {

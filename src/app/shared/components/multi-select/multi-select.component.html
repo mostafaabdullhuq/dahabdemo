@@ -1,0 +1,22 @@
+<div class="input-group border-0 d-flex flex-column">
+    <label *ngIf="label" [for]="id">{{ label }}
+        @if (required) {
+            <sup class="text-danger">*</sup>
+        }
+    </label>
+    <p-multiSelect
+    [options]="options"
+    display="chip"
+    [(ngModel)]="selectedValue"
+    [optionLabel]="optionLabel"
+    [placeholder]="placeholder"
+    [optionValue]="optionValue"
+    [required]="required"
+    (onChange)="onSelectionChange($event)">
+  </p-multiSelect>
+  <ng-content></ng-content>
+  
+</div>
+
+<!-- [virtualScroll]="virtualScroll"
+[virtualScrollItemSize]="virtualScrollItemSize" -->

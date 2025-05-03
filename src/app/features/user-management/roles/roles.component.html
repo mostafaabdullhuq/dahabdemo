@@ -1,0 +1,39 @@
+<section>
+    <div class="header-container">
+        <h3>Roles</h3>
+        <hr>
+        <div class="header-btns">
+            <button [routerLink]="['/user-management/roles/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add Role</button>
+        </div>
+    </div>
+    <div class="filter-container container">
+        <app-filter-collapse>
+            <form class="container"  [formGroup]="filterForm">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-input-text formControlName="username" placeholder="Enter your name" type="text" inputName="User Name"></app-input-text>
+                    </div>
+                    <div class="col-md-3">
+                        <app-input-text formControlName="email" placeholder="Enter your email" type="email" inputName="email"></app-input-text>
+                    </div>
+                    <div class="col-md-3">
+                        <app-input-text formControlName="phone_number" placeholder="Enter your phone" type="tel" inputName="phone number"></app-input-text>
+                    </div>
+                    <div class="col-md-3">
+                        <app-check-box formControlName="isActive" inputId="active" label="Active users"></app-check-box>
+                    </div>
+                </div>
+                <div class="btns-group">
+                    <button class=" submit-btn">Search</button>
+                </div>
+            </form>
+        </app-filter-collapse>
+    </div>
+
+    <div class="table-container">
+        <app-data-table [contextMenuItems]="productMenuItems"
+        (rowSelected)="selectedProduct = $event" [data]="roles" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+            (pageChange)="loadRoles($event)">
+        </app-data-table>
+    </div>
+</section>
