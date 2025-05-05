@@ -40,7 +40,7 @@ export class UserManagmentService {
       .set('search', search)
       .set('page', page.toString())
       .set('page_size', pageSize.toString());
-    return this._http.getRequest(`${environment.api_url}role`, params );
+    return this._http.getRequest(`${environment.api_url}business/roles`, params );
   }
   addRole(addForm:FormGroup): Observable<any>{
     return this._http.postRequest(`${environment.api_url}role/`,addForm);
@@ -53,5 +53,13 @@ export class UserManagmentService {
   }
   deleteRole(id:number ){
     return this._http.deleteRequest(`${environment.api_url}role/${id}`);
+  }
+
+  getRolesPermissions(): Observable<any> {
+    return this._http.getRequest(`${environment.api_url}role-permissions/permissions/`);
+  }
+
+  getAuthSessions(): Observable<any> {
+    return this._http.getRequest(`${environment.api_url}auth/session/`);
   }
 }

@@ -12,7 +12,7 @@
     [options]="options"
     [(ngModel)]="selectedValue"
     [optionLabel]="optionLabel"
-    [optionValue]="optionValue"
+    [optionValue]="optionValue ?? optionLabel"
     [required]="required"
     [placeholder]="placeholder"
     (onChange)="onSelectionChange($event)"

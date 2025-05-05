@@ -1,0 +1,50 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} User</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditUnitForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <h6 class="section-form-header">Unit Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <app-input-text formControlName="name" inputName="name" [required]="true"
+                                placeholder="Enter unit name">
+                                @if ((addEditUnitForm.get('name')?.errors?.['required'] &&
+                                addEditUnitForm.get('name')?.touched)) {
+                                <div class="text-danger mt-1">
+                                    <small><i class="text-danger pi pi-times-circle px-2"
+                                            style="font-size: 0.8rem"></i>unit name is required</small>
+                                </div>
+                                }
+                            </app-input-text>
+                        </div>
+
+                        <div class="col-md-6">
+                            <app-dropdowns label="parent unit" id="parent_unit_id" formControlName="parent_unit_id"
+                                [options]="units" optionLabel="name" optionValue="id" placeholder="Select a parent unit">
+                            </app-dropdowns>
+                        </div>
+
+                        @if (addEditUnitForm.get('parent_unit_id')?.value) {
+                            <div class="col-md-6">
+                                <app-input-text formControlName="conversion_factor" inputName="conversion_factor"
+                                    placeholder="Enter conversion factor">
+                                </app-input-text>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditUnitForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

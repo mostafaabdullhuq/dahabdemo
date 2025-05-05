@@ -1,19 +1,19 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { UserManagmentService } from '../@services/user-managment.service';
+import { InventoryService } from '../@services/inventory.service';
 import { Router, RouterLink } from '@angular/router';
-import { MenuItem } from 'primeng/api';
 import { ConfirmationPopUpService } from '../../../shared/services/confirmation-pop-up.service';
+import { MenuItem } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared.module';
 
 @Component({
-  selector: 'app-roles',
-  imports: [SharedModule, RouterLink],
-  templateUrl: './roles.component.html',
-  styleUrl: './roles.component.scss'
+  selector: 'app-purity',
+  imports: [SharedModule , RouterLink],
+  templateUrl: './purity.component.html',
+  styleUrl: './purity.component.scss'
 })
-export class RolesComponent {
-    roles: any[] = [];
+export class PurityComponent {
+    users: any[] = [];
     cols: any[] = [];
     filterForm!: FormGroup;
     totalRecords: number = 0;
@@ -21,7 +21,7 @@ export class RolesComponent {
     first: number = 0;
   
     constructor(
-      private _userManage: UserManagmentService,
+      private _inventoryService: InventoryService,
       private _formBuilder: FormBuilder,
       private _router:Router,
       private _confirmPopUp:ConfirmationPopUpService
@@ -29,72 +29,71 @@ export class RolesComponent {
   
     ngOnInit(): void {
       this.cols = [
-        { field: 'id', header: 'ID' },
-        { field: 'name', header: 'Name' },
+        { field: 'name', header: 'Purity Name' },
+        {
+          field: 'purity_value',
+          header: 'Purity Value',
+        },
       ];
       this.filterForm = this._formBuilder.group({
-        username: '',
         search: '',
-        phone_number:'',
-        isActive:null,
-        email:'',
       });
-      this.getRoles();
+      this.getPurity();
     }
   
-    // Get roles with filtering and pagination
-    getRoles(page: number = 1, pageSize: number = 10): void {
+    // Get users with filtering and pagination
+    getPurity(page: number = 1, pageSize: number = 10): void {
       //const searchParams = new URLSearchParams(this.filterForm.value).toString() || '';
   
       // Correct pagination parameters and make API call
-      this._userManage.getRoles('', page, pageSize).subscribe(res => {
-        this.roles = res?.results;
+      this._inventoryService.getPurity(this.filterForm?.value?.search || '', page, pageSize).subscribe(res => {
+        this.users = res?.results;
         this.totalRecords = res?.count;  // Ensure the total count is updated
       });
     }
-    loadRoles(event: any): void {
+  loadPurity(event: any): void {
     const page = event.first / event.rows + 1;
     const pageSize = event.rows;
   
     this.first = event.first;
     this.pageSize = pageSize;
   
-    this._userManage.getRoles('',page,pageSize)
+    this._inventoryService.getPurity(this.filterForm?.value?.search || '',page,pageSize)
       .subscribe((res) => {
-        this.roles = res.results;
+        this.users = res.results;
         this.totalRecords = res.count;
       });
   }
   selectedProduct: any;
   
-  productMenuItems: MenuItem[] = [
+  puritiesMenuItems: MenuItem[] = [
     {
       label: 'Edit',
       icon: 'pi pi-fw pi-pen-to-square',
-      command: () => this.editRole(this.selectedProduct)
+      command: () => this.editPurity(this.selectedProduct)
     },
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deleteRole(this.selectedProduct)
+      command: () => this.deletePurity(this.selectedProduct)
     }
     
   ];
   
-  editRole(role: any) {
-    this._router.navigate([`user-management/roles/edit/${role?.id}`]);
+  editPurity(user: any) {
+    this._router.navigate([`inventory/purity/edit/${user?.id}`]);
   }
-  deleteRole(role:any){
-    this._userManage.deleteRole(role?.id).subscribe()
+  deletePurity(user:any){
+    this._inventoryService.deletePurity(user?.id).subscribe()
   }
-  showConfirmDelete(role: any) {
+  showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({
       message: 'Do you want to delete this item?',
       header: 'Confirm Delete',
       onAccept: () => {
-        this.deleteRole(role);
+        this.deletePurity(user);
       },
-      target: role?.id
+      target: user?.id
     });
   }
   }

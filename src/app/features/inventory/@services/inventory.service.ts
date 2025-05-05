@@ -13,22 +13,86 @@ export class InventoryService {
   //-----> Products API
   // Get Products 
   getProducts(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
-    const params = new HttpParams()
-      .set('search', search)
-      .set('page', page.toString())
-      .set('page_size', pageSize.toString());
-    return this._http.getRequest(`${environment.api_url}Product`, params );
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+      const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}product${params}` );
   }
   addProduct(addForm:FormGroup | FormData): Observable<any>{
-    return this._http.postRequest(`${environment.api_url}Product/`,addForm);
+    return this._http.postRequest(`${environment.api_url}product/`,addForm);
   }
   getProductById(id:number | string){
-    return this._http.getRequest(`${environment.api_url}Product/${id}`);
+    return this._http.getRequest(`${environment.api_url}product/${id}`);
   }
   updateProduct(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}Product/${id}` , editForm);
+    return this._http.putRequest(`${environment.api_url}product/${id}` , editForm);
   }
   deleteProduct(id:number ){
-    return this._http.deleteRequest(`${environment.api_url}Product/${id}`);
+    return this._http.deleteRequest(`${environment.api_url}product/${id}`);
+  }
+
+  getUnits(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+      const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}product/unit${params}` );
+  }
+  addUnit(addForm:FormGroup | FormData): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}product/unit/`,addForm);
+  }
+  getUnitById(id:number | string){
+    return this._http.getRequest(`${environment.api_url}product/unit/${id}`);
+  }
+  updateUnit(id:number | string, editForm:FormGroup | FormData){
+    return this._http.putRequest(`${environment.api_url}product/unit/${id}` , editForm);
+  }
+  deleteUnit(id:number ){
+    return this._http.deleteRequest(`${environment.api_url}product/unit/${id}`);
+  }
+  
+  getPurity(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+      const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}product/purity${params}` );
+  }
+  addPurity(addForm:FormGroup | FormData): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}product/purity/`,addForm);
+  }
+  getPurityById(id:number | string){
+    return this._http.getRequest(`${environment.api_url}product/purity/${id}`);
+  }
+  updatePurity(id:number | string, editForm:FormGroup | FormData){
+    return this._http.putRequest(`${environment.api_url}product/purity/${id}` , editForm);
+  }
+  deletePurity(id:number ){
+    return this._http.deleteRequest(`${environment.api_url}product/purity/${id}`);
+  }
+
+  getSizes(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+      const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}product/size${params}` );
+  }
+  addSize(addForm:FormGroup | FormData): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}product/size/`,addForm);
+  }
+  getSizeById(id:number | string){
+    return this._http.getRequest(`${environment.api_url}product/size/${id}`);
+  }
+  updateSize(id:number | string, editForm:FormGroup | FormData){
+    return this._http.putRequest(`${environment.api_url}product/size/${id}` , editForm);
+  }
+  deleteSize(id:number ){
+    return this._http.deleteRequest(`${environment.api_url}product/size/${id}`);
   }
 }

@@ -1,0 +1,49 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Purity</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditPurityForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <h6 class="section-form-header">Purity Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <app-input-text formControlName="name" inputName="name" [required]="true"
+                                placeholder="Enter unit name">
+                                @if ((addEditPurityForm.get('name')?.errors?.['required'] &&
+                                addEditPurityForm.get('name')?.touched)) {
+                                <div class="text-danger mt-1">
+                                    <small><i class="text-danger pi pi-times-circle px-2"
+                                            style="font-size: 0.8rem"></i>Purity name is required</small>
+                                </div>
+                                }
+                            </app-input-text>
+                        </div>
+
+                        <div class="col-md-6">
+                            <app-input-text formControlName="purity_value" inputName="purity value" [required]="true"
+                                placeholder="Enter purity value" type="number">
+                                @if ((addEditPurityForm.get('purity_value')?.errors?.['required'] &&
+                                addEditPurityForm.get('purity_value')?.touched)) {
+                                <div class="text-danger mt-1">
+                                    <small><i class="text-danger pi pi-times-circle px-2"
+                                            style="font-size: 0.8rem"></i>Purity value is required</small>
+                                </div>
+                                }
+                            </app-input-text>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditPurityForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

@@ -1,0 +1,27 @@
+<section>
+    <div class="header-container">
+        <h3>Purity</h3>
+        <hr>
+        <div class="header-btns">
+            <button [routerLink]="['/inventory/purity/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add Purity</button>
+        </div>
+    </div>
+    <div class="filter-container container">
+        <app-filter-collapse>
+            <form class="container" [formGroup]="filterForm">
+                <div class="row">
+                    <div class="col-md-12">
+                        <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
+                    </div>
+                </div>
+                </form >
+        </app-filter-collapse>
+    </div>
+
+    <div class="table-container">
+        <app-data-table [contextMenuItems]="puritiesMenuItems"
+        (rowSelected)="selectedProduct = $event" [data]="users" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+            (pageChange)="loadPurity($event)">
+        </app-data-table>
+    </div>
+</section>

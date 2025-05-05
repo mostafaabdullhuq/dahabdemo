@@ -15,7 +15,7 @@ standalone:false,
   ],
 })
 export class CheckBoxComponent {
-  @Input() inputId!: string;
+  @Input() inputId!: any;
   @Input() label!: string;
 
   value: boolean = false;

@@ -10,21 +10,45 @@
         <app-filter-collapse>
             <form class="container"  [formGroup]="filterForm">
                 <div class="row">
-                    <div class="col-md-3">
-                        <app-input-text formControlName="username" placeholder="Enter your name" type="text" inputName="User Name"></app-input-text>
+                        <div class="col-md-12">
+                            <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
+                        </div>
+                    <div class="col-md-4">
+                        <app-input-text formControlName="name" placeholder="Enter product name" type="name" inputName="name"></app-input-text>
                     </div>
-                    <div class="col-md-3">
-                        <app-input-text formControlName="email" placeholder="Enter your email" type="email" inputName="email"></app-input-text>
+                    <div class="col-md-4">
+                        <app-dropdowns label="Branch" [options]="branches" optionLabel="name" optionValue="name"
+                            formControlName="branch" placeholder="Select Branch">
+                        </app-dropdowns>
                     </div>
-                    <div class="col-md-3">
-                        <app-input-text formControlName="phone_number" placeholder="Enter your phone" type="tel" inputName="phone number"></app-input-text>
+                    <div class="col-md-4">
+                        <app-dropdowns label="Brand" formControlName="brand" [options]="brands"
+                            optionLabel="name" optionValue="name" placeholder="Select a brand"></app-dropdowns>
                     </div>
-                    <div class="col-md-3">
-                        <app-check-box formControlName="isActive" inputId="active" label="Active users"></app-check-box>
+
+                    <div class="col-md-4">
+                        <app-dropdowns label="Category" formControlName="category" [options]="categories"
+                            optionLabel="name" optionValue="name" placeholder="Select a category"></app-dropdowns>
                     </div>
+
+                    <div class="col-md-4">
+                        <app-dropdowns label="Purity Rate" formControlName="purity" [options]="purities"
+                            optionLabel="name" optionValue="name" placeholder="Select purity"></app-dropdowns>
+                    </div>
+
+                    <div class="col-md-4">
+                        <app-dropdowns label="Size" formControlName="size" [options]="sizes" optionLabel="name"
+                            optionValue="name" placeholder="Select size"></app-dropdowns>
+                    </div>
+
+                    <div class="col-md-4">
+                        <app-dropdowns label="Designer" formControlName="designer" [options]="designers"
+                            optionLabel="name" optionValue="name" placeholder="Select designer"></app-dropdowns>
+                    </div>
+
                 </div>
                 <div class="btns-group">
-                    <button class=" submit-btn">Search</button>
+                    <button class=" submit-btn" (click)="onSearch()">Search</button>
                 </div>
             </form>
         </app-filter-collapse>

@@ -1,0 +1,41 @@
+<!-- <form [formGroup]="permissionForm">
+    <div *ngFor="let module of getModules()">
+      <h3>{{ module }}</h3>
+      <div *ngFor="let perm of grouped[module]">
+        <label>
+          <input type="checkbox" [formControlName]="perm.fullName" />
+          {{ perm.action }}
+        </label>
+      </div>
+    </div>
+  </form> -->
+  
+  <form>
+    @for (item of permissions; track $index) {
+        <div class="container">
+            <h6 class="section-form-header mt-5">
+                {{item?.name}}
+            </h6>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-check-box  [inputId]="item?.id"
+                                label="Add"></app-check-box>
+                    </div>
+                    <div class="col-md-3">
+                        <app-check-box  [inputId]="item?.id"
+                                label="edit"></app-check-box>
+                    </div>
+                    <div class="col-md-3">
+                        <app-check-box  [inputId]="item?.id"
+                                label="view"></app-check-box>
+                    </div>
+                    <div class="col-md-3">
+                        <app-check-box  [inputId]="item?.id"
+                                label="delete"></app-check-box>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+  </form>

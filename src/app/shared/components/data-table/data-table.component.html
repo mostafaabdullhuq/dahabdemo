@@ -30,7 +30,7 @@
   <ng-template pTemplate="body" let-rowData let-columns="columns">
     <tr [pContextMenuRow]="rowData" (contextmenu)="onContextMenuRowSelect(rowData)" >
       <td *ngFor="let col of columns">
-        {{ rowData[col?.field] }}
+        {{ col.body ? col.body(rowData) : resolveFieldData(rowData, col.field) }}
       </td>
     </tr>
   </ng-template>

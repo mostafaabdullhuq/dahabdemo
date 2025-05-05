@@ -22,6 +22,8 @@ export class AddEditProductComponent {
     purities:any[]=[];
     categories:any[]=[];
     brands:any[]=[];
+    branches:any[]=[];
+    stones:any[]=[];
 
     nextPageUrl: string | null = null;
     isLoading = false;
@@ -46,21 +48,49 @@ export class AddEditProductComponent {
       }
       this.addStockItem();
       this.addCustomFields();
+
+      this._dropdownService.getBrands().subscribe(data => {
+      this.brands = data?.results;
+    });
+    this._dropdownService.getCategories().subscribe(data => {
+      this.categories = data?.results;
+    });
+    this._dropdownService.getPurities().subscribe(data => {
+      this.purities = data?.results;
+    });
+    this._dropdownService.getBranches().subscribe(data => {
+      this.branches = data?.results;
+    });
+    this._dropdownService.getSizes().subscribe(data => {
+      this.sizes = data?.results;
+    });
+    this._dropdownService.getStones().subscribe(data => {
+      this.stones = data?.results;
+    });
+    this._dropdownService.getDesigners().subscribe(data => {
+      this.designers = data?.results;
+    });
+    this._dropdownService.getUnits().subscribe(data => {
+      this.units = data?.results;
+    });
+    this._dropdownService.getStockPoints().subscribe(data => {
+      this.stockPoints = data?.results;
+    });
     }
   
     private initForm(): void {
       this.addEditProductForm = this._formBuilder.group({
-        stones: ['', [Validators.required]],
-        stone_kr: ['', [Validators.required]],
+        stones: [''],
+        stone_kr: [''],
         stock_point: [''],
         is_active: [''],
         discount: [''],
-        max_discount: [''],
-        price: [''],
+        max_discount: ['',Validators.required],
+        price: ['',Validators.required],
         tag_number: [''],
-        making_charge: [''],
+        making_charge: ['',Validators.required],
         color: [''],
-        weight: [''],
+        weight: ['',Validators.required],
         designer_id: [''],
         size_id: [''],
         purity_id: [''],
@@ -68,8 +98,8 @@ export class AddEditProductComponent {
         brand_id: [''],
         category_id: [''],
         description: [''],
-        name: [''],
-        stock_info: this._formBuilder.array([]),
+        name: ['',Validators.required],
+        branches: this._formBuilder.array([]),
       image: [null, Validators.required]
       });
     }
@@ -95,8 +125,8 @@ export class AddEditProductComponent {
           description: product.description,
           name: product.name
         });
-        if (product.stock_info && Array.isArray(product.stock_info)) {
-          product.stock_info.forEach((stock: { branch_id: any; stock_quantity: any; }) => {
+        if (product.branches && Array.isArray(product.branches)) {
+          product.branches.forEach((stock: { branch_id: any; stock_quantity: any; }) => {
             this.addStockItem({
               branch_id: stock.branch_id,
               stock_quantity: stock.stock_quantity
@@ -136,7 +166,7 @@ export class AddEditProductComponent {
   
     // Append simple fields
     Object.keys(formValue).forEach(key => {
-      if (key === 'image' || key === 'stock_info') return; // handle these separately
+      if (key === 'image' || key === 'branches') return; // handle these separately
   
       // Avoid appending null or undefined values
       if (formValue[key] !== null && formValue[key] !== undefined) {
@@ -149,9 +179,9 @@ export class AddEditProductComponent {
       formData.append('image', formValue.image);
     }
   
-    // Append stock_info as JSON string if it's an array
-    if (formValue.stock_info && Array.isArray(formValue.stock_info)) {
-      formData.append('stock_info', JSON.stringify(formValue.stock_info));
+    // Append branches as JSON string if it's an array
+    if (formValue.branches && Array.isArray(formValue.branches)) {
+      formData.append('branches', JSON.stringify(formValue.branches));
     }
   
     // Send as FormData
@@ -174,7 +204,7 @@ export class AddEditProductComponent {
       });
     }
     get stockInfoArray(): FormArray {
-      return this.addEditProductForm.get('stock_info') as FormArray;
+      return this.addEditProductForm.get('branches') as FormArray;
     }
     
     addStockItem(data: any = {}): void {

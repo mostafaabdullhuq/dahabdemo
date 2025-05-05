@@ -1,0 +1,7 @@
+@use 'variables' as *;
+
+.row{
+        border-radius: 15px;
+        border-bottom: 5px solid $emerald-700;
+        margin-bottom: 15px;
+}

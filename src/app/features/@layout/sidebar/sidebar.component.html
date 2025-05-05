@@ -84,9 +84,12 @@
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                     <a [routerLink]="['/inventory/products']" routerLinkActive="active-link"
                     class="nav-link text-dark"><i class="pi pi-cog me-2"></i> Product</a>
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-ruler me-2"></i> Unit</a></li>
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-chart-line me-2"></i> Purity</a></li>
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-sort me-2"></i> Size</a></li>
+                    <a [routerLink]="['/inventory/units']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-ruler me-2"></i> Unit</a>
+                    <a [routerLink]="['/inventory/purities']" routerLinkActive="active-link"
+                        class="nav-link text-dark"><i class="pi pi-chart-line me-2"></i> Purity</a>
+                    <a [routerLink]="['/inventory/sizes']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-sort me-2"></i> Size</a>
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-tag me-2"></i> Category</a></li>
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-server me-2"></i> Stock Point</a></li>
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-clone me-2"></i> Brand</a></li>

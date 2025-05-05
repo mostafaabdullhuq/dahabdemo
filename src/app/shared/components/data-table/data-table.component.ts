@@ -41,5 +41,9 @@ onContextMenuRowSelect(row: any) {
     console.log('Deleting:', row);
     this.data = this.data.filter(r => r.id !== row.id); // Or emit to parent to handle
   }
+  resolveFieldData(data: any, field: string): any {
+    if (!data || !field) return null;
+    return field.split('.').reduce((obj, key) => (obj ? obj[key] : null), data);
+  }
 }
 
