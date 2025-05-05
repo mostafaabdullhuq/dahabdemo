@@ -14,6 +14,7 @@ import { ToastModule } from 'primeng/toast';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { ContextMenuModule } from 'primeng/contextmenu';
+import { TabsModule } from 'primeng/tabs';
 
 // Components
 import { InputTextComponent } from './components/input-text/input-text.component';
@@ -45,7 +46,9 @@ const primeNgModules = [
   MultiSelectModule,
   SelectModule,
   ContextMenuModule,
-  FileUploadModule
+  FileUploadModule,
+  TabsModule
+
 ]
 
 @NgModule({

@@ -1,0 +1,38 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Branches transfer</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditStoneForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <h6 class="section-form-header">Branches Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <app-dropdowns label="from Branch" id="from_branch" formControlName="from_branch"
+                                    [options]="branches" optionLabel="name" optionValue="id" placeholder="Select a branch">
+                                </app-dropdowns>
+                            </div>
+                            <div class="col-md-6">
+                                <app-dropdowns label="to Branch" id="to_branch" formControlName="to_branch"
+                                    [options]="branches" optionLabel="name" optionValue="id" placeholder="Select a branch">
+                                </app-dropdowns>
+                            </div>
+                            <div class="col-md-12">
+                                <app-dropdowns label="product" id="product_id" formControlName="product_id"
+                                    [options]="products" optionLabel="name" optionValue="id" placeholder="Select a branch">
+                                </app-dropdowns>
+                            </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditStoneForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

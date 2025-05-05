@@ -1,0 +1,36 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Designer</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditDesignerForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <h6 class="section-form-header">Designer Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <app-input-text formControlName="name" inputName="name" [required]="true"
+                                placeholder="Enter Designer name">
+                                @if ((addEditDesignerForm.get('name')?.errors?.['required'] &&
+                                addEditDesignerForm.get('name')?.touched)) {
+                                <div class="text-danger mt-1">
+                                    <small><i class="text-danger pi pi-times-circle px-2"
+                                            style="font-size: 0.8rem"></i>Designer name is required</small>
+                                </div>
+                                }
+                            </app-input-text>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditDesignerForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>
