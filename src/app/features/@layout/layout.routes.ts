@@ -24,6 +24,7 @@ import { AddEditStoneComponent } from '../inventory/stones/add-edit-stone/add-ed
 import { ColorsComponent } from '../inventory/colors/colors.component';
 import { AddEditColorComponent } from '../inventory/colors/add-edit-color/add-edit-color.component';
 import { StockTransferComponent } from '../inventory/stock-transfer/stock-transfer.component';
+import { TransferListComponent } from '../inventory/stock-transfer/transfer-list/transfer-list.component';
 
 export const routes: Routes = [
   // User Management
@@ -81,9 +82,9 @@ export const routes: Routes = [
       { path: 'color/add', component: AddEditColorComponent },
       { path: 'color/edit/:id', component: AddEditColorComponent },
 
+      { path: 'stock-transfer-list', component: TransferListComponent },
       { path: 'stock-transfer', component: StockTransferComponent },
-      { path: 'stock-transfer/add', component: AddEditColorComponent },
-      { path: 'stock-transfer/edit/:id', component: AddEditColorComponent },
+      { path: 'stock-transfer/edit/:id', component: StockTransferComponent },
     ]
   }
 ];

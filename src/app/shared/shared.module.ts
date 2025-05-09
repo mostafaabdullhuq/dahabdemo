@@ -15,6 +15,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { TabsModule } from 'primeng/tabs';
+import { TooltipModule } from 'primeng/tooltip';
 
 // Components
 import { InputTextComponent } from './components/input-text/input-text.component';
@@ -26,6 +27,7 @@ import { DropdownsComponent } from './components/dropdowns/dropdowns.component';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmationPopUpService } from './services/confirmation-pop-up.service';
 import { UploadInputComponent } from './components/upload-input/upload-input.component';
+import { InputTableComponent } from './components/input-table/input-table.component';
 
 const components = [
   InputTextComponent,
@@ -34,7 +36,8 @@ const components = [
   CheckBoxComponent,
   MultiSelectComponent,
   DropdownsComponent,
-  UploadInputComponent
+  UploadInputComponent,
+  InputTableComponent
 ];
 
 const primeNgModules = [
@@ -47,8 +50,8 @@ const primeNgModules = [
   SelectModule,
   ContextMenuModule,
   FileUploadModule,
-  TabsModule
-
+  TabsModule,
+  TooltipModule
 ]
 
 @NgModule({

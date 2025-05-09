@@ -58,8 +58,8 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}product/stock-point/`;
     return this._http.getRequest<any>(url);
   }
-  getProducts(nextPageUrl: string | null = null): Observable<any> {
-    const url = nextPageUrl || `${this.API}product`;
+  getProducts(nextPageUrl: string | null = null, params?:string): Observable<any> {
+    const url = nextPageUrl || `${this.API}product/?${params}`;
     return this._http.getRequest<any>(url);
   }
 }

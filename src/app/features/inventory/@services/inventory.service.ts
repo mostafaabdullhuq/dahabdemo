@@ -221,4 +221,25 @@ export class InventoryService {
   deleteColor(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/color/${id}`);
   }
+
+  getTransferBranch(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+      const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}inventory/stock-transfer${params}` );
+  }
+  addTransferBranch(addForm:FormGroup | FormData): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}product/stock/bulk-transfer/`,addForm);
+  }
+  getTransferBranchById(id:number | string){
+    return this._http.getRequest(`${environment.api_url}product/stock/bulk-transfer/${id}`);
+  }
+  updateTransferBranch(id:number | string, editForm:FormGroup | FormData){
+    return this._http.putRequest(`${environment.api_url}product/stock/bulk-transfer/${id}` , editForm);
+  }
+  deleteTransferBranch(id:number ){
+    return this._http.deleteRequest(`${environment.api_url}product/stock/bulk-transfer/${id}`);
+  }
 }
