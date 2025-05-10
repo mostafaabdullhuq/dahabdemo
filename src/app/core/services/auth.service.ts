@@ -19,15 +19,17 @@ export class AuthService {
   constructor(private _http: SingletonService, private router: Router) {}
   login(form: FormGroup, remember: boolean) {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-
+  
     return this._http.postRequest<ITokens>(`${this.API_URL}user-auth/login/`, form, headers)
       .pipe(
         tap(tokens => {
-          console.log(tokens);
-          
           this.storeTokens(tokens, remember);
+  
           const decoded: IJwtDecode = jwtDecode(tokens.access);
+  
           if (decoded?.user_id) {
+            localStorage.setItem('user', JSON.stringify(decoded));
+  
             this.router.navigate(['/main']);
           }
         })
@@ -50,6 +52,8 @@ export class AuthService {
   logout() {
     localStorage.removeItem('tokens');
     sessionStorage.removeItem('tokens');
+    sessionStorage.removeItem('access_token');
+    localStorage.removeItem('user'); // Remove user data
     this.currentTokens$.next(null);
     this.router.navigate(['/auth/login']);
   }
@@ -67,6 +71,11 @@ export class AuthService {
 
   private getTokens(): ITokens | null {
     const data = localStorage.getItem('tokens') || sessionStorage.getItem('tokens');
+    return data ? JSON.parse(data) : null;
+  }
+
+  getUser(): any | null {
+    const data = localStorage.getItem('user');
     return data ? JSON.parse(data) : null;
   }
 }

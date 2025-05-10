@@ -27,7 +27,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/${id}`);
   }
   updateProduct(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/${id}/` , editForm);
   }
   deleteProduct(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/${id}`);
@@ -48,7 +48,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/unit/${id}`);
   }
   updateUnit(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/unit/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/unit/${id}/` , editForm);
   }
   deleteUnit(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/unit/${id}`);
@@ -69,7 +69,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/purity/${id}`);
   }
   updatePurity(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/purity/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/purity/${id}/` , editForm);
   }
   deletePurity(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/purity/${id}`);
@@ -90,7 +90,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/size/${id}`);
   }
   updateSize(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/size/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/size/${id}/` , editForm);
   }
   deleteSize(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/size/${id}`);
@@ -111,7 +111,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/category/${id}`);
   }
   updateCategory(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/category/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/category/${id}/` , editForm);
   }
   deleteCategory(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/category/${id}`);
@@ -132,7 +132,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/stock-point/${id}`);
   }
   updateStockPoint(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/stock-point/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/stock-point/${id}/` , editForm);
   }
   deleteStockPoint(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/stock-point/${id}`);
@@ -153,7 +153,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/brand/${id}`);
   }
   updateBrand(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/brand/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/brand/${id}/` , editForm);
   }
   deleteBrand(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/brand/${id}`);
@@ -174,7 +174,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/designer/${id}`);
   }
   updateDesigner(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/designer/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/designer/${id}/` , editForm);
   }
   deleteDesigner(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/designer/${id}`);
@@ -195,7 +195,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/stone/${id}`);
   }
   updateStone(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/stone/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/stone/${id}/` , editForm);
   }
   deleteStone(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/stone/${id}`);
@@ -216,7 +216,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/color/${id}`);
   }
   updateColor(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/color/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/color/${id}/` , editForm);
   }
   deleteColor(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/color/${id}`);
@@ -237,7 +237,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/stock/bulk-transfer/${id}`);
   }
   updateTransferBranch(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}product/stock/bulk-transfer/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}product/stock/bulk-transfer/${id}/` , editForm);
   }
   deleteTransferBranch(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/stock/bulk-transfer/${id}`);

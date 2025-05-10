@@ -1,6 +1,10 @@
-<a href="/" class="d-flex align-items-center justify-content-around mb-3 mb-md-0 me-md-auto">
-    <span class="fs-4">DAHAB</span>
-</a>
+<div href="/" class="d-flex align-items-center mt-2 justify-content-around mb-3 mb-md-0 me-md-auto text-decoration-none">
+    <img [src]="user?.image" alt="User" width="40" height="40" class="rounded-circle me-2">
+    <div class="d-flex flex-column">
+      <strong class="text-dark">{{user?.username}}</strong>
+      <small class="text-muted">{{user?.email}}</small>
+    </div>
+  </div>
 <div class="menu-container d-flex flex-column flex-shrink-0 p-3">
     <ul class="nav nav-pills flex-column mb-auto">
         <!-- Super Admin -->
@@ -152,6 +156,6 @@
         </li>
 
         <!-- Logout -->
-        <li><a href="#" class="nav-link text-dark"><i class="pi pi-sign-out me-2"></i> Logout</a></li>
+        <a (click)="logOut()" class="nav-link text-dark"><i class="pi pi-sign-out me-2"></i> Logout</a>
     </ul>
 </div>

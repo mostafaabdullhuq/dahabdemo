@@ -1,1 +1,21 @@
-<p>navbar works!</p>
+<div class="menubar">
+    <p-menubar [model]="items">
+        <ng-template #start>
+            <h5 class="logo mt-1 me-5"><a>DAHAB</a></h5>
+        </ng-template>
+        <ng-template #item let-item let-root="root" class="d-flex justify-content-center">
+            <a pRipple class="flex items-center p-menubar-item-link">
+                <i [ngClass]="[item?.icon]"></i>
+                <span>{{ item.label }}</span>
+                <span *ngIf="item.shortcut" class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{ item.shortcut }}</span>
+                <i *ngIf="item.items" [ngClass]="['ml-auto pi', root ? 'pi-angle-down' : 'pi-angle-right']"></i>
+                <div class="underline-link"></div>
+            </a>
+        </ng-template>
+        <ng-template #end>
+            <div class="flex items-center gap-2">
+                <input type="text" pInputText placeholder="Search" class="w-36" />
+            </div>
+        </ng-template>
+    </p-menubar>
+</div>

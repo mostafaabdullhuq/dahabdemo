@@ -1,6 +1,7 @@
 import { urlRoutes } from './../../../core/url.routes';
 import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,7 +12,8 @@ import { NavigationEnd, Router } from '@angular/router';
 export class SidebarComponent {
   activeDropdown: string | null = null;
   urlRoutes = urlRoutes;
-  constructor(private router: Router) {
+  user:any
+  constructor(private router: Router, private _authService:AuthService) {
     // Automatically open the correct dropdown on route change
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -33,6 +35,7 @@ export class SidebarComponent {
         }
       }
     });
+    this.user=this._authService.getUser()
   }
 
   toggleDropdown(name: string): void {
@@ -43,4 +46,7 @@ export class SidebarComponent {
     return this.router.url.includes(routePart);
   }
 
+  logOut(){
+    this._authService.logout();
+  }
 }

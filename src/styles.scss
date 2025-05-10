@@ -1,4 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
+
 @use 'variables' as *;
 @use 'base' as *;
 @use 'sidemenu';
@@ -6,3 +7,5 @@
 @use 'header';
 @use 'header-btns';
 @use 'section-form';
+
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Playwrite+DK+Loopet:wght@100..400&display=swap');

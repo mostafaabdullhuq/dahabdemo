@@ -27,7 +27,7 @@ export class UserManagmentService {
     return this._http.getRequest(`${environment.api_url}user/${id}`);
   }
   updateUser(id:number | string, editForm:FormGroup){
-    return this._http.putRequest(`${environment.api_url}user/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}user/${id}/` , editForm);
   }
   deleteUser(id:number ){
     return this._http.deleteRequest(`${environment.api_url}user/${id}`);
@@ -49,7 +49,7 @@ export class UserManagmentService {
     return this._http.getRequest(`${environment.api_url}business/roles/${id}`);
   }
   updateRole(id:number | string, editForm:FormGroup){
-    return this._http.patchRequest(`${environment.api_url}business/roles/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}business/roles/${id}/` , editForm);
   }
   deleteRole(id:number ){
     return this._http.deleteRequest(`${environment.api_url}business/roles/${id}`);

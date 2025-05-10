@@ -26,7 +26,7 @@ export class ContactService {
     return this._http.getRequest(`${environment.api_url}customer/${id}`);
   }
   updateCustomer(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}customer/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}customer/${id}/` , editForm);
   }
   deleteCustomer(id:number ){
     return this._http.deleteRequest(`${environment.api_url}customer/${id}`);
@@ -48,7 +48,7 @@ export class ContactService {
     return this._http.getRequest(`${environment.api_url}customer/groups/${id}`);
   }
   updateCustomerGroup(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}customer/groups/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}customer/groups/${id}/` , editForm);
   }
   deleteCustomerGroup(id:number ){
     return this._http.deleteRequest(`${environment.api_url}customer/groups/${id}`);
@@ -70,7 +70,7 @@ export class ContactService {
     return this._http.getRequest(`${environment.api_url}suppliers/${id}`);
   }
   updateSupplier(id:number | string, editForm:FormGroup | FormData){
-    return this._http.putRequest(`${environment.api_url}suppliers/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}suppliers/${id}/` , editForm);
   }
   deleteSupplier(id:number ){
     return this._http.deleteRequest(`${environment.api_url}suppliers/${id}`);

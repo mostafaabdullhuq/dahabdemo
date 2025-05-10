@@ -33,6 +33,7 @@ import { SuppliersComponent } from '../contact/suppliers/suppliers.component';
 import { AddEditSupplierComponent } from '../contact/suppliers/add-edit-supplier/add-edit-supplier.component';
 
 export const routes: Routes = [
+  { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
   // User Management
   {
     path: 'user-management', children: [

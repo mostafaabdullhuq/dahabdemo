@@ -18,6 +18,8 @@ import { TabsModule } from 'primeng/tabs';
 import { TooltipModule } from 'primeng/tooltip';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MenubarModule } from 'primeng/menubar';
+import { AvatarModule } from 'primeng/avatar';
 
 // Components
 import { InputTextComponent } from './components/input-text/input-text.component';
@@ -57,7 +59,9 @@ const primeNgModules = [
   TabsModule,
   TooltipModule,
   DatePickerModule,
-  ConfirmDialogModule
+  ConfirmDialogModule,
+  MenubarModule,
+  AvatarModule
 ]
 
 @NgModule({

@@ -1,0 +1,11 @@
+@use 'variables' as *;
+
+.menubar{
+    margin: 10px 0;
+}
+.p-menubar-item-link{
+    &:hover{
+        background-color: transparent;
+        border-bottom: 1px solid $emerald-600;
+    }
+}
