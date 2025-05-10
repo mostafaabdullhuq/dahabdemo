@@ -1,0 +1,49 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Customer Group</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditCustomerForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <!-- 🔹 customer Info -->
+                <h6 class="section-form-header">Customer Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <app-input-text formControlName="name" inputName="customer Name" [required]="true"
+                                placeholder="Enter customer name">
+                                @if (addEditCustomerForm.get('name')?.hasError('required') &&
+                                addEditCustomerForm.get('name')?.touched) {
+                                <div class="text-danger mt-1">
+                                    <small><i class="text-danger pi pi-times-circle px-2"
+                                            style="font-size: 0.8rem"></i>Name is required</small>
+                                </div>
+                                }
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-6">
+                            <app-input-text formControlName="description" inputName="description" [required]="true"
+                                placeholder="Enter description">
+                                @if (addEditCustomerForm.get('description')?.hasError('required') &&
+                                addEditCustomerForm.get('description')?.touched) {
+                                <div class="text-danger mt-1">
+                                    <small><i class="text-danger pi pi-times-circle px-2"
+                                            style="font-size: 0.8rem"></i>description is required</small>
+                                </div>
+                                }
+                            </app-input-text>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

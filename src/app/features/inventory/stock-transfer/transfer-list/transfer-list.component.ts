@@ -77,7 +77,7 @@ export class TransferListComponent {
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deleteTransferBranch(this.selectedProduct)
+      command: () => this.showConfirmDelete(this.selectedProduct)
     }
     
   ];
@@ -86,7 +86,11 @@ export class TransferListComponent {
     this._router.navigate([`stock-transfer/edit/${user?.id}`]);
   }
   deleteTransferBranch(user:any){
-    this._inventoryService.deleteTransferBranch(user?.id).subscribe()
+    this._inventoryService.deleteTransferBranch(user?.id).subscribe(res=>{
+      if(res){
+        this.getTransferBranch()
+      }
+    })
   }
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({

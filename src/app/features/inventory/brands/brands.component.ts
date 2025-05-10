@@ -71,7 +71,7 @@ export class BrandsComponent {
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deleteBrand(this.selectedProduct)
+      command: () => this.showConfirmDelete(this.selectedProduct)
     }
     
   ];
@@ -80,7 +80,11 @@ export class BrandsComponent {
     this._router.navigate([`inventory/brand/edit/${user?.id}`]);
   }
   deleteBrand(user:any){
-    this._inventoryService.deleteBrand(user?.id).subscribe()
+    this._inventoryService.deleteBrand(user?.id).subscribe(res=>{
+      if(res){
+        this.getBrands()
+      }
+    })
   }
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({

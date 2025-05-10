@@ -76,7 +76,7 @@ export class RolesComponent {
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deleteRole(this.selectedProduct)
+      command: () => this.showConfirmDelete(this.selectedProduct)
     }
     
   ];
@@ -85,7 +85,11 @@ export class RolesComponent {
     this._router.navigate([`user-management/roles/edit/${role?.id}`]);
   }
   deleteRole(role:any){
-    this._userManage.deleteRole(role?.id).subscribe()
+    this._userManage.deleteRole(role?.id).subscribe(res=>{
+      if(res){
+        this.getRoles()
+      }
+    })
   }
   showConfirmDelete(role: any) {
     this._confirmPopUp.confirm({

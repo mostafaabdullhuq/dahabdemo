@@ -10,6 +10,7 @@ export class ConfirmationPopUpService {
     private messageService: MessageService
   ) {}
 
+ 
   confirm(options: {
     message: string;
     header: string;
@@ -20,29 +21,18 @@ export class ConfirmationPopUpService {
     onReject?: () => void;
     target?: EventTarget | null;
   }) {
+    // Before showing the dialog, blur the active element to prevent focus retention
+    (document.activeElement as HTMLElement)?.blur();
+
     this.confirmationService.confirm({
+      target: options.target || undefined,
       message: options.message,
       header: options.header,
       icon: options.icon || 'pi pi-question-circle',
-      target: options.target || undefined,
       acceptLabel: options.acceptLabel || 'Yes',
       rejectLabel: options.rejectLabel || 'No',
-      acceptButtonProps: {
-        label: options.acceptLabel || 'Yes',
-        severity: 'danger',
-      },
-      rejectButtonProps: {
-        label: options.rejectLabel || 'No',
-        severity: 'secondary',
-        outlined: true,
-      },
       accept: () => {
         options.onAccept();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Confirmed',
-          detail: 'Action accepted',
-        });
       },
       reject: () => {
         options.onReject?.();

@@ -16,6 +16,8 @@ import { SelectModule } from 'primeng/select';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { TabsModule } from 'primeng/tabs';
 import { TooltipModule } from 'primeng/tooltip';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 // Components
 import { InputTextComponent } from './components/input-text/input-text.component';
@@ -28,6 +30,7 @@ import { ConfirmationService } from 'primeng/api';
 import { ConfirmationPopUpService } from './services/confirmation-pop-up.service';
 import { UploadInputComponent } from './components/upload-input/upload-input.component';
 import { InputTableComponent } from './components/input-table/input-table.component';
+import { InputDateComponent } from './components/input-date/input-date.component';
 
 const components = [
   InputTextComponent,
@@ -37,7 +40,8 @@ const components = [
   MultiSelectComponent,
   DropdownsComponent,
   UploadInputComponent,
-  InputTableComponent
+  InputTableComponent,
+  InputDateComponent
 ];
 
 const primeNgModules = [
@@ -51,7 +55,9 @@ const primeNgModules = [
   ContextMenuModule,
   FileUploadModule,
   TabsModule,
-  TooltipModule
+  TooltipModule,
+  DatePickerModule,
+  ConfirmDialogModule
 ]
 
 @NgModule({

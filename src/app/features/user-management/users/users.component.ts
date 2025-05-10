@@ -79,7 +79,7 @@ productMenuItems: MenuItem[] = [
   {
     label: 'Delete',
     icon: 'pi pi-fw pi-trash',
-    command: () => this.deleteUser(this.selectedProduct)
+    command: () => this.showConfirmDelete(this.selectedProduct)
   }
   
 ];
@@ -88,16 +88,22 @@ editUser(user: any) {
   this._router.navigate([`user-management/users/edit/${user?.id}`]);
 }
 deleteUser(user:any){
-  this._userManage.deleteUser(user?.id).subscribe()
+  this._userManage.deleteUser(user?.id).subscribe(res=>{
+    if(res){
+      this.getUsers()
+    }
+  })
 }
 showConfirmDelete(user: any) {
+  console.log(user);
+  
   this._confirmPopUp.confirm({
     message: 'Do you want to delete this item?',
     header: 'Confirm Delete',
     onAccept: () => {
       this.deleteUser(user);
     },
-    target: user?.id
+    target:user
   });
 }
 }

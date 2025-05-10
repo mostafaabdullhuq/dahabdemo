@@ -71,7 +71,7 @@ export class ColorsComponent {
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deleteColor(this.selectedProduct)
+      command: () => this.showConfirmDelete(this.selectedProduct)
     }
     
   ];
@@ -80,7 +80,11 @@ export class ColorsComponent {
     this._router.navigate([`inventory/color/edit/${color?.id}`]);
   }
   deleteColor(color:any){
-    this._inventoryService.deleteColor(color?.id).subscribe()
+    this._inventoryService.deleteColor(color?.id).subscribe(res=>{
+      if(res){
+        this.getColors()
+      }
+    })
   }
   showConfirmDelete(color: any) {
     this._confirmPopUp.confirm({

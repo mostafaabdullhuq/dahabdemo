@@ -79,7 +79,7 @@ export class CategoryComponent {
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deleteCategory(this.selectedProduct)
+      command: () => this.showConfirmDelete(this.selectedProduct)
     }
     
   ];
@@ -88,7 +88,11 @@ export class CategoryComponent {
     this._router.navigate([`inventory/category/edit/${user?.id}`]);
   }
   deleteCategory(user:any){
-    this._inventoryService.deleteCategory(user?.id).subscribe()
+    this._inventoryService.deleteCategory(user?.id).subscribe(res=>{
+      if(res){
+        this.getCategories()
+      }
+    })
   }
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({

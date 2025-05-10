@@ -75,7 +75,7 @@ export class PurityComponent {
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deletePurity(this.selectedProduct)
+      command: () => this.showConfirmDelete(this.selectedProduct)
     }
     
   ];
@@ -84,7 +84,11 @@ export class PurityComponent {
     this._router.navigate([`inventory/purity/edit/${user?.id}`]);
   }
   deletePurity(user:any){
-    this._inventoryService.deletePurity(user?.id).subscribe()
+    this._inventoryService.deletePurity(user?.id).subscribe(res=>{
+      if(res){
+        this.getPurity()
+      }
+    })
   }
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({

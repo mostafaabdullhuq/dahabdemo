@@ -1,3 +1,5 @@
+<p-confirmdialog />
+
 <section>
     <div class="header-container">
         <h3>Users</h3>
@@ -32,7 +34,6 @@
             </form>
         </app-filter-collapse>
     </div>
-
     <div class="table-container">
         <app-data-table [contextMenuItems]="productMenuItems"
         (rowSelected)="selectedProduct = $event" [data]="users" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"

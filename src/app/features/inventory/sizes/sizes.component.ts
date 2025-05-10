@@ -71,7 +71,7 @@ puritiesMenuItems: MenuItem[] = [
   {
     label: 'Delete',
     icon: 'pi pi-fw pi-trash',
-    command: () => this.deleteSize(this.selectedProduct)
+    command: () => this.showConfirmDelete(this.selectedProduct)
   }
   
 ];
@@ -80,7 +80,11 @@ editSize(user: any) {
   this._router.navigate([`inventory/size/edit/${user?.id}`]);
 }
 deleteSize(user:any){
-  this._inventoryService.deleteSize(user?.id).subscribe()
+  this._inventoryService.deleteSize(user?.id).subscribe(res=>{
+    if(res){
+      this.getSizes()
+    }
+  })
 }
 showConfirmDelete(user: any) {
   this._confirmPopUp.confirm({

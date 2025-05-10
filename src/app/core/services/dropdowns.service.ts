@@ -62,4 +62,8 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}product/?${params}`;
     return this._http.getRequest<any>(url);
   }
+  getCustomersGroup(nextPageUrl: string | null = null, params?:string): Observable<any> {
+    const url = nextPageUrl || `${this.API}customer/groups/?${params}`;
+    return this._http.getRequest<any>(url);
+  }
 }

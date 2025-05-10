@@ -18,12 +18,12 @@
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-calendar me-2"></i> All Subscription
                             Packages</a></li>
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-cog me-2"></i> Settings</a></li>
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-bell me-2"></i> Notifications</a></li>
+                    <!-- <li><a href="#" class="nav-link text-dark"><i class="pi pi-bell me-2"></i> Notifications</a></li> -->
                 </ul>
             </div>
         </li>
         <!-- Settings -->
-        <li>
+        <!-- <li>
             <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
                 href="#submenuSuperAdminSettings" role="button" aria-expanded="false"
                 aria-controls="submenuSuperAdminSettings">
@@ -35,7 +35,7 @@
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-bell me-2"></i> Notifications</a></li>
                 </ul>
             </div>
-        </li>
+        </li> -->
 
         <!-- User Management -->
         <li>
@@ -67,8 +67,12 @@
             </a>
             <div class="collapse ps-4" id="submenuContacts">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-user me-2"></i> Customers</a></li>
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-truck me-2"></i> Suppliers</a></li>
+                    <a [routerLink]="['/contact/customers']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-user me-2"></i> Customers</a>
+                    <a [routerLink]="['/contact/customers-group']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-users me-2"></i> Customers Group</a>
+                    <a [routerLink]="['/contact/suppliers']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-truck me-2"></i> Suppliers</a>
                 </ul>
             </div>
         </li>

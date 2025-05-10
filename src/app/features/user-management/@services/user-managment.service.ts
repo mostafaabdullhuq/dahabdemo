@@ -43,16 +43,16 @@ export class UserManagmentService {
     return this._http.getRequest(`${environment.api_url}business/roles`, params );
   }
   addRole(addForm:FormGroup): Observable<any>{
-    return this._http.postRequest(`${environment.api_url}role/`,addForm);
+    return this._http.postRequest(`${environment.api_url}business/roles/`,addForm);
   }
   getRoleById(id:number | string){
-    return this._http.getRequest(`${environment.api_url}role/${id}`);
+    return this._http.getRequest(`${environment.api_url}business/roles/${id}`);
   }
   updateRole(id:number | string, editForm:FormGroup){
-    return this._http.putRequest(`${environment.api_url}role/${id}` , editForm);
+    return this._http.patchRequest(`${environment.api_url}business/roles/${id}` , editForm);
   }
   deleteRole(id:number ){
-    return this._http.deleteRequest(`${environment.api_url}role/${id}`);
+    return this._http.deleteRequest(`${environment.api_url}business/roles/${id}`);
   }
 
   getRolesPermissions(): Observable<any> {

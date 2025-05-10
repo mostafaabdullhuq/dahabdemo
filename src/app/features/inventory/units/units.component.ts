@@ -77,7 +77,7 @@ unitsMenuItems: MenuItem[] = [
   {
     label: 'Delete',
     icon: 'pi pi-fw pi-trash',
-    command: () => this.deleteUnit(this.selectedProduct)
+    command: () => this.showConfirmDelete(this.selectedProduct)
   }
   
 ];
@@ -86,7 +86,11 @@ editUser(user: any) {
   this._router.navigate([`inventory/unit/edit/${user?.id}`]);
 }
 deleteUnit(user:any){
-  this._inventoryService.deleteUnit(user?.id).subscribe()
+  this._inventoryService.deleteUnit(user?.id).subscribe(res=>{
+    if(res){
+      this.getUnits()
+    }
+  })
 }
 showConfirmDelete(user: any) {
   this._confirmPopUp.confirm({

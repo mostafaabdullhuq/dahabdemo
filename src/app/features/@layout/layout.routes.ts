@@ -25,6 +25,12 @@ import { ColorsComponent } from '../inventory/colors/colors.component';
 import { AddEditColorComponent } from '../inventory/colors/add-edit-color/add-edit-color.component';
 import { StockTransferComponent } from '../inventory/stock-transfer/stock-transfer.component';
 import { TransferListComponent } from '../inventory/stock-transfer/transfer-list/transfer-list.component';
+import { CustomersComponent } from '../contact/customers/customers.component';
+import { AddEditCustomerComponent } from '../contact/customers/add-edit-customer/add-edit-customer.component';
+import { AddEditCustomerGroupComponent } from '../contact/customers/customer-group/add-edit-customer-group/add-edit-customer-group.component';
+import { CustomerGroupComponent } from '../contact/customers/customer-group/customer-group.component';
+import { SuppliersComponent } from '../contact/suppliers/suppliers.component';
+import { AddEditSupplierComponent } from '../contact/suppliers/add-edit-supplier/add-edit-supplier.component';
 
 export const routes: Routes = [
   // User Management
@@ -39,6 +45,7 @@ export const routes: Routes = [
       { path: 'roles/edit/:id', component: AddEditRolesComponent },
     ]
   },
+  // Inventory
   {
     path: 'inventory', children: [
       { path: '', redirectTo: 'products', pathMatch: 'full' },
@@ -85,6 +92,23 @@ export const routes: Routes = [
       { path: 'stock-transfer-list', component: TransferListComponent },
       { path: 'stock-transfer', component: StockTransferComponent },
       { path: 'stock-transfer/edit/:id', component: StockTransferComponent },
+    ]
+  },
+  // Contacts
+  {
+    path: 'contact', children: [
+      { path: '', redirectTo: 'customers', pathMatch: 'full' },
+      { path: 'customers', component: CustomersComponent },
+      { path: 'customer/add', component: AddEditCustomerComponent },
+      { path: 'customer/edit/:id', component: AddEditCustomerComponent },
+
+      { path: 'customers-group', component: CustomerGroupComponent },
+      { path: 'customers-group/add', component: AddEditCustomerGroupComponent },
+      { path: 'customers-group/edit/:id', component: AddEditCustomerGroupComponent },
+
+      { path: 'suppliers', component: SuppliersComponent },
+      { path: 'supplier/add', component: AddEditSupplierComponent },
+      { path: 'supplier/edit/:id', component: AddEditSupplierComponent },
     ]
   }
 ];

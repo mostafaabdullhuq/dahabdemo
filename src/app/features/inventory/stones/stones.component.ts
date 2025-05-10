@@ -71,7 +71,7 @@ export class StonesComponent {
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deleteStone(this.selectedProduct)
+      command: () => this.showConfirmDelete(this.selectedProduct)
     }
     
   ];
@@ -80,7 +80,11 @@ export class StonesComponent {
     this._router.navigate([`inventory/stone/edit/${user?.id}`]);
   }
   deleteStone(user:any){
-    this._inventoryService.deleteStone(user?.id).subscribe()
+    this._inventoryService.deleteStone(user?.id).subscribe(res=>{
+      if(res){
+        this.getStones()
+      }
+    })
   }
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({

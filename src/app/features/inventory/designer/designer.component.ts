@@ -71,7 +71,7 @@ export class DesignerComponent {
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deleteDesigner(this.selectedProduct)
+      command: () => this.showConfirmDelete(this.selectedProduct)
     }
     
   ];
@@ -80,7 +80,11 @@ export class DesignerComponent {
     this._router.navigate([`inventory/designer/edit/${user?.id}`]);
   }
   deleteDesigner(user:any){
-    this._inventoryService.deleteDesigner(user?.id).subscribe()
+    this._inventoryService.deleteDesigner(user?.id).subscribe(res=>{
+      if(res){
+        this.getDesigners()
+      }
+    })
   }
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({

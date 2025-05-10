@@ -39,4 +39,8 @@ export class SingletonService {
     return this._httpClient.put<T>(api , payload);
   }
 
+// PATCH REQUEST
+patchRequest<T>(api: string ,payload?: any): Observable<T> {
+  return this._httpClient.patch<T>(api , payload);
+}
 }

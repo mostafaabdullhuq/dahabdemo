@@ -71,7 +71,7 @@ export class StockPointComponent {
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => this.deleteStockPoint(this.selectedProduct)
+      command: () => this.showConfirmDelete(this.selectedProduct)
     }
     
   ];
@@ -80,7 +80,11 @@ export class StockPointComponent {
     this._router.navigate([`inventory/stockpoint/edit/${user?.id}`]);
   }
   deleteStockPoint(user:any){
-    this._inventoryService.deleteStockPoint(user?.id).subscribe()
+    this._inventoryService.deleteStockPoint(user?.id).subscribe(res=>{
+      if(res){
+        this.getStockPoints()
+      }
+    })
   }
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({
