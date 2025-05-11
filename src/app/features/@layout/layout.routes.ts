@@ -32,6 +32,7 @@ import { CustomerGroupComponent } from '../contact/customers/customer-group/cust
 import { SuppliersComponent } from '../contact/suppliers/suppliers.component';
 import { AddEditSupplierComponent } from '../contact/suppliers/add-edit-supplier/add-edit-supplier.component';
 import { CustomerViewComponent } from '../contact/customers/customer-view/customer-view.component';
+import { SupplierViewComponent } from '../contact/suppliers/supplier-view/supplier-view.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -112,6 +113,7 @@ export const routes: Routes = [
       { path: 'suppliers', component: SuppliersComponent },
       { path: 'supplier/add', component: AddEditSupplierComponent },
       { path: 'supplier/edit/:id', component: AddEditSupplierComponent },
+      { path: 'supplier-view/:id', component: SupplierViewComponent },
     ]
   }
 ];

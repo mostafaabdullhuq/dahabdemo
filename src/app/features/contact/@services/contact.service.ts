@@ -107,4 +107,35 @@ deleteAttach(customerId:any,id:any){
   deleteSupplier(id:number ){
     return this._http.deleteRequest(`${environment.api_url}suppliers/${id}`);
   }
+
+  getSupplierTransactions(id:any,search: string = '', page: number = 1, pageSize: number = 10){
+    // const params = new HttpParams()
+   //   .set('', search)
+   //   .set('page', page.toString())
+   //   .set('page_size', pageSize.toString());
+   const params = `?${search}&page=${page}&page_size=${pageSize}`
+   return this._http.getRequest(`${environment.api_url}suppliers/transactions/${id}/${params}` );
+ }
+ getsupplierPayments(id:any,search: string = '', page: number = 1, pageSize: number = 10){
+   // const params = new HttpParams()
+  //   .set('', search)
+  //   .set('page', page.toString())
+  //   .set('page_size', pageSize.toString());
+  const params = `?${search}&page=${page}&page_size=${pageSize}`
+  return this._http.getRequest(`${environment.api_url}suppliers/payment/${id}/${params}` );
+}
+getSupplierDocuments(id:any,search: string = '', page: number = 1, pageSize: number = 10){
+ // const params = new HttpParams()
+//   .set('', search)
+//   .set('page', page.toString())
+//   .set('page_size', pageSize.toString());
+const params = `?${search}&page=${page}&page_size=${pageSize}`
+return this._http.getRequest(`${environment.api_url}suppliers/docs/${id}/${params}` );
+}
+addAttachSupplier(supplierId:any,addForm:any){
+ return this._http.postRequest(`${environment.api_url}suppliers/docs/${supplierId}/add/`,addForm);
+}
+deleteAttachSupplier(supplierId:any,id:any){
+ return this._http.deleteRequest(`${environment.api_url}suppliers/docs/${supplierId}/${id}/`);
+}
 }

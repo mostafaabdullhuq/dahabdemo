@@ -77,6 +77,11 @@ export class SuppliersComponent {
         command: () => this.editSupplier(this.selectedProduct)
       },
       {
+        label: 'View',
+        icon: 'pi pi-fw pi-eye',
+        command: () => this.viewTransactions(this.selectedProduct)
+      },
+      {
         label: 'Delete',
         icon: 'pi pi-fw pi-trash',
         command: () => this.showConfirmDelete(this.selectedProduct)
@@ -103,6 +108,9 @@ export class SuppliersComponent {
         },
         target: user?.id
       });
+    }
+    viewTransactions(data: any) {
+      this._router.navigate([`contact/supplier-view/${data?.id}`])
     }
     onSearch(): void {
       const formValues = this.filterForm.value;
