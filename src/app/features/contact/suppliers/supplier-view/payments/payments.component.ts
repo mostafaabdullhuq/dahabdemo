@@ -24,12 +24,13 @@ export class PaymentsComponent {
       this.getPayments(this.customerId)
     }
     this.cols = [
-      { field: "id", header: "ID" },
-      { field: "created_at", header: "Date" },
-      { field: "payment_method", header: "Payment Method" },
-      { field: "amount", header: "Amount" },
-      { field: "transaction_type", header: "Transaction Type" },
-      { field: "payment_method_name", header: "Payment Method Name" },
+      { field: "payment_date", header: "Payment Date" },
+      { field: "total_amount", header: "Total Amount" },
+      { field: "salesman_name", header: "salesman name" },
+      { field: "branch_name", header: "branch name" },
+      { field: "payment_method_name", header: "payment method" },
+      { field: "total_weight", header: "total weight" },
+      { field: "reference_number", header: "reference number" },
     ];
     this.filterForm = this._formBuilder.group({
       search: '',

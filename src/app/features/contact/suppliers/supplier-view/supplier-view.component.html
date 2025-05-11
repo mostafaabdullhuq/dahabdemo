@@ -15,7 +15,7 @@
     <p-tabs value="0" class="container">
         <p-tablist>
             <p-tab value="0">Ladger</p-tab>
-            <p-tab value="1">Transactions</p-tab>
+            <p-tab value="1">Inventory</p-tab>
             <p-tab value="2">Payments</p-tab>
             <p-tab value="3">Documents & Notes</p-tab>
         </p-tablist>
@@ -23,7 +23,7 @@
             <p-tabpanel value="0">
             </p-tabpanel>
             <p-tabpanel value="1">
-                <app-transactions [customerId]="customerId"/>
+                <app-inventory [customerId]="customerId"/>
             </p-tabpanel>
             <p-tabpanel value="2">
                 <app-payments [customerId]="customerId"/>

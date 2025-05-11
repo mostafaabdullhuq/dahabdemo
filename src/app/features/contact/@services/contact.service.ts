@@ -108,13 +108,13 @@ deleteAttach(customerId:any,id:any){
     return this._http.deleteRequest(`${environment.api_url}suppliers/${id}`);
   }
 
-  getSupplierTransactions(id:any,search: string = '', page: number = 1, pageSize: number = 10){
+  getSupplierInventory(id:any,search: string = '', page: number = 1, pageSize: number = 10){
     // const params = new HttpParams()
    //   .set('', search)
    //   .set('page', page.toString())
    //   .set('page_size', pageSize.toString());
    const params = `?${search}&page=${page}&page_size=${pageSize}`
-   return this._http.getRequest(`${environment.api_url}suppliers/transactions/${id}/${params}` );
+   return this._http.getRequest(`${environment.api_url}suppliers/inventory/${id}/${params}` );
  }
  getsupplierPayments(id:any,search: string = '', page: number = 1, pageSize: number = 10){
    // const params = new HttpParams()

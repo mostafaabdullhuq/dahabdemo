@@ -5,10 +5,10 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 
 @Component({
-  selector: 'app-transactions',
+  selector: 'app-inventory',
   imports: [SharedModule],
-  templateUrl: './transactions.component.html',
-  styleUrl: './transactions.component.scss'
+  templateUrl: './inventory.component.html',
+  styleUrl: './inventory.component.scss'
 })
 export class TransactionsComponent {
   transData:any = [];
@@ -44,13 +44,110 @@ export class TransactionsComponent {
         this.getTransactions(this.customerId)
       }
       this.cols = [
-        { field: "created_at", header: "Date" },
-        { field: "total_amount", header: "Total Amount" },
-        { field: "payment_status", header: "Payment Status" },
-        { field: "location", header: "Location" },
-        { field: "payment_method", header: "Payment Method" },
-        { field: "salesman_name", header: "Salesman Name" },
-        { field: "total_items", header: "Total Items" },
+        { 
+          field: "tag_number", 
+          header: "Tag Number"
+      },
+      { 
+          field: "metal_rate", 
+          header: "Metal Rate"
+      },
+      { 
+          field: "metal_value", 
+          header: "Metal Value",
+      },
+      { 
+          field: "metal_weight", 
+          header: "Metal Weight"
+      },
+      { 
+          field: "purity", 
+          header: "Purity"
+      },
+      { 
+          field: "purity_rate", 
+          header: "Purity Rate",
+      },
+      { 
+          field: "category", 
+          header: "Category",
+      },
+      { 
+          field: "making_charge", 
+          header: "Making Charge",
+      },
+      { 
+          field: "retail_making_charge", 
+          header: "Retail Making Charge",
+      },
+      { 
+          field: "stone_name", 
+          header: "Stone Name",
+      },
+      { 
+          field: "weight", 
+          header: "Weight",
+      },
+      { 
+          field: "stone_value", 
+          header: "Stone Value",
+      },
+      { 
+          field: "stone_two_name", 
+          header: "Stone Two Name",
+      },
+      { 
+          field: "stone_two_weight", 
+          header: "Stone Two Weight",
+      },
+      { 
+          field: "stone_two_value", 
+          header: "Stone Two Value",
+      },
+      { 
+          field: "stone_one_retail", 
+          header: "Stone One Retail",
+      },
+      { 
+          field: "stone_two_retail", 
+          header: "Stone Two Retail",
+      },
+      { 
+          field: "gross_weight", 
+          header: "Gross Weight",
+      },
+      { 
+          field: "tax", 
+          header: "Tax",
+      },
+      { 
+          field: "size", 
+          header: "Size",
+      },
+      { 
+          field: "design_name", 
+          header: "Design Name",
+      },
+      { 
+          field: "country", 
+          header: "Country",
+      },
+      { 
+          field: "image", 
+          header: "Image",
+      },
+      { 
+          field: "description", 
+          header: "Description",
+      },
+      { 
+          field: "color", 
+          header: "Color",
+      },
+      { 
+          field: "line_total_amount", 
+          header: "Line Total Amount",
+      },
       ];
       this.filterForm = this._formBuilder.group({
         search: '',
@@ -62,7 +159,7 @@ export class TransactionsComponent {
   
     }
   getTransactions(id:any,search: string = '', page: number = 1, pageSize: number = 10){
-    this._contactService.getSupplierTransactions(id,search, page, pageSize)?.subscribe((res:any)=>{
+    this._contactService.getSupplierInventory(id,search, page, pageSize)?.subscribe((res:any)=>{
       this.transData = res.results || []; ;
     })
   }
@@ -73,7 +170,7 @@ export class TransactionsComponent {
   
       this.first = event.first;
       this.pageSize = pageSize;
-      this._contactService.getSupplierTransactions(this.customerId)?.subscribe((res:any)=>{
+      this._contactService.getSupplierInventory(this.customerId)?.subscribe((res:any)=>{
         this.transData = res.results || []; ;
         this.totalRecords = res.count;
       })

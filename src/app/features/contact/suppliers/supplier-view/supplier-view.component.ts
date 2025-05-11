@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { PaymentsComponent } from './payments/payments.component';
 import { DocumentsComponent } from './documents/documents.component';
-import { TransactionsComponent } from './transactions/transactions.component';
+import { TransactionsComponent } from './inventory/inventory.component';
 import { ActivatedRoute } from '@angular/router';
 import { ContactService } from '../../@services/contact.service';
 
