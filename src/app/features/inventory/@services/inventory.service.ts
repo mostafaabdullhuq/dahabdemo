@@ -228,7 +228,7 @@ export class InventoryService {
     //   .set('page', page.toString())
     //   .set('page_size', pageSize.toString());
       const params = `?${search}&page=${page}&page_size=${pageSize}`
-    return this._http.getRequest(`${environment.api_url}inventory/stock-transfer${params}` );
+    return this._http.getRequest(`${environment.api_url}inventory/stock-transfer/${params}` );
   }
   addTransferBranch(addForm:FormGroup | FormData): Observable<any>{
     return this._http.postRequest(`${environment.api_url}product/stock/bulk-transfer/`,addForm);

@@ -1,5 +1,5 @@
 import { Component, forwardRef, Input } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-input-text',
@@ -14,16 +14,16 @@ import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
     },
   ],
 })
-export class InputTextComponent {
+export class InputTextComponent implements ControlValueAccessor {
   @Input() inputSize: 'small' | 'large' = 'small';
   @Input() placeholder = '';
-  @Input() required:boolean = false;
+  @Input() required = false;
   @Input() type = 'text';
   @Input() inputName = '';
-  @Input() id: string = `input-${Math.random().toString(36).substring(2, 15)}`; // unique id
+  @Input() id: string = `input-${Math.random().toString(36).substring(2, 15)}`;
 
-  value: string = '';
-  disabled: boolean = false;
+  value = '';
+  disabled = false;
 
   onChange: (value: any) => void = () => {};
   onTouched: () => void = () => {};

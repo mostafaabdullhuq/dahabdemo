@@ -1,21 +1,20 @@
 <div class="input-group border-0">
-    @if (inputName) {
-        <label [for]="inputName">{{ inputName }}
-            @if (required) {
-                <sup class="text-danger">*</sup>
-            }
-        </label>
-    }
+    <label *ngIf="inputName" [for]="id">
+      {{ inputName }}
+      <sup *ngIf="required" class="text-danger">*</sup>
+    </label>
+  
     <input
-    [id]="id"
-    [type]="type"
-    pInputText
-    [pSize]="inputSize"
-    [placeholder]="placeholder"
-    [value]="value"
-    [required]="required"
-    (input)="handleInput($event)"
-    [disabled]="disabled" />
+      [id]="id"
+      [type]="type"
+      pInputText
+      [pSize]="inputSize"
+      [placeholder]="placeholder"
+      [value]="value"
+      [required]="required"
+      (input)="handleInput($event)"
+      [disabled]="disabled" />
+  
     <ng-content></ng-content>
   </div>
   

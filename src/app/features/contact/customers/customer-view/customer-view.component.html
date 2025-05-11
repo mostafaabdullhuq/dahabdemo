@@ -1,0 +1,36 @@
+<section>
+    <div class="header-container">
+        <h3>Customer Info</h3>
+        <hr>
+    </div>
+<div class="">
+    <div class="table-container">
+        <app-data-table [paginator]="false"
+         [data]="[customerData]" [cols]="cols">
+        </app-data-table>
+    </div>
+</div>
+
+<div class="form-container mt-5">
+    <p-tabs value="0" class="container">
+        <p-tablist>
+            <p-tab value="0">Ladger</p-tab>
+            <p-tab value="1">Transactions</p-tab>
+            <p-tab value="2">Payments</p-tab>
+            <p-tab value="3">Documents & Notes</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="0">
+            </p-tabpanel>
+            <p-tabpanel value="1">
+                <app-transactions [customerId]="customerId"/>
+            </p-tabpanel>
+            <p-tabpanel value="2">
+                <app-payments [customerId]="customerId"/>
+            </p-tabpanel>
+            <p-tabpanel value="3">
+                <app-documents [customerId]="customerId"/>
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+</div>

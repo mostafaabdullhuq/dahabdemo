@@ -72,17 +72,21 @@
                 </div>
                 <!-- 🔹 Custom Fields Info -->
                 <h6 class="section-form-header mt-4">Custom Fields Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <!-- Dynamic custom fields -->
-                        <ng-container *ngFor="let field of customFields">
-                            <div class="col-md-4 mt-2">
-                                <app-input-text [formControlName]="field.name" [inputName]="field.label"
-                                    [placeholder]="'Enter ' + field.label"></app-input-text>
-                            </div>
-                        </ng-container>
-                    </div>
-                </div>
+<div class="container section-form">
+    <div class="row" formArrayName="custom_fields">
+        <div
+          class="col-md-4 mt-2"
+          *ngFor="let fieldGroup of customFieldsFormArray.controls; index as i"
+          [formGroupName]="i"
+        >
+          <app-input-text
+            [formControlName]="'value'"
+            [inputName]="customFields[i]?.field_name"
+            [placeholder]="'Enter ' + customFields[i]?.field_name"
+          ></app-input-text>
+        </div>
+  </div>
+</div>
             </section>
 
 

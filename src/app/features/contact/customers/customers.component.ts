@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ViewContainerRef } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ContactService } from '../@services/contact.service';
 import { ConfirmationPopUpService } from '../../../shared/services/confirmation-pop-up.service';
 import { MenuItem } from 'primeng/api';
+import { TransactionsComponent } from './customer-view/transactions/transactions.component';
+import { CustomerViewComponent } from './customer-view/customer-view.component';
 
 @Component({
   selector: 'app-customers',
@@ -77,13 +79,19 @@ export class CustomersComponent {
       command: () => this.editCustomer(this.selectedProduct)
     },
     {
+      label: 'View',
+      icon: 'pi pi-fw pi-eye',
+      command: () => this.viewTransactions(this.selectedProduct)
+    },
+    {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
       command: () => this.showConfirmDelete(this.selectedProduct)
     }
-
   ];
-
+  viewTransactions(data: any) {
+    this._router.navigate([`contact/customer-view/${data?.id}`])
+  }
   editCustomer(user: any) {
     this._router.navigate([`contact/customer/edit/${user?.id}`]);
   }

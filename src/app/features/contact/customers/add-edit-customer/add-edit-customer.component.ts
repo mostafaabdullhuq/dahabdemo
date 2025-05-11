@@ -19,7 +19,8 @@ export class AddEditCustomerComponent {
     nextPageUrl: string | null = null;
     isLoading = false;
     selectedBranches =[];
-  
+    customFields:any = [];
+
     constructor(
       private _contactService: ContactService,
       private _formBuilder: FormBuilder,
@@ -37,12 +38,19 @@ export class AddEditCustomerComponent {
         this.loadCustomerData(this.customerId);
         this.isEditMode = true
       }
-      this.addCustomFields();
 
       this._dropdownService.getCustomersGroup().subscribe(data => {
       this.customersGroup = data?.results;
     });
-    }
+    this._contactService.getCustomerCustomLabel().subscribe(res => {
+      this.customFields = res || [];
+      this.buildCustomFieldsForm(); // Build form controls after loading labels
+  
+      if (this.isEditMode) {
+        this.loadCustomerData(this.customerId);
+      }
+    });
+  }
   
     private initForm(): void {
       this.addEditCustomerForm = this._formBuilder.group({
@@ -53,9 +61,28 @@ export class AddEditCustomerComponent {
         cpr_attachment: [''],
         cpr: ['',Validators.required],
         group: ['',Validators.required],
+        custom_fields:this._formBuilder.array([])
       });
     }
-  
+    get customFieldsFormArray(): FormArray {      
+      return this.addEditCustomerForm.get('custom_fields') as FormArray;
+    }
+    
+    private buildCustomFieldsForm(): void {
+      const customFieldsFormArray = this.addEditCustomerForm.get('custom_fields') as FormArray;
+      customFieldsFormArray.clear(); // Clear previous if any
+      console.log(this.customFields);
+      
+      this.customFields.forEach((field: { field_name: any; }) => {
+        const group = new FormGroup({
+          field_key: new FormControl(field?.field_name),
+          value: new FormControl('') // or set default value if editing
+        });
+        customFieldsFormArray.push(group);
+        console.log(customFieldsFormArray);
+        
+      });
+    }
     private loadCustomerData(customerId: number | string): void {
       this._contactService.getCustomerById(customerId).subscribe((customer: any) => {
         this.addEditCustomerForm.patchValue({
@@ -67,61 +94,52 @@ export class AddEditCustomerComponent {
         cpr: customer?.cpr,
         group: customer?.group,
         });
+        // Patch custom fields
+    const customFieldsArray = this.addEditCustomerForm.get('custom_fields') as FormArray;
+    customer.custom_fields?.forEach((field: any, index: number) => {
+      const group = customFieldsArray.at(index) as FormGroup;
+      if (group) {
+        group.patchValue({ value: field.value });
+      }
+    });
       });
     }
-    customFields = [
-      { name: 'custom_field_1', label: 'Custom Field 1' },
-      { name: 'custom_field_2', label: 'Custom Field 2' },
-      { name: 'custom_field_3', label: 'Custom Field 3' }
-    ];
-      // Dynamically add custom fields to the form
-  private addCustomFields(): void {
-    this.customFields.forEach(field => {
-      if (!this.addEditCustomerForm.contains(field.name)) {
-        this.addEditCustomerForm.addControl(field.name, new FormControl(''));
-      }
-    });
-  }
 
-  onSubmit(): void {
-    console.log(this.addEditCustomerForm);
-  
-    if (this.addEditCustomerForm.invalid) return;
-  
-    const formData = new FormData();
-    const formValue = this.addEditCustomerForm.value;
-  
-    // Append regular fields (excluding image and custom fields)
-    Object.keys(formValue).forEach(key => {
-      if (key === 'image' || key.startsWith('custom_field_')) return;
-  
-      if (formValue[key] !== null && formValue[key] !== undefined) {
-        formData.append(key, formValue[key]);
+    onSubmit(): void {
+      if (this.addEditCustomerForm.invalid) return;
+    
+      const formData = new FormData();
+      const formValue = this.addEditCustomerForm.value;
+    
+      // Append standard fields (excluding custom_fields and image)
+      Object.keys(formValue).forEach(key => {
+        if (key !== 'custom_fields' && key !== 'image' && formValue[key] != null) {
+          formData.append(key, formValue[key]);
+        }
+      });
+    
+      // Append image separately
+      if (formValue.image) {
+        formData.append('image', formValue.image);
       }
-    });
-  
-    // Append image separately
-    if (formValue.image) {
-      formData.append('image', formValue.image);
+    
+      // Prepare and append custom_fields payload from FormArray
+      const customFieldsPayload = formValue.custom_fields.map((field: any) => ({
+        field_key: field.field_key,
+        value: field.value
+      }));
+      formData.append('custom_fields', JSON.stringify(customFieldsPayload));
+    
+      // Send as FormData
+      const request$ = this.isEditMode && this.customerId
+        ? this._contactService.updateCustomer(this.customerId, formData)
+        : this._contactService.addCustomer(formData);
+    
+      request$.subscribe({
+        next: res => console.log(this.isEditMode ? 'Updated' : 'Created', res),
+        error: err => console.error('Error', err)
+      });
     }
-  
-    // Prepare and append custom_fields
-    const customFieldsPayload = this.customFields.map(field => ({
-      field_key: field.name,
-      value: formValue[field.name] || ''
-    }));
-    formData.append('custom_fields', JSON.stringify(customFieldsPayload));
-  
-    // Send as FormData
-    const request$ = this.isEditMode && this.customerId
-      ? this._contactService.updateCustomer(this.customerId, formData)
-      : this._contactService.addCustomer(formData);
-  
-    request$.subscribe({
-      next: res => console.log(this.isEditMode ? 'Updated' : 'Created', res),
-      error: err => console.error('Error', err)
-    });
-  }
     selectedImageFile: File | null = null;
 previewUrl: string | ArrayBuffer | null = null;
 
@@ -136,5 +154,9 @@ onImageSelected(event: Event): void {
     };
     reader.readAsDataURL(this.selectedImageFile);
   }
+}
+
+getCustomFieldControl(index: number): FormControl {
+  return this.customFieldsFormArray.at(index) as FormControl;
 }
   }

@@ -1,0 +1,59 @@
+<p-confirmdialog />
+
+<p-dialog  [(visible)]="visible" [modal]="true" [style]="{ width: '50rem' }">
+    <ng-template pTemplate="header">
+        <div class="d-flex justify-content-center align-items-center">
+            <h4><i class="pi pi-paperclip me-2"></i> Add Attachment</h4>
+        </div>
+      </ng-template>
+    <hr>
+    <form class="section-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="row">
+          <div class="col-md-12">
+            <app-input-text formControlName="description" placeholder="description" type="text" inputName="description"></app-input-text>
+          </div>
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <label class="form-label">attachment</label>
+                <app-upload-input formControlName="attachment" label="Upload File"></app-upload-input>
+            </div>
+          </div>
+      </div>
+      <div class="btns-group">
+        <button class=" submit-btn my-3" (click)="onSubmit()"> Submit</button>
+    </div>
+    </form>
+
+
+    <table class="table table-bordered mt-3">
+        <thead>
+          <tr>
+              <th class="text-center">Image</th>
+              <th class="text-center">Description</th>
+              <!-- <th>Transaction Date</th> -->
+              <!-- <th>Transaction Number</th>
+              <th>Transaction Type</th> -->
+              <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of attachmentList">
+              <td  class="text-center">
+                  <img [src]="row.attachment" alt="Attachment" width="60" height="60" style="object-fit: cover;">
+                </td>
+              <td  class="text-center">{{ row.description }}</td>
+              <!-- <td>{{ row.transaction_number }}</td> -->
+              <!-- <td>{{ row.transaction_type }}</td> -->
+                <td class="text-center">
+                  <button type="button" class="btn btn-sm" (click)="viewAttachment(row.attachment)">
+                    <i class="pi pi-eye"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm text-danger" (click)="showConfirmDelete(row.id)">
+                    <i class="pi pi-trash text-danger"></i>
+                  </button>
+                </td>
+          </tr>
+        </tbody>
+      </table>
+      
+  </p-dialog>

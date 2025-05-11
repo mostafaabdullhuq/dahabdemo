@@ -20,6 +20,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MenubarModule } from 'primeng/menubar';
 import { AvatarModule } from 'primeng/avatar';
+import { DialogModule } from 'primeng/dialog';
 
 // Components
 import { InputTextComponent } from './components/input-text/input-text.component';
@@ -61,7 +62,8 @@ const primeNgModules = [
   DatePickerModule,
   ConfirmDialogModule,
   MenubarModule,
-  AvatarModule
+  AvatarModule,
+  DialogModule
 ]
 
 @NgModule({

@@ -15,7 +15,7 @@ export class DataTableComponent implements OnInit {
   @Input() rows!: number;
   @Output() pageChange: EventEmitter<any> = new EventEmitter();
   @Input() contextMenuItems: MenuItem[] = [];
-
+  @Input() paginator :boolean = true
   selectedRow: any;
 @Output() rowSelected = new EventEmitter<any>();
 
