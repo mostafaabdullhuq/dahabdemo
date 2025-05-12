@@ -1,5 +1,4 @@
 import { Component, ContentChild, Input, TemplateRef } from '@angular/core';
-import { SharedModule } from '../../shared.module';
 
 @Component({
   selector: 'app-input-table',
@@ -9,7 +8,7 @@ import { SharedModule } from '../../shared.module';
 })
 export class InputTableComponent {
   @Input() data: any = [];
-
+  @Input() height: any ='auto' ;
   @ContentChild('headerTemplate', { static: false }) headerTemplate!: TemplateRef<any>;
   @ContentChild('bodyTemplate', { static: false }) bodyTemplate!: TemplateRef<any>;
 }

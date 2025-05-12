@@ -9,12 +9,17 @@ import { environment } from '../../../environments/environment.development';
 export class DropdownsService {
   private API = `${environment.api_url}`
 
-  constructor(private _http: SingletonService) {}
-  getBranches(nextPageUrl: string | null = null): Observable<any> {
-    const url = nextPageUrl || `${this.API}branch/`;
+  constructor(private _http: SingletonService) { }
+  getBranches(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
+    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+    const url = nextPageUrl || `${this.API}branch/?${param}`;
     return this._http.getRequest<any>(url);
   }
-
+  getTaxes(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
+    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+    const url = nextPageUrl || `${this.API}business/settings/tax-rates/?${param}`;
+    return this._http.getRequest<any>(url);
+  }
   getRoles(nextPageUrl: string | null = null): Observable<any> {
     const url = nextPageUrl || `${this.API}business/roles/`;
     return this._http.getRequest<any>(url);
@@ -58,12 +63,17 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}product/stock-point/`;
     return this._http.getRequest<any>(url);
   }
-  getProducts(nextPageUrl: string | null = null, params?:string): Observable<any> {
+  getProducts(nextPageUrl: string | null = null, params?: string): Observable<any> {
     const url = nextPageUrl || `${this.API}product/?${params}`;
     return this._http.getRequest<any>(url);
   }
-  getCustomersGroup(nextPageUrl: string | null = null, params?:string): Observable<any> {
+  getCustomersGroup(nextPageUrl: string | null = null, params?: string): Observable<any> {
     const url = nextPageUrl || `${this.API}customer/groups/?${params}`;
+    return this._http.getRequest<any>(url);
+  }
+
+  getCustomers(nextPageUrl: string | null = null, params?: string): Observable<any> {
+    const url = nextPageUrl || `${this.API}customer/?${params}`;
     return this._http.getRequest<any>(url);
   }
 }

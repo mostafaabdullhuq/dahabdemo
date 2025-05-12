@@ -15,6 +15,7 @@ constructor(){
     {
         label: 'POS',
         icon: 'pi pi-money-bill',
+        link:'pos'
     },
     {
         label: 'Chats',

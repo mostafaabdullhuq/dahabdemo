@@ -5,10 +5,11 @@ import { DocumentsComponent } from './documents/documents.component';
 import { TransactionsComponent } from './inventory/inventory.component';
 import { ActivatedRoute } from '@angular/router';
 import { ContactService } from '../../@services/contact.service';
+import { ParchasesComponent } from "./parchases/parchases.component";
 
 @Component({
   selector: 'app-supplier-view',
-  imports: [SharedModule , PaymentsComponent, DocumentsComponent , TransactionsComponent],
+  imports: [SharedModule, PaymentsComponent, DocumentsComponent, TransactionsComponent, ParchasesComponent],
   templateUrl: './supplier-view.component.html',
   styleUrl: './supplier-view.component.scss'
 })

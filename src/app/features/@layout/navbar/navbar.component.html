@@ -4,7 +4,7 @@
             <h5 class="logo mt-1 me-5"><a>DAHAB</a></h5>
         </ng-template>
         <ng-template #item let-item let-root="root" class="d-flex justify-content-center">
-            <a pRipple class="flex items-center p-menubar-item-link">
+            <a pRipple [routerLink]="[item.link]" class="flex items-center p-menubar-item-link">
                 <i [ngClass]="[item?.icon]"></i>
                 <span>{{ item.label }}</span>
                 <span *ngIf="item.shortcut" class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{ item.shortcut }}</span>

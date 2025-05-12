@@ -18,4 +18,16 @@
           border-color: $btn-primary-hover !important;
         }
     }
+    .delete-btn{
+        background-color: #dc2626 !important;
+        border-color: #dc2626 !important;
+        color: $text-inverse !important;
+        transition: $transition-base;
+        padding: 5px 15px;
+        border-radius: 15px;
+        &:hover {
+          background-color: #dc2626ca !important;
+          border-color: #dc2626ca !important;
+        }
+    }
 }

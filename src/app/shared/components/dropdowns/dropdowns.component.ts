@@ -23,6 +23,8 @@ export class DropdownsComponent implements ControlValueAccessor {
   @Input() label: string = '';
   @Output() selectionChange = new EventEmitter<any>();
   @Input() required:boolean = false;
+  @Output() valueChange = new EventEmitter<any>();
+  @Input() value: any;
 
   selectedValue: any = '';
 

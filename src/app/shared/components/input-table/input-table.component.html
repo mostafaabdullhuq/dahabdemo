@@ -1,4 +1,4 @@
-<p-table [value]="data" [tableStyle]="{ 'min-width': '50rem' }">
+<p-table [value]="data" [lazy]="true" [tableStyle]="{ 'min-width': '70rem','max-width': '100%', 'height': height }">
     <ng-template pTemplate="header">
       <tr>
         <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>

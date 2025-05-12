@@ -132,6 +132,14 @@ getSupplierDocuments(id:any,search: string = '', page: number = 1, pageSize: num
 const params = `?${search}&page=${page}&page_size=${pageSize}`
 return this._http.getRequest(`${environment.api_url}suppliers/docs/${id}/${params}` );
 }
+getSupplierParchases(id:any,search: string = '', page: number = 1, pageSize: number = 10){
+    // const params = new HttpParams()
+   //   .set('', search)
+   //   .set('page', page.toString())
+   //   .set('page_size', pageSize.toString());
+   const params = `?${search}&page=${page}&page_size=${pageSize}`
+   return this._http.getRequest(`${environment.api_url}suppliers/purchases/${id}/${params}` );
+ }
 addAttachSupplier(supplierId:any,addForm:any){
  return this._http.postRequest(`${environment.api_url}suppliers/docs/${supplierId}/add/`,addForm);
 }

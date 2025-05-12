@@ -1,1 +1,40 @@
-<p>pos works!</p>
+<ng-container #container></ng-container>
+
+<div class="">
+    <p-tabs value="0">
+        <p-tablist>
+            <p-tab value="0">Sales</p-tab>
+            <p-tab value="1">Return</p-tab>
+            <p-tab value="2">Purchase Old Gold</p-tab>
+            <p-tab value="3">Repair</p-tab>
+            <p-tab value="4">Gold Receipt</p-tab>
+
+            <div class="btns-group w-100 d-flex justify-content-end align-items-center h-100 px-3">
+                <button [ngClass]="isShiftActive ? 'delete-btn' : 'submit-btn'"
+                    (click)="onRegisterClick()">
+                    <i [ngClass]="isShiftActive ? 'pi pi-lock' : 'pi pi-lock-open'" class="text-white px-2"></i>
+                    {{ isShiftActive ? 'Close Register' : 'Open Register' }}
+                </button>
+            </div>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="0">
+                <div class="row">
+                    <div class="col-md-8">
+                        <app-sales-pos></app-sales-pos>
+                    </div>
+                    <div class="col-md-4">
+                        <app-totals-pos></app-totals-pos>
+                    </div>
+                </div>
+            </p-tabpanel>
+            <p-tabpanel value="1">
+              
+            </p-tabpanel>
+            <p-tabpanel value="2">
+                
+            </p-tabpanel>
+        </p-tabpanels>
+
+    </p-tabs>
+</div>

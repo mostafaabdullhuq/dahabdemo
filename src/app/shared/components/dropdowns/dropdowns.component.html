@@ -8,7 +8,11 @@
   
     <!-- Select Dropdown -->
     <p-select
+    appendTo="body"
     size="small"
+    [filter]="true"
+    [ngModel]="value" 
+    (ngModelChange)="onChange($event)"
     [options]="options"
     [(ngModel)]="selectedValue"
     [optionLabel]="optionLabel"
