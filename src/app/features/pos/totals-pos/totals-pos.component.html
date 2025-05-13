@@ -1,54 +1,76 @@
 <ng-container #container></ng-container>
 
-<div class="container border border-1 rounded-4 vh-100">
-    <form [formGroup]="totalForm">
-        <div class="row">
-            <div class="col-md-12">
-                 <app-dropdowns [required]="true" label="Customers" formControlName="customer_id" [options]="customers" optionLabel="name"
-                        optionValue="id" placeholder="Select a customer"></app-dropdowns>
+<div class="container border border-1 rounded-4 vh-100 py-3">
+    <form [formGroup]="totalForm" (ngSubmit)="onPlaceOrder()">
+
+        <!-- Customer & Currency Selection -->
+        <div class="row mb-4">
+            <div class="col-md-12 mb-3">
+                <app-dropdowns [required]="true" label="Customers" formControlName="customer" [options]="customers"
+                    optionLabel="name" optionValue="id" placeholder="Select a customer">
+                </app-dropdowns>
             </div>
             <div class="col-md-12">
-                 <app-dropdowns [required]="true" label="Currencies" formControlName="currency_id" [options]="currencies" optionLabel="currency_name"
-                        optionValue="currency" placeholder="Select a currency"></app-dropdowns>
+                <app-dropdowns [required]="true" label="Currencies" formControlName="currency" [options]="currencies"
+                    optionLabel="currency_name" optionValue="currency" placeholder="Select a currency">
+                </app-dropdowns>
             </div>
-        </div>
-        <hr>
-        <div class="row section-form container">
-            <ul class="list-unstyled">
-                <div class="d-flex justify-content-between">
-                    <li>Sub Total</li>
-                    <li>{{totalPrice}} {{selectedCurrency?.currency_code}}</li>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <li>Discount</li>
-                    <li>{{discountAmount}} {{selectedCurrency?.currency_code}}</li>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <li>Tax(10%)</li>
-                    <li>{{totalVat}} {{selectedCurrency?.currency_code}}</li>
-                </div>
-                <hr>
-                <div class="d-flex fw-bold justify-content-between">
-                    <li>Total</li>
-                    <li> {{totalWithVat}} {{selectedCurrency?.currency_code}}</li>
-                </div>
-            </ul>
         </div>
 
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <app-dropdowns label="Payment methods" formControlName="payment_method" [options]="paymnetMethods" optionLabel="name"
-                        optionValue="id" placeholder="Select a method"></app-dropdowns>
-                </div>
-                <div class="col-md-12 header-btns">
-                    <button (click)="openMultiPaymentMethods()" class="my-4 submit-btn w-100 add-btn">Multiple Payments </button>
-                </div>
-                <hr>
-                <div class="col-md-12 btns-group">
-                    <button type="submit" class="my-1 submit-btn w-100 add-btn">Place Order</button>
-                </div>
+        <hr>
+
+        <!-- Summary Section -->
+        <div class="row section-form">
+            <div class="col-12">
+                <ul class="list-unstyled px-3">
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Sub Total</span>
+                        <span>{{ totalPrice }} {{ selectedCurrency?.currency_code }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Discount</span>
+                        <span>{{ discountAmount }} {{ selectedCurrency?.currency_code }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Tax (10%)</span>
+                        <span>{{ totalVat }} {{ selectedCurrency?.currency_code }}</span>
+                    </li>
+                    <hr>
+                    <li class="d-flex justify-content-between fw-bold">
+                        <span>Total</span>
+                        <span>{{ totalWithVat }} {{ selectedCurrency?.currency_code }}</span>
+                    </li>
+                </ul>
             </div>
         </div>
+
+        <hr>
+
+        <!-- Payment Method & Submit -->
+        <div class="row">
+            <div formArrayName="payments">
+                    <div *ngFor="let payment of paymentsControls; let i = index" [formGroupName]="i">
+                        <div class="col-md-12 mb-3">
+                            <app-dropdowns label="Payment Methods" formControlName="payment_method"
+                                [options]="paymnetMethods" optionLabel="name" optionValue="id"
+                                placeholder="Select a method">
+                            </app-dropdowns>
+                        </div>
+                    </div>
+            </div>
+
+            <div class="col-md-12 mb-3 header-btns">
+                <button type="button" class="submit-btn w-100 add-btn" (click)="openMultiPaymentMethods()">
+                    Multiple Payments
+                </button>
+            </div>
+<hr>
+            <div class="col-md-12 btns-group">
+                <button type="submit" class="submit-btn w-100 add-btn">
+                    Place Order
+                </button>
+            </div>
+        </div>
+
     </form>
 </div>

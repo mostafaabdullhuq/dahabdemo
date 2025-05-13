@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PosStatusService } from '../../@services/pos-status.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { PosService } from '../../@services/pos.service';
@@ -14,25 +14,40 @@ export class PaymentMethodsPopupComponent {
   visible: boolean = false;
   registerPosForm!: FormGroup;
   baymentMethods: any = [];
+  @Output() onSubmitPayments = new EventEmitter<any[]>();
 
   constructor(private _posStatusService:PosStatusService, private _formBuilder: FormBuilder, private _dropdownsService: DropdownsService, private _posService: PosService) { }
 
   ngOnInit(): void {
     this.registerPosForm = this._formBuilder.group({
-      amount: ['', Validators.required],
-      payment_method: ['', Validators.required],
-    });
+    payments: this._formBuilder.array([this.createPaymentFormGroup()])
+  });
   }
+  createPaymentFormGroup(): FormGroup {
+  return this._formBuilder.group({
+    amount: ['', Validators.required],
+    payment_method: ['', Validators.required]
+  });
+}
+get payments(): FormArray {
+  return this.registerPosForm.get('payments') as FormArray;
+}
+addPayment() {
+  this.payments.push(this.createPaymentFormGroup());
+}
+
+removePayment(index: number) {
+  if (this.payments.length > 1) {
+    this.payments.removeAt(index);
+  }
+}
   showDialog() {
     this.visible = true;
   }
-
-  submitForm(form: FormGroup) {
-    this._posService.addShift(form.value).subscribe((res:any) => {
+ submitForm(form: FormGroup) {
+    if (form.valid) {
+      this.onSubmitPayments.emit(form.value.payments); // 👈 Emit data to parent
       this.visible = false;
-      if (res) {
-        this._posStatusService.setShiftStatus(true);
-      }
-    })
+    }
   }
 }

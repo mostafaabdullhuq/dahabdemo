@@ -1,5 +1,5 @@
 import { AfterContentInit, AfterViewChecked, Component, ComponentRef, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PosService } from '../@services/pos.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { combineLatest, debounceTime, EMPTY, Subject, takeUntil } from 'rxjs';
@@ -44,17 +44,25 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
   ngOnInit(): void {
     this.totalForm = this._formBuilder.group({
-      customer_id: ['', Validators.required],
-      currency_id: ['', Validators.required],
+      customer: ['', Validators.required],
+      currency: ['', Validators.required],
+      amount: [this.totalPrice],
+      discount: [this.discountAmount],
+      tax: [this.totalVat],
+      payments: this._formBuilder.array([
+    this._formBuilder.group({
       payment_method: [''],
+      amount:this.totalWithVat
+    })
+  ])
     });
-    const savedCustomer = sessionStorage.getItem('customer_id') ?? '';
-    const savedCurrency = sessionStorage.getItem('currency_id') ?? '';
+    const savedCustomer = sessionStorage.getItem('customer') ?? '';
+    const savedCurrency = sessionStorage.getItem('currency') ?? '';
 
     if (savedCustomer || savedCurrency) {
       this.totalForm.patchValue({
-        customer_id: parseInt(savedCustomer) ?? '',
-        currency_id: parseInt(savedCurrency) ?? ''
+        customer: parseInt(savedCustomer) ?? '',
+        currency: parseInt(savedCurrency) ?? ''
       });
     }
     this._posStatusService.shiftData$
@@ -73,10 +81,10 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.customers = res?.results
     });
 
-    this.totalForm.get('customer_id')?.valueChanges
+    this.totalForm.get('customer')?.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(value => {
-        sessionStorage.setItem('customer_id', value);
+        sessionStorage.setItem('customer', value);
         console.log(value);
 
       });
@@ -95,33 +103,39 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // Subscribe to the total price
     this._posSharedService.totalPrice$.subscribe(price => {
-      this.totalPrice = +price
+      this.totalPrice = +price;
+      this.totalForm.get('amount')?.patchValue(this.totalPrice)
     });
 
     // Subscribe to the discount
     this._posSharedService.discountAmount$.subscribe(disc => {
       this.discountAmount = +disc;
+            this.totalForm.get('discount')?.patchValue(this.discountAmount)
     });
 
     // Subscribe to the total with vat
     this._posSharedService.grandTotalWithVat$.subscribe(vat => {
       this.totalWithVat = +vat;
+      (this.totalForm.get('payments') as FormArray).at(0).patchValue({
+  amount: this.totalWithVat
+});
     });
 
     // Subscribe to the vat
     this._posSharedService.vat$.subscribe(vat => {
       this.totalVat = +vat;
+            this.totalForm.get('tax')?.patchValue(this.totalVat)
     });
   }
   onChangeCurrency() {
-    const currencyControl = this.totalForm.get('currency_id');
+    const currencyControl = this.totalForm.get('currency');
 
     currencyControl?.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(currencyValue => {
-        sessionStorage.setItem('currency_id', currencyValue);
+        sessionStorage.setItem('currency', currencyValue);
         this.selectedCurrency = this.currencies.find(
-          (currency: any) => currency.currency == (currencyValue ?? sessionStorage.getItem('currency_id'))
+          (currency: any) => currency.currency == (currencyValue ?? sessionStorage.getItem('currency'))
         );
         this._posSharedService.setSelectedCurrency(this.selectedCurrency);
       });
@@ -129,7 +143,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
     // Manually trigger once on init or after patch
     const initialValue = currencyControl?.value;
     if (initialValue) {
-      sessionStorage.setItem('currency_id', initialValue);
+      sessionStorage.setItem('currency', initialValue);
       this.selectedCurrency = this.currencies.find(
         (currency: any) => currency.currency == initialValue
       );
@@ -141,16 +155,48 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.currencies = res?.results
     })
   }
-
+get paymentsControls() {
+  return (this.totalForm.get('payments') as FormArray).controls;
+}
   componentRef!: ComponentRef<PaymentMethodsPopupComponent>;
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
-  openMultiPaymentMethods() {
-    this.container.clear();
-    this.componentRef = this.container.createComponent(PaymentMethodsPopupComponent);
-    this.componentRef.instance.visible = true;
-    this.componentRef.instance.baymentMethods = this.paymnetMethods;
+openMultiPaymentMethods() {
+  this.container.clear();
+  this.componentRef = this.container.createComponent(PaymentMethodsPopupComponent);
+  this.componentRef.instance.visible = true;
+  this.componentRef.instance.baymentMethods = this.paymnetMethods;
+
+  this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
+    this.totalForm.patchValue({ payments }); // Push array to form
+  });
+}
+onPlaceOrder() {
+  const formValue = this.totalForm.value;
+
+  // If no payments set, fallback to selected payment_method + totalWithVat
+  if (!formValue.payments || formValue.payments.length === 0) {
+    const paymentMethodId = this.totalForm.get('payment_method')?.value;
+
+    if (paymentMethodId) {
+      const fallbackPayment = [{
+        payment_method: paymentMethodId,
+        amount: this.totalWithVat
+      }];
+      this.totalForm.patchValue({ payments: fallbackPayment });
+    }
   }
+
+  console.log(this.totalForm.value);
+  this._posService.getOrderId().subscribe(res=>{
+    if(res?.order_id){
+      this._posService.addOrder(res?.order_id , this.totalForm?.value).subscribe(res=>{
+
+      })
+    }
+  })
+}
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
