@@ -6,17 +6,22 @@ import { PosSalesService } from '../@services/pos-sales.service';
 import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
 import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
+import { PosReturnsService } from '../@services/pos-returns.service';
+import { PosPurchaseService } from '../@services/pos-purchase.service';
+import { PosRepairService } from '../@services/pos-repair.service';
+import { PosGoldReceiptService } from '../@services/pos-gold-receipt.service';
 
 @Component({
-  selector: 'app-sales-pos',
-  standalone: false,
-  templateUrl: './sales-pos.component.html',
-  styleUrl: './sales-pos.component.scss'
+  selector: 'app-gold-receipt-pos',
+  standalone:false,
+  templateUrl: './gold-receipt-pos.component.html',
+  styleUrl: './gold-receipt-pos.component.scss'
 })
-export class SalesPosComponent implements OnInit, OnDestroy {
-  products: any = [];
+export class GoldReceiptPosComponent implements OnInit,OnDestroy{
+  purities: any = [];
+  receipts: any = [];
   productForm!: FormGroup;
-  salesDataOrders: any = [];
+  purchaseTableData: any = [];
   cols: any = [];
   selectedVat: any = ''
   taxes: any = [];
@@ -28,20 +33,24 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   shiftData:any = []
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
+  ,private _posGoldReceiptService:PosGoldReceiptService
   ) { }
 
   ngOnInit(): void {
     this.productForm = this._formBuilder.group({
-      product_id: ['', Validators.required]
+      weight: ['', Validators.required],
+      amount: ['', Validators.required],
+      price: ['', Validators.required],
+      purity: [''],
+      description: [''],
+      attachment: [''],
+      tax: [''],
     })
     
-    this._posService.getProductSalesList().subscribe((res) => {
-      this.products = res?.results;
+    this._dropdownService.getPurities().subscribe((res) => {
+      this.purities = res?.results;
     });
-    this._dropdownService.getTaxes().subscribe((res) => {
-      this.taxes = res?.results;
-    });
-    this.getSalesOrder()
+    this.getPurchaseOrders()
     this._posStatusService.shiftData$
     .pipe(takeUntil(this.destroy$))
     .subscribe(data => {
@@ -72,15 +81,10 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     this.onProductSelected(productId);
   });
   }
-  getSalesOrder() {
-    this._posSalesService._salesReciepts$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((res: any) => {
-        this.salesDataOrders = res;
-      });
-
-    // initial load
-    this._posSalesService.getSalesOrdersFromServer();
+  getPurchaseOrders() {
+    this._posGoldReceiptService.getGoldReceiptProduct().subscribe(res=>{
+      this.purchaseTableData = res
+    })
   }
   calcGoldPriceAccordingToPurity(group: any): number {
     if (
@@ -158,7 +162,7 @@ calcTotalPriceWithVat(group: any): number {
   const baseTotal = this.calcTotalPrice(group);
   const vatRate = +this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat)?.rate || 0;
   const vatAmount = (vatRate / 100) * baseTotal;
-const totalVat = this.salesDataOrders.reduce((acc: number, group: any) => {
+const totalVat = this.purchaseTableData.reduce((acc: number, group: any) => {
   const baseTotal = this.calcTotalPrice(group); // your existing method
   const vatRate = +this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat)?.rate || 0;
   const vatAmount = (vatRate / 100) * baseTotal;
@@ -172,9 +176,9 @@ const totalVat = this.salesDataOrders.reduce((acc: number, group: any) => {
   return +totalWithVat.toFixed(decimalPlaces);
 }
 calcGrandTotalWithVat(): number {
-  if (!this.salesDataOrders || this.salesDataOrders.length === 0) return 0;
+  if (!this.purchaseTableData || this.purchaseTableData.length === 0) return 0;
 
-  const total = this.salesDataOrders.reduce((sum: number, group: any) => {
+  const total = this.purchaseTableData.reduce((sum: number, group: any) => {
     return sum + this.calcTotalPriceWithVat(group);
   }, 0);
 
@@ -184,7 +188,7 @@ calcGrandTotalWithVat(): number {
   return +total.toFixed(decimalPlaces);
 }
   onProductSelected(productId: number): void {
-    const selectedProduct = this.products.find((p: any) => p.id === productId);
+    const selectedProduct = this.purities.find((p: any) => p.id === productId);
     if (!selectedProduct) return;
 
     const payload = {
@@ -195,7 +199,7 @@ calcGrandTotalWithVat(): number {
     this._posService.addProductSale(payload)
       .subscribe({
         next: res => {
-          this._posSalesService.getSalesOrdersFromServer();
+         // this._posSalesService.getSalesOrdersFromServer();
         },
         error: err => {
           console.error('Error posting product', err);
@@ -203,7 +207,7 @@ calcGrandTotalWithVat(): number {
       });
   }
   get totalPrice(): number {
-    const total = this.salesDataOrders.reduce((sum: number, group: any) => {
+    const total = this.purchaseTableData.reduce((sum: number, group: any) => {
       return sum + this.calcTotalPrice(group);
     }, 0);
 
@@ -214,6 +218,36 @@ calcGrandTotalWithVat(): number {
 
     return formattedTotal;
   }
+onSubmit(): void {
+  if (this.productForm.invalid) return;
+
+  const formValue = this.productForm.value;
+  const formData = new FormData();
+
+  // Append all form fields
+  formData.append('weight', formValue.weight);
+  formData.append('amount', formValue.amount);
+  formData.append('price', formValue.price);
+  formData.append('purity', formValue.purity ?? '');
+  formData.append('description', formValue.description ?? '');
+  formData.append('tax', formValue.tax ?? '');
+
+  // Handle file upload
+  const file = formValue.attachment;
+  if (file instanceof File) {
+    formData.append('attachment', file);
+  }
+
+  // Submit to the service
+  this._posGoldReceiptService.addGoldReceiptProduct(formData).subscribe({
+    next: (res) => {
+      this.productForm.reset();
+      this.getPurchaseOrders(); // Refresh data
+    },
+    error: (err) => console.error('Error submitting', err)
+  });
+}
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

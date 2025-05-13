@@ -6,6 +6,10 @@ import { RouterLink } from '@angular/router';
 import { TotalsPosComponent } from './totals-pos/totals-pos.component';
 import { PosRegisterPopupComponent } from './pos-register-popup/pos-register-popup.component';
 import { PaymentMethodsPopupComponent } from './totals-pos/payment-methods-popup/payment-methods-popup.component';
+import { RetunPosComponent } from './retun-pos/retun-pos.component';
+import { PurchasePosComponent } from './purchase-pos/purchase-pos.component';
+import { RepairPosComponent } from './repair-pos/repair-pos.component';
+import { GoldReceiptPosComponent } from './gold-receipt-pos/gold-receipt-pos.component';
 
 
 
@@ -15,7 +19,11 @@ import { PaymentMethodsPopupComponent } from './totals-pos/payment-methods-popup
     SalesPosComponent,
     TotalsPosComponent,
     PosRegisterPopupComponent,
-    PaymentMethodsPopupComponent
+    PaymentMethodsPopupComponent,
+    RetunPosComponent,
+    PurchasePosComponent,
+    RepairPosComponent,
+    GoldReceiptPosComponent
   ],
   imports: [
     SharedModule,

@@ -6,15 +6,17 @@ import { PosSalesService } from '../@services/pos-sales.service';
 import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
 import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
+import { PosReturnsService } from '../@services/pos-returns.service';
 
 @Component({
-  selector: 'app-sales-pos',
+  selector: 'app-retun-pos',
   standalone: false,
-  templateUrl: './sales-pos.component.html',
-  styleUrl: './sales-pos.component.scss'
+  templateUrl: './retun-pos.component.html',
+  styleUrl: './retun-pos.component.scss'
 })
-export class SalesPosComponent implements OnInit, OnDestroy {
+export class RetunPosComponent implements OnInit, OnDestroy  {
   products: any = [];
+  receipts: any = [];
   productForm!: FormGroup;
   salesDataOrders: any = [];
   cols: any = [];
@@ -28,15 +30,20 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   shiftData:any = []
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
+  ,private _posReturnService:PosReturnsService
   ) { }
 
   ngOnInit(): void {
     this.productForm = this._formBuilder.group({
-      product_id: ['', Validators.required]
+      product_id: ['', Validators.required],
+      reciept_id: ['', Validators.required],
     })
     
-    this._posService.getProductSalesList().subscribe((res) => {
+    this._posReturnService.getReturnProducts().subscribe((res) => {
       this.products = res?.results;
+    });
+    this._posReturnService.getReturnReciepts().subscribe((res) => {
+      this.receipts = res?.results;
     });
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results;
