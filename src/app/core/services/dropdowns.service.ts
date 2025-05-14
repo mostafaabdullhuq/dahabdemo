@@ -15,6 +15,11 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}branch/?${param}`;
     return this._http.getRequest<any>(url);
   }
+  getSuppliers(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
+    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+    const url = nextPageUrl || `${this.API}suppliers/?${param}`;
+    return this._http.getRequest<any>(url);
+  }
   getTaxes(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
     const url = nextPageUrl || `${this.API}business/settings/tax-rates/?${param}`;

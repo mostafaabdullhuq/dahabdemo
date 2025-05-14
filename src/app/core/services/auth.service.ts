@@ -50,9 +50,10 @@ export class AuthService {
   }
 
   logout() {
+    sessionStorage.removeItem('access_token');
+    localStorage.removeItem('access_token');
     localStorage.removeItem('tokens');
     sessionStorage.removeItem('tokens');
-    sessionStorage.removeItem('access_token');
     localStorage.removeItem('user'); // Remove user data
     this.currentTokens$.next(null);
     this.router.navigate(['/auth/login']);

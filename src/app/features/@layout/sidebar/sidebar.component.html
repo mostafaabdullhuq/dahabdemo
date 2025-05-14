@@ -125,9 +125,11 @@
             </a>
             <div class="collapse ps-4" id="submenuAccounting">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-exchange me-2"></i> Transactions</a></li>
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-shopping-cart me-2"></i> Purchase</a>
-                    </li>
+                    <a [routerLink]="['/acc/transactions']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-exchange me-2"></i> Transactions</a>
+                    <a [routerLink]="['/acc/purchases']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-shopping-cart me-2"></i> Purchase</a>
+                    
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-money-bill me-2"></i> Expenses</a></li>
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-pie-chart me-2"></i> Chart Of
                             Accounts</a></li>

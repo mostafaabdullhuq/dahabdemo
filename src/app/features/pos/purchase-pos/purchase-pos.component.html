@@ -60,7 +60,7 @@
 
                             <ng-template #bodyTemplate let-group let-i="index">
                                 <td>{{ group.tag_number }}</td>
-                                <td>{{ group.weight }}</td>
+                                <td>{{ group.old_gold_weight }}</td>
                                 <!-- <td>{{ group.size }}</td> -->
                                 <td>{{ group.purity }}</td>
                                 <!-- <td>{{ group.description }}</td> -->
@@ -77,13 +77,13 @@
                                 <td>{{ group.discount }}</td> -->
                                 <!-- <td>{{ group.max_discount }}</td> -->
                                 <!-- <td>{{ (calcMetalValueAccordingToPurity(group)) }}</td> -->
-                                <td>{{calcTotalPrice(group)}}</td>
+                                <td>{{group?.amount}}</td>
 
                             </ng-template>
                         </app-input-table>
                         <div class="d-flex justify-content-end w-100">
                             <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
-                                Total: {{ totalPrice }} </div>
+                                Total: {{ totalAmount() }} </div>
                         </div>
                     </div>
                 </div>

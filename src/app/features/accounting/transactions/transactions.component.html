@@ -1,0 +1,33 @@
+<p-confirmdialog />
+
+<section>
+    <div class="header-container">
+        <h3>Transactions </h3>
+        <hr>
+    </div>
+    <div class="filter-container container">
+        <app-filter-collapse>
+            <form class="container" [formGroup]="filterForm">
+                <div class="row">
+                    <div class="col-md-12">
+                        <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
+                    </div>
+                     <div class="col-md-6">
+                            <app-dropdowns label="transaction" formControlName="transaction_type" [options]="transactionTypes"
+                                optionLabel="name" optionValue="id" placeholder="Select a type"></app-dropdowns>
+                        </div>
+                </div>
+                <div class="btns-group">
+                    <button class=" submit-btn" (click)="onSearch()">Search</button>
+                </div>
+                </form >
+        </app-filter-collapse>
+    </div>
+
+    <div class="table-container">
+        <app-data-table [contextMenuItems]="transactionsMenuItems"
+        (rowSelected)="selectedTransaction = $event" [data]="transactions" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+            (pageChange)="loadTransactions($event)">
+        </app-data-table>
+    </div>
+</section>

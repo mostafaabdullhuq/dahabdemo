@@ -1,3 +1,4 @@
+import { PurchasesComponent } from './../accounting/purchases/purchases.component';
 import { Routes } from '@angular/router';
 import { UsersComponent } from '../user-management/users/users.component';
 import { AddEditUserComponent } from '../user-management/users/add-edit-user/add-edit-user.component';
@@ -33,6 +34,8 @@ import { SuppliersComponent } from '../contact/suppliers/suppliers.component';
 import { AddEditSupplierComponent } from '../contact/suppliers/add-edit-supplier/add-edit-supplier.component';
 import { CustomerViewComponent } from '../contact/customers/customer-view/customer-view.component';
 import { SupplierViewComponent } from '../contact/suppliers/supplier-view/supplier-view.component';
+import { TransactionsComponent } from '../accounting/transactions/transactions.component';
+import { AddEditPurchaseComponent } from '../accounting/purchases/add-edit-purchase/add-edit-purchase.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -114,6 +117,21 @@ export const routes: Routes = [
       { path: 'supplier/add', component: AddEditSupplierComponent },
       { path: 'supplier/edit/:id', component: AddEditSupplierComponent },
       { path: 'supplier-view/:id', component: SupplierViewComponent },
+    ]
+  },
+  // Accounting
+  {
+    path: 'acc', children: [
+      { path: '', redirectTo: 'transactions', pathMatch: 'full' },
+      { path: 'transactions', component: TransactionsComponent },
+      // { path: 'customer/add', component: AddEditCustomerComponent },
+      // { path: 'customer/edit/:id', component: AddEditCustomerComponent },
+      // { path: 'customer-view/:id', component: CustomerViewComponent }
+
+      { path: '', redirectTo: 'purchases', pathMatch: 'full' },
+      { path: 'purchases', component: PurchasesComponent },
+      { path: 'purchase/add', component: AddEditPurchaseComponent },
+      { path: 'purchase/edit/:id', component: AddEditPurchaseComponent },
     ]
   }
 ];

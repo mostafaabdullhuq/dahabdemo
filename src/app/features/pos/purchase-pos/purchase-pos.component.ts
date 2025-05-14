@@ -182,6 +182,14 @@ calcGrandTotalWithVat(): number {
   
   return +total.toFixed(decimalPlaces);
 }
+totalAmount(): number {
+  return this.purchaseTableData.reduce((sum: number, group: { amount: string; }) => {
+    const amount = parseFloat(group.amount) || 0;
+        this._posSharedService.setTotalPrice(sum + amount);
+        this._posSharedService.setGrandTotalWithVat(sum + amount);
+    return sum + amount;
+  }, 0);
+}
   onProductSelected(productId: number): void {
     const selectedProduct = this.purities.find((p: any) => p.id === productId);
     if (!selectedProduct) return;
