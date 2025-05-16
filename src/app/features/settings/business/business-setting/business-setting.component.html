@@ -1,0 +1,80 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Business</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditBusinessForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <h6 class="section-form-header">Business Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <app-input-text formControlName="name" inputName="name" [required]="true"
+                                placeholder="Enter Business name">
+                                @if ((addEditBusinessForm.get('name')?.errors?.['required'] &&
+                                addEditBusinessForm.get('name')?.touched)) {
+                                <div class="text-danger mt-1">
+                                    <small><i class="text-danger pi pi-times-circle px-2"
+                                            style="font-size: 0.8rem"></i>Business name is required</small>
+                                </div>
+                                }
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-6">
+                            <app-input-text formControlName="website" inputName="website" [required]="true"
+                                placeholder="Enter Business website">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-6">
+                            <app-input-text formControlName="contact_number" inputName="contact number" [required]="true"
+                                placeholder="Enter Business contact number">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-6">
+                            <app-input-text formControlName="alternate_contact_number" inputName="alternate contact number"
+                                placeholder="Enter Business alternate contact number">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-6">
+                            <app-dropdowns label="Select financial year start" [required]="true" id="financial_year_start" formControlName="financial_year_start"
+                                [options]="months" optionLabel="name" optionValue="id" placeholder="Select a financial year start">
+                            </app-dropdowns>
+                        </div>
+                        <div class="col-md-6">
+                            <app-dropdowns label="time zone" [required]="true" id="time" formControlName="time_zone"
+                                [options]="timeZones" optionLabel="name" optionValue="id" placeholder="Select a time">
+                            </app-dropdowns>
+                        </div>
+                        <div class="col-md-6">
+                            <app-dropdowns label="date format" [required]="true" id="date_format" formControlName="date_format"
+                                [options]="dateFormat" optionLabel="name" optionValue="id" placeholder="Select a date">
+                            </app-dropdowns>
+                        </div>
+                        <div class="col-md-6">
+                            <app-dropdowns label="time format" [required]="true" id="time_format" formControlName="time_format"
+                                [options]="timeFormat" optionLabel="name" optionValue="id" placeholder="Select a time">
+                            </app-dropdowns>
+                        </div>
+                        <div class="col-md-6">
+                            <app-dropdowns label="Currencies" [required]="true" id="currency" formControlName="currency"
+                                [options]="currencies" optionLabel="name" optionValue="id" placeholder="Select a currency">
+                            </app-dropdowns>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label"> logo </label>
+                            <app-upload-input formControlName="logo" label="Upload Image"></app-upload-input>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditBusinessForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

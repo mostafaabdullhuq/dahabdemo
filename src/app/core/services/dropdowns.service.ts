@@ -86,4 +86,12 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}customer/?${params}`;
     return this._http.getRequest<any>(url);
   }
+   getTimeZones(nextPageUrl: string | null = null, params?: string): Observable<any> {
+    const url = nextPageUrl || `${this.API}core/time-zones/?${params}`;
+    return this._http.getRequest<any>(url);
+  }
+   getCurrencies(nextPageUrl: string | null = null, params?: string): Observable<any> {
+    const url = nextPageUrl || `${this.API}core/currencies/?${params}`;
+    return this._http.getRequest<any>(url);
+  }
 }

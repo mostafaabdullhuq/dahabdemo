@@ -19,12 +19,23 @@ export class DataTableComponent implements OnInit {
   selectedRow: any;
 @Output() rowSelected = new EventEmitter<any>();
 
+@Input() getRowData?: (row: any) => MenuItem[]; // Optional function if parent wants dynamic rows
 
+getActions(rowData: any): MenuItem[] {
+  if (this.getRowData) {
+    return this.getRowData(rowData);
+  }
+  return this.contextMenuItems;
+}
 onContextMenuRowSelect(row: any) {
   this.selectedRow = row;
   this.rowSelected.emit(row);
 }
 
+onRowClick(row: any) {
+  this.selectedRow = row;
+  this.rowSelected.emit(row);
+}
   ngOnInit() {
   }
 

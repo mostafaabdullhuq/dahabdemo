@@ -149,7 +149,8 @@
             </a>
             <div class="collapse ps-4" id="submenuSettings">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-briefcase me-2"></i> Business</a></li>
+                    <a [routerLink]="['/setting/business']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-briefcase me-2"></i> Business</a>
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-building me-2"></i> Branches</a></li>
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-file me-2"></i> Invoice</a></li>
                     <li><a href="#" class="nav-link text-dark"><i class="pi pi-tag me-2"></i> Tax Rates</a></li>

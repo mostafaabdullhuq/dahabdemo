@@ -40,6 +40,8 @@ import { ExpensesComponent } from '../accounting/expenses/expenses.component';
 import { AddEditExpensesComponent } from '../accounting/expenses/add-edit-expenses/add-edit-expenses.component';
 import { AddEditExpenseCatComponent } from '../accounting/expenses/expenses-category/add-edit-expense-cat/add-edit-expense-cat.component';
 import { ExpensesCategoryComponent } from '../accounting/expenses/expenses-category/expenses-category.component';
+import { BusinessSettingComponent } from '../settings/business/business-setting/business-setting.component';
+import { BusinessComponent } from '../settings/business/business.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -146,6 +148,16 @@ export const routes: Routes = [
       { path: 'expenses-cat', component: ExpensesCategoryComponent },
       { path: 'expenses-cat/add', component: AddEditExpenseCatComponent },
       { path: 'expenses-cat/edit/:id', component:AddEditExpenseCatComponent},
+    ]
+  },
+  // settings
+  {
+    path: 'setting', children: [
+      { path: '', redirectTo: 'business', pathMatch: 'full' },
+      { path: 'business', component: BusinessComponent },
+      // { path: 'customer/add', component: AddEditCustomerComponent },
+      // { path: 'customer/edit/:id', component: AddEditCustomerComponent },
+      // { path: 'customer-view/:id', component: CustomerViewComponent }
     ]
   }
 ];
