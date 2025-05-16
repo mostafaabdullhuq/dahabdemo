@@ -36,6 +36,8 @@ import { CustomerViewComponent } from '../contact/customers/customer-view/custom
 import { SupplierViewComponent } from '../contact/suppliers/supplier-view/supplier-view.component';
 import { TransactionsComponent } from '../accounting/transactions/transactions.component';
 import { AddEditPurchaseComponent } from '../accounting/purchases/add-edit-purchase/add-edit-purchase.component';
+import { ExpensesComponent } from '../accounting/expenses/expenses.component';
+import { AddEditExpensesComponent } from '../accounting/expenses/add-edit-expenses/add-edit-expenses.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -132,6 +134,11 @@ export const routes: Routes = [
       { path: 'purchases', component: PurchasesComponent },
       { path: 'purchase/add', component: AddEditPurchaseComponent },
       { path: 'purchase/edit/:id', component: AddEditPurchaseComponent },
+
+      { path: '', redirectTo: 'expenses', pathMatch: 'full' },
+      { path: 'expenses', component: ExpensesComponent },
+      { path: 'expense/add', component: AddEditExpensesComponent },
+      { path: 'expense/edit/:id', component:AddEditExpensesComponent},
     ]
   }
 ];

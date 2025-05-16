@@ -37,7 +37,8 @@ export const toasterInterceptor: HttpInterceptorFn = (req, next) => {
       const errMsg = error.error?.message || 'Something went wrong.';
       if (error.status === 401) {
         toaster.showError('Unauthorized. Please login again.');
-
+        localStorage.removeItem('access_token');
+        sessionStorage.removeItem('access_token');
         // Important: Run navigation in Angular zone
         ngZone.run(() => {
           if (router.url !== '/auth/login') {
