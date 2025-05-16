@@ -9,6 +9,10 @@ import { FormGroup } from '@angular/forms';
 })
 export class AccService {
   constructor(private _http: SingletonService) { }
+  getGoldPrice(bId: any): Observable<any> {
+    return this._http.getRequest(`${environment.api_url}branch/gold-price/${bId}/`);
+  }
+
   //-----> acc API
   // Get acc 
   getTransactions(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
@@ -16,22 +20,22 @@ export class AccService {
     //   .set('', search)
     //   .set('page', page.toString())
     //   .set('page_size', pageSize.toString());
-      const params = `?${search}&page=${page}&page_size=${pageSize}`
-    return this._http.getRequest(`${environment.api_url}transactions/${params}` );
+    const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}transactions/${params}`);
   }
-    deleteTransaction(id:number ){
+  deleteTransaction(id: number) {
     return this._http.deleteRequest(`${environment.api_url}transactions/${id}`);
   }
 
-   getPurchases(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+  getPurchases(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     // const params = new HttpParams()
     //   .set('', search)
     //   .set('page', page.toString())
     //   .set('page_size', pageSize.toString());
-      const params = `?${search}&page=${page}&page_size=${pageSize}`
-    return this._http.getRequest(`${environment.api_url}purchases/${params}` );
+    const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}purchases/${params}`);
   }
-    deletePurchase(id:number ){
+  deletePurchase(id: number) {
     return this._http.deleteRequest(`${environment.api_url}purchases/${id}`);
   }
 
@@ -40,23 +44,36 @@ export class AccService {
     //   .set('', search)
     //   .set('page', page.toString())
     //   .set('page_size', pageSize.toString());
-      const params = `?${search}&page=${page}&page_size=${pageSize}`
-    return this._http.getRequest(`${environment.api_url}expenses/expenses/${params}` );
+    const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}expenses/expenses/${params}`);
   }
-  getExpenseById(id:any ){
-    return this._http.getRequest(`${environment.api_url}expenses/expenses/${id}`);
+  getExpenseById(id: any) {
+    return this._http.getRequest(`${environment.api_url}expenses/expenses/${id}/`);
   }
-  addExpense(form:FormData | FormGroup ){
-    return this._http.postRequest(`${environment.api_url}expenses/expenses/` , form);
+  addExpense(form: FormData | FormGroup) {
+    return this._http.postRequest(`${environment.api_url}expenses/expenses/`, form);
   }
-  updateExpense(id:number | string, editForm:FormGroup | FormData){
-    return this._http.patchRequest(`${environment.api_url}expenses/expenses/${id}/` , editForm);
+  updateExpense(id: number | string, editForm: FormGroup | FormData) {
+    return this._http.patchRequest(`${environment.api_url}expenses/expenses/${id}/`, editForm);
   }
-    deleteExpense(id:number ){
-    return this._http.deleteRequest(`${environment.api_url}expenses/expenses/${id}`);
+  deleteExpense(id: number) {
+    return this._http.deleteRequest(`${environment.api_url}expenses/expenses/${id}/`);
   }
-  getExpenseCategories(search: string = '', page: number = 1, pageSize: number = 10):Observable<any>{
- const params = `?${search}&page=${page}&page_size=${pageSize}`
-    return this._http.getRequest(`${environment.api_url}expenses/category/${params}` );
+
+  getExpenseCategories(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}expenses/category/${params}`);
+  }
+  addExpenseCategory(form: FormData | FormGroup) {
+    return this._http.postRequest(`${environment.api_url}expenses/category/`, form);
+  }
+  updateExpenseCategory(id: number | string, editForm: FormGroup | FormData) {
+    return this._http.patchRequest(`${environment.api_url}expenses/category/${id}/`, editForm);
+  }
+  getExpenseCategoryById(id:number | string){
+    return this._http.getRequest(`${environment.api_url}expenses/category/${id}`);
+  }
+  deleteExpenseCategory(id: number) {
+    return this._http.deleteRequest(`${environment.api_url}expenses/category/${id}/`);
   }
 }

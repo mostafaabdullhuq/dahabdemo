@@ -1,0 +1,236 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Purchase</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditExpenseForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <!-- 🔹 Product Info -->
+                <h6 class="section-form-header">purchase Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-dropdowns label="supplier" formControlName="supplier" [options]="suppliers" optionLabel="name"
+                                optionValue="id" placeholder="Select supplier"></app-dropdowns>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="branch" formControlName="branch" [options]="branches"
+                                optionLabel="name" optionValue="id" placeholder="Select branch"></app-dropdowns>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="payment type" formControlName="payment_type" [options]="[{id:'fixed'},{id:'unfixed'}]"
+                                optionLabel="id" optionValue="id" placeholder="Select sub Category"></app-dropdowns>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-date formControlName="date" inputName="date" placeholder="Enter date">
+                            </app-input-date>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Attachment <sup class="text-danger">*</sup> </label>
+                            <app-upload-input formControlName="attachment" label="Upload Docs"></app-upload-input>
+                        </div>
+                    </div>
+                </div>
+                <div class="table">
+                    <p-table [value]="purchases">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Tag Number</th>
+                                <th>Metal Rate</th>
+                                <th>Metal Value</th>
+                                <th>Category</th>
+                                <th>Purity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-item let-i="rowIndex">
+                            <tr>
+                                <td>{{ item.tag_number }}</td>
+                                <td>{{ item.metal_rate }}</td>
+                                <td>{{ item.metal_value }}</td>
+                                <td>{{ item.category }}</td>
+                                <td>{{ item.purity }}</td>
+                                <td>
+                                    <button class="delete-btn mx-3" type="button" (click)="purchases.splice(i, 1)"><i class="pi pi-trash  px-2"></i></button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+                <!-- 🔹Add row -->
+                <h6 class="section-form-header mt-4">Add Row</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="tag_number" inputName="tag number"
+                                placeholder="tag number">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="metal_rate" inputName="metal rate"
+                                placeholder="metal rate">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="metal_value" inputName="metal value"
+                                placeholder="metal value">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="metal_weight" inputName="metal weight"
+                                placeholder="metal weight">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="purity" formControlName="purity" [options]="purities"
+                                optionLabel="name" optionValue="id" placeholder="Select purity"></app-dropdowns>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="purity_rate" inputName="purity rate"
+                                placeholder="purity rate">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="category" formControlName="category" [options]="categories"
+                                optionLabel="name" optionValue="id" placeholder="Select category"></app-dropdowns>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="making_charge" inputName="making charge"
+                                placeholder="Enter making charge">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="retail_making_charge" inputName="retail making charge"
+                                placeholder="Enter retail making charge">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="tax" inputName="tax" placeholder="Enter tax">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="tax_amount" inputName="tax amount"
+                                placeholder="Enter tax amount">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="gross_weight" inputName="gross weight"
+                                placeholder="Enter gross weight">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="line_total_amount" inputName="line total amount"
+                                placeholder="Enter line total amount">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="color" formControlName="color" [options]="colors" optionLabel="name"
+                                optionValue="id" placeholder="Select color"></app-dropdowns>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="size" formControlName="size" [options]="sizes" optionLabel="name"
+                                optionValue="id" placeholder="Select size"></app-dropdowns>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="designer" formControlName="designer" [options]="designers"
+                                optionLabel="name" optionValue="id" placeholder="Select designer"></app-dropdowns>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="country" formControlName="country" [options]="countries"
+                                optionLabel="name" optionValue="id" placeholder="Select country"></app-dropdowns>
+                        </div>
+                        <div class="col-md-12">
+                            <app-input-text formControlName="description" inputName="description"
+                                placeholder="Enter description">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">image <sup class="text-danger">*</sup> </label>
+                            <app-upload-input formControlName="attachment" label="Upload Docs"></app-upload-input>
+                        </div>
+                    </div>
+                    <div class="header-btns">
+                        <button class="add-btn" type="button" (click)="addPurchaseRow()"><i class="pi pi-plus  px-2"></i>Add Purchase Row</button>
+                    </div>
+                </div>
+                <!-- 🔹 stones -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="section-form-header mt-4">stones</h6>
+                    <div class="header-btns">
+                        <button class="add-btn" type="button" (click)="addStone()"><i class="pi pi-plus  px-2"></i></button>
+                    </div>
+                </div>
+                <div class="container section-form">
+                    <div formArrayName="stones">
+                        <div class="row mb-3" *ngFor="let stone of stonesArray.controls; let i = index"
+                            [formGroupName]="i">
+                            <div class="col-md-3">
+                                <app-dropdowns label="stone" formControlName="stone" [options]="stones"
+                                    optionLabel="name" optionValue="id" placeholder="Select stone"></app-dropdowns>
+                            </div>
+                            <div class="col-md-3">
+                                <app-input-text formControlName="weight" inputName="Weight"
+                                    placeholder="Enter weight"></app-input-text>
+                            </div>
+                            <div class="col-md-3">
+                                <app-input-text formControlName="value" inputName="Value"
+                                    placeholder="Enter value"></app-input-text>
+                            </div>
+                            <div class="col-md-3 d-flex justify-content-between align-items-end">
+                                <app-input-text formControlName="retail_value" inputName="Retail Value"
+                                    placeholder="Enter retail value"></app-input-text>
+                                    <button class="delete-btn mx-3" type="button" (click)="removeStone(i)"><i class="pi pi-trash  px-2"></i></button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <!-- 🔹 payment -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="section-form-header mt-4">Payment</h6>
+                <div class="header-btns">
+                        <button class="add-btn" type="button" (click)="addPayment()"><i class="pi pi-plus  px-2"></i></button>
+                    </div>
+                </div>
+                <div class="container section-form">
+                    <div formArrayName="payments">
+                        <div class="row mb-3" *ngFor="let payment of paymentsArray.controls; let i = index"
+                            [formGroupName]="i">
+                            <div class="col-md-4">
+                                <app-input-text formControlName="amount" inputName="Amount" placeholder="Enter Amount">
+                                </app-input-text>
+                            </div>
+                            <div class="col-md-8 d-flex justify-content-between align-items-end">
+                                <app-dropdowns label="Payment Method" formControlName="payment_method"
+                                    [options]="paymentMethods" optionLabel="name" optionValue="id"
+                                    placeholder="Select method">
+                                </app-dropdowns>
+                                    <button class="delete-btn mx-3" type="button" (click)="removePayment(i)"><i class="pi pi-trash  px-2"></i></button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <!-- 🔹 payment summary  -->
+                <h6 class="section-form-header mt-4">Payment summary</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-date formControlName="payment_date" inputName="payment date"
+                                placeholder="Enter payment date">
+                            </app-input-date>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

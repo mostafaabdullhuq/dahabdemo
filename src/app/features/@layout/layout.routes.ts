@@ -38,6 +38,8 @@ import { TransactionsComponent } from '../accounting/transactions/transactions.c
 import { AddEditPurchaseComponent } from '../accounting/purchases/add-edit-purchase/add-edit-purchase.component';
 import { ExpensesComponent } from '../accounting/expenses/expenses.component';
 import { AddEditExpensesComponent } from '../accounting/expenses/add-edit-expenses/add-edit-expenses.component';
+import { AddEditExpenseCatComponent } from '../accounting/expenses/expenses-category/add-edit-expense-cat/add-edit-expense-cat.component';
+import { ExpensesCategoryComponent } from '../accounting/expenses/expenses-category/expenses-category.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -139,6 +141,11 @@ export const routes: Routes = [
       { path: 'expenses', component: ExpensesComponent },
       { path: 'expense/add', component: AddEditExpensesComponent },
       { path: 'expense/edit/:id', component:AddEditExpensesComponent},
+
+      { path: '', redirectTo: 'expenses-cat', pathMatch: 'full' },
+      { path: 'expenses-cat', component: ExpensesCategoryComponent },
+      { path: 'expenses-cat/add', component: AddEditExpenseCatComponent },
+      { path: 'expenses-cat/edit/:id', component:AddEditExpenseCatComponent},
     ]
   }
 ];

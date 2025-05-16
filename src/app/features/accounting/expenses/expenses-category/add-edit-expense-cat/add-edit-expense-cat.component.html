@@ -1,0 +1,40 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Category</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditCategoryForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <h6 class="section-form-header">Category Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <app-input-text formControlName="name" inputName="name" [required]="true"
+                                placeholder="Enter Category name">
+                                @if ((addEditCategoryForm.get('name')?.errors?.['required'] &&
+                                addEditCategoryForm.get('name')?.touched)) {
+                                <div class="text-danger mt-1">
+                                    <small><i class="text-danger pi pi-times-circle px-2"
+                                            style="font-size: 0.8rem"></i>Category name is required</small>
+                                </div>
+                                }
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-6">
+                            <app-dropdowns label="parent category" formControlName="parent" [options]="categories"
+                                optionLabel="name" optionValue="id" placeholder="Select parent category"></app-dropdowns>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditCategoryForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

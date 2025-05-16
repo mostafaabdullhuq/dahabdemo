@@ -12,17 +12,12 @@
                 <div class="container section-form">
                     <div class="row">
                         <div class="col-md-4">
-                            <app-dropdowns label="Business Location" formControlName="business" [options]="[]"
+                            <app-dropdowns label="Business Location" formControlName="business" [options]="branches"
                                 optionLabel="name" optionValue="id" placeholder="Select location"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
                             <app-dropdowns label="Expense Category" formControlName="category" [options]="expensesCat"
                                 optionLabel="name" optionValue="id" placeholder="Select Category"></app-dropdowns>
-                        </div>
-                        <div class="col-md-4">
-                            <app-dropdowns label="Expense Sub Category" formControlName="sub_category"
-                                [options]="expensesCat" optionLabel="name" optionValue="id"
-                                placeholder="Select sub Category"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
                             <app-dropdowns label="Expense Sub Category" formControlName="sub_category"
