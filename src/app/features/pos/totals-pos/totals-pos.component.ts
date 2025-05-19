@@ -173,7 +173,6 @@ openMultiPaymentMethods() {
 }
 onPlaceOrder() {
   const formValue = this.totalForm.value;
-
   // If no payments set, fallback to selected payment_method + totalWithVat
   if (!formValue.payments || formValue.payments.length === 0) {
     const paymentMethodId = this.totalForm.get('payment_method')?.value;

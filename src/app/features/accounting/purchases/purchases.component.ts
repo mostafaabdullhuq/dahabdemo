@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ComponentRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AccService } from '../@services/acc.service';
 import { Router, RouterLink } from '@angular/router';
@@ -6,6 +6,7 @@ import { ConfirmationPopUpService } from '../../../shared/services/confirmation-
 import { MenuItem } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared.module';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
+import { PaymentPurchaseComponent } from './payment-purchase/payment-purchase.component';
 
 @Component({
   selector: 'app-purchases',
@@ -129,13 +130,25 @@ export class PurchasesComponent {
       command: () => this.editPurchase(this.selectedTransaction)
     },
     {
+      label: 'Add Payment',
+      icon: 'pi pi-fw pi-payment',
+      command: () => this.addPayment(this.selectedTransaction)
+    },
+    {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
       command: () => this.showConfirmDelete(this.selectedTransaction)
     }
 
   ];
-
+  @ViewChild('paymentContainer', { read: ViewContainerRef }) container!: ViewContainerRef;
+  private componentRef!: ComponentRef<PaymentPurchaseComponent>;
+  addPayment(data: any) {
+    this.container.clear();
+    this.componentRef = this.container.createComponent(PaymentPurchaseComponent);
+    this.componentRef.instance.paymentData = data;
+    this.componentRef.instance.showDialog();
+  }
   editPurchase(user: any) {
     this._router.navigate([`acc/transaction/edit/${user?.id}`]);
   }

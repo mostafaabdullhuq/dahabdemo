@@ -1,0 +1,130 @@
+<p-dialog header="Add Payment" [modal]="true" [(visible)]="visible" [style]="{ width: '70rem' }">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card-body">
+                    <a class="card1 d-flex flex-column justify-content-between" href="#">
+                        <p class=" d-flex flex-column">
+                            <strong>Reference Number : </strong>
+                            {{paymentData?.reference_number}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Supplier : </strong>
+                            {{paymentData?.supplier_name}}
+                        </p>
+                        <div class="go-corner" href="#">
+                            <div class="go-arrow">
+                                →
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-body">
+                    <a class="card1 d-flex flex-column justify-content-between" href="#">
+                        <p class=" d-flex flex-column">
+                            <strong>Expected Delivery Date : </strong>
+                            {{paymentData?.expected_delivery_date}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Status : </strong>
+                            {{paymentData?.status}}
+                        </p>
+                        <div class="go-corner" href="#">
+                            <div class="go-arrow">
+                                →
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-body">
+                    <a class="card1 d-flex flex-column justify-content-between" href="#">
+                        <p class=" d-flex flex-column">
+                            <strong>Total Amount : </strong>
+                            {{paymentData?.total_amount}}
+                        </p>
+                        <div class="go-corner" href="#">
+                            <div class="go-arrow">
+                                →
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+    <form [formGroup]="paymentForm" (ngSubmit)="submit()">
+        <table class="table" formArrayName="items">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>value</th>
+                    <th>Amount</th>
+                    <th>Quantity</th>
+                    <th>Purity</th>
+                    <th>Purity Rate</th>
+                    <th>Weight</th>
+                    <th>Pure Weight</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+                    <td>
+                        <app-dropdowns formControlName="type" [options]="paymentTypeOptions" optionLabel="id"
+                            optionValue="id" placeholder="Select type"></app-dropdowns>
+                    </td>
+                    <td>
+                        <app-input-text formControlName="value" placeholder="value">
+                        </app-input-text>
+                    </td>
+                    <td>
+                        <app-input-text formControlName="amount" placeholder="amount">
+                        </app-input-text>
+                    </td>
+                    <td>
+                        <app-input-text formControlName="quantity" placeholder="quantity">
+                        </app-input-text>
+                    </td>
+                    <td>
+                        <app-input-text formControlName="purity" placeholder="purity">
+                        </app-input-text>
+                    </td>
+                    <td>
+                        <app-input-text formControlName="purity_rate" placeholder="purity_rate">
+                        </app-input-text>
+                    </td>
+                    <td>
+                        <app-input-text formControlName="pure_weight" placeholder="pure weight">
+                        </app-input-text>
+                    </td>
+                    <td>
+                        <app-input-text formControlName="weight" placeholder="weight">
+                        </app-input-text>
+                    </td>
+                    <td>
+                        <app-input-text formControlName="description" placeholder="description">
+                        </app-input-text>
+                    </td>
+                    <td>
+                        <button type="button" class="delete-btn" (click)="removeItem(i)">
+                            <i class="pi pi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="btns-group">
+            <button type="button" class="add-btn" (click)="addItem()"> <i class="pi pi-plus"></i></button>
+        </div>
+        <div class="btns-group">
+            <button type="submit" class="submit-btn">Submit</button>
+        </div>
+    </form>
+
+
+</p-dialog>

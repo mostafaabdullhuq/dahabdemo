@@ -41,7 +41,7 @@ export class AccService {
   deletePurchase(id: number) {
     return this._http.deleteRequest(`${environment.api_url}purchases/${id}`);
   }
-  getBranchTax(id:any){
+  getBranchTax(id:any): Observable<any>{
     return this._http.getRequest(`${environment.api_url}branch/tax/${id}`);
   }
 getBranchPaymentMethods(id:any){

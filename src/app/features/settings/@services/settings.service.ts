@@ -30,6 +30,9 @@ export class SettingsService {
     return this._http.patchRequest(`${environment.api_url}business/settings/business-custom-fields/`,form);
   }
 
+      getBranchCustomLabel(){
+    return this._http.getRequest(`${environment.api_url}branch/custom-field-label/` );
+  }
   addBranch(addForm:FormGroup | FormData): Observable<any>{
     return this._http.postRequest(`${environment.api_url}branch/`,addForm);
   }
@@ -42,10 +45,6 @@ export class SettingsService {
   deleteBranch(id:number ){
     return this._http.deleteRequest(`${environment.api_url}branch/${id}/`);
   }
-
-      getBranchCustomLabel(){
-    return this._http.getRequest(`${environment.api_url}branch/custom-field-label/` );
-  }
     getBranches(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     // const params = new HttpParams()
     //   .set('', search)
@@ -53,5 +52,27 @@ export class SettingsService {
     //   .set('page_size', pageSize.toString());
       const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}branch/${params}` );
+  }
+  
+  addTaxRate(addForm:FormGroup | FormData): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}business/settings/tax-rates/`,addForm);
+  }
+  getTaxRateById(id:any): Observable<any>{
+    return this._http.getRequest(`${environment.api_url}business/settings/tax-rates/${id}/`);
+  }
+  updateTaxRate(id:any,addForm:FormGroup | FormData): Observable<any>{
+    return this._http.patchRequest(`${environment.api_url}business/settings/tax-rates/${id}/`,addForm);
+  }
+  deleteTaxRate(id:number ){
+    return this._http.deleteRequest(`${environment.api_url}business/settings/tax-rates/${id}/`);
+  }
+
+    getTaxRatees(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+      const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}business/settings/tax-rates/${params}` );
   }
 }

@@ -24,7 +24,7 @@
                                 optionLabel="id" optionValue="id" placeholder="Select sub Category"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
-                            <app-input-date formControlName="order_date" inputName="order date" placeholder="Enter order_date">
+                            <app-input-date formControlName="expected_delivery_date" inputName="date" placeholder="Enter expected delivery date">
                             </app-input-date>
                         </div>
                         <div class="col-md-12">
@@ -88,7 +88,7 @@
                                 optionLabel="name" optionValue="id" placeholder="Select purity"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text formControlName="purity_rate" inputName="purity rate"
+                            <app-input-text type="number" formControlName="purity_rate" inputName="purity rate"
                                 placeholder="purity rate">
                             </app-input-text>
                         </div>
@@ -97,31 +97,31 @@
                                 optionLabel="name" optionValue="id" placeholder="Select category"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text formControlName="making_charge" inputName="making charge"
+                            <app-input-text type="number" formControlName="making_charge" inputName="making charge"
                                 placeholder="Enter making charge">
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text formControlName="retail_making_charge" inputName="retail making charge"
+                            <app-input-text type="number" formControlName="retail_making_charge" inputName="retail making charge"
                                 placeholder="Enter retail making charge">
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text formControlName="tax" inputName="tax" placeholder="Enter tax">
+                            <app-input-text type="number" formControlName="tax" inputName="tax" placeholder="Enter tax">
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text formControlName="tax_amount" inputName="tax amount"
+                            <app-input-text type="number" formControlName="tax_amount" inputName="tax amount"
                                 placeholder="Enter tax amount">
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text formControlName="gross_weight" inputName="gross weight"
+                            <app-input-text  type="number" formControlName="gross_weight" inputName="gross weight"
                                 placeholder="Enter gross weight">
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text formControlName="line_total_amount" inputName="line total amount"
+                            <app-input-text type="number" formControlName="line_total_amount" inputName="line total amount"
                                 placeholder="Enter line total amount">
                             </app-input-text>
                         </div>
@@ -171,15 +171,15 @@
                                     optionLabel="name" optionValue="id" placeholder="Select stone"></app-dropdowns>
                             </div>
                             <div class="col-md-3">
-                                <app-input-text formControlName="weight" inputName="Weight"
+                                <app-input-text type="number" formControlName="weight" inputName="Weight"
                                     placeholder="Enter weight"></app-input-text>
                             </div>
                             <div class="col-md-3">
-                                <app-input-text formControlName="value" inputName="Value"
+                                <app-input-text type="number" formControlName="value" inputName="Value"
                                     placeholder="Enter value"></app-input-text>
                             </div>
                             <div class="col-md-3 d-flex justify-content-between align-items-end">
-                                <app-input-text formControlName="retail_value" inputName="Retail Value"
+                                <app-input-text type="number" formControlName="retail_value" inputName="Retail Value"
                                     placeholder="Enter retail value"></app-input-text>
                                     <button class="delete-btn mx-3" type="button" (click)="removeStone(i)"><i class="pi pi-trash  px-2"></i></button>
                             </div>

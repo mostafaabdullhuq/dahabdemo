@@ -1,3 +1,4 @@
+import { TaxRateComponent } from './../settings/tax-rate/tax-rate.component';
 import { PurchasesComponent } from './../accounting/purchases/purchases.component';
 import { Routes } from '@angular/router';
 import { UsersComponent } from '../user-management/users/users.component';
@@ -44,6 +45,7 @@ import { BusinessSettingComponent } from '../settings/business/business-setting/
 import { BusinessComponent } from '../settings/business/business.component';
 import { BranchesComponent } from '../settings/branches/branches.component';
 import { AddEditBranchComponent } from '../settings/branches/add-edit-branch/add-edit-branch.component';
+import { AddEditTaxComponent } from '../settings/tax-rate/add-edit-tax/add-edit-tax.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -165,6 +167,11 @@ export const routes: Routes = [
       { path: 'branch', component: BranchesComponent },
       { path: 'branch/add', component: AddEditBranchComponent },
       { path: 'branch/edit/:id', component: AddEditBranchComponent },
+      
+      { path: '', redirectTo: 'tax-rate', pathMatch: 'full' },
+      { path: 'tax-rate', component: TaxRateComponent },
+      { path: 'tax-rate/add', component: AddEditTaxComponent },
+      { path: 'tax-rate/edit/:id', component: AddEditTaxComponent },
     ]
   }
 ];

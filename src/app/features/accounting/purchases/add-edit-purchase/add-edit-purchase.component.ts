@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 import { AccService } from '../../@services/acc.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { combineLatest, debounceTime, startWith } from 'rxjs';
+import { combineLatest, debounceTime, forkJoin, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-add-edit-purchase',
@@ -38,6 +38,7 @@ manualGoldPrice:any = 0
   nextPageUrl: string | null = null;
   isLoading = false;
   selectedBranches = [];
+selectedPurityValue: number = 1;
 
   constructor(
     private _accService: AccService,
@@ -45,7 +46,7 @@ manualGoldPrice:any = 0
     private _dropdownService: DropdownsService,
     private _activeRoute: ActivatedRoute
   ) { }
-
+decimalInputs = 3;
   ngOnInit(): void {
     const productId = this._activeRoute.snapshot.paramMap.get('id');
     if (productId)
@@ -69,7 +70,7 @@ manualGoldPrice:any = 0
       this.countries = data?.results;
     });
     this._accService.getExpenseCategories().subscribe(data=>{
-      this.expensesCat = data;
+      this.categories = data;
     })
     this._dropdownService.getPurities().subscribe(data => {
       this.purities = data?.results;
@@ -89,16 +90,9 @@ manualGoldPrice:any = 0
     this._dropdownService.getUnits().subscribe(data => {
       this.units = data?.results;
     });
-    this.onBranchChange();
-  this.handleMetalValueCalc(); // ✅ only once here
-  //   this.addEditExpenseForm.get('metal_rate')?.valueChanges.subscribe(() => {
-  // this.calculateMetalValue();
-  // this.addEditExpenseForm.get('metal_rate')?.valueChanges
-  // .pipe(debounceTime(300))
-  // .subscribe(() => this.calculateMetalValue());
-
-// });
-
+  //   this.onBranchChange();
+  // this.handleMetalValueCalc(); // ✅ only once here
+ 
 // this.addEditExpenseForm.get('metal_weight')?.valueChanges.subscribe(() => {
 //   this.calculateMetalValue();
 // });
@@ -108,7 +102,116 @@ manualGoldPrice:any = 0
 
 // // Optional: also watch changes to stone value fields
 // this.stonesArray.valueChanges.subscribe(() => this.calculateLineTotal());
+   this.addEditExpenseForm.get('branch')?.valueChanges.subscribe(branchId => {
+    if (!branchId) return;
+
+    forkJoin({
+      goldPrice: this._accService.getGoldPrice(branchId),
+      taxRate: this._accService.getBranchTax(branchId)
+    }).subscribe(({ goldPrice, taxRate }) => {
+      this.manualGoldPrice = goldPrice?.manual_gold_price
+      this.addEditExpenseForm.patchValue({
+        // manual_gold_price: goldPrice,
+        tax: taxRate?.tax_rate
+      });
+
+      this.updateMetalRate();     // uses gold price & purity
+      this.calculateMetalValue();
+      this.calculateTax();
+      this.calculateGrossWeight();
+      this.calculateLineTotal();
+    });
+  });
+this.addEditExpenseForm.get('purity')?.valueChanges.subscribe(purityId => {
+  const selectedPurity = this.purities.find(p => p.id === purityId);
+  this.selectedPurityValue = (selectedPurity?.purity_value || 1).toFixed(this.decimalInputs);
+  this.addEditExpenseForm.get('purity_rate')?.patchValue(selectedPurity?.purity_value)
+
+  this.updateMetalRate();
+  this.calculateMetalValue();
+  this.calculateTax();
+  this.calculateLineTotal();
+});
+
+  this.addEditExpenseForm.get('metal_weight')?.valueChanges.subscribe(() => {
+    this.calculateMetalValue();
+    this.calculateGrossWeight();
+    this.calculateTax();
+    this.calculateLineTotal();
+  });
+
+  this.addEditExpenseForm.get('making_charge')?.valueChanges.subscribe(() => {
+    this.calculateLineTotal();
+  });
+  const stones = this.addEditExpenseForm.get('stones') as FormArray;
+stones.valueChanges.subscribe(() => {
+  this.watchStoneControls(); // Keep updating as stones are added
+});
   }
+updateMetalRate() {
+  const goldPrice = this.manualGoldPrice || 0;
+  const purity = this.selectedPurityValue || 1;
+  const rate = ((+goldPrice / 31.10348) * 0.378 * +purity).toFixed(this.decimalInputs);
+  this.addEditExpenseForm.patchValue({ metal_rate: rate });
+}
+calculateMetalValue() {
+  const rate = this.addEditExpenseForm.get('metal_rate')?.value || 0;
+  const weight = this.addEditExpenseForm.get('metal_weight')?.value || 0;
+  this.addEditExpenseForm.patchValue({ metal_value: (+rate * +weight).toFixed(this.decimalInputs) });
+  this.calculateTax()
+}
+
+calculateTax(): void {
+  const metalValue = Number(this.addEditExpenseForm.get('metal_value')?.value) || 0;
+  const taxRate = Number(this.addEditExpenseForm.get('tax')?.value) || 0;
+
+  const stones = this.addEditExpenseForm.get('stones') as FormArray;
+  const stonesRetailTotal = stones.controls.reduce((total, stone) => {
+    const retailValue = Number(stone.get('retail_value')?.value) || 0;
+    return total + retailValue;
+  }, 0);
+
+  const taxAmount = ((taxRate) * metalValue) + stonesRetailTotal;
+  this.addEditExpenseForm.patchValue({
+    tax_amount: Number(taxAmount.toFixed(this.decimalInputs))
+  });
+}
+private subscribedStones = new WeakSet<AbstractControl>();
+
+private watchStoneControls() {
+  const stones = this.addEditExpenseForm.get('stones') as FormArray;
+
+  stones.controls.forEach((control: AbstractControl) => {
+    if (this.subscribedStones.has(control)) return; // Avoid duplicates
+
+    this.subscribedStones.add(control);
+
+    control.get('weight')?.valueChanges.subscribe(() => {
+      this.calculateGrossWeight();
+      this.calculateLineTotal();
+    });
+
+    control.get('retail_value')?.valueChanges.subscribe(() => {
+      this.calculateTax();
+      this.calculateLineTotal();
+    });
+  });
+}
+calculateGrossWeight() {
+  const metalWeight = +this.addEditExpenseForm.get('metal_weight')?.value || 0;
+  const stones = this.addEditExpenseForm.get('stones') as FormArray;
+  const stoneWeight = stones.controls.reduce((acc, s) => acc + (+s.get('weight')?.value || 0), 0);
+  this.addEditExpenseForm.patchValue({ gross_weight: (metalWeight + +stoneWeight).toFixed(this.decimalInputs) });
+}
+
+calculateLineTotal() {
+  const metalValue = Number(this.addEditExpenseForm.get('metal_value')?.value) || 0;
+const metalWeight = Number(this.addEditExpenseForm.get('metal_weight')?.value) || 0;
+const makingCharge = Number(this.addEditExpenseForm.get('making_charge')?.value) || 0;
+const taxAmount = Number(this.addEditExpenseForm.get('tax_amount')?.value) || 0;
+const total = metalValue + (makingCharge * metalWeight) + taxAmount;
+  this.addEditExpenseForm.patchValue({ line_total_amount: (+total).toFixed(this.decimalInputs) });
+}
 // calculateMetalValue(): void {
 //   const metalRate = +this.addEditExpenseForm.get('metal_rate')?.value || 0;
 //   const metalWeight = +this.addEditExpenseForm.get('metal_weight')?.value || 0;
@@ -137,7 +240,7 @@ manualGoldPrice:any = 0
       supplier: [null, Validators.required],
       branch: [null],
       payment_type: [null],
-      order_date: [null],
+      expected_delivery_date: [null],
       attachment: [null],
 
       // Purchase entry form
@@ -160,6 +263,7 @@ manualGoldPrice:any = 0
       country: [null],
       description: [null],
       image: [null],
+      manual_gold_price: [0],
 
       /// Stones array
     stones: this._formBuilder.array([this.createStone()]),
@@ -170,7 +274,7 @@ manualGoldPrice:any = 0
       // Payment summary
       payment_date: ['']
     });
-      this.setupDynamicCalculations();
+      //this.setupDynamicCalculations();
   }
   createStone(): FormGroup {
   return this._formBuilder.group({
@@ -198,6 +302,7 @@ get paymentsArray(): FormArray {
 
 addStone() {
   this.stonesArray.push(this.createStone());
+  this.watchStoneControls(); // Watch the new one
 }
 
 addPayment() {
@@ -242,7 +347,7 @@ removePayment(index: number) {
   this._accService.getExpenseById(expenseId).subscribe((expense: any) => {
     this.addEditExpenseForm.patchValue({
       total_amount: expense.total_amount,
-      order_date: expense.order_date,
+      expected_delivery_date: expense.expected_delivery_date,
       attachment: expense.attachment,
       reference_number: expense.reference_number,
       notes: expense.notes,
@@ -275,123 +380,123 @@ removePayment(index: number) {
   });
 }
  
-  onBranchChange() {
-    this.addEditExpenseForm.get('branch')?.valueChanges.subscribe(branchId => {
-      if (!branchId) return;
-this._accService.getBranchPaymentMethods(branchId).subscribe(res=>{
-  this.paymentMethods = res
-})
-this._accService.getBranchTax(branchId).subscribe((res:any)=>{
-          this.addEditExpenseForm.get('tax')?.patchValue(res?.tax_rate);
-})
-      this._accService.getGoldPrice(branchId).subscribe(res => {
-  this.manualGoldPrice = +(+res?.manual_gold_price || 0).toFixed(this.decimalPlaces);
-        this.addEditExpenseForm.get('metal_rate')?.patchValue(this.manualGoldPrice);
+//   onBranchChange() {
+//     this.addEditExpenseForm.get('branch')?.valueChanges.subscribe(branchId => {
+//       if (!branchId) return;
+// this._accService.getBranchPaymentMethods(branchId).subscribe(res=>{
+//   this.paymentMethods = res
+// })
+// this._accService.getBranchTax(branchId).subscribe((res:any)=>{
+//           this.addEditExpenseForm.get('tax')?.patchValue(res?.tax_rate);
+// })
+//       this._accService.getGoldPrice(branchId).subscribe(res => {
+//   this.manualGoldPrice = +(+res?.manual_gold_price || 0).toFixed(this.decimalPlaces);
+//         this.addEditExpenseForm.get('metal_rate')?.patchValue(this.manualGoldPrice);
 
-        // Only now trigger metal calc
-        this.handleMetalValueCalc();
+//         // Only now trigger metal calc
+//         this.handleMetalValueCalc();
 
-        this._accService.getBranchTax(branchId)?.subscribe((res: any) => {
-          this.addEditExpenseForm.get('tax')?.patchValue(res?.tax_rate || 0);
-        });
-      });
-    });
-}
-handleMetalValueCalc() {
-  const purityControl = this.addEditExpenseForm.get('purity');
-  const weightControl = this.addEditExpenseForm.get('metal_weight');
+//         this._accService.getBranchTax(branchId)?.subscribe((res: any) => {
+//           this.addEditExpenseForm.get('tax')?.patchValue(res?.tax_rate || 0);
+//         });
+//       });
+//     });
+// }
+// handleMetalValueCalc() {
+//   const purityControl = this.addEditExpenseForm.get('purity');
+//   const weightControl = this.addEditExpenseForm.get('metal_weight');
 
-  if (!purityControl || !weightControl) return;
+//   if (!purityControl || !weightControl) return;
 
-  combineLatest([
-    purityControl.valueChanges.pipe(startWith(purityControl.value)),
-    weightControl.valueChanges.pipe(startWith(weightControl.value))
-  ]).subscribe(([purityId, weight]) => {
-    const purityObject = this.purities.find(p => p.id === purityId);
-    const purityValue = +purityObject?.purity_value || 0;
-    const purityNumber = +purityObject?.name || 0;
+//   combineLatest([
+//     purityControl.valueChanges.pipe(startWith(purityControl.value)),
+//     weightControl.valueChanges.pipe(startWith(weightControl.value))
+//   ]).subscribe(([purityId, weight]) => {
+//     const purityObject = this.purities.find(p => p.id === purityId);
+//     const purityValue = +purityObject?.purity_value || 0;
+//     const purityNumber = +purityObject?.name || 0;
 
-    // Patch purity_rate
-    this.addEditExpenseForm.get('purity_rate')?.patchValue(purityValue);
+//     // Patch purity_rate
+//     this.addEditExpenseForm.get('purity_rate')?.patchValue(purityValue);
 
-    // Use calcGoldPrice to calculate gold price
-    const goldPrice = this.calcGoldPrice({ purity: purityNumber, purity_value: purityValue });
-console.log(goldPrice);
+//     // Use calcGoldPrice to calculate gold price
+//     const goldPrice = this.calcGoldPrice({ purity: purityNumber, purity_value: purityValue });
+// console.log(goldPrice);
 
-    // Calculate metal_rate using formula: metal_rate = goldPrice * purity_value
-    const metalRate = +(goldPrice * purityValue).toFixed(this.decimalPlaces);
-    this.addEditExpenseForm.get('metal_rate')?.patchValue(metalRate);
+//     // Calculate metal_rate using formula: metal_rate = goldPrice * purity_value
+//     const metalRate = +(goldPrice * purityValue).toFixed(this.decimalPlaces);
+//     this.addEditExpenseForm.get('metal_rate')?.patchValue(metalRate);
 
-    // Calculate metal_value = metal_rate * metal_weight
-    const metalWeight = +weight || 0;
-    const metalValue = +(metalRate * metalWeight).toFixed(this.decimalPlaces);
-    this.addEditExpenseForm.get('metal_value')?.patchValue(metalValue);
+//     // Calculate metal_value = metal_rate * metal_weight
+//     const metalWeight = +weight || 0;
+//     const metalValue = +(metalRate * metalWeight).toFixed(this.decimalPlaces);
+//     this.addEditExpenseForm.get('metal_value')?.patchValue(metalValue);
 
-    // Recalculate dependent totals
-    this.calculateValues();
-  });
-}
-private setupDynamicCalculations(): void {
-  const form = this.addEditExpenseForm;
+//     // Recalculate dependent totals
+//     this.calculateValues();
+//   });
+// }
+// private setupDynamicCalculations(): void {
+//   const form = this.addEditExpenseForm;
 
-  form.get('metal_rate')?.valueChanges.subscribe(() => this.calculateValues());
-  form.get('metal_weight')?.valueChanges.subscribe(() => this.calculateValues());
-  form.get('making_charge')?.valueChanges.subscribe(() => this.calculateValues());
-  form.get('tax')?.valueChanges.subscribe(() => this.calculateValues());
+//   form.get('metal_rate')?.valueChanges.subscribe(() => this.calculateValues());
+//   form.get('metal_weight')?.valueChanges.subscribe(() => this.calculateValues());
+//   form.get('making_charge')?.valueChanges.subscribe(() => this.calculateValues());
+//   form.get('tax')?.valueChanges.subscribe(() => this.calculateValues());
 
-  // If your app allows adding/removing stones dynamically, trigger this after stone changes too
-  form.get('stones')?.valueChanges.subscribe(() => this.calculateValues());
-}
+//   // If your app allows adding/removing stones dynamically, trigger this after stone changes too
+//   form.get('stones')?.valueChanges.subscribe(() => this.calculateValues());
+// }
 
-private calculateValues(): void {
-  const form = this.addEditExpenseForm;
-  const metalRate = +form.get('metal_rate')?.value || 0;
-  const metalWeight = +form.get('metal_weight')?.value || 0;
-  const makingCharge = +form.get('making_charge')?.value || 0;
-  const tax = +form.get('tax')?.value || 0;
+// private calculateValues(): void {
+//   const form = this.addEditExpenseForm;
+//   const metalRate = +form.get('metal_rate')?.value || 0;
+//   const metalWeight = +form.get('metal_weight')?.value || 0;
+//   const makingCharge = +form.get('making_charge')?.value || 0;
+//   const tax = +form.get('tax')?.value || 0;
 
-  const metalValue = metalRate * metalWeight;
-  form.get('metal_value')?.setValue(metalValue, { emitEvent: false });
+//   const metalValue = metalRate * metalWeight;
+//   form.get('metal_value')?.setValue(metalValue, { emitEvent: false });
 
-  // Calculate total stone value and total stone weight
-  const stones = form.get('stones')?.value || [];
-  let totalStoneValue = 0;
-  let totalStoneWeight = 0;
+//   // Calculate total stone value and total stone weight
+//   const stones = form.get('stones')?.value || [];
+//   let totalStoneValue = 0;
+//   let totalStoneWeight = 0;
 
-  stones.forEach((stone: any) => {
-    totalStoneValue += +stone.value || 0;
-    totalStoneWeight += +stone.weight || 0;
-  });
+//   stones.forEach((stone: any) => {
+//     totalStoneValue += +stone.value || 0;
+//     totalStoneWeight += +stone.weight || 0;
+//   });
 
-  // ✅ Calculate and patch gross weight (metal + stones)
-  const grossWeight = metalWeight + totalStoneWeight;
-  form.get('gross_weight')?.setValue(grossWeight, { emitEvent: false });
+//   // ✅ Calculate and patch gross weight (metal + stones)
+//   const grossWeight = metalWeight + totalStoneWeight;
+//   form.get('gross_weight')?.setValue(grossWeight, { emitEvent: false });
 
-  const taxAmount = (metalValue + totalStoneValue) * tax;
-  form.get('tax_amount')?.setValue(taxAmount, { emitEvent: false });
+//   const taxAmount = (metalValue + totalStoneValue) * tax;
+//   form.get('tax_amount')?.setValue(taxAmount, { emitEvent: false });
 
-  const lineTotal = metalValue + (makingCharge * metalWeight) + taxAmount + totalStoneValue;
-  form.get('line_total_amount')?.setValue(lineTotal, { emitEvent: false });
-}
-decimalPlaces:number = 3;
-calcGoldPrice(group: { purity: number; purity_value: number }): number {
-  if (!this.manualGoldPrice || !group.purity || !group.purity_value) return 0;
+//   const lineTotal = metalValue + (makingCharge * metalWeight) + taxAmount + totalStoneValue;
+//   form.get('line_total_amount')?.setValue(lineTotal, { emitEvent: false });
+// }
+// decimalPlaces:number = 3;
+// calcGoldPrice(group: { purity: number; purity_value: number }): number {
+//   if (!this.manualGoldPrice || !group.purity || !group.purity_value) return 0;
 
-  const baseValue = (+this.manualGoldPrice / 31.10348) * 0.378;
+//   const baseValue = (+this.manualGoldPrice / 31.10348) * 0.378;
 
-  let purityFactor = 1;
-  switch (group.purity) {
-    case 24: purityFactor = 1; break;
-    case 22: purityFactor = 0.916; break;
-    case 21: purityFactor = 0.88; break;
-    case 18: purityFactor = 0.75; break;
-    default: purityFactor = 1;
-  }
+//   let purityFactor = 1;
+//   switch (group.purity) {
+//     case 24: purityFactor = 1; break;
+//     case 22: purityFactor = 0.916; break;
+//     case 21: purityFactor = 0.88; break;
+//     case 18: purityFactor = 0.75; break;
+//     default: purityFactor = 1;
+//   }
 
-  const goldPrice = baseValue * purityFactor //* group.purity_value;
+//   const goldPrice = baseValue * purityFactor //* group.purity_value;
 
-  return +goldPrice.toFixed(this.decimalPlaces);
-}
+//   return +goldPrice.toFixed(this.decimalPlaces);
+// }
 private toFormData(obj: any, form?: FormData, namespace?: string): FormData {
   const fd = form || new FormData();
 
@@ -426,8 +531,7 @@ onSubmit(): void {
 
   const payload = {
     supplier_name: formValue.supplier,
-    order_date: formValue.order_date,
-    expected_delivery_date: formValue.order_date,
+    expected_delivery_date: formValue.expected_delivery_date,
     branch_name: formValue.branch,
     branch: formValue.branch,
     supplier: formValue.supplier,
