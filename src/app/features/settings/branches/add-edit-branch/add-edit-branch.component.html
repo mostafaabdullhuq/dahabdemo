@@ -1,0 +1,115 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Branch</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditBranchForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <h6 class="section-form-header">branch Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="name" inputName="name" [required]="true"
+                                placeholder="Enter name">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName=mobile inputName="mobile" placeholder="Enter mobile">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="email" inputName="email" [required]="true"
+                                placeholder="Enter email">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="landline" inputName="landline"
+                                placeholder="Enter landline">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="address_line" inputName="address line"
+                                placeholder="Enter address line">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="manual_gold_price" inputName="manual_gold_price"
+                                placeholder="Enter manual_gold_price">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="country" [required]="true" id="country" formControlName="country"
+                                [options]="countries" optionLabel="name" optionValue="id"
+                                placeholder="Select a country">
+                            </app-dropdowns>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center my-3">
+                    <h6 class="section-form-header w-50">Currency Info</h6>
+                <div class="header-btns">
+                    <button class="add-btn" type="button" (click)="addCurrency()"><i
+                            class="pi pi-plus  px-2"></i></button>
+                </div> 
+                </div>
+                <div class="container section-form" formArrayName="currencies">
+                    <div *ngFor="let group of currencies.controls; let i = index" [formGroupName]="i"
+                        class="row align-items-end">
+                        <div class="col-md-5">
+                            <app-dropdowns label="currency" [required]="true" formControlName="currency"
+                                [options]="currenciesList" optionLabel="name" optionValue="id"
+                                placeholder="Select a currency">
+                            </app-dropdowns>
+                        </div>
+                        <div class="col-md-5">
+                            <app-input-text formControlName="exchange_rate" inputName="exchange rate" [required]="true"
+                                placeholder="Enter exchange rate">
+                            </app-input-text>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="delete-btn mx-3" type="button" (click)="removeCurrency(i)"><i
+                                    class="pi pi-trash  px-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <h6 class="section-form-header">Financial Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <app-multi-select label="Select methods" [options]="paymentMethods" optionValue="id"
+                                formControlName="payment_methods" [placeholder]="'Select methods...'"
+                                [optionLabel]="'name'">
+                            </app-multi-select>
+                        </div>
+                        <div class="col-md-6">
+                            <app-dropdowns label="tax Rate" id="tax Rate" formControlName="tax_rate"
+                                [options]="taxRates" optionLabel="name" optionValue="id"
+                                placeholder="Select a tax Rate">
+                            </app-dropdowns>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="section-form-header">Custom Fields</h6>
+                <div class="container section-form" formArrayName="custom_fields">
+                    <div *ngFor="let group of customFieldsArray.controls; let i = index" [formGroupName]="i">
+                        <div class="col-md-4 mt-2">
+                            <label>{{ customFields[i]?.field_name }}</label>
+                            <app-input-text formControlName="value" [placeholder]="'Enter value'"></app-input-text>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditBranchForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

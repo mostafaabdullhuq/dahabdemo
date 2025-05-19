@@ -42,6 +42,8 @@ import { AddEditExpenseCatComponent } from '../accounting/expenses/expenses-cate
 import { ExpensesCategoryComponent } from '../accounting/expenses/expenses-category/expenses-category.component';
 import { BusinessSettingComponent } from '../settings/business/business-setting/business-setting.component';
 import { BusinessComponent } from '../settings/business/business.component';
+import { BranchesComponent } from '../settings/branches/branches.component';
+import { AddEditBranchComponent } from '../settings/branches/add-edit-branch/add-edit-branch.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -158,6 +160,11 @@ export const routes: Routes = [
       // { path: 'customer/add', component: AddEditCustomerComponent },
       // { path: 'customer/edit/:id', component: AddEditCustomerComponent },
       // { path: 'customer-view/:id', component: CustomerViewComponent }
+
+      { path: '', redirectTo: 'branch', pathMatch: 'full' },
+      { path: 'branch', component: BranchesComponent },
+      { path: 'branch/add', component: AddEditBranchComponent },
+      { path: 'branch/edit/:id', component: AddEditBranchComponent },
     ]
   }
 ];

@@ -35,10 +35,18 @@ export class AccService {
     const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}purchases/${params}`);
   }
+  addPurchase(form: any) {
+    return this._http.postRequest(`${environment.api_url}purchases/`, form);
+  }
   deletePurchase(id: number) {
     return this._http.deleteRequest(`${environment.api_url}purchases/${id}`);
   }
-
+  getBranchTax(id:any){
+    return this._http.getRequest(`${environment.api_url}branch/tax/${id}`);
+  }
+getBranchPaymentMethods(id:any){
+    return this._http.getRequest(`${environment.api_url}branch/payment-method/${id}`);
+  }
   getExpenses(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     // const params = new HttpParams()
     //   .set('', search)

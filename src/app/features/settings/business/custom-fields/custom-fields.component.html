@@ -1,1 +1,113 @@
-<p>custom-fields works!</p>
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} Custom Fields</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="customFieldsForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <!-- Customer -->
+                <h6 class="section-form-header">Customer custom fields</h6>
+                <div class="container section-form" formGroupName="customer">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_1" inputName="custom field 1"
+                                placeholder="Enter Customer custom field 1"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_2" inputName="custom field 2"
+                                placeholder="Enter Customer custom field 2"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_3" inputName="custom field 3"
+                                placeholder="Enter Customer custom field 3"></app-input-text>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supplier -->
+                <h6 class="section-form-header">Supplier custom fields</h6>
+                <div class="container section-form" formGroupName="supplier">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_1" inputName="custom field 1"
+                                placeholder="Enter Supplier custom field 1"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_2" inputName="custom field 2"
+                                placeholder="Enter Supplier custom field 2"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_3" inputName="custom field 3"
+                                placeholder="Enter Supplier custom field 3"></app-input-text>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product -->
+                <h6 class="section-form-header">Product custom fields</h6>
+                <div class="container section-form" formGroupName="product">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_1" inputName="custom field 1"
+                                placeholder="Enter Product custom field 1"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_2" inputName="custom field 2"
+                                placeholder="Enter Product custom field 2"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_3" inputName="custom field 3"
+                                placeholder="Enter Product custom field 3"></app-input-text>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Purchase -->
+                <h6 class="section-form-header">Purchases custom fields</h6>
+                <div class="container section-form" formGroupName="purchase">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_1" inputName="custom field 1"
+                                placeholder="Enter Purchase custom field 1"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_2" inputName="custom field 2"
+                                placeholder="Enter Purchase custom field 2"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_3" inputName="custom field 3"
+                                placeholder="Enter Purchase custom field 3"></app-input-text>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Branch -->
+                <h6 class="section-form-header">Branch custom fields</h6>
+                <div class="container section-form" formGroupName="branch">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_1" inputName="custom field 1"
+                                placeholder="Enter Branch custom field 1"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_2" inputName="custom field 2"
+                                placeholder="Enter Branch custom field 2"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="custom_field_3" inputName="custom field 3"
+                                placeholder="Enter Branch custom field 3"></app-input-text>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditBusinessForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

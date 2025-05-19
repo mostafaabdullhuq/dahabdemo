@@ -94,4 +94,7 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}core/currencies/?${params}`;
     return this._http.getRequest<any>(url);
   }
+   getPaymentMethods(): Observable<any>{
+    return this._http.getRequest(`${environment.api_url}pos/payment-method/`);
+  }
 }
