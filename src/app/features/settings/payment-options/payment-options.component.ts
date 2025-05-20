@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { SettingsService } from '../@services/settings.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { SettingsService } from '../@services/settings.service';
 import { Router, RouterLink } from '@angular/router';
 import { ConfirmationPopUpService } from '../../../shared/services/confirmation-pop-up.service';
 import { MenuItem } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared.module';
 
 @Component({
-  selector: 'app-tax-rate',
-  imports: [SharedModule , RouterLink],
-  templateUrl: './tax-rate.component.html',
-  styleUrl: './tax-rate.component.scss'
+  selector: 'app-payment-options',
+  imports: [SharedModule, RouterLink],
+  templateUrl: './payment-options.component.html',
+  styleUrl: './payment-options.component.scss'
 })
-export class TaxRateComponent implements OnInit{
+export class PaymentOptionsComponent implements OnInit{
     brands: any[] = [];
     cols: any[] = [];
     filterForm!: FormGroup;
@@ -30,20 +30,21 @@ export class TaxRateComponent implements OnInit{
     ngOnInit(): void {
       this.cols = [
         { field: 'name', header: 'Name' },
-        { field: 'rate', header: 'tax' },
+        { field: 'country', header: 'Country' },
+        { field: 'tax_rate', header: 'tax' },
       ];
       this.filterForm = this._formBuilder.group({
         search: '',
       });
-      this.getTaxRatees();
+      this.getPaymentOptions();
     }
   
     // Get brands with filtering and pagination
-    getTaxRatees( search:any='',page: number = 1, pageSize: number = 10): void {
+    getPaymentOptions( search:any='',page: number = 1, pageSize: number = 10): void {
       //const searchParams = new URLSearchParams(this.filterForm.value).toString() || '';
   
       // Correct pagination parameters and make API call
-      this._settingService.getTaxRatees(this.filterForm?.value?.search || '', page, pageSize).subscribe(res => {
+      this._settingService.getPaymentOptions(this.filterForm?.value?.search || '', page, pageSize).subscribe(res => {
         this.brands = res?.results;
         this.totalRecords = res?.count;  // Ensure the total count is updated
       });
@@ -55,7 +56,7 @@ export class TaxRateComponent implements OnInit{
     this.first = event.first;
     this.pageSize = pageSize;
   
-    this._settingService.getTaxRatees(this.filterForm?.value?.search || '',page,pageSize)
+    this._settingService.getPaymentOptions(this.filterForm?.value?.search || '',page,pageSize)
       .subscribe((res) => {
         this.brands = res.results;
         this.totalRecords = res.count;
@@ -78,12 +79,12 @@ export class TaxRateComponent implements OnInit{
   ];
   
   editTaxRate(user: any) {
-    this._router.navigate([`setting/tax-rate/edit/${user?.id}`]);
+    this._router.navigate([`setting/payment-option/edit/${user?.id}`]);
   }
-  deleteTaxRate(user:any){
-    this._settingService.deleteTaxRate(user?.id).subscribe(res=>{
+  deletePaymentOption(user:any){
+    this._settingService.deletePaymentOption(user?.id).subscribe(res=>{
       if(res){
-        this.getTaxRatees()
+        this.getPaymentOptions()
       }
     })
   }
@@ -92,7 +93,7 @@ export class TaxRateComponent implements OnInit{
       message: 'Do you want to delete this item?',
       header: 'Confirm Delete',
       onAccept: () => {
-        this.deleteTaxRate(user);
+        this.deletePaymentOption(user);
       },
       target: user?.id
     });
@@ -113,6 +114,7 @@ export class TaxRateComponent implements OnInit{
   
     const queryParams = queryParts.join('&');
   
-    this.getTaxRatees(queryParams, 1, 10);
+    this.getPaymentOptions(queryParams, 1, 10);
   }
-  }
+
+}

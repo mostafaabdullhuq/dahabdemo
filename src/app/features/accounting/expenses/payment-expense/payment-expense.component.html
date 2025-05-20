@@ -1,0 +1,57 @@
+<p-dialog header="Add Payment" [modal]="true" [(visible)]="visible" [style]="{ width: '70rem' }">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card-body">
+                    <a class="card1 d-flex flex-column justify-content-between" >
+                        <p class=" d-flex flex-column">
+                            <strong>Reference Number : </strong>
+                            {{paymentData?.reference_number}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Supplier : </strong>
+                            {{paymentData?.supplier_name}}
+                        </p>
+                        <div class="go-corner" >
+                            <div class="go-arrow">
+                                →
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-body">
+                    <a class="card1 d-flex flex-column justify-content-between" >
+                        <p class=" d-flex flex-column">
+                            <strong>Expected Delivery Date : </strong>
+                            {{paymentData?.expected_delivery_date}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Status : </strong>
+                            {{paymentData?.status}}
+                        </p>
+                        <div class="go-corner" >
+                            <div class="go-arrow">
+                                →
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-body">
+                    <a class="card1 d-flex flex-column justify-content-between" >
+                        <p class=" d-flex flex-column">
+                            <strong>Total Amount : </strong>
+                            {{paymentData?.total_amount}}
+                        </p>
+                        <div class="go-corner" >
+                            <div class="go-arrow">
+                                →
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+</p-dialog>

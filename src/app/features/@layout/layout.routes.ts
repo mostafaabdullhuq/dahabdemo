@@ -46,6 +46,8 @@ import { BusinessComponent } from '../settings/business/business.component';
 import { BranchesComponent } from '../settings/branches/branches.component';
 import { AddEditBranchComponent } from '../settings/branches/add-edit-branch/add-edit-branch.component';
 import { AddEditTaxComponent } from '../settings/tax-rate/add-edit-tax/add-edit-tax.component';
+import { PaymentOptionsComponent } from '../settings/payment-options/payment-options.component';
+import { AddEditPaymentOptionsComponent } from '../settings/payment-options/add-edit-payment-options/add-edit-payment-options.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -172,6 +174,11 @@ export const routes: Routes = [
       { path: 'tax-rate', component: TaxRateComponent },
       { path: 'tax-rate/add', component: AddEditTaxComponent },
       { path: 'tax-rate/edit/:id', component: AddEditTaxComponent },
+
+      { path: '', redirectTo: 'payment-options', pathMatch: 'full' },
+      { path: 'payment-options', component: PaymentOptionsComponent },
+      { path: 'payment-option/add', component: AddEditPaymentOptionsComponent },
+      { path: 'payment-option/edit/:id', component: AddEditPaymentOptionsComponent },
     ]
   }
 ];

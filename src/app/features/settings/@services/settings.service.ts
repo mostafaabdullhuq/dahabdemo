@@ -75,4 +75,26 @@ export class SettingsService {
       const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}business/settings/tax-rates/${params}` );
   }
+
+    addPaymentOption(addForm:FormGroup | FormData): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}business/settings/payment-methods/`,addForm);
+  }
+  getPaymentOptionById(id:any): Observable<any>{
+    return this._http.getRequest(`${environment.api_url}business/settings/payment-methods/${id}/`);
+  }
+  updatePaymentOption(id:any,addForm:FormGroup | FormData): Observable<any>{
+    return this._http.patchRequest(`${environment.api_url}business/settings/payment-methods/${id}/`,addForm);
+  }
+  deletePaymentOption(id:number ){
+    return this._http.deleteRequest(`${environment.api_url}business/settings/payment-methods/${id}/`);
+  }
+
+    getPaymentOptions(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+      const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}business/settings/payment-methods/${params}` );
+  }
 }

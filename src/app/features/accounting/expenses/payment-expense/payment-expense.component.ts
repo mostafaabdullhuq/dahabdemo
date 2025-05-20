@@ -1,14 +1,14 @@
-import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { SharedModule } from '../../../../shared/shared.module';
+import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { SharedModule } from '../../../../shared/shared.module';
 
 @Component({
-  selector: 'app-payment-purchase',
+  selector: 'app-payment-expense',
   imports: [SharedModule],
-  templateUrl: './payment-purchase.component.html',
-  styleUrl: './payment-purchase.component.scss'
+  templateUrl: './payment-expense.component.html',
+  styleUrl: './payment-expense.component.scss'
 })
-export class PaymentPurchaseComponent implements OnInit{
+export class PaymentExpenseComponent implements OnInit{
   paymentData: any = [];
   paymentForm!: FormGroup;
   paymentTypeOptions:any = [
