@@ -1,0 +1,29 @@
+<section class="form-container">
+    <div class="header-container">
+        <h3>{{isEditMode ? 'Edit' : 'Add'}} currencies</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="addEditBranchForm" class="container" (ngSubmit)="onSubmit()">
+            <section class="form-section">
+                <h6 class="section-form-header">currency Info</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <app-dropdowns label="currency"formControlName="currency"
+                                [options]="currenciesList" optionLabel="name" optionValue="id"
+                                placeholder="Select a currency">
+                            </app-dropdowns>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="addEditBranchForm.invalid">{{isEditMode?
+                    'Update' : 'Submit'}}</button>
+            </div>
+        </form>
+    </div>
+</section>

@@ -97,4 +97,27 @@ export class SettingsService {
       const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}business/settings/payment-methods/${params}` );
   }
+
+  
+    addCurrency(addForm:FormGroup | FormData): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}business/settings/currencies/`,addForm);
+  }
+  getCurrencyById(id:any): Observable<any>{
+    return this._http.getRequest(`${environment.api_url}business/settings/currencies/${id}/`);
+  }
+  updateCurrency(id:any,addForm:FormGroup | FormData): Observable<any>{
+    return this._http.patchRequest(`${environment.api_url}business/settings/currencies/${id}/`,addForm);
+  }
+  deleteCurrency(id:number ){
+    return this._http.deleteRequest(`${environment.api_url}business/settings/currencies/${id}/`);
+  }
+
+    getCurrencies(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+      const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}business/settings/currencies${params}` );
+  }
 }

@@ -1,0 +1,32 @@
+<p-confirmdialog />
+
+<section>
+    <div class="header-container">
+        <h3>currencies</h3>
+        <hr>
+        <div class="header-btns">
+            <button [routerLink]="['/setting/currency/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add currency</button>
+        </div>
+    </div>
+    <div class="filter-container container">
+        <app-filter-collapse>
+            <form class="container" [formGroup]="filterForm">
+                <div class="row">
+                    <div class="col-md-12">
+                        <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
+                    </div>
+                </div>
+                <div class="btns-group">
+                    <button class=" submit-btn" (click)="onSearch()">Search</button>
+                </div>
+                </form >
+        </app-filter-collapse>
+    </div>
+
+    <div class="table-container">
+        <app-data-table [contextMenuItems]="BranchesMenuItems"
+        (rowSelected)="selectedProduct = $event" [data]="Branches" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+            (pageChange)="loadBranches($event)">
+        </app-data-table>
+    </div>
+</section>

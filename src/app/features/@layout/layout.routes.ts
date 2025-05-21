@@ -48,6 +48,8 @@ import { AddEditBranchComponent } from '../settings/branches/add-edit-branch/add
 import { AddEditTaxComponent } from '../settings/tax-rate/add-edit-tax/add-edit-tax.component';
 import { PaymentOptionsComponent } from '../settings/payment-options/payment-options.component';
 import { AddEditPaymentOptionsComponent } from '../settings/payment-options/add-edit-payment-options/add-edit-payment-options.component';
+import { CurrenciesComponent } from '../settings/currencies/currencies.component';
+import { AddEditCurrencyComponent } from '../settings/currencies/add-edit-currency/add-edit-currency.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -179,6 +181,11 @@ export const routes: Routes = [
       { path: 'payment-options', component: PaymentOptionsComponent },
       { path: 'payment-option/add', component: AddEditPaymentOptionsComponent },
       { path: 'payment-option/edit/:id', component: AddEditPaymentOptionsComponent },
+
+      { path: '', redirectTo: 'currencies', pathMatch: 'full' },
+      { path: 'currencies', component: CurrenciesComponent },
+      { path: 'currency/add', component: AddEditCurrencyComponent },
+      { path: 'currency/edit/:id', component: AddEditCurrencyComponent },
     ]
   }
 ];
