@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../shared/shared.module';
+import { DropdownsService } from '../../../../core/services/dropdowns.service';
+import { AccService } from '../../@services/acc.service';
 
 @Component({
   selector: 'app-payment-expense',
@@ -10,6 +12,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 })
 export class PaymentExpenseComponent implements OnInit{
   paymentData: any = [];
+  paymentMethods: any = [];
   paymentForm!: FormGroup;
   paymentTypeOptions:any = [
     {id:'Tag NO' , name:'Tag NO'},
@@ -18,7 +21,7 @@ export class PaymentExpenseComponent implements OnInit{
     {id:'Scrap' , name:'Scrap'},
   ]
   visible: boolean = false;
-  constructor(private _formBuilder:FormBuilder){}
+  constructor(private _formBuilder:FormBuilder, private _dropdownSrvice:DropdownsService , private _accService:AccService){}
   showDialog() {
     this.visible = true;
   }
@@ -27,40 +30,28 @@ export class PaymentExpenseComponent implements OnInit{
 
   if (this.paymentData && Object.keys(this.paymentData).length > 0) {
     this.patchForm(this.paymentData); // patch main controls
-    if (this.paymentData.items?.length > 0) {
-      this.patchPaymentData(this.paymentData.items); // patch items array
-    }
-  } else {
-    this.addItem(); // add an empty item
-  }
+  } 
+
+  this._dropdownSrvice.getPaymentMethods().subscribe(res=>{
+this.paymentMethods=res
+  })
 }
 patchForm(data: any) {
-  console.log(data);
-  
   this.paymentForm.patchValue({
-    purchase_order: data.purchase_order ?? 0,
-    payment_date: data.payment_date ?? '',
-    total_amount: data.total_amount ?? '',
-    payment_method: data.payment_method ?? 0,
-    purity: data.purity ?? 0,
-    value: data.value ?? 0,
-    purity_rate: data.purity_rate ?? 0,
-    branch: data.branch ?? 0,
-    total_weight: data.total_weight ?? '',
+    attachment:data?.attachment,
+      note:data?.note,
+      paid_on: data?.paid_on,
+      amount:data?.amount,
+      payment_method:data?.payment_method,
   });
 }
 initForm(){
   return this.paymentForm = this._formBuilder.group({
-      purchase_order: [0],
-      payment_date: ['', Validators.required],
-      total_amount: ['', Validators.required],
+      attachment: [0],
+      note: [''],
+      paid_on: ['', Validators.required],
+      amount: [0, Validators.required],
       payment_method: [0, Validators.required],
-      purity: [0],
-      value: [0],
-      purity_rate: [0],
-      branch: [0],
-      total_weight: [''],
-      items: this._formBuilder.array([]),
     });
 }
   patchPaymentData(data: any[]) {
@@ -75,9 +66,25 @@ initForm(){
     return this.paymentForm.get('items') as FormArray;
   }
 
-  submit(){
-
+submit() {
+  if (this.paymentForm.invalid) {
+    this.paymentForm.markAllAsTouched();
+    return;
   }
+
+  const formData = new FormData();
+
+  const formValue = this.paymentForm.value;
+
+  // Append each form field to FormData
+  formData.append('attachment', formValue.attachment ?? ''); // assume attachment is a File object or '' if empty
+  formData.append('note', formValue.note);
+  formData.append('paid_on', formValue.paid_on);
+  formData.append('amount', formValue.amount.toString());
+  formData.append('payment_method', formValue.payment_method.toString());
+  this._accService.addExpensePayment(this.paymentData?.id , formData).subscribe()
+}
+
 
 createItem(data?: any): FormGroup {
   const group = this._formBuilder.group({

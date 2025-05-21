@@ -67,6 +67,9 @@ getBranchPaymentMethods(id:any){
   deleteExpense(id: number) {
     return this._http.deleteRequest(`${environment.api_url}expenses/expenses/${id}/`);
   }
+addExpensePayment(id: number| string , form: FormData | FormGroup) {
+    return this._http.postRequest(`${environment.api_url}expenses/expenses/${id}/payments/`, form);
+  }
 
   getExpenseCategories(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     const params = `?${search}&page=${page}&page_size=${pageSize}`

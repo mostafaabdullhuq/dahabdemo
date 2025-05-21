@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ComponentRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AccService } from '../@services/acc.service';
 import { Router, RouterLink } from '@angular/router';
@@ -6,6 +6,7 @@ import { ConfirmationPopUpService } from '../../../shared/services/confirmation-
 import { MenuItem } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared.module';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
+import { PaymentExpenseComponent } from './payment-expense/payment-expense.component';
 
 @Component({
   selector: 'app-expenses',
@@ -122,6 +123,11 @@ export class ExpensesComponent {
       icon: 'pi pi-fw pi-pen-to-square',
       command: () => this.editExpense(this.selectedTransaction)
     },
+     {
+      label: 'Add Payment',
+      icon: 'pi pi-fw pi-payment',
+      command: () => this.addPayment(this.selectedTransaction)
+    },
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
@@ -149,6 +155,14 @@ export class ExpensesComponent {
       },
       target: user?.id
     });
+  }
+    @ViewChild('paymentContainer', { read: ViewContainerRef }) container!: ViewContainerRef;
+  private componentRef!: ComponentRef<PaymentExpenseComponent>;
+  addPayment(data: any) {
+    this.container.clear();
+    this.componentRef = this.container.createComponent(PaymentExpenseComponent);
+    this.componentRef.instance.paymentData = data;
+    this.componentRef.instance.showDialog();
   }
   onSearch(): void {
     const formValues = this.filterForm.value;
