@@ -1,0 +1,17 @@
+:host ::ng-deep .p-tree {
+  background: #fdfdfd;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 15px;
+}
+
+:host ::ng-deep .p-tree .p-treenode-content {
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 2px 0;
+  transition: background 0.3s;
+}
+
+:host ::ng-deep .p-tree .p-treenode-content:hover {
+  background: #f0f9ff;
+  cursor: pointer;
+}

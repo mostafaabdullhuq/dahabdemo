@@ -87,4 +87,9 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
   deleteExpenseCategory(id: number) {
     return this._http.deleteRequest(`${environment.api_url}expenses/category/${id}/`);
   }
+
+    getChartOfAcc(search:string): Observable<any> {
+    const params = `?${search}`
+    return this._http.getRequest(`${environment.api_url}accounting/accounts/${params}`);
+  }
 }

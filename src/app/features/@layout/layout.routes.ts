@@ -1,3 +1,4 @@
+import { ChartOfAccComponent } from './../accounting/chart-of-acc/chart-of-acc.component';
 import { TaxRateComponent } from './../settings/tax-rate/tax-rate.component';
 import { PurchasesComponent } from './../accounting/purchases/purchases.component';
 import { Routes } from '@angular/router';
@@ -156,6 +157,8 @@ export const routes: Routes = [
       { path: 'expenses-cat', component: ExpensesCategoryComponent },
       { path: 'expenses-cat/add', component: AddEditExpenseCatComponent },
       { path: 'expenses-cat/edit/:id', component:AddEditExpenseCatComponent},
+
+      { path: 'chart-of-acc', component: ChartOfAccComponent },
     ]
   },
   // settings

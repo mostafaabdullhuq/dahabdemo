@@ -1,0 +1,25 @@
+<div class="d-flex justify-content-between align-items-center p-4">
+  <h2 class="text-xl font-semibold">Chart of Accounts</h2>
+  <div class="space-x-2">
+    <div class="header-btns">
+        <button
+      class="add-btn"
+      (click)="collapseAll()"
+    >
+      Collapse All
+    </button>
+    </div>
+  </div>
+</div>
+
+<p-tree
+  [value]="nodes"
+  [loading]="loading"
+  selectionMode="single"
+  [lazy]="true"
+  (onNodeExpand)="onNodeExpand($event)"
+  class="p-4 rounded-xl shadow-md border border-gray-200"
+  expandIcon="pi pi-chevron-down"
+  collapseIcon="pi pi-chevron-up"
+>
+</p-tree>

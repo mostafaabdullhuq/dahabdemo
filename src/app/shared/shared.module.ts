@@ -22,6 +22,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { AvatarModule } from 'primeng/avatar';
 import { DialogModule } from 'primeng/dialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { TreeModule } from 'primeng/tree';
 
 // Components
 import { InputTextComponent } from './components/input-text/input-text.component';
@@ -65,6 +66,7 @@ const primeNgModules = [
   MenubarModule,
   AvatarModule,
   DialogModule,
+TreeModule,
   SplitButtonModule
 ]
 
