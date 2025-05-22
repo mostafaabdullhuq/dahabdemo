@@ -25,10 +25,7 @@
   <ng-template let-node pTemplate="default">
     <div class="flex items-center space-x-2">
       <i
-        [ngClass]="{
-          'pi pi-folder mx-3': !node.children?.length
-        }"
-        class="text-primary"
+        class="text-primary pi pi-folder mx-3"
       ></i>
       <span class="font-medium text-surface-700 dark:text-surface-100">
         {{ node.label }}
