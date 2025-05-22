@@ -11,15 +11,40 @@
     </div>
   </div>
 </div>
-
 <p-tree
   [value]="nodes"
   [loading]="loading"
   selectionMode="single"
   [lazy]="true"
   (onNodeExpand)="onNodeExpand($event)"
-  class="p-4 rounded-xl shadow-md border border-gray-200"
   expandIcon="pi pi-chevron-down"
   collapseIcon="pi pi-chevron-up"
+  styleClass="w-full md:w-[30rem] p-4 rounded-xl shadow-md border border-gray-200"
 >
+  <!-- Default node template with icon -->
+  <ng-template let-node pTemplate="default">
+    <div class="flex items-center space-x-2">
+      <i
+        [ngClass]="{
+          'pi pi-folder mx-3': !node.children?.length
+        }"
+        class="text-primary"
+      ></i>
+      <span class="font-medium text-surface-700 dark:text-surface-100">
+        {{ node.label }}
+      </span>
+    </div>
+  </ng-template>
+
+  <!-- Optional: Template for external URL nodes -->
+  <ng-template let-node pTemplate="url">
+    <a
+      [href]="node.data"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-surface-700 dark:text-surface-100 hover:text-primary"
+    >
+      {{ node.label }}
+    </a>
+  </ng-template>
 </p-tree>
