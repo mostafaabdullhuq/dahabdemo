@@ -42,13 +42,25 @@ export class ProductListComponent {
   
     ngOnInit(): void {
       this.cols = [
+        {
+    field: 'image',
+    header: 'Image',
+    body: (row: any) =>
+      row.image ? `<img src="${row.image}" alt="Product Image" width="50" height="50" style="object-fit: cover; border-radius: 10px;" />`:
+    'No Image For This Product'
+  },
         { field: "name", header: "Name" },
     { field: "price", header: "Price" },
-    { field: "category", header: "Category" },
-    { field: "brand", header: "Brand" },
-    { field: "unit", header: "Unit" },
-    { field: "purity", header: "Purity" },
-    { field: "size", header: "Size" },
+    {
+  field: 'details',
+  header: 'Details',
+  body: (row: any) =>
+    `<strong>Category:</strong> ${row.category ?? '-'}<br>` +
+    `<strong>Brand:</strong> ${row.brand ?? '-'}<br>` +
+    `<strong>Unit:</strong> ${row.unit ?? '-'}<br>` +
+    `<strong>Purity:</strong> ${row.purity ?? '-'}<br>` +
+    `<strong>Size:</strong> ${row.size ?? '-'}`
+},
     { field: "designer", header: "Designer" },
     { field: "created_at", header: "Created At" },
     { field: "total_quantity", header: "Stock" },

@@ -1,18 +1,7 @@
-<p-table 
-  [columns]="cols" 
-  [value]="data" 
-  [paginator]="paginator"
-  [totalRecords]="totalRecords"
-  [first]="first"
-  [rows]="rows"
-  [lazy]="true"
-  dataKey="id"
-  stripedRows 
-  [size]="'small'"
-  [tableStyle]="{ 'min-width': '50rem', 'max-height': '10rem', 'min-height': '10rem' }"
-  (onPage)="onPageChange($event)"
-  [showCurrentPageReport]="true"
-  [rowsPerPageOptions]="[10, 25, 50]"
+<p-table [columns]="cols" [value]="data" [paginator]="paginator" [totalRecords]="totalRecords" [first]="first"
+  [rows]="rows" [lazy]="true" dataKey="id" stripedRows [size]="'small'"
+  [tableStyle]="{ 'width':'100%', 'max-height': '10rem', 'min-height': '10rem' }" (onPage)="onPageChange($event)"
+  [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
   <ng-template pTemplate="header" let-columns>
@@ -27,19 +16,16 @@
   <ng-template pTemplate="body" let-rowData let-columns="columns">
     <tr>
       <td *ngFor="let col of columns">
-        {{ col.body ? col.body(rowData) : resolveFieldData(rowData, col.field) }}
+        <span *ngIf="col.body; else defaultCell" [innerHTML]="col.body(rowData)"></span>
+        <ng-template #defaultCell>
+          {{ resolveFieldData(rowData, col.field) }}
+        </ng-template>
       </td>
       <td>
-  <p-splitButton 
-    label="" 
-    icon="pi pi-cog" 
-    [model]="getActions(rowData)" 
-    size="small"
-    appendTo="body"
-    severity="secondary"
-    (onDropdownClick)="onRowClick(rowData)">
-  </p-splitButton>
-</td>
+        <p-splitButton label="" icon="pi pi-cog" [model]="getActions(rowData)" size="small" appendTo="body"
+          severity="secondary" (onDropdownClick)="onRowClick(rowData)">
+        </p-splitButton>
+      </td>
     </tr>
   </ng-template>
 

@@ -92,4 +92,8 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
     const params = `?${search}`
     return this._http.getRequest(`${environment.api_url}accounting/accounts/${params}`);
   }
+
+  addPurchasePayment(form:any) {
+    return this._http.postRequest(`${environment.api_url}purchases/payment/`, form);
+  }
 }
