@@ -32,6 +32,9 @@ export class InventoryService {
   deleteProduct(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/${id}`);
   }
+   getProductsCustomFields(): Observable<any> {
+    return this._http.getRequest(`${environment.api_url}product/custom-field-label/` );
+  }
 
   getUnits(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     // const params = new HttpParams()

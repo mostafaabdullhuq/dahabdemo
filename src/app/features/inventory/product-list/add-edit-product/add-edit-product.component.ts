@@ -47,7 +47,7 @@ export class AddEditProductComponent {
         this.isEditMode = true
       }
       this.addStockItem();
-      this.addCustomFields();
+      this.addStone()
 
       this._dropdownService.getBrands().subscribe(data => {
       this.brands = data?.results;
@@ -76,12 +76,15 @@ export class AddEditProductComponent {
     this._dropdownService.getStockPoints().subscribe(data => {
       this.stockPoints = data?.results;
     });
+    this._inventoryService.getProductsCustomFields().subscribe(res=>{
+      this.customFields = res;
+            this.addCustomFields();
+
+    })
     }
   
     private initForm(): void {
       this.addEditProductForm = this._formBuilder.group({
-        stones: [''],
-        stone_kr: [''],
         stock_point: [''],
         is_active: [''],
         discount: [''],
@@ -99,11 +102,11 @@ export class AddEditProductComponent {
         category_id: [''],
         description: [''],
         name: ['',Validators.required],
+            stones: this._formBuilder.array([]), // FormArray for stones
         branches: this._formBuilder.array([]),
       image: [null, Validators.required]
       });
     }
-  
     private loadProductData(productId: number | string): void {
       this._inventoryService.getProductById(productId).subscribe((product: any) => {
         this.addEditProductForm.patchValue({
@@ -133,28 +136,39 @@ export class AddEditProductComponent {
             });
           });
         }
+        if (product.stones && Array.isArray(product.stones)) {
+  product.stones.forEach((stone: any) => this.addStone(stone));
+}
       });
+      
     }
-    customFields = [
-      { name: 'custom_field_1', label: 'Custom Field 1' },
-      { name: 'custom_field_2', label: 'Custom Field 2' },
-      { name: 'custom_field_3', label: 'Custom Field 3' }
-    ];
-      // Dynamically add custom fields to the form
-  private addCustomFields(): void {
-    this.customFields.forEach(field => {
-      if (!this.addEditProductForm.contains(field.name)) {
-        this.addEditProductForm.addControl(field.name, new FormControl(''));
-      }
-    });
-  }
 
-  // Map form controls to an array of objects
-  private mapToCustomFieldsArray(): any[] {
-    return this.customFields.map(field => ({
-      name: field.name,
-      value: this.addEditProductForm.get(field.name)?.value
-    }));
+    get stonesArray(): FormArray {
+  return this.addEditProductForm.get('stones') as FormArray;
+}
+
+addStone(stone = { stone_id: null, value: null, weight: null }): void {
+  this.stonesArray.push(
+    this._formBuilder.group({
+      stone_id: [stone.stone_id, Validators.required],
+      value: [stone.value, Validators.required],
+      weight: [stone.weight, Validators.required]
+    })
+  );
+}
+    
+    removeStone(index: number): void {
+      this.stonesArray.removeAt(index);
+    }
+    
+    customFields!:any[];
+      // Dynamically add custom fields to the form
+private addCustomFields(): void {
+  this.customFields.forEach(field => {
+    if (!this.addEditProductForm.contains(field.field_name)) {
+      this.addEditProductForm.addControl(field.field_name, new FormControl(''));
+    }
+  });
   }
 
   
@@ -183,6 +197,9 @@ export class AddEditProductComponent {
     if (formValue.branches && Array.isArray(formValue.branches)) {
       formData.append('branches', JSON.stringify(formValue.branches));
     }
+     if (formValue.branches && Array.isArray(formValue.branches)) {
+      formData.append('custom_fields', JSON.stringify(formValue.custom_fields));
+    }
   
     // Send as FormData
     const request$ = this.isEditMode && this.productId
@@ -200,7 +217,8 @@ export class AddEditProductComponent {
     private createStockGroup(data: any = {}): FormGroup {
       return this._formBuilder.group({
         branch_id: [data.branch_id || '', Validators.required],
-        stock_quantity: [data.stock_quantity || '', Validators.required]
+        stock_quantity: [data.stock_quantity || '', Validators.required],
+        is_active: [data.is_active || '', ]
       });
     }
     get stockInfoArray(): FormArray {
