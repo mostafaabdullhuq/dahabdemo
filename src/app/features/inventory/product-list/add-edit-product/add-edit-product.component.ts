@@ -180,7 +180,7 @@ private addCustomFields(): void {
   
     // Append simple fields
     Object.keys(formValue).forEach(key => {
-      if (key === 'image' || key === 'branches') return; // handle these separately
+      if (key === 'image' || key === 'branches' || key === 'stones' || key === 'custom_fields') return; // handle these separately
   
       // Avoid appending null or undefined values
       if (formValue[key] !== null && formValue[key] !== undefined) {
@@ -197,8 +197,11 @@ private addCustomFields(): void {
     if (formValue.branches && Array.isArray(formValue.branches)) {
       formData.append('branches', JSON.stringify(formValue.branches));
     }
-     if (formValue.branches && Array.isArray(formValue.branches)) {
+     if (formValue.custom_fields && Array.isArray(formValue.custom_fields)) {
       formData.append('custom_fields', JSON.stringify(formValue.custom_fields));
+    }
+     if (formValue.stones && Array.isArray(formValue.stones)) {
+      formData.append('stones', JSON.stringify(formValue.stones));
     }
   
     // Send as FormData
