@@ -120,4 +120,17 @@ export class SettingsService {
       const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}business/settings/currencies${params}` );
   }
+
+    getInvoiceLayouts(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    return this._http.getRequest(`${environment.api_url}business/settings/invoice-layout/` );
+  }
+updateInvoiceLayout(id:any,addForm:FormGroup | FormData): Observable<any>{
+    return this._http.patchRequest(`${environment.api_url}business/settings/invoice-layout/${id}/`,addForm);
+  }
+    addInvoiceLayout(addForm:FormGroup | FormData): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}business/settings/invoice-layout/`,addForm);
+  }
+  deleteInvoiceLayout(id:number ){
+    return this._http.deleteRequest(`${environment.api_url}business/settings/invoice-layout/${id}/`);
+  }
 }

@@ -1,1 +1,34 @@
-<p>invoice works!</p>
+<p-confirmdialog />
+
+<div class="container">
+    <div class="header-container">
+        <h3>Invoices </h3>
+        <hr>
+        <div class="header-btns">
+            <button [routerLink]="['/setting/invoice/add']" class="add-btn text-center"><i
+                    class="pi pi-plus  px-2"></i>Add Invoice Layout</button>
+        </div>
+    </div>
+    <div class="row py-4">
+        @for (item of layouts; track $index) {
+        <div class="col-md-6">
+            <div class="notification">
+                <div class="notiglow"></div>
+                <div class="notiborderglow"></div>
+
+                <div class="notititle"><i class="pi pi-receipt px-2"></i>{{item?.layout_name}}</div>
+                <div class="notibody">{{item?.description || item?.description ==='' ?'There Is No Description': item?.description}}</div>
+                    <div class="d-flex justify-content-between align-items-end h-100 p-2">
+                        <button (click)="showConfirmDelete(item?.id)" class="btn" type="button">
+                            <i  style="cursor: pointer;" class="pi pi-trash text-danger px-1"></i>
+                        </button>
+                        <div >
+                            <p-toggleswitch (onChange)="onToggleChange(item, $event.checked)" [inputId]="'toggle-' + item?.id" [(ngModel)]="item.is_active">
+                    </p-toggleswitch>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        }
+    </div>
+</div>

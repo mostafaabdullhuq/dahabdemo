@@ -132,11 +132,11 @@
                     
                     <a [routerLink]="['/acc/expenses']" routerLinkActive="active-link"
                     class="nav-link text-dark"><i class="pi pi-money-bill me-2"></i> Expenses</a>
-                    <a [routerLink]="['/acc/expenses-cat']" routerLinkActive="active-link"
-                    class="nav-link text-dark"><i class="pi pi-dollar me-2"></i> Expenses Category</a>
+                    <!-- <a [routerLink]="['/acc/expenses-cat']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-dollar me-2"></i> Expenses Category</a> -->
                     <a [routerLink]="['/acc/chart-of-acc']" routerLinkActive="active-link"
                     class="nav-link text-dark"><i class="pi pi-pie-chart me-2"></i> Chart Of
-                            Accounts</a>
+                            Accounts </a>
                 </ul>
             </div>
         </li>
@@ -154,7 +154,8 @@
                     class="nav-link text-dark"><i class="pi pi-briefcase me-2"></i> Business</a>
                     <a [routerLink]="['/setting/branch']" routerLinkActive="active-link"
                     class="nav-link text-dark"><i class="pi pi-building me-2"></i> Branches</a>
-                    <li><a href="#" class="nav-link text-dark"><i class="pi pi-file me-2"></i> Invoice</a></li>
+                    <a [routerLink]="['/setting/invoice']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-file me-2"></i> Invoice</a>
                     <a [routerLink]="['/setting/tax-rate']" routerLinkActive="active-link"
                     class="nav-link text-dark"><i class="pi pi-tag me-2"></i> Tax Rates</a>
                     <a [routerLink]="['/setting/payment-options']" routerLinkActive="active-link"
