@@ -121,7 +121,7 @@ export class TransferBranchesComponent {
   }
 
   getProductsByBranch(branchId:string|number){
-    this._dropdownService.getProducts(null,`branch=${branchId}&branch__id=${branchId}`).subscribe(data => {
+    this._dropdownService.getProducts(true,`branch=${branchId}&branch__id=${branchId}`).subscribe(data => {
       this.products = data?.results;
     });
   }

@@ -344,7 +344,7 @@ removePayment(index: number) {
   }
 
   private loadExpenseData(expenseId: number | string): void {
-  this._accService.getExpenseById(expenseId).subscribe((expense: any) => {
+  this._accService.getPurchaseById(expenseId).subscribe((expense: any) => {
     this.addEditExpenseForm.patchValue({
       total_amount: expense.total_amount,
       expected_delivery_date: expense.expected_delivery_date,
@@ -573,13 +573,24 @@ onSubmit(): void {
 
   console.log('🔹 FormData Payload:', formDataPayload);
 
-  this._accService.addPurchase(formDataPayload).subscribe({
-    next: (res) => {
-      this.addEditExpenseForm.reset();
-    },
-    error: (err) => {
-      console.error(err);
-    }
-  });
+  if (this.productId && this.isEditMode) {
+    this._accService.updatePurchase(this.productId,formDataPayload).subscribe({
+      next: (res) => {
+        this.addEditExpenseForm.reset();
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+  } else {
+    this._accService.addPurchase(formDataPayload).subscribe({
+      next: (res) => {
+        this.addEditExpenseForm.reset();
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+  }
 }
 }

@@ -39,7 +39,10 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}business/roles/`;
     return this._http.getRequest<any>(url);
   }
-
+  getScraps(nextPageUrl: string | null = null): Observable<any> {
+    const url = nextPageUrl || `${this.API}purchases/payment/scrap/`;
+    return this._http.getRequest<any>(url);
+  }
   getCategories(nextPageUrl: string | null = null): Observable<any> {
     const url = nextPageUrl || `${this.API}product/category/`;
     return this._http.getRequest<any>(url);
@@ -78,8 +81,9 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}product/stock-point/`;
     return this._http.getRequest<any>(url);
   }
-  getProducts(nextPageUrl: string | null = null, params?: string): Observable<any> {
-    const url = nextPageUrl || `${this.API}product/?${params}`;
+  getProducts(minimal: boolean = true,params?:string,page:number = 1, pageSize: number = 100000000): Observable<any> {
+    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+    const url = `${this.API}product/?${params ?? param}`;
     return this._http.getRequest<any>(url);
   }
   getCustomersGroup(nextPageUrl: string | null = null, params?: string): Observable<any> {

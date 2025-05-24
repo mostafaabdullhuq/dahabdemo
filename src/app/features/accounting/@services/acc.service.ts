@@ -38,6 +38,12 @@ export class AccService {
   addPurchase(form: any) {
     return this._http.postRequest(`${environment.api_url}purchases/`, form);
   }
+    updatePurchase(id: number | string, editForm: FormGroup | FormData) {
+    return this._http.patchRequest(`${environment.api_url}purchases/${id}/`, editForm);
+  }
+  getPurchaseById(id:number | string){
+    return this._http.getRequest(`${environment.api_url}purchases/${id}/`);
+  }
   deletePurchase(id: number) {
     return this._http.deleteRequest(`${environment.api_url}purchases/${id}`);
   }

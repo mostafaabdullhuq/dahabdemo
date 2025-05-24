@@ -150,7 +150,7 @@ export class PurchasesComponent {
     this.componentRef.instance.showDialog();
   }
   editPurchase(user: any) {
-    this._router.navigate([`acc/transaction/edit/${user?.id}`]);
+    this._router.navigate([`acc/purchase/edit/${user?.id}`]);
   }
   deletePurchase(user: any) {
     this._accService.deletePurchase(user?.id).subscribe(res => {

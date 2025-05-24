@@ -1,1 +1,191 @@
-<p>add-edit-invoice works!</p>
+<section class="form-container">
+    <div class="header-container">
+        <h3> Invoice Layout</h3>
+        <hr />
+    </div>
+
+    <div class="add-form">
+        <form [formGroup]="invoiceForm" class="container" (ngSubmit)="onSubmit()">
+
+            <!-- Invoice Layout Section -->
+            <section class="form-section">
+                <h6 class="section-form-header">Invoice Layout</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="layout_name" inputName="layout name" [required]="true"
+                                placeholder="Enter layout name"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="description" inputName="description"
+                                placeholder="Enter description"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="header_text" inputName="header text" [required]="true"
+                                placeholder="Enter header text"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="footer_text" inputName="footer text"
+                                placeholder="Enter footer text"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-check-box formControlName="show_logo" inputId="Show logo"
+                                label="Show logo?"></app-check-box>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Logo</label>
+                            <app-upload-input formControlName="logo" label="Upload Image"></app-upload-input>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer Information Section -->
+            <section class="form-section">
+                <h6 class="section-form-header">Customer Information</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="customer_name" inputName="Customer Name"
+                                placeholder="Enter customer name"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="customer_email" inputName="Customer Email"
+                                placeholder="Enter customer email"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="customer_number" inputName="Customer Number"
+                                placeholder="Enter customer number"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="customer_cpr_number" inputName="Customer CPR"
+                                placeholder="Enter CPR number"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-check-box formControlName="show_customer" inputId="Show Customer"
+                                label="Show customer?"></app-check-box>
+                        </div>
+                        <div class="col-md-4">
+                            <app-check-box formControlName="show_mobile_number" inputId="Show Mobile Number"
+                                label="Show mobile number?"></app-check-box>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Product Details Section -->
+            <section class="form-section">
+                <h6 class="section-form-header">Product Details</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="product_label" inputName="Product Label"
+                                placeholder="Enter product label"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="quantity_label" inputName="Quantity Label"
+                                placeholder="Enter quantity label"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="unit_label" inputName="Unit Label"
+                                placeholder="Enter unit label"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-check-box formControlName="show_product_tag_number" inputId="Show Product Tag"
+                                label="Show product tag number?"></app-check-box>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Shop Information Section -->
+            <section class="form-section">
+                <h6 class="section-form-header">Shop Information</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="shop_name" inputName="Shop Name"
+                                placeholder="Enter shop name"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="shop_cr_number" inputName="CR Number"
+                                placeholder="Enter CR number"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="shop_vat_number" inputName="VAT Number"
+                                placeholder="Enter VAT number"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="landmark" inputName="Landmark"
+                                placeholder="Enter landmark"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-check-box formControlName="show_branch" inputId="Show Branch"
+                                label="Show branch?"></app-check-box>
+                        </div>
+                        <div class="col-md-4">
+                            <app-check-box formControlName="shop_address" inputId="Shop Address"
+                                label="Show shop address?"></app-check-box>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing Section -->
+            <section class="form-section">
+                <h6 class="section-form-header">Pricing</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <app-input-text formControlName="subtotal_label" inputName="Subtotal Label"
+                                placeholder="Enter subtotal label"></app-input-text>
+                        </div>
+                        <div class="col-md-3">
+                            <app-input-text formControlName="discount_label" inputName="Discount Label"
+                                placeholder="Enter discount label"></app-input-text>
+                        </div>
+                        <div class="col-md-3">
+                            <app-input-text formControlName="tax_label" inputName="Tax Label"
+                                placeholder="Enter tax label"></app-input-text>
+                        </div>
+                        <div class="col-md-3">
+                            <app-input-text formControlName="total_label" inputName="Total Label"
+                                placeholder="Enter total label"></app-input-text>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Invoice & Payment Section -->
+            <section class="form-section">
+                <h6 class="section-form-header">Invoice & Payment</h6>
+                <div class="container section-form">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="invoice_date" inputName="Invoice Date"
+                                placeholder="Enter invoice date"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="invoice_number" inputName="Invoice Number"
+                                placeholder="Enter invoice number"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="payment_method" inputName="Payment Method"
+                                placeholder="Enter payment method"></app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text formControlName="payment_date" inputName="Payment Date"
+                                placeholder="Enter payment date"></app-input-text>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Submit Button -->
+            <div class="btns-group">
+                <button type="submit" class="my-4 submit-btn" [disabled]="invoiceForm.invalid">Submit</button>
+            </div>
+        </form>
+
+    </div>
+</section>
