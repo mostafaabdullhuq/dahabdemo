@@ -16,4 +16,10 @@ data:any[]= [
   {title:'purchase', balance:"DB 1000"},
   {title:'profile', balance:"DB 1000"},
 ]
+inventory:any[]= [
+  {title:'Silver', balance:"DB 1000"},
+  {title:'Gold', balance:"DB 1000"},
+  {title:'Dimond', balance:"DB 1000"},
+  {title:'stones', balance:"DB 1000"},
+]
 }
