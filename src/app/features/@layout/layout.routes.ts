@@ -56,9 +56,11 @@ import { AddEditInvoiceComponent } from '../settings/invoice/add-edit-invoice/ad
 import { AccountingTabsComponent } from '../accounting/accounting-tabs/accounting-tabs.component';
 import { JournalEntryComponent } from '../accounting/journal-entry/journal-entry.component';
 import { AddEditJournalEntryComponent } from '../accounting/journal-entry/add-edit-journal-entry/add-edit-journal-entry.component';
+import { UserDashboardComponent } from '../user-dashboard/user-dashboard.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: 'dashboard', component: UserDashboardComponent },
   // User Management
   {
     path: 'user-management', children: [
