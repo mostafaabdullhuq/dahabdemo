@@ -1,0 +1,53 @@
+<p-confirmdialog />
+<ng-template #paymentContainer></ng-template>
+<section>
+    <div class="header-container">
+        <h3>Journal entry </h3>
+        <hr>
+        <div class="header-btns">
+            <button [routerLink]="['/acc/journal-entry/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add Journal entry</button>
+        </div>
+    </div>
+    <div class="filter-container container">
+        <app-filter-collapse>
+            <form class="container" [formGroup]="filterForm">
+                <div class="row">
+                    <div class="col-md-12">
+                        <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
+                    </div>
+                     <div class="col-md-3">
+                            <app-dropdowns label="status" formControlName="status" [options]="statuses"
+                                optionLabel="name" optionValue="id" placeholder="Select a status"></app-dropdowns>
+                        </div>
+                        <div class="col-md-3">
+                            <app-dropdowns label="sources" formControlName="source" [options]="sources"
+                                optionLabel="name" optionValue="id" placeholder="Select a sources"></app-dropdowns>
+                        </div>
+                        <div class="col-md-3">
+                            <app-dropdowns label="branch" formControlName="branch" [options]="branches"
+                                optionLabel="name" optionValue="id" placeholder="Select a branch"></app-dropdowns>
+                        </div>
+                        <div class="col-md-3">
+                            <app-dropdowns label="supplier" formControlName="supplier" [options]="suppliers"
+                                optionLabel="name" optionValue="id" placeholder="Select a supplier"></app-dropdowns>
+                        </div>
+                        <div class="col-md-3">
+                        <app-input-date formControlName="date__range" inputName=" date"
+                                placeholder="Enter date">
+                            </app-input-date>
+                    </div>
+                </div>
+                <div class="btns-group">
+                    <button class=" submit-btn" (click)="onSearch()">Search</button>
+                </div>
+                </form >
+        </app-filter-collapse>
+    </div>
+
+    <div class="table-container">
+        <app-data-table [contextMenuItems]="transactionsMenuItems"
+        (rowSelected)="selectedTransaction = $event" [data]="transactions" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+            (pageChange)="loadPurchases($event)">
+        </app-data-table>
+    </div>
+</section>

@@ -30,6 +30,11 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}core/country-tax/?${param}`;
     return this._http.getRequest<any>(url);
   }
+  getUsers(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
+    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+    const url = nextPageUrl || `${this.API}user/?${param}`;
+    return this._http.getRequest<any>(url);
+  }
     getAccounts(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
     const url = nextPageUrl || `${this.API}accounting/accounts/?${param}`;

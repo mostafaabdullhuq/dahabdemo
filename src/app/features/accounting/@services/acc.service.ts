@@ -102,4 +102,25 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
   addPurchasePayment(form:any) {
     return this._http.postRequest(`${environment.api_url}purchases/payment/`, form);
   }
+
+  addJournalEntry(form:any) {
+    return this._http.postRequest(`${environment.api_url}accounting/`, form);
+  }
+  updateJournalEntry(id: number | string, editForm: any) {
+    return this._http.patchRequest(`${environment.api_url}accounting/${id}/`, editForm);
+  }
+  getJournalEntry(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+    const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}accounting/${params}`);
+  }
+   getJournalEntryById(id:number | string){
+    return this._http.getRequest(`${environment.api_url}accounting/${id}`);
+  }
+  deleteJournalEntry(id: number) {
+    return this._http.deleteRequest(`${environment.api_url}accounting/${id}/`);
+  }
 }

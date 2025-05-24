@@ -53,6 +53,9 @@ import { CurrenciesComponent } from '../settings/currencies/currencies.component
 import { AddEditCurrencyComponent } from '../settings/currencies/add-edit-currency/add-edit-currency.component';
 import { InvoiceComponent } from '../settings/invoice/invoice.component';
 import { AddEditInvoiceComponent } from '../settings/invoice/add-edit-invoice/add-edit-invoice.component';
+import { AccountingTabsComponent } from '../accounting/accounting-tabs/accounting-tabs.component';
+import { JournalEntryComponent } from '../accounting/journal-entry/journal-entry.component';
+import { AddEditJournalEntryComponent } from '../accounting/journal-entry/add-edit-journal-entry/add-edit-journal-entry.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user-management/users', pathMatch: 'full' },
@@ -160,7 +163,11 @@ export const routes: Routes = [
       { path: 'expenses-cat/add', component: AddEditExpenseCatComponent },
       { path: 'expenses-cat/edit/:id', component:AddEditExpenseCatComponent},
 
+      { path: 'accounting', component: AccountingTabsComponent },
       { path: 'chart-of-acc', component: ChartOfAccComponent },
+      { path: 'journal-entry', component: JournalEntryComponent },
+      { path: 'journal-entry/add', component: AddEditJournalEntryComponent },
+      { path: 'journal-entry/edit/:id', component: AddEditJournalEntryComponent },
     ]
   },
   // settings

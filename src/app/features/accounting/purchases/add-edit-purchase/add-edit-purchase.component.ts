@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 import { AccService } from '../../@services/acc.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { combineLatest, debounceTime, forkJoin, startWith } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-add-edit-purchase',
@@ -12,7 +12,7 @@ import { combineLatest, debounceTime, forkJoin, startWith } from 'rxjs';
   templateUrl: './add-edit-purchase.component.html',
   styleUrl: './add-edit-purchase.component.scss'
 })
-export class AddEditPurchaseComponent {
+export class AddEditPurchaseComponent implements OnInit{
   addEditExpenseForm!: FormGroup;
   isEditMode = false;
   productId: string | number = '';
