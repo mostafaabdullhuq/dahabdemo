@@ -19,6 +19,7 @@ export class DropdownsComponent implements ControlValueAccessor {
   @Input() id: string = `input-${Math.random().toString(36).substring(2, 15)}`; // unique id
   @Input() optionLabel: string = '';
   @Input() optionValue: any = '';
+  @Input() disabled: boolean = false;
   @Input() placeholder: string = '';
   @Input() label: string = '';
   @Output() selectionChange = new EventEmitter<any>();
@@ -28,35 +29,37 @@ export class DropdownsComponent implements ControlValueAccessor {
 
   selectedValue: any = '';
 
-  // These are needed for ControlValueAccessor to handle the model binding
-  onChange: (value: any) => void = () => { };
-  onTouched: () => void = () => { };
+  // ControlValueAccessor hooks
+  onChange: (value: any) => void = () => {};
+  onTouched: () => void = () => {};
 
-  // This method is called when the value changes from the form model
+  // Called when value is written from outside (form model or programmatically)
   writeValue(value: any): void {
-    if (value) {
-      this.selectedValue = value;
-    }
-  }
+    this.selectedValue = value;
 
-  // This method is called when the value of the model changes
-  registerOnChange(fn: (value: any) => void): void {
-    this.onChange = fn;
-  }
-
-  // This method is called when the control is touched
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  // Trigger change event when selection is modified
-  onSelectionChange(event: any) {
+    // Emit changes to notify parent
     this.onChange(this.selectedValue);
     this.selectionChange.emit(this.selectedValue);
   }
 
-  // Mark control as touched when input is blurred
-  onBlur() {
+  registerOnChange(fn: (value: any) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  // User changes selection
+  onSelectionChange(event: any): void {
+    this.selectedValue = event.value; // PrimeNG passes `{originalEvent, value}`
+
+    this.onChange(this.selectedValue);
+    this.selectionChange.emit(this.selectedValue);
+    this.valueChange.emit(this.selectedValue); // Optional if two-way binding is needed
+  }
+
+  onBlur(): void {
     this.onTouched();
   }
 }

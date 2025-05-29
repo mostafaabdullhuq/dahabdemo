@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ComponentRef, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PosService } from '../@services/pos.service';
@@ -6,6 +6,8 @@ import { PosSalesService } from '../@services/pos-sales.service';
 import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
 import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
+import { MenuItem } from 'primeng/api';
+import { SetDiscountComponent } from './set-discount/set-discount.component';
 
 @Component({
   selector: 'app-sales-pos',
@@ -21,56 +23,102 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   selectedVat: any = ''
   taxes: any = [];
   salesProduct: any = [];
+  menuItem: MenuItem[] = [];
   manualGoldPrice = '';
   selectedCurrency: any = ''
   private destroy$ = new Subject<void>();
   defualtVat = 0;
-  shiftData:any = []
+  shiftData: any = [];
+  selectedVatId: any = null;
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
-    private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
+    private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
   ) { }
 
   ngOnInit(): void {
     this.productForm = this._formBuilder.group({
       product_id: ['', Validators.required]
     })
-    
+
     this._posService.getProductSalesList().subscribe((res) => {
       this.products = res?.results;
     });
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results;
+      this.selectedVatId = this.taxes[0].id; // Set first VAT as default
     });
     this.getSalesOrder()
     this._posStatusService.shiftData$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(data => {
-      this.shiftData = data;
-      if(this.shiftData && this.shiftData?.is_active){
-        this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
-          this.manualGoldPrice = res?.manual_gold_price;
-        });
-      }
-    });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.shiftData = data;
+        if (this.shiftData && this.shiftData?.is_active) {
+          this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
+            this.manualGoldPrice = res?.manual_gold_price;
+          });
+        }
+      });
 
     this._posSharedService.selectedCurrency$
       .subscribe(currency => {
         if (currency) {
-          this.selectedCurrency = currency;          
+          this.selectedCurrency = currency;
         } else {
           this.selectedCurrency = null;
         }
       });
 
-      this.productForm.get('product_id')?.valueChanges
-  .pipe(
-    takeUntil(this.destroy$),
-    distinctUntilChanged(), // prevent firing if same value is set again
-    filter(value => !!value) // avoid null/undefined triggers
-  )
-  .subscribe((productId: number) => {
-    this.onProductSelected(productId);
-  });
+    this.productForm.get('product_id')?.valueChanges
+      .pipe(
+        takeUntil(this.destroy$),
+        distinctUntilChanged(), // prevent firing if same value is set again
+        filter(value => !!value) // avoid null/undefined triggers
+      )
+      .subscribe((productId: number) => {
+        this.onProductSelected(productId);
+      });
+
+    this._posStatusService.shiftActive$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        if (!status)
+          this.selectedCurrency = ''
+      });
+
+    this.menuItem = [
+      {
+        label: 'Set Discount',
+        icon: 'pi pi-percentage',
+        command: () => {
+          this.setDiscount(this.selectedRowData?.id);
+        }
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => {
+          this.removeItem(this.selectedRowData?.id);
+        }
+      }
+    ];
+this._posStatusService.shiftActive$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        this.isShiftActive = status;
+      });
+  }
+  isShiftActive:boolean = false;
+  selectedRowData: any = [];
+    componentRef!: ComponentRef<SetDiscountComponent>;
+  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
+
+  setDiscount(id: any) {
+     this.container.clear();
+        this.componentRef = this.container.createComponent(SetDiscountComponent);
+        this.componentRef.instance.selectedRowId= id;
+        this.componentRef.instance.visible = true;
+  }
+  onRowClick(rowData: any): void {
+    this.selectedRowData = rowData;
   }
   getSalesOrder() {
     this._posSalesService._salesReciepts$
@@ -81,6 +129,13 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     // initial load
     this._posSalesService.getSalesOrdersFromServer();
+  }
+  removeItem(id: any) {
+    this._posService.deleteProductSale(id).subscribe({
+      next: res => {
+        this._posSalesService.getSalesOrdersFromServer();
+      },
+    })
   }
   calcGoldPriceAccordingToPurity(group: any): number {
     if (
@@ -128,61 +183,61 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   }
 
   calcTotalPrice(group: any): number {
-  const metalValue = this.calcMetalValueAccordingToPurity(group);
+    const metalValue = this.calcMetalValueAccordingToPurity(group);
 
-  const makingCharge = +group?.retail_making_charge || 0;
-  const discountPercentage = +group?.discount || 0;
+    const makingCharge = +group?.retail_making_charge || 0;
+    const discountPercentage = +group?.discount || 0;
 
-  // Calculate discount amount
-  const discountAmount = (discountPercentage / 100) * makingCharge;
+    // Calculate discount amount
+    const discountAmount = (discountPercentage / 100) * makingCharge;
 
-  // Share the discount amount with the service
-  this._posSharedService.setDiscountAmount(discountAmount);
+    // Share the discount amount with the service
+    this._posSharedService.setDiscountAmount(discountAmount);
 
-  const discountedMakingCharge = makingCharge - discountAmount;
+    const discountedMakingCharge = makingCharge - discountAmount;
 
-  const stoneValues = (group?.stones || [])
-    .slice(0, 3)
-    .reduce((sum: number, stone: any) => sum + (+stone?.retail_value || 0), 0);
+    const stoneValues = (group?.stones || [])
+      .slice(0, 3)
+      .reduce((sum: number, stone: any) => sum + (+stone?.retail_value || 0), 0);
 
-  const total = metalValue + discountedMakingCharge + stoneValues;
+    const total = metalValue + discountedMakingCharge + stoneValues;
 
-  const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-  return +total.toFixed(decimalPlaces);
-}
-onVatChange(vatId: number, group: any): void {
-  group.selectedVat = vatId;
-  this.calcGrandTotalWithVat()
-}
-calcTotalPriceWithVat(group: any): number {
-  const baseTotal = this.calcTotalPrice(group);
-  const vatRate = +this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat)?.rate || 0;
-  const vatAmount = (vatRate / 100) * baseTotal;
-const totalVat = this.salesDataOrders.reduce((acc: number, group: any) => {
-  const baseTotal = this.calcTotalPrice(group); // your existing method
-  const vatRate = +this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat)?.rate || 0;
-  const vatAmount = (vatRate / 100) * baseTotal;
-  return acc + vatAmount;
-}, 0);
-  // Update shared VAT immediately
-  const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-  this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    return +total.toFixed(decimalPlaces);
+  }
+  onVatChange(vatId: number, group: any): void {
+    group.selectedVat = vatId;
+    this.calcGrandTotalWithVat();
+  }
+  calcTotalPriceWithVat(group: any): number {
+    const baseTotal = this.calcTotalPrice(group);
+    const vatRate = +this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat)?.rate || 0;
+    const vatAmount = (vatRate / 100) * baseTotal;
+    const totalVat = this.salesDataOrders.reduce((acc: number, group: any) => {
+      const baseTotal = this.calcTotalPrice(group); // your existing method
+      const vatRate = +this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat)?.rate || 0;
+      const vatAmount = (vatRate / 100) * baseTotal;
+      return acc + vatAmount;
+    }, 0);
+    // Update shared VAT immediately
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
 
-  const totalWithVat = baseTotal + vatAmount;
-  return +totalWithVat.toFixed(decimalPlaces);
-}
-calcGrandTotalWithVat(): number {
-  if (!this.salesDataOrders || this.salesDataOrders.length === 0) return 0;
+    const totalWithVat = baseTotal + vatAmount;
+    return +totalWithVat.toFixed(decimalPlaces);
+  }
+  calcGrandTotalWithVat(): number {
+    if (!this.salesDataOrders || this.salesDataOrders.length === 0) return 0;
 
-  const total = this.salesDataOrders.reduce((sum: number, group: any) => {
-    return sum + this.calcTotalPriceWithVat(group);
-  }, 0);
+    const total = this.salesDataOrders.reduce((sum: number, group: any) => {
+      return sum + this.calcTotalPriceWithVat(group);
+    }, 0);
 
-  const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     this._posSharedService.setGrandTotalWithVat(+total.toFixed(decimalPlaces));
-  
-  return +total.toFixed(decimalPlaces);
-}
+
+    return +total.toFixed(decimalPlaces);
+  }
   onProductSelected(productId: number): void {
     const selectedProduct = this.products.find((p: any) => p.id === productId);
     if (!selectedProduct) return;
@@ -218,4 +273,5 @@ calcGrandTotalWithVat(): number {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
 }

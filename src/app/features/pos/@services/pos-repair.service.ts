@@ -1,19 +1,37 @@
 import { Injectable } from '@angular/core';
 import { SingletonService } from '../../../core/services/singleton.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PosRepairService {
-   constructor(private _http: SingletonService) { }
-  
-addRepairProduct(form:any): Observable<any>{
-    return this._http.postRequest(`${environment.api_url}pos/order-product/repair/`,form);
+  private repairProductsSubject = new BehaviorSubject<any[]>([]);
+  repairProducts$ = this.repairProductsSubject.asObservable();
+
+  constructor(private _http: SingletonService) {
+    this.fetchRepairProducts(); // optionally load on service init
   }
 
-  getRepairProduct(): Observable<any>{
-    return this._http.getRequest(`${environment.api_url}pos/order-product-receipt/repair/`);
+  addRepairProduct(form: any): Observable<any> {
+    return this._http.postRequest(`${environment.api_url}pos/order-product/repair/`, form).pipe(
+      tap(() => this.fetchRepairProducts())
+    );
+  }
+
+  fetchRepairProducts(): void {
+    this._http.getRequest(`${environment.api_url}pos/order-product-receipt/repair/`).subscribe({
+      next: (res: any) => {
+        this.repairProductsSubject.next(res || []);
+      },
+      error: () => {
+        this.repairProductsSubject.next([]);
+      }
+    });
+  }
+
+  get currentRepairProducts(): any[] {
+    return this.repairProductsSubject.value;
   }
 }

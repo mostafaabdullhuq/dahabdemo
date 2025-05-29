@@ -80,7 +80,7 @@
                     </div>
                 </div>
                 <!-- 🔹 recurring payment -->
-                @if (addEditExpenseForm.get('is_refund')?.value == false) {
+                @if (addEditExpenseForm.get('is_refund')?.value == true) {
                 <h6 class="section-form-header mt-4">recurring payment</h6>
                 <div class="container section-form">
                     <div class="row">
@@ -94,10 +94,10 @@
                                 placeholder="Enter recurring interval">
                             </app-input-text>
                         </div>
-                        <div class="col-md-4">
+                        <!-- <div class="col-md-4">
                             <app-check-box formControlName="is_recurring" inputId="is_recurring"
                                 label="Is Recurring?"></app-check-box>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 }

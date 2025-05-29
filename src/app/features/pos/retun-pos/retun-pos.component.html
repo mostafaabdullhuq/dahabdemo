@@ -29,21 +29,15 @@
             <div class="table">
                 <div class="mt-5">
                     <div class="container">
-                        <app-input-table [data]="salesDataOrders">
+                        <app-input-table [data]="returnDataOrders">
                             <ng-template #headerTemplate>
                                 <th>Tag No</th>
                                 <th>Weight</th>
                                 <th>Item Size</th>
-                                <!-- <th>Purity</th> -->
                                 <th>Description</th>
-                                <!-- <th>Stone (1)</th>
-                                <th>Stone (2)</th>
-                                <th>Stone (3)</th> -->
-                                <!-- <th>Vat</th> -->
                                 <th>Gold Price</th>
                                 <th>Making Charge</th>
                                 <th>Discount</th>
-                                <!-- <th>Max Discount</th> -->
                                 <th>Metal Value</th>
                                 <td>Price</td>
 
@@ -53,20 +47,11 @@
                                 <td>{{ group.tag_number }}</td>
                                 <td>{{ group.weight }}</td>
                                 <td>{{ group.size }}</td>
-                                <!-- <td>{{ group.purity }}</td> -->
                                 <td>{{ group.description }}</td>
-                                <!-- <td>{{ group.stones[0]?.retail_value }}</td>
-                                <td>{{ group.stones[1]?.retail_value }}</td>
-                                <td>{{ group.stones[2]?.retail_value }}</td> -->
-                                <!-- <td>
-                                    <app-dropdowns [options]="taxes" optionLabel="rate" optionValue="id"
-                                        placeholder="Select Vat" (selectionChange)="onVatChange($event, group)">
-                                    </app-dropdowns>
-                                </td> -->
+                            
                                 <td>{{calcGoldPriceAccordingToPurity(group)}}</td>
                                 <td>{{ group.retail_making_charge }}</td>
                                 <td>{{ group.discount }}</td>
-                                <!-- <td>{{ group.max_discount }}</td> -->
                                 <td>{{ (calcMetalValueAccordingToPurity(group)) }}</td>
                                 <td>{{calcTotalPrice(group)}}</td>
 

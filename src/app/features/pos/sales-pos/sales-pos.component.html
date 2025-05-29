@@ -1,3 +1,5 @@
+<ng-container #container></ng-container>
+
 <div class="container">
     <div class="row">
         <div class="col-md-12">
@@ -5,8 +7,7 @@
                 <div class="w-100">
                     <form [formGroup]="productForm">
                         <app-dropdowns label="Products" formControlName="product_id" [options]="products"
-                            optionLabel="name" optionValue="id"
-                            placeholder="Select a product"></app-dropdowns>
+                            optionLabel="name" optionValue="id" placeholder="Select a product"></app-dropdowns>
                     </form>
                 </div>
                 <div>
@@ -20,53 +21,61 @@
                     </ng-template>
                 </div>
             </div>
-            @if(selectedCurrency){
+            @if(selectedCurrency && isShiftActive){
             <div class="table">
                 <div class="mt-5">
-                    <div class="container">
-                        <app-input-table [data]="salesDataOrders">
-                            <ng-template #headerTemplate>
-                                <th>Tag No</th>
-                                <th>Weight</th>
-                                <th>Item Size</th>
-                                <th>Purity</th>
-                                <th>Description</th>
-                                <th>Stone (1)</th>
-                                <th>Stone (2)</th>
-                                <th>Stone (3)</th>
-                                <th>Vat</th>
-                                <th>Gold Price</th>
-                                <th>Making Charge</th>
-                                <th>Discount</th>
-                                <th>Max Discount</th>
-                                <th>Metal Value</th>
-                                <td>Price</td>
-
-                            </ng-template>
-
-                            <ng-template #bodyTemplate let-group let-i="index">
-                                <td>{{ group.tag_number }}</td>
-                                <td>{{ group.weight }}</td>
-                                <td>{{ group.size }}</td>
-                                <td>{{ group.purity }}</td>
-                                <td>{{ group.description }}</td>
-                                <td>{{ group.stones[0]?.retail_value }}</td>
-                                <td>{{ group.stones[1]?.retail_value }}</td>
-                                <td>{{ group.stones[2]?.retail_value }}</td>
-                                <td>
-                                    <app-dropdowns [options]="taxes" optionLabel="rate" optionValue="id"
-                                        placeholder="Select Vat" (selectionChange)="onVatChange($event, group)">
-                                    </app-dropdowns>
-                                </td>
-                                <td>{{calcGoldPriceAccordingToPurity(group)}}</td>
-                                <td>{{ group.retail_making_charge }}</td>
-                                <td>{{ group.discount }}</td>
-                                <td>{{ group.max_discount }}</td>
-                                <td>{{ (calcMetalValueAccordingToPurity(group)) }}</td>
-                                <td>{{calcTotalPrice(group)}}</td>
-
-                            </ng-template>
-                        </app-input-table>
+                    <div class="container-fluid">
+                        <table class="table-class"> <!-- Add any classes or Tailwind classes as needed -->
+                            <thead>
+                                <tr>
+                                    <th>Tag No</th>
+                                    <th>Weight</th>
+                                    <th>Item Size</th>
+                                    <th>Purity</th>
+                                    <th>Description</th>
+                                    <th>Stone (1)</th>
+                                    <th>Stone (2)</th>
+                                    <th>Stone (3)</th>
+                                    <th>Vat</th>
+                                    <th>Gold Price</th>
+                                    <th>Making Charge</th>
+                                    <th>Discount</th>
+                                    <th>Max Discount</th>
+                                    <th>Metal Value</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let group of salesDataOrders; let i = index">
+                                    <td>{{ group.tag_number }}</td>
+                                    <td>{{ group.weight }}</td>
+                                    <td>{{ group.size }}</td>
+                                    <td>{{ group.purity }}</td>
+                                    <td>{{ group.description }}</td>
+                                    <td>{{ group.stones[0]?.retail_value }}</td>
+                                    <td>{{ group.stones[1]?.retail_value }}</td>
+                                    <td>{{ group.stones[2]?.retail_value }}</td>
+                                    <td>
+                                        <app-dropdowns [options]="taxes" optionLabel="rate" optionValue="id"
+                                            placeholder="Select Vat" [(ngModel)]="selectedVatId"
+                                            (selectionChange)="onVatChange($event, group)">
+                                        </app-dropdowns>
+                                    </td>
+                                    <td>{{ calcGoldPriceAccordingToPurity(group) }}</td>
+                                    <td>{{ group.retail_making_charge }}</td>
+                                    <td>{{ group.discount }}</td>
+                                    <td>{{ group.max_discount }}</td>
+                                    <td>{{ calcMetalValueAccordingToPurity(group) }}</td>
+                                    <td>{{ calcTotalPrice(group) }}</td>
+                                    <td>
+                                        <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'"
+                                            [model]="menuItem" dropdownIcon="pi pi-cog" appendTo="body">
+                                        </p-splitbutton>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <div class="d-flex justify-content-end w-100">
                             <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
                                 Total: {{ totalPrice }} </div>

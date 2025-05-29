@@ -1,3 +1,18 @@
 .sales{
     min-height: 20vh;
 }
+.table-class{
+    font-size: 12px;
+    width: 100%;
+    th , td{
+        padding: 5px;
+    }
+}
+::ng-deep .p-splitbutton-button.p-button{
+    display: none !important;
+
+}
+::ng-deep .p-splitbutton-dropdown.p-button{
+    background-color: transparent !important;
+    border: none !important;
+}

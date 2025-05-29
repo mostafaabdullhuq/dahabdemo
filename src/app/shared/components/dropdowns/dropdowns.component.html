@@ -7,15 +7,17 @@
     </label>
   
     <!-- Select Dropdown -->
+    <!-- [ngModel]="value"  -->
     <p-select
     appendTo="body"
     size="small"
     [filter]="true"
-    [ngModel]="value" 
     (ngModelChange)="onChange($event)"
     [options]="options"
+    [disabled]="disabled"
     [(ngModel)]="selectedValue"
     [optionLabel]="optionLabel"
+    [ngModel]="selectedValue"
     [optionValue]="optionValue ?? optionLabel"
     [required]="required"
     [placeholder]="placeholder"

@@ -9,17 +9,17 @@ import { PosSharedService } from './pos-shared.service';
 export class PosSalesService {
   private posSalesProductsOrdersReciepts = new BehaviorSubject<any>(false);
   private shiftDataSubject = new BehaviorSubject<any>(null);
-shiftData$ = this.shiftDataSubject.asObservable();
-selectedCurrency:any = ''
-get shiftData() {
-  return this.shiftDataSubject.value;
-}  constructor(private _posService: PosService, private _posSharedService:PosSharedService) {
+  shiftData$ = this.shiftDataSubject.asObservable();
+  selectedCurrency: any = ''
+  get shiftData() {
+    return this.shiftDataSubject.value;
+  } constructor(private _posService: PosService, private _posSharedService: PosSharedService) {
     this.getProductSaleOrdersRecipts();
     this._posSharedService.selectedCurrency$
-  .pipe(take(1)) // or takeUntil(...) if you expect changes
-  .subscribe(currency => {
-    this.selectedCurrency = currency;
-  });
+      .pipe(take(1)) // or takeUntil(...) if you expect changes
+      .subscribe(currency => {
+        this.selectedCurrency = currency;
+      });
   }
 
 
@@ -32,12 +32,12 @@ get shiftData() {
         this.posSalesProductsOrdersReciepts.next([])
       }
     });
-  }  
-   _salesReciepts$ = new BehaviorSubject<any[]>([]);
+  }
+  _salesReciepts$ = new BehaviorSubject<any[]>([]);
 
-getSalesOrdersFromServer() {
-  this._posService.getProductSaleOrdersRecipts().subscribe(res => {
-    this._salesReciepts$.next(res || []);
-  });
-}
+  getSalesOrdersFromServer() {
+    this._posService.getProductSaleOrdersRecipts().subscribe(res => {
+      this._salesReciepts$.next(res || []);
+    });
+  }
 }

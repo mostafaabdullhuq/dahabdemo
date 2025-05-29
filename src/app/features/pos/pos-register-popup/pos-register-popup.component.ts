@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PosService } from '../@services/pos.service';
@@ -10,7 +10,7 @@ import { PosStatusService } from '../@services/pos-status.service';
   templateUrl: './pos-register-popup.component.html',
   styleUrl: './pos-register-popup.component.scss'
 })
-export class PosRegisterPopupComponent {
+export class PosRegisterPopupComponent implements OnInit {
   visible: boolean = false;
   registerPosForm!: FormGroup;
   branches: any = [];
@@ -24,7 +24,7 @@ export class PosRegisterPopupComponent {
     });
     this._dropdownsService.getBranches().subscribe(res => {
       this.branches = res.results
-    })
+    });
   }
   showDialog() {
     this.visible = true;

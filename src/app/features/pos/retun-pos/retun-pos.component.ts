@@ -18,7 +18,7 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
   products: any = [];
   receipts: any = [];
   productForm!: FormGroup;
-  salesDataOrders: any = [];
+  returnDataOrders: any = [];
   cols: any = [];
   selectedVat: any = ''
   taxes: any = [];
@@ -28,9 +28,8 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
   private destroy$ = new Subject<void>();
   defualtVat = 0;
   shiftData:any = []
-  constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
+  constructor(private _formBuilder: FormBuilder, private _posReturnService: PosReturnsService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
-  ,private _posReturnService:PosReturnsService
   ) { }
 
   ngOnInit(): void {
@@ -48,7 +47,7 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results;
     });
-    this.getSalesOrder()
+    this.getReturnsOrder()
     this._posStatusService.shiftData$
     .pipe(takeUntil(this.destroy$))
     .subscribe(data => {
@@ -78,16 +77,17 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
   .subscribe((productId: number) => {
     this.onProductSelected(productId);
   });
-  }
-  getSalesOrder() {
-    this._posSalesService._salesReciepts$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((res: any) => {
-        this.salesDataOrders = res;
-      });
 
-    // initial load
-    this._posSalesService.getSalesOrdersFromServer();
+      this._posReturnService.returnOrders$.subscribe(data => {
+      this.returnDataOrders = data;
+    });
+
+    // If needed, manually trigger a refresh
+    this._posReturnService.fetchReturnOrders();
+
+  }
+  getReturnsOrder() {
+      this._posReturnService.fetchReturnOrders();
   }
   calcGoldPriceAccordingToPurity(group: any): number {
     if (
@@ -165,7 +165,7 @@ calcTotalPriceWithVat(group: any): number {
   const baseTotal = this.calcTotalPrice(group);
   const vatRate = +this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat)?.rate || 0;
   const vatAmount = (vatRate / 100) * baseTotal;
-const totalVat = this.salesDataOrders.reduce((acc: number, group: any) => {
+const totalVat = this.returnDataOrders.reduce((acc: number, group: any) => {
   const baseTotal = this.calcTotalPrice(group); // your existing method
   const vatRate = +this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat)?.rate || 0;
   const vatAmount = (vatRate / 100) * baseTotal;
@@ -179,9 +179,9 @@ const totalVat = this.salesDataOrders.reduce((acc: number, group: any) => {
   return +totalWithVat.toFixed(decimalPlaces);
 }
 calcGrandTotalWithVat(): number {
-  if (!this.salesDataOrders || this.salesDataOrders.length === 0) return 0;
+  if (!this.returnDataOrders || this.returnDataOrders.length === 0) return 0;
 
-  const total = this.salesDataOrders.reduce((sum: number, group: any) => {
+  const total = this.returnDataOrders.reduce((sum: number, group: any) => {
     return sum + this.calcTotalPriceWithVat(group);
   }, 0);
 
@@ -202,7 +202,7 @@ calcGrandTotalWithVat(): number {
     this._posService.addProductSale(payload)
       .subscribe({
         next: res => {
-          this._posSalesService.getSalesOrdersFromServer();
+          this._posReturnService.fetchReturnOrders()
         },
         error: err => {
           console.error('Error posting product', err);
@@ -210,14 +210,14 @@ calcGrandTotalWithVat(): number {
       });
   }
   get totalPrice(): number {
-    const total = this.salesDataOrders.reduce((sum: number, group: any) => {
+    const total = this.returnDataOrders.reduce((sum: number, group: any) => {
       return sum + this.calcTotalPrice(group);
     }, 0);
 
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     const formattedTotal = +total.toFixed(decimalPlaces);
     // Update the service with the calculated gold price
-    this._posSharedService.setTotalPrice(formattedTotal);
+    // this._posSharedService.setTotalPrice(formattedTotal);
 
     return formattedTotal;
   }

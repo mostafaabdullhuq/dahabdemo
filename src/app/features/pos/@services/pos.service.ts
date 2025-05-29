@@ -27,6 +27,12 @@ export class PosService {
   addProductSale(form:any): Observable<any>{
     return this._http.postRequest(`${environment.api_url}pos/order-product/sale/`, form);
   }
+  deleteProductSale(id:any): Observable<any>{
+    return this._http.deleteRequest(`${environment.api_url}pos/order-product/${id}/`);
+  }
+  setDiscountProductSale(id:any , form:any): Observable<any>{
+    return this._http.patchRequest(`${environment.api_url}pos/order-product-discount/${id}/`, form);
+  }
   getProductSaleOrdersRecipts(): Observable<any>{
     return this._http.getRequest(`${environment.api_url}pos/order-product-receipt/sale/`);
   }

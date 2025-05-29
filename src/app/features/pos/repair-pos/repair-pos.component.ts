@@ -70,7 +70,6 @@ export class RepairPosComponent implements OnInit , OnDestroy{
           this.selectedCurrency = null;
         }
       });
-
       this.productForm.get('product_id')?.valueChanges
   .pipe(
     takeUntil(this.destroy$),
@@ -80,11 +79,13 @@ export class RepairPosComponent implements OnInit , OnDestroy{
   .subscribe((productId: number) => {
     this.onProductSelected(productId);
   });
+
+  this._posRepairService.fetchRepairProducts();
   }
   getPurchaseOrders() {
-    this._posRepairService.getRepairProduct().subscribe(res=>{
-      this.purchaseTableData = res
-    })
+     this._posRepairService.repairProducts$.subscribe(products => {
+      this.purchaseTableData = products;
+    });
   }
   calcGoldPriceAccordingToPurity(group: any): number {
     if (
@@ -120,14 +121,14 @@ export class RepairPosComponent implements OnInit , OnDestroy{
 
     // Format based on selected currency decimal point
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
-    this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
+   // this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
     return +goldPrice.toFixed(decimalPlaces);
   }
 
   calcMetalValueAccordingToPurity(group: any) {
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
     const metalValue = this.calcGoldPriceAccordingToPurity(group) * group?.weight;
-    this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
+   // this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
     return +metalValue.toFixed(decimalPlaces);
   }
 
@@ -141,7 +142,7 @@ export class RepairPosComponent implements OnInit , OnDestroy{
   const discountAmount = (discountPercentage / 100) * makingCharge;
 
   // Share the discount amount with the service
-  this._posSharedService.setDiscountAmount(discountAmount);
+ // this._posSharedService.setDiscountAmount(discountAmount);
 
   const discountedMakingCharge = makingCharge - discountAmount;
 
@@ -170,7 +171,7 @@ const totalVat = this.purchaseTableData.reduce((acc: number, group: any) => {
 }, 0);
   // Update shared VAT immediately
   const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-  this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
+ // this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
 
   const totalWithVat = baseTotal + vatAmount;
   return +totalWithVat.toFixed(decimalPlaces);
@@ -183,7 +184,7 @@ calcGrandTotalWithVat(): number {
   }, 0);
 
   const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    this._posSharedService.setGrandTotalWithVat(+total.toFixed(decimalPlaces));
+  //  this._posSharedService.setGrandTotalWithVat(+total.toFixed(decimalPlaces));
   
   return +total.toFixed(decimalPlaces);
 }
@@ -214,7 +215,7 @@ calcGrandTotalWithVat(): number {
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     const formattedTotal = +total.toFixed(decimalPlaces);
     // Update the service with the calculated gold price
-    this._posSharedService.setTotalPrice(formattedTotal);
+    // this._posSharedService.setTotalPrice(formattedTotal);
 
     return formattedTotal;
   }

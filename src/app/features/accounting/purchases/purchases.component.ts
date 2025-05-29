@@ -61,17 +61,17 @@ export class PurchasesComponent implements OnInit{
     this.cols = [
       { field: "id", header: "Refrence Number" },
     { field: "supplier_name", header: "Supplier Name" },
-    { field: "created_at", header: "Date" },
+    { field: "order_date", header: "Date" },
     { field: "metal_amount", header: "Metal Amount" },
     { field: "metal_weight", header: "Metal Weight" },
     { field: "making_charge", header: "Making Charge" },
-    { field: "tax", header: "Tax" },
+    { field: "tax_amount", header: "Tax" },
     { field: "total_stone_value", header: "Total Stone Value" },
     { field: "total_amount", header: "Total Amount" },
     { field: "user", header: "User" },
     { field: "total_items", header: "Total Items" },
     { field: "total_weight", header: "Total Weight" },
-    { field: "type_of_transaction", header: "Type Of Transaction" },
+    { field: "type", header: "Type Of Transaction" },
     ];
     this.filterForm = this._formBuilder.group({
       search: '',

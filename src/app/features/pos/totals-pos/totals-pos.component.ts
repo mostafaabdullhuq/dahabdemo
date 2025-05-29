@@ -9,6 +9,7 @@ import { HttpParams } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SalesPosComponent } from '../sales-pos/sales-pos.component';
 import { PaymentMethodsPopupComponent } from './payment-methods-popup/payment-methods-popup.component';
+import { PosSalesService } from '../@services/pos-sales.service';
 
 @Component({
   selector: 'app-totals-pos',
@@ -23,6 +24,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
   currencies: any = [];
   shiftData: any = [];
   selectedCurrency: any = null;
+  isShiftActive:boolean =false;
   paymnetMethods: any = []
   //Prices
   goldPrice: number = 0;
@@ -31,11 +33,12 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
   discountAmount: number = 0;
   totalWithVat: number = 0;
   totalVat: number = 0;
-
+salesDataOrders:any =[];
   constructor(private _formBuilder: FormBuilder,
     private _dropDownsService: DropdownsService,
     private _posService: PosService,
     private _posStatusService: PosStatusService,
+    private _posSalesService: PosSalesService,
     private _posSharedService: PosSharedService) {
 
   }
@@ -46,15 +49,15 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.totalForm = this._formBuilder.group({
       customer: ['', Validators.required],
       currency: ['', Validators.required],
-      amount: [this.totalPrice],
+      amount: [],
       discount: [this.discountAmount],
       tax: [this.totalVat],
       payments: this._formBuilder.array([
-    this._formBuilder.group({
-      payment_method: [''],
-      amount:this.totalWithVat
-    })
-  ])
+        this._formBuilder.group({
+          payment_method: [''],
+          amount: this.totalWithVat
+        })
+      ])
     });
     const savedCustomer = sessionStorage.getItem('customer') ?? '';
     const savedCurrency = sessionStorage.getItem('currency') ?? '';
@@ -103,29 +106,41 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // Subscribe to the total price
     this._posSharedService.totalPrice$.subscribe(price => {
-      this.totalPrice = +price;
-      this.totalForm.get('amount')?.patchValue(this.totalPrice)
+      this.totalPrice = +price;      
+      this.totalForm.get('amount')?.patchValue(this.totalPrice)      
     });
 
     // Subscribe to the discount
     this._posSharedService.discountAmount$.subscribe(disc => {
       this.discountAmount = +disc;
-            this.totalForm.get('discount')?.patchValue(this.discountAmount)
+      this.totalForm.get('discount')?.patchValue(this.discountAmount)
     });
 
     // Subscribe to the total with vat
     this._posSharedService.grandTotalWithVat$.subscribe(vat => {
       this.totalWithVat = +vat;
       (this.totalForm.get('payments') as FormArray).at(0).patchValue({
-  amount: this.totalWithVat
-});
+        amount: this.totalWithVat
+      });
     });
 
     // Subscribe to the vat
     this._posSharedService.vat$.subscribe(vat => {
       this.totalVat = +vat;
-            this.totalForm.get('tax')?.patchValue(this.totalVat)
+      this.totalForm.get('tax')?.patchValue(this.totalVat)
     });
+
+    this._posStatusService.shiftActive$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        this.isShiftActive = status;
+      });
+
+      this._posSalesService._salesReciepts$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        this.salesDataOrders = res;
+      });
   }
   onChangeCurrency() {
     const currencyControl = this.totalForm.get('currency');
@@ -155,46 +170,45 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.currencies = res?.results
     })
   }
-get paymentsControls() {
-  return (this.totalForm.get('payments') as FormArray).controls;
-}
+  get paymentsControls() {
+    return (this.totalForm.get('payments') as FormArray).controls;
+  }
   componentRef!: ComponentRef<PaymentMethodsPopupComponent>;
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
-openMultiPaymentMethods() {
-  this.container.clear();
-  this.componentRef = this.container.createComponent(PaymentMethodsPopupComponent);
-  this.componentRef.instance.visible = true;
-  this.componentRef.instance.baymentMethods = this.paymnetMethods;
+  openMultiPaymentMethods() {
+    this.container.clear();
+    this.componentRef = this.container.createComponent(PaymentMethodsPopupComponent);
+    this.componentRef.instance.visible = true;
+    this.componentRef.instance.baymentMethods = this.paymnetMethods;
 
-  this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
-    this.totalForm.patchValue({ payments }); // Push array to form
-  });
-}
-onPlaceOrder() {
-  const formValue = this.totalForm.value;
-  // If no payments set, fallback to selected payment_method + totalWithVat
-  if (!formValue.payments || formValue.payments.length === 0) {
-    const paymentMethodId = this.totalForm.get('payment_method')?.value;
-
-    if (paymentMethodId) {
-      const fallbackPayment = [{
-        payment_method: paymentMethodId,
-        amount: this.totalWithVat
-      }];
-      this.totalForm.patchValue({ payments: fallbackPayment });
-    }
+    this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
+      this.totalForm.patchValue({ payments }); // Push array to form
+    });
   }
+  onPlaceOrder() {
+    const formValue = this.totalForm.value;
+    // If no payments set, fallback to selected payment_method + totalWithVat
+    if (!formValue.payments || formValue.payments.length === 0) {
+      const paymentMethodId = this.totalForm.get('payment_method')?.value;
 
-  console.log(this.totalForm.value);
-  this._posService.getOrderId().subscribe(res=>{
-    if(res?.order_id){
-      this._posService.addOrder(res?.order_id , this.totalForm?.value).subscribe(res=>{
-
-      })
+      if (paymentMethodId) {
+        const fallbackPayment = [{
+          payment_method: paymentMethodId,
+          amount: this.totalWithVat
+        }];
+        this.totalForm.patchValue({ payments: fallbackPayment });
+      }
     }
-  })
-}
+
+    this._posService.getOrderId().subscribe(res => {
+      if (res?.order_id) {
+        this._posService.addOrder(res?.order_id, this.totalForm?.value).subscribe(res => {
+
+        })
+      }
+    })
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
