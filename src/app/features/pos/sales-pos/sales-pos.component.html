@@ -15,9 +15,9 @@
                     <p-button [routerLink]="['/inventory/product/add']" size="small" class="add-btn white-icon-btn"
                         [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
                     <ng-template #tooltipContent>
-                        <div class="flex items-center">
+                        <button [disabled]="selectedCurrency && isShiftActive" class="flex items-center">
                             Add Product
-                        </div>
+                        </button>
                     </ng-template>
                 </div>
             </div>

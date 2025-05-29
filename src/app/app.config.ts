@@ -13,23 +13,58 @@ import { MessageService } from 'primeng/api';
 import { toasterInterceptor } from './core/interceptors/toaster.interceptor';
 import { loaderInterceptor } from './core/interceptors/loader.interceptor';
 
-const MyPreset = updatePreset(Aura, {
+export const StonePreset = updatePreset(Aura, {
   semantic: {
-      primary: {
-          50: '{emerald.50}',
-          100: '{emerald.100}',
-          200: '{emerald.200}',
-          300: '{emerald.300}',
-          400: '{emerald.400}',
-          500: '{emerald.500}',
-          600: '{emerald.600}',
-          700: '{emerald.700}',
-          800: '{emerald.800}',
-          900: '{emerald.900}',
-          950: '{emerald.950}'
-      }
+    primary: {
+      50: '#fafaf9',
+      100: '#f5f5f4',
+      200: '#e7e5e4',
+      300: '#d6d3d1',
+      400: '#a8a29e',
+      500: '#78716c',
+      600: '#57534e',
+      700: '#44403c',
+      800: '#292524',
+      900: '#1c1917',
+    },
+    surface: {
+      background: '#fafaf9',
+      card: '#ffffff',
+      border: '#e7e5e4'
+    },
+    text: {
+      primary: '#1c1917',
+      secondary: '#57534e'
+    }
   }
 });
+
+export const DarkStonePreset = updatePreset(Aura, {
+  semantic: {
+    primary: {
+      50: '#d6d3d1',
+      100: '#a8a29e',
+      200: '#78716c',
+      300: '#57534e',
+      400: '#44403c',
+      500: '#292524',
+      600: '#1c1917',
+      700: '#0e0c0a',
+      800: '#0a0907',
+      900: '#050403'
+    },
+    surface: {
+      background: '#1c1917',
+      card: '#292524',
+      border: '#44403c'
+    },
+    text: {
+      primary: '#fafaf9',
+      secondary: '#d6d3d1'
+    }
+  }
+});
+const selectedTheme = StonePreset; // Can be changed dynamically later
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -39,24 +74,9 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: MyPreset, options: {
-          semantic: {
-            primary: {
-                50: '{emerald.50}',
-                100: '{emerald.100}',
-                200: '{emerald.200}',
-                300: '{emerald.300}',
-                400: '{emerald.400}',
-                500: '{emerald.500}',
-                600: '{emerald.600}',
-                700: '{emerald.700}',
-                800: '{emerald.800}',
-                900: '{emerald.900}',
-                950: '{emerald.950}'
-            }
-        }
-        }
-      },
+        preset: selectedTheme,
+        options: { semantic: selectedTheme.semantic }
+      }
     }),
     MessageService,
     ]

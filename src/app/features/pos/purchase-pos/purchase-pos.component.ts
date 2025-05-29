@@ -75,8 +75,13 @@ export class PurchasePosComponent implements OnInit , OnDestroy{
   .subscribe((productId: number) => {
     this.onProductSelected(productId);
   });
-
+this._posStatusService.shiftActive$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        this.isShiftActive = status;
+      });
   }
+  isShiftActive:boolean = false;
 
 totalAmount(): number {
   return this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
@@ -85,12 +90,12 @@ totalAmount(): number {
   }, 0);
 }
 private subtractFromTotals(amount: number): void {
-  this._posSharedService.grandTotalWithVat$.pipe(take(1)).subscribe(res => {
-    this._posSharedService.setGrandTotalWithVat(res - amount);
+  this._posSharedService.purchaseTotalGrand$.pipe(take(1)).subscribe(res => {
+    this._posSharedService.setPurchaseTotalGrand(amount);
   });
 
-  this._posSharedService.totalPrice$.pipe(take(1)).subscribe(res => {    
-    this._posSharedService.setTotalPrice(res - amount);
+  this._posSharedService.purchaseTotalPrice$.pipe(take(1)).subscribe(res => {    
+    this._posSharedService.setPurchaseTotalPrice(amount);
   });
 }
 
@@ -142,6 +147,7 @@ getPurchaseOrders() {
     next: res => {
       this.productForm.reset();
       this.getPurchaseOrders()
+      this.productForm.reset()
     }
       ,
     error: err => console.error('Error submitting', err)

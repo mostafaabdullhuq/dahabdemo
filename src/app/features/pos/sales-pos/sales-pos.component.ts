@@ -181,7 +181,7 @@ this._posStatusService.shiftActive$
     this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
     return +metalValue.toFixed(decimalPlaces);
   }
-
+priceOfProductToPatch:any = 0;
   calcTotalPrice(group: any): number {
     const metalValue = this.calcMetalValueAccordingToPurity(group);
 
@@ -202,7 +202,10 @@ this._posStatusService.shiftActive$
 
     const total = metalValue + discountedMakingCharge + stoneValues;
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+
+this.priceOfProductToPatch = +total.toFixed(decimalPlaces);
+
     return +total.toFixed(decimalPlaces);
   }
   onVatChange(vatId: number, group: any): void {
@@ -221,7 +224,7 @@ this._posStatusService.shiftActive$
     }, 0);
     // Update shared VAT immediately
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
+    this._posSharedService.setSalesTax(+totalVat.toFixed(decimalPlaces));
 
     const totalWithVat = baseTotal + vatAmount;
     return +totalWithVat.toFixed(decimalPlaces);
@@ -234,17 +237,16 @@ this._posStatusService.shiftActive$
     }, 0);
 
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    this._posSharedService.setGrandTotalWithVat(+total.toFixed(decimalPlaces));
+    this._posSharedService.setSalesTotalGrand(+total.toFixed(decimalPlaces));
 
     return +total.toFixed(decimalPlaces);
   }
   onProductSelected(productId: number): void {
     const selectedProduct = this.products.find((p: any) => p.id === productId);
-    if (!selectedProduct) return;
-
+    if (!selectedProduct) return;    
     const payload = {
       product: selectedProduct.id,
-      amount: selectedProduct.retail_making_charge
+      amount: this.priceOfProductToPatch //selectedProduct.retail_making_charge
     };
 
     this._posService.addProductSale(payload)
@@ -265,7 +267,7 @@ this._posStatusService.shiftActive$
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     const formattedTotal = +total.toFixed(decimalPlaces);
     // Update the service with the calculated gold price
-    this._posSharedService.setTotalPrice(formattedTotal);
+    this._posSharedService.setSalesTotalPrice(formattedTotal);
 
     return formattedTotal;
   }

@@ -12,7 +12,6 @@ import { RepairPosComponent } from './repair-pos/repair-pos.component';
 import { GoldReceiptPosComponent } from './gold-receipt-pos/gold-receipt-pos.component';
 
 
-
 @NgModule({
   declarations: [
     PosComponent,

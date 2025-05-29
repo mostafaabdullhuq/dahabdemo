@@ -50,6 +50,10 @@ export class PosService {
     return this._http.getRequest(`${environment.api_url}pos/order-id/`);
   }
   addOrder(id:any, form:FormGroup):Observable<any>{
-    return this._http.postRequest(`${environment.api_url}pos/order-payment/${id}/` , form);
+    return this._http.patchRequest(`${environment.api_url}pos/order-payment/${id}/` , form);
+  }
+
+  getOrderInvoice():Observable<any>{
+    return this._http.getRequest(`${environment.api_url}pos/order-tax-invoice/`);
   }
 }

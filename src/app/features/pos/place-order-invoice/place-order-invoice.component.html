@@ -1,0 +1,100 @@
+<p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '60rem'}">
+    <ng-template pTemplate="header">
+        <div class="d-flex justify-content-center align-items-center">
+            <h4><i class="pi pi-receipt me-2" style="font-size: 2rem"></i>Order Invoice</h4>
+        </div>
+    </ng-template>
+    <div class="invoice-container container my-5 p-4 shadow rounded-4 bg-white" id="invoice-section">
+        <div class="d-flex justify-content-between mb-4">
+            <h2 class="text-primary">Invoice</h2>
+            <img style="width: 10%; height: 10%;" [src]="orgImg" alt="org img">
+        </div>
+
+        <div class="container my-5 invoice-header">
+            <div class="row g-4">
+
+                <!-- Shop Card -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary fw-bold">Shop</h6>
+                            <p class="mb-1"><strong>Shop name:</strong> {{ invoice.invoiceNumber }}</p>
+                            <p class="mb-1"><strong>Shop address:</strong> {{ invoice.invoiceNumber }}</p>
+                            <p class="mb-1"><strong>VAT no.:</strong> {{ invoice.invoiceNumber }}</p>
+                            <p class="mb-0"><strong>CR no.:</strong> {{ invoice.invoiceNumber }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Card -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary fw-bold">Customer</h6>
+                            <p class="mb-1"><strong>{{ invoice.customer.name }}</strong></p>
+                            <p class="mb-1"><strong>CPR no.:</strong> 0000</p>
+                            <p class="mb-1">{{ invoice.customer.address }}</p>
+                            <p class="mb-0">{{ invoice.customer.phone }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Card -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary fw-bold">Invoice</h6>
+                            <p class="mb-1"><strong>Date:</strong> {{ invoice.date }}</p>
+                            <p class="mb-1"><strong>Number:</strong> {{ invoice.invoiceNumber }}</p>
+                            <p class="mb-1"><strong>Method:</strong> Cash</p>
+                            <p class="mb-0"><strong>Payment date:</strong> {{ invoice.date }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+<table class="table table-bordered align-middle text-sm">
+  <thead class="table-light">
+    <tr>
+      <th>Image</th>
+      <th>Description</th>
+      <th>Tag Number</th>
+      <th class="text-end">Gross Weight</th>
+      <th class="text-end">Subtotal</th>
+      <th class="text-end">VAT 10%</th>
+      <th class="text-end">Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of invoice.items">
+      <td>
+        <img [src]="item.imageUrl" alt="item image" width="50" height="50" class="img-thumbnail">
+      </td>
+      <td>{{ item.description }}</td>
+      <td>{{ item.tagNumber }}</td>
+      <td class="text-end">{{ item.grossWeight }}</td>
+      <td class="text-end">{{ item.subtotal | currency }}</td>
+      <td class="text-end">{{ item.subtotal * 0.10 | currency }}</td>
+      <td class="text-end">{{ (item.subtotal * 1.10) | currency }}</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <th colspan="6" class="text-end">Grand Total</th>
+      <th class="text-end">2222</th>
+    </tr>
+  </tfoot>
+</table>
+
+
+        <div class="mt-5 text-center text-muted">
+            <!-- Thank you for your business! -->
+        </div>
+    </div>
+    <div class="d-flex justify-content-end gap-2">
+        <p-button label="Cancel" severity="secondary" (click)="visible = false" />
+        <p-button label="Print" (click)="printInvoice()" />
+    </div>
+</p-dialog>

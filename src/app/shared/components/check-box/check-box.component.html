@@ -1,10 +1,10 @@
 <div class="flex align-items-center check-container">
-    <p-checkbox
-      [inputId]="inputId"
-      [binary]="true"
-      [disabled]="disabled"
-      [ngModel]="value"
-      (onChange)="toggleCheck()"
-    ></p-checkbox>
-    <label [for]="inputId" class="ml-2">{{ label }}</label>
-  </div>
+  <p-checkbox
+    [inputId]="inputId"
+    [binary]="true"
+    [disabled]="disabled"
+    [(ngModel)]="value"
+    (onChange)="toggleCheck()"
+  ></p-checkbox>
+  <label [for]="inputId" class="ml-2">{{ label }}</label>
+</div>

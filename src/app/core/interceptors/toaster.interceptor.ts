@@ -14,32 +14,37 @@ export const toasterInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const ngZone = inject(NgZone);
 
+  // Array of URL substrings for which toaster should NOT show
+  const excludedUrls = ['order-product-receipt', 'currencies', 'gold-price'];
+
   return next(req).pipe(
     tap(event => {
-      const hasPageSize = req.params.get('page_size');      
-    
-      if (event instanceof HttpResponse && !hasPageSize) {
+      const hasPageSize = req.params.get('page_size');
+
+      // Check if the URL contains any excluded substring
+      const isExcluded = excludedUrls.some(keyword => req.url.includes(keyword));
+
+      if (event instanceof HttpResponse && !hasPageSize && !isExcluded) {
         const body = event.body;
-    
+
         const hasResultsAndCount =
           body &&
           typeof body === 'object' &&
           'results' in body &&
           'count' in body;
-    
+
         if (!hasResultsAndCount) {
           toaster.showSuccess('Good Job');
         }
       }
     }),
-    
+
     catchError((error: HttpErrorResponse) => {
       const errMsg = error.error?.message || 'Something went wrong.';
       if (error.status === 401) {
         toaster.showError('Unauthorized. Please login again.');
         localStorage.removeItem('access_token');
         sessionStorage.removeItem('access_token');
-        // Important: Run navigation in Angular zone
         ngZone.run(() => {
           if (router.url !== '/auth/login') {
             router.navigate(['auth/login']);

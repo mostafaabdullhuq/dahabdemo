@@ -52,7 +52,7 @@
                 <div formArrayName="payments">
                         <div *ngFor="let payment of paymentsControls; let i = index" [formGroupName]="i">
                             <div class="col-md-12 mb-3">
-                                <app-dropdowns label="Payment Methods" formControlName="payment_method"
+                                <app-dropdowns [required]="true" label="Payment Methods" formControlName="payment_method"
                                     [options]="paymnetMethods" optionLabel="name" optionValue="id"
                                     placeholder="Select a method">
                                 </app-dropdowns>

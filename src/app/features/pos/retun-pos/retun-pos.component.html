@@ -14,18 +14,8 @@
                             placeholder="Select a product"></app-dropdowns>
                     </div>
                 </div>
-                <!-- <div>
-                    <label class="opacity-0">btn </label>
-                    <p-button [routerLink]="['/inventory/product/add']" size="small" class="add-btn white-icon-btn"
-                        [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
-                    <ng-template #tooltipContent>
-                        <div class="flex items-center">
-                            Add Product
-                        </div>
-                    </ng-template>
-                </div> -->
             </form>
-            @if(selectedCurrency){
+            @if(selectedCurrency && isShiftActive){
             <div class="table">
                 <div class="mt-5">
                     <div class="container">

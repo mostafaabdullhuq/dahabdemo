@@ -84,8 +84,13 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
 
     // If needed, manually trigger a refresh
     this._posReturnService.fetchReturnOrders();
-
+this._posStatusService.shiftActive$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        this.isShiftActive = status;
+      });
   }
+  isShiftActive:boolean = false;
   getReturnsOrder() {
       this._posReturnService.fetchReturnOrders();
   }
@@ -225,4 +230,11 @@ calcGrandTotalWithVat(): number {
     this.destroy$.next();
     this.destroy$.complete();
   }
+  // removeItem(id: any) {
+  //   this._posService.deleteProductSale(id).subscribe({
+  //     next: res => {
+  //       this._posSalesService.getSalesOrdersFromServer();
+  //     },
+  //   })
+  // }
 }

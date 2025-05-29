@@ -19,7 +19,7 @@
                         <app-input-text formControlName="amount" placeholder="amount" type="text" inputName="amount"></app-input-text>
                     </div>
                     <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn">
+                <button [disabled]="selectedCurrency && isShiftActive" type="submit" class="my-4 submit-btn">
                     Add</button>
             </div>
                 </div>
@@ -34,7 +34,7 @@
                     </ng-template>
                 </div> -->
             </form>
-            @if(selectedCurrency){
+            @if(selectedCurrency && isShiftActive){
             <div class="table">
                 <div class="mt-5">
                     <div class="container">

@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SalesPosComponent } from '../sales-pos/sales-pos.component';
 import { PaymentMethodsPopupComponent } from './payment-methods-popup/payment-methods-popup.component';
 import { PosSalesService } from '../@services/pos-sales.service';
+import { PlaceOrderInvoiceComponent } from '../place-order-invoice/place-order-invoice.component';
 
 @Component({
   selector: 'app-totals-pos',
@@ -46,15 +47,16 @@ salesDataOrders:any =[];
     this.onChangeCurrency()
   }
   ngOnInit(): void {
+    
     this.totalForm = this._formBuilder.group({
       customer: ['', Validators.required],
       currency: ['', Validators.required],
-      amount: [],
+      amount: [0 , Validators.required],
       discount: [this.discountAmount],
       tax: [this.totalVat],
       payments: this._formBuilder.array([
         this._formBuilder.group({
-          payment_method: [''],
+          payment_method: ['', Validators.required],
           amount: this.totalWithVat
         })
       ])
@@ -173,7 +175,7 @@ salesDataOrders:any =[];
   get paymentsControls() {
     return (this.totalForm.get('payments') as FormArray).controls;
   }
-  componentRef!: ComponentRef<PaymentMethodsPopupComponent>;
+  componentRef!: ComponentRef<any>;
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
   openMultiPaymentMethods() {
@@ -186,29 +188,48 @@ salesDataOrders:any =[];
       this.totalForm.patchValue({ payments }); // Push array to form
     });
   }
-  onPlaceOrder() {
-    const formValue = this.totalForm.value;
-    // If no payments set, fallback to selected payment_method + totalWithVat
-    if (!formValue.payments || formValue.payments.length === 0) {
-      const paymentMethodId = this.totalForm.get('payment_method')?.value;
 
-      if (paymentMethodId) {
-        const fallbackPayment = [{
-          payment_method: paymentMethodId,
-          amount: this.totalWithVat
-        }];
-        this.totalForm.patchValue({ payments: fallbackPayment });
-      }
-    }
-
-    this._posService.getOrderId().subscribe(res => {
-      if (res?.order_id) {
-        this._posService.addOrder(res?.order_id, this.totalForm?.value).subscribe(res => {
-
-        })
-      }
-    })
+  openOrderInvoice(){
+        this.container.clear();
+    this.componentRef = this.container.createComponent(PlaceOrderInvoiceComponent);
+    this.componentRef.instance.showDialog();
   }
+onPlaceOrder() {
+  if (this.totalForm.invalid) {
+    // Optionally, you can show some error or mark the form as touched to display validation messages
+    this.totalForm.markAllAsTouched();
+    return; // Stop here if form is invalid
+  }
+
+  const formValue = this.totalForm.value;
+  console.log(this.selectedCurrency);
+  this.totalForm.get('currency')?.patchValue(this.selectedCurrency?.pk)
+  // If no payments set, fallback to selected payment_method + totalWithVat
+  if (!formValue.payments || formValue.payments.length === 0) {
+    const paymentMethodId = this.totalForm.get('payment_method')?.value;
+
+    if (paymentMethodId) {
+      const fallbackPayment = [{
+        payment_method: paymentMethodId,
+        amount: this.totalWithVat
+      }];
+      this.totalForm.patchValue({ payments: fallbackPayment });
+    }
+  }
+
+  this._posService.getOrderId().subscribe(res => {
+    if (res?.order_id) {
+      this._posService.addOrder(res.order_id, this.totalForm.value).subscribe({
+        next: res => {
+          if (res) {
+            this.openOrderInvoice();
+          }
+        }
+      });
+    }
+  });
+}
+
 
   ngOnDestroy(): void {
     this.destroy$.next();

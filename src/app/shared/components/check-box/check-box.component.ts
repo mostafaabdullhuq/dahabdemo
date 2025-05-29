@@ -17,10 +17,10 @@ standalone:false,
 export class CheckBoxComponent {
   @Input() inputId!: any;
   @Input() label!: string;
+@Input() checked: boolean = false;
 
   value: boolean = false;
   disabled: boolean = false;
-
   onChange = (value: any) => {};
   onTouched = () => {};
 
@@ -35,15 +35,13 @@ export class CheckBoxComponent {
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
   }
+  toggleCheck(): void {
+    if (this.disabled) return;
+    this.onChange(this.value); // value already updated by [(ngModel)]
+    this.onTouched();
+  }
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
-  }
-
-  toggleCheck(): void {
-    if (this.disabled) return;
-    this.value = !this.value;
-    this.onChange(this.value);
-    this.onTouched();
   }
 }

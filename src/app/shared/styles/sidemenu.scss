@@ -22,12 +22,12 @@
         transition: background-color 0.3s, color 0.3s;
 
         &:hover {
-          background-color: $emerald-100;
-          color: $emerald-700;
+          background-color: $stone-100;
+          color: $stone-700;
         }
 
         &.active-link {
-          background-color: $emerald-600;
+          background-color: $stone-600;
           font-weight: $font-weight-bold;
           color: $white !important;
           .pi{
@@ -43,7 +43,7 @@
 
       .collapse {
         background-color: $gray-100;
-        border-left: 3px solid $emerald-500;
+        border-left: 3px solid $stone-500;
         margin-top: 0.3rem;
         padding-left: 0.5rem;
         border-radius: $border-radius;
@@ -54,12 +54,12 @@
 
 .fs-4 {
   font-weight: $font-weight-bold;
-  color: $emerald-700;
+  color: $stone-700;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 }
 
 .pi {
   font-size: 1rem;
-  color: $emerald-800;
+  color: $stone-800;
 }
 
