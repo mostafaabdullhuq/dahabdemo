@@ -3,6 +3,7 @@ import { PosRegisterPopupComponent } from './pos-register-popup/pos-register-pop
 import { PosService } from './@services/pos.service';
 import { PosStatusService } from './@services/pos-status.service';
 import { Subject, takeUntil } from 'rxjs';
+import { CloseShiftReportComponent } from './close-shift-report/close-shift-report.component';
 
 @Component({
   selector: 'app-pos',
@@ -13,7 +14,7 @@ import { Subject, takeUntil } from 'rxjs';
 export class PosComponent implements OnInit, OnDestroy {
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
-  componentRef!: ComponentRef<PosRegisterPopupComponent>;
+  componentRef!: ComponentRef<any>;
   constructor(private _posService: PosService, private _posStatusService: PosStatusService) { }
   loadOpenRegister() {
     this.container.clear();
@@ -37,11 +38,16 @@ export class PosComponent implements OnInit, OnDestroy {
         this.shiftId = data?.shift_id;
       });
   }
-
+  openShiftReport() {
+    this.container.clear();
+    this.componentRef = this.container.createComponent(CloseShiftReportComponent);
+    this.componentRef.instance.visible = true;
+  }
   onRegisterClick(): void {
     if (this.isShiftActive) {
       this._posService.closeShift(this.shiftId).subscribe(() => {
         this._posStatusService.setShiftStatus(false);
+        this.openShiftReport();
       });
     } else {
       this.loadOpenRegister();

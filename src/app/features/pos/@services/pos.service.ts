@@ -53,7 +53,11 @@ export class PosService {
     return this._http.patchRequest(`${environment.api_url}pos/order-payment/${id}/` , form);
   }
 
-  getOrderInvoice():Observable<any>{
+  getOrderInvoice(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/order-tax-invoice/`);
+  }
+
+  getShiftReport(): Observable<any> {
+    return this._http.getRequest(`${environment.api_url}pos/shift-report/`);
   }
 }

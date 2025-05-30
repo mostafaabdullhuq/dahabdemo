@@ -13,6 +13,7 @@ import { GoldReceiptPosComponent } from './gold-receipt-pos/gold-receipt-pos.com
 import { SilverComponent } from './silver/silver.component';
 import { DiamondComponent } from './diamond/diamond.component';
 import { PlaceOrderInvoiceComponent } from "./place-order-invoice/place-order-invoice.component";
+import { CloseShiftReportComponent } from "./close-shift-report/close-shift-report.component";
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { PlaceOrderInvoiceComponent } from "./place-order-invoice/place-order-in
   imports: [
     SharedModule,
     RouterLink,
-    PlaceOrderInvoiceComponent
+    PlaceOrderInvoiceComponent,
+    CloseShiftReportComponent
 ]
 })
 export class PosModule { }
