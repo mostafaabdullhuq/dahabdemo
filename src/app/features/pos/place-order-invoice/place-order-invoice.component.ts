@@ -24,46 +24,9 @@ export class PlaceOrderInvoiceComponent {
   showDialog() {
     this.visible = true;
   }
-  invoice = {
-    invoiceNumber: 'INV-2025-001',
-    date: '2025-05-29',
-    customer: {
-      name: 'Rowan Ragab',
-      address: '123 Main Street, Cairo, Egypt',
-      phone: '+20 100 000 0000'
-    },
-    items: [
-      {
-        imageUrl: 'https://via.placeholder.com/50',
-        description: 'Gold Ring 24K',
-        tagNumber: 'GR-001',
-        grossWeight: 15.3,
-        quantity: 1,
-        subtotal: 1200.00
-      },
-      {
-        imageUrl: 'https://via.placeholder.com/50',
-        description: 'Silver Necklace',
-        tagNumber: 'SN-045',
-        grossWeight: 32.5,
-        subtotal: 850.00,
-        quantity: 1,
 
-      },
-      {
-        imageUrl: 'https://via.placeholder.com/50',
-        description: 'Diamond Bracelet',
-        tagNumber: 'DB-783',
-        grossWeight: 22.0,
-        quantity: 1,
-        subtotal: 2600.00
-      }
-    ]
-  };
 
-  get total() {
-    return this.invoice.items.reduce((sum, item) => sum + item.quantity * item.subtotal, 0);
-  }
+ 
 
 getInvoiceData(){
   this._posService.getOrderInvoice().subscribe(res=>{

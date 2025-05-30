@@ -18,10 +18,10 @@
                     <div class="card h-100 shadow-sm border-0 rounded-4">
                         <div class="card-body">
                             <h6 class="card-title text-primary fw-bold">Shop</h6>
-                            <p class="mb-1"><strong>Shop name:</strong> {{ invoice.invoiceNumber }}</p>
-                            <p class="mb-1"><strong>Shop address:</strong> {{ invoice.invoiceNumber }}</p>
-                            <p class="mb-1"><strong>VAT no.:</strong> {{ invoice.invoiceNumber }}</p>
-                            <p class="mb-0"><strong>CR no.:</strong> {{ invoice.invoiceNumber }}</p>
+                            <p class="mb-1"><strong>Shop name:</strong> {{ invoiceData?.branch }}</p>
+                            <p class="mb-1"><strong>Shop address:</strong>-</p>
+                            <p class="mb-1"><strong>VAT no.:</strong> {{ invoiceData?.tax }}</p>
+                            <p class="mb-0"><strong>CR no.:</strong> -</p>
                         </div>
                     </div>
                 </div>
@@ -31,10 +31,10 @@
                     <div class="card h-100 shadow-sm border-0 rounded-4">
                         <div class="card-body">
                             <h6 class="card-title text-primary fw-bold">Customer</h6>
-                            <p class="mb-1"><strong>{{ invoice.customer.name }}</strong></p>
-                            <p class="mb-1"><strong>CPR no.:</strong> 0000</p>
-                            <p class="mb-1">{{ invoice.customer.address }}</p>
-                            <p class="mb-0">{{ invoice.customer.phone }}</p>
+                            <p class="mb-1"><strong>{{ invoiceData?.customer_name }}</strong></p>
+                            <p class="mb-1"><strong>CPR no.:</strong> {{invoiceData?.customer_cpr}}</p>
+                            <p class="mb-1">{{ invoiceData?.address }}</p>
+                            <p class="mb-0">{{ invoiceData?.phone }}</p>
                         </div>
                     </div>
                 </div>
@@ -44,10 +44,10 @@
                     <div class="card h-100 shadow-sm border-0 rounded-4">
                         <div class="card-body">
                             <h6 class="card-title text-primary fw-bold">Invoice</h6>
-                            <p class="mb-1"><strong>Date:</strong> {{ invoice.date }}</p>
-                            <p class="mb-1"><strong>Number:</strong> {{ invoice.invoiceNumber }}</p>
+                            <p class="mb-1"><strong>Date:</strong> {{ invoiceData?.date }}</p>
+                            <p class="mb-1"><strong>Number:</strong> {{ invoiceData?.invoice_id }}</p>
                             <p class="mb-1"><strong>Method:</strong> Cash</p>
-                            <p class="mb-0"><strong>Payment date:</strong> {{ invoice.date }}</p>
+                            <p class="mb-0"><strong>Payment date:</strong> {{ invoiceData?.date }}</p>
                         </div>
                     </div>
                 </div>
@@ -63,31 +63,45 @@
       <th>Tag Number</th>
       <th class="text-end">Gross Weight</th>
       <th class="text-end">Subtotal</th>
-      <th class="text-end">VAT 10%</th>
       <th class="text-end">Total</th>
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let item of invoice.items">
+    <tr *ngFor="let item of invoiceData?.sales">
       <td>
-        <img [src]="item.imageUrl" alt="item image" width="50" height="50" class="img-thumbnail">
+        <img [src]="item.attachment" alt="item image" width="50" height="50" class="img-thumbnail">
       </td>
       <td>{{ item.description }}</td>
-      <td>{{ item.tagNumber }}</td>
-      <td class="text-end">{{ item.grossWeight }}</td>
-      <td class="text-end">{{ item.subtotal | currency }}</td>
-      <td class="text-end">{{ item.subtotal * 0.10 | currency }}</td>
-      <td class="text-end">{{ (item.subtotal * 1.10) | currency }}</td>
+      <td>{{ item.tag_number }}</td>
+      <td class="text-end">{{ item.gross_weight }}</td>
+      <td class="text-end">{{ item.sub_total }}</td>
+      <td class="text-end">{{ item.subtotal * 0.10 }}</td>
     </tr>
   </tbody>
   <tfoot>
     <tr>
-      <th colspan="6" class="text-end">Grand Total</th>
-      <th class="text-end">2222</th>
+      <th colspan="5" class="text-end"> Total</th>
+      <th class="text-end">000</th>
     </tr>
   </tfoot>
-</table>
 
+</table>
+<div class=" w-100">
+  <strong>Terms & Conditions</strong>
+  <p class=" border border-1 rounded-3"></p>
+</div>
+<div class="container-fluid">
+<div class="row  justify-content-end totals">
+    <div class="col-md-4 fw-bold border border-1 rounded-3">
+        <ul class="list-unstyled">
+            <li class="d-flex justify-content-between"><strong>Subtotal (exc vat) </strong> : <span>{{invoiceData?.sub_total}}</span></li>
+            <li class="d-flex justify-content-between"><strong>Discount </strong> : <span>{{invoiceData?.discount}}</span></li>
+            <li class="d-flex justify-content-between"><strong>Vat (10%) </strong> : <span>{{invoiceData?.tax}}</span></li>
+            <li class="d-flex justify-content-between"><strong>Net Amount (inc vat) </strong> : <span>{{invoiceData?.amount}}</span></li>
+        </ul>
+    </div>
+</div>
+</div>
 
         <div class="mt-5 text-center text-muted">
             <!-- Thank you for your business! -->
