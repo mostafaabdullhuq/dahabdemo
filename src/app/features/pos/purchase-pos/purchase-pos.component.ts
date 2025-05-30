@@ -8,6 +8,7 @@ import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { PosReturnsService } from '../@services/pos-returns.service';
 import { PosPurchaseService } from '../@services/pos-purchase.service';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-purchase-pos',
@@ -28,7 +29,9 @@ export class PurchasePosComponent implements OnInit , OnDestroy{
   selectedCurrency: any = ''
   private destroy$ = new Subject<void>();
   defualtVat = 0;
-  shiftData:any = []
+  shiftData:any = [];
+    menuItem: MenuItem[] = [];
+
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
   ,private _posPurchaseService:PosPurchaseService
@@ -77,12 +80,33 @@ export class PurchasePosComponent implements OnInit , OnDestroy{
   });
 this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(status => {
-        this.isShiftActive = status;
+      .subscribe((status:any) => {
+        this.isShiftActive = status?.is_active;
+        console.log(status);
+        
       });
+        this.menuItem = [
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => {
+          this.removeItem(this.selectedRowData?.id);
+        }
+      }
+    ];
   }
   isShiftActive:boolean = false;
-
+  selectedRowData: any = [];
+  onRowClick(rowData: any): void {
+    this.selectedRowData = rowData;
+  }
+    removeItem(id: any) {
+    this._posService.deleteProductPos(id).subscribe({
+      next: res => {
+        this._posPurchaseService.fetchPurchaseProducts();
+      },
+    })
+  }
 totalAmount(): number {
   return this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
     const amount = parseFloat(group.amount) || 0;

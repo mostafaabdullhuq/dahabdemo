@@ -1,24 +1,24 @@
-import { AfterViewInit, Component, ComponentRef, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { DropdownsService } from '../../../core/services/dropdowns.service';
-import { PosService } from '../@services/pos.service';
-import { PosSalesService } from '../@services/pos-sales.service';
-import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
-import { PosSharedService } from '../@services/pos-shared.service';
-import { PosStatusService } from '../@services/pos-status.service';
 import { MenuItem } from 'primeng/api';
-import { SetDiscountComponent } from './set-discount/set-discount.component';
+import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
+import { DropdownsService } from '../../../core/services/dropdowns.service';
+import { PosSharedService } from '../@services/pos-shared.service';
+import { PosService } from '../@services/pos.service';
+import { PosStatusService } from '../@services/pos-status.service';
+import { PosDiamondService } from '../@services/pos-diamond.service';
+import { SetDiscountComponent } from '../sales-pos/set-discount/set-discount.component';
 
 @Component({
-  selector: 'app-sales-pos',
+  selector: 'app-diamond',
   standalone: false,
-  templateUrl: './sales-pos.component.html',
-  styleUrl: './sales-pos.component.scss'
+  templateUrl: './diamond.component.html',
+  styleUrl: './diamond.component.scss'
 })
-export class SalesPosComponent implements OnInit, OnDestroy {
+export class DiamondComponent  implements OnInit, OnDestroy{
   products: any = [];
   productForm!: FormGroup;
-  salesDataOrders: any = [];
+  silverDataOrders: any = [];
   cols: any = [];
   selectedVat: any = ''
   taxes: any = [];
@@ -31,7 +31,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   shiftData: any = [];
   isSelectedCustomerAndCurrency:boolean = true; 
   selectedVatId: any = null;
-  constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
+  constructor(private _formBuilder: FormBuilder, private _posDiamondService: PosDiamondService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
   ) { }
 
@@ -123,19 +123,18 @@ this._posStatusService.shiftActive$
     this.selectedRowData = rowData;
   }
   getSalesOrder() {
-    this._posSalesService._salesReciepts$
-      .pipe(takeUntil(this.destroy$))
+    this._posDiamondService.returnOrders$
       .subscribe((res: any) => {
-        this.salesDataOrders = res;
+        this.silverDataOrders = res;
       });
 
     // initial load
-    this._posSalesService.getSalesOrdersFromServer();
+    this._posDiamondService.fetchDiamondOrders();
   }
   removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
-        this._posSalesService.getSalesOrdersFromServer();
+        this._posDiamondService.fetchDiamondOrders();
       },
     })
   }
@@ -173,112 +172,42 @@ this._posStatusService.shiftActive$
 
     // Format based on selected currency decimal point
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
-    this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
     return +goldPrice.toFixed(decimalPlaces);
   }
 
-  calcMetalValueAccordingToPurity(group: any) {
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
-    const metalValue = this.calcGoldPriceAccordingToPurity(group) * group?.weight;
-    this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
-    return +metalValue.toFixed(decimalPlaces);
-  }
 priceOfProductToPatch:any = 0;
 
-  calcTotalPrice(group: any): number {
-    this.priceOfProductToPatch = 0;
-    const metalValue = this.calcMetalValueAccordingToPurity(group);
-
-    const makingCharge = +group?.retail_making_charge || 0;
-    const discountPercentage = +group?.discount || 0;
-
-    // Calculate discount amount
-    const discountAmount = (discountPercentage / 100) * makingCharge;
-
-    // Share the discount amount with the service
-    this._posSharedService.setDiscountAmount(discountAmount);
-
-    const discountedMakingCharge = makingCharge - discountAmount;
-
-    const stoneValues = (group?.stones || [])
-      .slice(0, 3)
-      .reduce((sum: number, stone: any) => sum + (+stone?.retail_value || 0), 0);
-
-    const total = metalValue + discountedMakingCharge + stoneValues;
-
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
-
-this.priceOfProductToPatch = +total.toFixed(decimalPlaces);
-
-    return +total.toFixed(decimalPlaces);
-  }
-  onVatChange(vatId: number, group: any): void {
-    group.selectedVat = vatId;
-    this.calcGrandTotalWithVat();
-  }
-  calcTotalPriceWithVat(group: any): number {
-    this.priceOfProductToPatch = 0
-    const baseTotal = this.calcTotalPrice(group);
-    const vatRate = +this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat)?.rate || 0;
-    const vatAmount = (vatRate / 100) * baseTotal;
-    const totalVat = this.salesDataOrders.reduce((acc: number, group: any) => {
-      const baseTotal = this.calcTotalPrice(group); // your existing method
-      const vatRate = +this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat)?.rate || 0;
-      const vatAmount = (vatRate / 100) * baseTotal;
-      return acc + vatAmount;
-    }, 0);
-    // Update shared VAT immediately
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    this._posSharedService.setSalesTax(+totalVat.toFixed(decimalPlaces));
-
-    const totalWithVat = baseTotal + vatAmount;
-    return +totalWithVat.toFixed(decimalPlaces);
-  }
-  calcGrandTotalWithVat(): number {
-    if (!this.salesDataOrders || this.salesDataOrders.length === 0) return 0;
-
-    const total = this.salesDataOrders.reduce((sum: number, group: any) => {
-      return sum + this.calcTotalPriceWithVat(group);
-    }, 0);
-
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    this._posSharedService.setSalesTotalGrand(+total.toFixed(decimalPlaces));
-
-    return +total.toFixed(decimalPlaces);
-  }
   onProductSelected(productId: number): void {
     const selectedProduct = this.products.find((p: any) => p.id === productId);
     if (!selectedProduct) return;    
     const payload = {
       product: selectedProduct.id,
-      amount: this.priceOfProductToPatch //selectedProduct.retail_making_charge
+      amount: selectedProduct.amount //selectedProduct.retail_making_charge
     };
 
-    this._posService.addProductSale(payload)
+    this._posDiamondService.addProductSilver(payload)
       .subscribe({
         next: res => {
-          this._posSalesService.getSalesOrdersFromServer();
+          this._posDiamondService.fetchDiamondOrders();
         },
         error: err => {
           console.error('Error posting product', err);
         }
       });
   }
-  get totalPrice(): number {
-    const total = this.salesDataOrders.reduce((sum: number, group: any) => {
-      return sum + this.calcTotalPrice(group);
-    }, 0);
+  // get totalPrice(): number {
+  //   const total = this.silverDataOrders.reduce((sum: number, group: any) => {
+  //     return sum + group?.amount;
+  //   }, 0);
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    const formattedTotal = +total.toFixed(decimalPlaces);
-    // Update the service with the calculated gold price
-    this._posSharedService.setSalesTotalPrice(formattedTotal);
-
-    return formattedTotal;
-  }
+  //   const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+  //   const formattedTotal = +total.toFixed(decimalPlaces);
+  //   return formattedTotal;
+  // }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
 }
+

@@ -5,13 +5,11 @@
                 <div class="row">
                     <div class="col-md-6">
                         <app-dropdowns label="Receipts" formControlName="reciept_id" [options]="receipts"
-                            optionLabel="name" optionValue="id"
-                            placeholder="Select a Receipt"></app-dropdowns>
+                            optionLabel="id" optionValue="id" placeholder="Select a Receipt"></app-dropdowns>
                     </div>
                     <div class="col-md-6">
                         <app-dropdowns label="Products" formControlName="product_id" [options]="products"
-                            optionLabel="name" optionValue="id"
-                            placeholder="Select a product"></app-dropdowns>
+                            optionLabel="name" optionValue="id" placeholder="Select a product"></app-dropdowns>
                     </div>
                 </div>
             </form>
@@ -25,12 +23,10 @@
                                 <th>Weight</th>
                                 <th>Item Size</th>
                                 <th>Description</th>
-                                <th>Gold Price</th>
                                 <th>Making Charge</th>
                                 <th>Discount</th>
-                                <th>Metal Value</th>
                                 <td>Price</td>
-
+                                <th>Actions</th>
                             </ng-template>
 
                             <ng-template #bodyTemplate let-group let-i="index">
@@ -38,13 +34,15 @@
                                 <td>{{ group.weight }}</td>
                                 <td>{{ group.size }}</td>
                                 <td>{{ group.description }}</td>
-                            
-                                <td>{{calcGoldPriceAccordingToPurity(group)}}</td>
+
                                 <td>{{ group.retail_making_charge }}</td>
                                 <td>{{ group.discount }}</td>
-                                <td>{{ (calcMetalValueAccordingToPurity(group)) }}</td>
-                                <td>{{calcTotalPrice(group)}}</td>
-
+                                <td>{{group.amount}}</td>
+                                <td>
+                                    <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'"
+                                        [model]="menuItem" dropdownIcon="pi pi-cog" appendTo="body">
+                                    </p-splitbutton>
+                                </td>
                             </ng-template>
                         </app-input-table>
                         <div class="d-flex justify-content-end w-100">

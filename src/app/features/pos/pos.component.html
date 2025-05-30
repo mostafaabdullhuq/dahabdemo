@@ -10,6 +10,8 @@
             <p-tab value="2">Purchase Old Gold</p-tab>
             <p-tab value="3">Repair</p-tab>
             <p-tab value="4">Gold Receipt</p-tab>
+            <p-tab value="5">Silver</p-tab>
+            <p-tab value="6">Diamond</p-tab>
 
             <div class="btns-group w-100 d-flex justify-content-end align-items-center h-100 px-3">
                 <button [ngClass]="isShiftActive ? 'delete-btn' : 'submit-btn'"
@@ -64,6 +66,26 @@
                 <div class="row">
                     <div class="col-md-12">
                         <app-gold-receipt-pos></app-gold-receipt-pos>
+                    </div>
+                    <!-- <div class="col-md-4">
+                        <app-totals-pos></app-totals-pos>
+                    </div> -->
+                </div>
+            </p-tabpanel>
+            <p-tabpanel value="5">
+                <div class="row">
+                    <div class="col-md-12">
+                        <app-silver></app-silver>
+                    </div>
+                    <!-- <div class="col-md-4">
+                        <app-totals-pos></app-totals-pos>
+                    </div> -->
+                </div>
+            </p-tabpanel>
+            <p-tabpanel value="6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <app-diamond></app-diamond>
                     </div>
                     <!-- <div class="col-md-4">
                         <app-totals-pos></app-totals-pos>

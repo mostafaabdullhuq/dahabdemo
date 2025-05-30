@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, Component, ComponentRef, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ComponentRef, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PosService } from '../@services/pos.service';
 import { PosStatusService } from '../@services/pos-status.service';
@@ -18,7 +18,7 @@ import { PlaceOrderInvoiceComponent } from '../place-order-invoice/place-order-i
   templateUrl: './totals-pos.component.html',
   styleUrl: './totals-pos.component.scss'
 })
-export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
   totalForm!: FormGroup;
   customers: any = [];
@@ -43,8 +43,8 @@ salesDataOrders:any =[];
     private _posSharedService: PosSharedService) {
 
   }
-  ngAfterViewChecked(): void {
-    this.onChangeCurrency()
+  ngAfterViewInit(): void {
+    this.onChangeCurrency();    
   }
   ngOnInit(): void {
     
@@ -61,13 +61,13 @@ salesDataOrders:any =[];
         })
       ])
     });
-    const savedCustomer = sessionStorage.getItem('customer') ?? '';
-    const savedCurrency = sessionStorage.getItem('currency') ?? '';
+    const savedCustomer = sessionStorage.getItem('customer') ;
+    const savedCurrency = sessionStorage.getItem('currency');
 
     if (savedCustomer || savedCurrency) {
       this.totalForm.patchValue({
-        customer: parseInt(savedCustomer) ?? '',
-        currency: parseInt(savedCurrency) ?? ''
+        customer: savedCustomer ? Number(savedCustomer) : '',
+        currency: savedCurrency ? Number(savedCurrency) : ''
       });
     }
     this._posStatusService.shiftData$
@@ -169,7 +169,15 @@ salesDataOrders:any =[];
   }
   getCurrencies() {
     this._posService.getCurrenciesByBranchId(this.shiftData?.branch).subscribe((res: any) => {
-      this.currencies = res?.results
+      this.currencies = res?.results;
+      const savedCustomer = sessionStorage.getItem('customer');
+      const savedCurrency = sessionStorage.getItem('currency');
+      if (savedCustomer || savedCurrency) {
+        this.totalForm.patchValue({
+          customer: savedCustomer ? Number(savedCustomer) : '',
+          currency: savedCurrency ? Number(savedCurrency) : ''
+        });
+      }
     })
   }
   get paymentsControls() {
@@ -202,7 +210,6 @@ onPlaceOrder() {
   }
 
   const formValue = this.totalForm.value;
-  console.log(this.selectedCurrency);
   this.totalForm.get('currency')?.patchValue(this.selectedCurrency?.pk)
   // If no payments set, fallback to selected payment_method + totalWithVat
   if (!formValue.payments || formValue.payments.length === 0) {
@@ -221,9 +228,8 @@ onPlaceOrder() {
     if (res?.order_id) {
       this._posService.addOrder(res.order_id, this.totalForm.value).subscribe({
         next: res => {
-          if (res) {
+          this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''))
             this.openOrderInvoice();
-          }
         }
       });
     }

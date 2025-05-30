@@ -23,6 +23,8 @@ export class PosSharedService {
   private repairTotalGrandSubject = new BehaviorSubject<number>(0);
   private goldReceiptTotalPriceSubject = new BehaviorSubject<number>(0);
   private goldReceiptTotalGrandSubject = new BehaviorSubject<number>(0);
+  private returnTotalPriceSubject = new BehaviorSubject<number>(0);
+  private returnTotalGrandSubject = new BehaviorSubject<number>(0);
   private goldReceiptTotalTaxSubject = new BehaviorSubject<number>(0);
   private repairTotalTaxSubject = new BehaviorSubject<number>(0);
   private salesTotalTaxSubject = new BehaviorSubject<number>(0);
@@ -42,6 +44,8 @@ export class PosSharedService {
   repairTotalPrice$ = this.repairTotalPriceSubject.asObservable();
   goldReceiptTotalGrand$ = this.goldReceiptTotalGrandSubject.asObservable();
   goldReceiptTotalPrice$ = this.goldReceiptTotalPriceSubject.asObservable();
+  returnTotalGrand$ = this.returnTotalGrandSubject.asObservable();
+  returnTotalPrice$ = this.returnTotalPriceSubject.asObservable();
   goldReceiptTotalTax$ = this.goldReceiptTotalTaxSubject.asObservable();
   repairTotalTax$ = this.repairTotalTaxSubject.asObservable();
   salesTotalTax$ = this.salesTotalTaxSubject.asObservable();
@@ -53,8 +57,9 @@ export class PosSharedService {
       this.purchaseTotalGrand$,
       this.repairTotalGrand$,
       this.goldReceiptTotalGrand$,
-    ]).subscribe(([salesTotal, purchaseTotal, repairTotal ,goldReceiptTotalGrand]) => {
-      const grandTotal = (salesTotal + repairTotal + goldReceiptTotalGrand) - purchaseTotal;
+      this.returnTotalGrand$,
+    ]).subscribe(([salesTotal, purchaseTotal, repairTotal ,goldReceiptTotalGrand ,returnTotalGrand]) => {
+      const grandTotal = (salesTotal + repairTotal + goldReceiptTotalGrand) - purchaseTotal - returnTotalGrand;
       this.grandTotalWithVatSubject.next(grandTotal);
     });
 
@@ -64,8 +69,9 @@ export class PosSharedService {
       this.purchaseTotalPrice$,
       this.repairTotalPrice$,
       this.goldReceiptTotalPrice$,
-    ]).subscribe(([salesTotalPrice, purchaseTotalPrice, repairTotalPrice , goldReceiptTotalPrice]) => {      
-      const totalPrice = (salesTotalPrice  + repairTotalPrice + goldReceiptTotalPrice) - purchaseTotalPrice;
+      this.returnTotalPrice$,
+    ]).subscribe(([salesTotalPrice, purchaseTotalPrice, repairTotalPrice , goldReceiptTotalPrice ,returnTotalPrice]) => {      
+      const totalPrice = (salesTotalPrice  + repairTotalPrice + goldReceiptTotalPrice) - purchaseTotalPrice - returnTotalPrice;
       this.totalPriceSubject.next(+totalPrice.toFixed(3));
     });
 
@@ -137,6 +143,13 @@ export class PosSharedService {
     this.goldReceiptTotalPriceSubject.next(total);
   }
 
+  setReturnTotalGrand(total: number) {
+    this.returnTotalGrandSubject.next(total);
+  }
+
+  setReturnTotalPrice(total: number) {
+    this.returnTotalPriceSubject.next(total);
+  }
   setPurchaseTotalPrice(total: number) {
     this.purchaseTotalPriceSubject.next(total);
   }

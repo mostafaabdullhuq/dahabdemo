@@ -10,6 +10,8 @@ import { RetunPosComponent } from './retun-pos/retun-pos.component';
 import { PurchasePosComponent } from './purchase-pos/purchase-pos.component';
 import { RepairPosComponent } from './repair-pos/repair-pos.component';
 import { GoldReceiptPosComponent } from './gold-receipt-pos/gold-receipt-pos.component';
+import { SilverComponent } from './silver/silver.component';
+import { DiamondComponent } from './diamond/diamond.component';
 
 
 @NgModule({
@@ -22,7 +24,9 @@ import { GoldReceiptPosComponent } from './gold-receipt-pos/gold-receipt-pos.com
     RetunPosComponent,
     PurchasePosComponent,
     RepairPosComponent,
-    GoldReceiptPosComponent
+    GoldReceiptPosComponent,
+    SilverComponent,
+    DiamondComponent
   ],
   imports: [
     SharedModule,

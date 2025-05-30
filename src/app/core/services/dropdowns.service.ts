@@ -27,7 +27,7 @@ export class DropdownsService {
   }
   getCountries(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
-    const url = nextPageUrl || `${this.API}core/country-tax/?${param}`;
+    const url = nextPageUrl || `${this.API}branch/countries/?${param}`;
     return this._http.getRequest<any>(url);
   }
   getUsers(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
@@ -105,10 +105,10 @@ export class DropdownsService {
     return this._http.getRequest<any>(url);
   }
    getCurrencies(nextPageUrl: string | null = null, params?: string): Observable<any> {
-    const url = nextPageUrl || `${this.API}core/currencies/?${params}`;
+    const url = nextPageUrl || `${this.API}business/settings/currencies/?${params}`;
     return this._http.getRequest<any>(url);
   }
-   getPaymentMethods(): Observable<any>{
-    return this._http.getRequest(`${environment.api_url}pos/payment-method/`);
+   getPaymentMethods(params?:string): Observable<any>{
+    return this._http.getRequest(`${environment.api_url}business/settings/payment-methods/?${params}`);
   }
 }

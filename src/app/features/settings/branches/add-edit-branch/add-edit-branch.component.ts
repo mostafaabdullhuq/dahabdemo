@@ -42,18 +42,22 @@ export class AddEditBranchComponent implements OnInit {
       this.isEditMode = true
     }
     this._dropdownService.getCountries().subscribe(res => {
-      this.countries = res?.results;
+      this.countries = res;
+      this.addEditBranchForm.get('country')?.valueChanges.subscribe(res=>{
+        this.paymentMethods= [];
+        this.addEditBranchForm.get('payment_methods')?.reset();
+        const paymentMethodsParams=`country__icontains=${res}`
+        this._dropdownService.getPaymentMethods(paymentMethodsParams).subscribe(res => {
+          this.paymentMethods = res?.results;
+        })
+      })
     })
     this._dropdownService.getCurrencies().subscribe(res => {
       this.currenciesList = res?.results;
-    })
-    this._dropdownService.getPaymentMethods().subscribe(res => {
-      this.paymentMethods = res
-    })
+    });
+   
     this._dropdownService.getTaxes().subscribe(res => {
       this.taxRates = res?.results;
-      console.log(this.taxRates);
-
     });
     this._sttingService.getBranchCustomLabel().subscribe(res => {
       this.customFields = res;
@@ -95,7 +99,9 @@ export class AddEditBranchComponent implements OnInit {
       email: unit?.email,
       tax_rate: unit?.tax_rate,
       manual_gold_price: unit?.manual_gold_price,
-      payment_methods: unit?.payment_methods?.map((pm: any) => pm.payment_method) || []
+      payment_methods: unit?.payment_methods?.map((pm: any) => ({
+        payment_method: pm.payment_method
+      })) || []
     });
 
     // 2. Patch currencies
@@ -113,12 +119,12 @@ export class AddEditBranchComponent implements OnInit {
     // 3. Patch custom_fields (if your backend returns an object like { key: value })
     const customFieldsArray = this.addEditBranchForm.get('custom_fields') as FormArray;
     customFieldsArray.clear();
-    const fieldObj = unit?.custom_fields || {}; // should be an object like { key: value }
+    const fieldObj = unit?.custom_fields || []; // should be an object like { key: value }
 
     unit?.custom_fields.forEach((field: { field_name: string | number; value:string | number }) => {
       customFieldsArray.push(this._formBuilder.group({
-        field_key: [field.field_name],
-        value: [field.value || '']
+        field_key: [field?.field_name],
+        value: [field?.value || '']
       }));
     });
   });
@@ -165,7 +171,7 @@ export class AddEditBranchComponent implements OnInit {
         acc[field.field_key] = field.value;
       }
       return acc;
-    }, {});
+    }, []);
 
     // 🧾 Format currencies directly (already an array of objects)
     const currenciesArray = rawValue.currencies.map((item: any) => ({
@@ -173,12 +179,16 @@ export class AddEditBranchComponent implements OnInit {
       exchange_rate: item.exchange_rate
     }));
 
-    const formattedData = {
-      ...rawValue,
-      custom_fields: customFieldsObj,
-      currencies: currenciesArray,
-    };
+ const paymentMethods = rawValue.payment_methods?.map((pm: any) => ({
+  payment_method: pm
+})) || [];
 
+const formattedData = {
+  ...rawValue,
+  custom_fields: customFieldsObj,
+  currencies: currenciesArray,
+  payment_methods: paymentMethods
+};
     if (this.isEditMode && this.brandId) {
       this._sttingService.updateBranch(this.brandId, formattedData).subscribe({
         next: res => console.log('User updated successfully', res),

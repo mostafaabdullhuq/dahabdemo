@@ -9,6 +9,7 @@ import { PosStatusService } from '../@services/pos-status.service';
 import { PosReturnsService } from '../@services/pos-returns.service';
 import { PosPurchaseService } from '../@services/pos-purchase.service';
 import { PosRepairService } from '../@services/pos-repair.service';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-repair-pos',
@@ -29,7 +30,10 @@ export class RepairPosComponent implements OnInit , OnDestroy{
   selectedCurrency: any = ''
   private destroy$ = new Subject<void>();
   defualtVat = 0;
-  shiftData:any = []
+  shiftData:any = [];
+    menuItem: MenuItem[] = [];
+  selectedRowData: any = [];
+
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
   ,private _posRepairService:PosRepairService
@@ -88,6 +92,25 @@ export class RepairPosComponent implements OnInit , OnDestroy{
       .subscribe(status => {
         this.isShiftActive = status;
       });
+        this.menuItem = [
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => {
+          this.removeItem(this.selectedRowData?.id);
+        }
+      }
+    ];
+  }
+      removeItem(id: any) {
+    this._posService.deleteProductPos(id).subscribe({
+      next: res => {
+        this._posRepairService.fetchRepairProducts();
+      },
+    })
+  }
+    onRowClick(rowData: any): void {
+    this.selectedRowData = rowData;
   }
   isShiftActive:boolean = false;
   getPurchaseOrders() {

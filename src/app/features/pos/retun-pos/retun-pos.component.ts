@@ -7,6 +7,7 @@ import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
 import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { PosReturnsService } from '../@services/pos-returns.service';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-retun-pos',
@@ -28,6 +29,7 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
   private destroy$ = new Subject<void>();
   defualtVat = 0;
   shiftData:any = []
+  menuItem: MenuItem[] = [];
   constructor(private _formBuilder: FormBuilder, private _posReturnService: PosReturnsService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
   ) { }
@@ -38,12 +40,19 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
       reciept_id: ['', Validators.required],
     })
     
-    this._posReturnService.getReturnProducts().subscribe((res) => {
-      this.products = res?.results;
-    });
-    this._posReturnService.getReturnReciepts().subscribe((res) => {
+    const params = `customer_id=${sessionStorage?.getItem('customer')}`
+    this._posReturnService.getReturnReciepts(params).subscribe((res) => {
       this.receipts = res?.results;
     });
+    this.productForm.get('reciept_id')?.valueChanges.subscribe(res=>{
+      if(res){
+        const params = `orderproduct__order_id=${res}
+        &orderproduct__order__customer_id=${sessionStorage.getItem('customer')}`
+        this._posReturnService.getReturnProducts(params).subscribe((res) => {
+        this.products = res?.results;
+      });
+      }
+    })
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results;
     });
@@ -89,6 +98,22 @@ this._posStatusService.shiftActive$
       .subscribe(status => {
         this.isShiftActive = status;
       });
+       this.menuItem = [
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => {
+          this.removeItem(this.selectedRowData?.id);
+        }
+      }
+    ];
+  }
+    removeItem(id: any) {
+    this._posService.deleteProductPos(id).subscribe({
+      next: res => {
+        this._posReturnService.fetchReturnOrders();
+      },
+    })
   }
   isShiftActive:boolean = false;
   getReturnsOrder() {
@@ -200,11 +225,11 @@ calcGrandTotalWithVat(): number {
     if (!selectedProduct) return;
 
     const payload = {
-      product: selectedProduct.id,
-      amount: selectedProduct.retail_making_charge
+      orderproduct_id: selectedProduct.sold_orderproduct_id,
+      // amount: selectedProduct.retail_making_charge
     };
 
-    this._posService.addProductSale(payload)
+    this._posReturnService.addProductReturn(payload)
       .subscribe({
         next: res => {
           this._posReturnService.fetchReturnOrders()
@@ -219,13 +244,18 @@ calcGrandTotalWithVat(): number {
       return sum + this.calcTotalPrice(group);
     }, 0);
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
     const formattedTotal = +total.toFixed(decimalPlaces);
-    // Update the service with the calculated gold price
-    // this._posSharedService.setTotalPrice(formattedTotal);
+    this._posSharedService.setReturnTotalPrice(formattedTotal);
+    this._posSharedService.setReturnTotalGrand(formattedTotal);
 
     return formattedTotal;
   }
+    selectedRowData: any = [];
+  onRowClick(rowData: any): void {
+    this.selectedRowData = rowData;
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

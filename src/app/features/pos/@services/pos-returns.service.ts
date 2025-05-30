@@ -17,14 +17,16 @@ export class PosReturnsService {
     return this._http.getRequest(`${environment.api_url}pos/order-product-receipt/return/`);
 
   }
-  getReturnReciepts(): Observable<any> {
-    return this._http.getRequest(`${environment.api_url}pos/customer-orders/`);
+  getReturnReciepts(params?:string): Observable<any> {
+    return this._http.getRequest(`${environment.api_url}pos/customer-orders/?${params}`);
   }
 
-  getReturnProducts(): Observable<any> {
-    return this._http.getRequest(`${environment.api_url}pos/product-return/`);
+  getReturnProducts(params?:string): Observable<any> {
+    return this._http.getRequest(`${environment.api_url}pos/product-return/?${params}`);
   }
-  
+  addProductReturn(form:any): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}pos/order-product/return/`, form);
+  }
   fetchReturnOrders(): void {
     this._http.getRequest(`${environment.api_url}pos/order-product-receipt/return/`).subscribe({
       next: (res: any) => {

@@ -31,8 +31,9 @@
                         <app-input-text formControlName="add_gram" placeholder="add_gram" type="number" inputName="add_gram"></app-input-text>
                     </div>
                     <div class="btns-group">
-                <button [disabled]="selectedCurrency && isShiftActive" type="submit" class="my-4 submit-btn">
+                <button type="submit" class="my-4 submit-btn">
                     Add</button>
+                    <!-- [disabled]="selectedCurrency && isShiftActive"  -->
             </div>
                 </div>
             </form>
@@ -47,6 +48,7 @@
                                 <th>Purity</th>
                                 <th>Description</th>
                                 <td>Price</td>
+                                <th>Actions</th>
 
                             </ng-template>
 
@@ -57,7 +59,11 @@
                                 <td>{{ group.purity_name }}</td>
                                 <td>{{ group.description }}</td>
                                 <td>{{group.amount}}</td>
-
+<td>
+                                    <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'"
+                                        [model]="menuItem" dropdownIcon="pi pi-cog" appendTo="body">
+                                    </p-splitbutton>
+                                </td>
                             </ng-template>
                         </app-input-table>
                         <div class="d-flex justify-content-end w-100">

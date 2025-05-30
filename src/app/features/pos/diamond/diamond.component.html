@@ -37,17 +37,15 @@
                                     <th>Stone (2)</th>
                                     <th>Stone (3)</th>
                                     <th>Vat</th>
-                                    <th>Gold Price</th>
                                     <th>Making Charge</th>
                                     <th>Discount</th>
                                     <th>Max Discount</th>
-                                    <th>Metal Value</th>
                                     <th>Price</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let group of salesDataOrders; let i = index">
+                                <tr *ngFor="let group of silverDataOrders; let i = index">
                                     <td>{{ group.tag_number }}</td>
                                     <td>{{ group.weight }}</td>
                                     <td>{{ group.size }}</td>
@@ -59,15 +57,14 @@
                                     <td>
                                         <app-dropdowns [options]="taxes" optionLabel="rate" optionValue="id"
                                             placeholder="Select Vat" [(ngModel)]="selectedVatId"
-                                            (selectionChange)="onVatChange($event, group)">
+                                            >
                                         </app-dropdowns>
                                     </td>
-                                    <td>{{ calcGoldPriceAccordingToPurity(group) }}</td>
+                                    <!-- (selectionChange)="onVatChange($event, group)" -->
                                     <td>{{ group.retail_making_charge }}</td>
                                     <td>{{ group.discount }}</td>
                                     <td>{{ group.max_discount }}</td>
-                                    <td>{{ calcMetalValueAccordingToPurity(group) }}</td>
-                                    <td>{{ calcTotalPrice(group) }}</td>
+                                    <td>{{ group?.amount }}</td>
                                     <td>
                                         <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'"
                                             [model]="menuItem" dropdownIcon="pi pi-cog" appendTo="body">
@@ -78,7 +75,9 @@
                         </table>
                         <div class="d-flex justify-content-end w-100">
                             <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
-                                Total: {{ totalPrice }} </div>
+                                Total: 
+                                <!-- {{ totalPrice }}  -->
+                            </div>
                         </div>
                     </div>
                 </div>
