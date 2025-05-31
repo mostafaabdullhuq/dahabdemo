@@ -18,6 +18,7 @@ export class DropdownsComponent implements ControlValueAccessor {
   @Input() options: any[] = [];
   @Input() id: string = `input-${Math.random().toString(36).substring(2, 15)}`; // unique id
   @Input() optionLabel: string = '';
+  @Input() loading: boolean = false;
   @Input() optionValue: any = '';
   @Input() disabled: boolean = false;
   @Input() placeholder: string = '';

@@ -90,8 +90,6 @@ salesDataOrders:any =[];
       .pipe(takeUntil(this.destroy$))
       .subscribe(value => {
         sessionStorage.setItem('customer', value);
-        console.log(value);
-
       });
 
 
