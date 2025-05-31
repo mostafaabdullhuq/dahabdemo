@@ -127,6 +127,8 @@ this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         this.salesDataOrders = res;
+        console.log(this.salesDataOrders);
+        
       });
 
     // initial load
@@ -246,24 +248,71 @@ this.priceOfProductToPatch = +total.toFixed(decimalPlaces);
 
     return +total.toFixed(decimalPlaces);
   }
-  onProductSelected(productId: number): void {
-    const selectedProduct = this.products.find((p: any) => p.id === productId);
-    if (!selectedProduct) return;    
-    const payload = {
-      product: selectedProduct.id,
-      amount: this.priceOfProductToPatch //selectedProduct.retail_making_charge
-    };
+  // onProductSelected(productId: number): void {
+  //   const selectedProduct = this.products.find((p: any) => p.id === productId);
+  //   if (!selectedProduct) return;    
+  //   const payload = {
+  //     product: selectedProduct.id,
+  //     amount: this.priceOfProductToPatch //selectedProduct.retail_making_charge
+  //   };
 
-    this._posService.addProductSale(payload)
-      .subscribe({
-        next: res => {
-          this._posSalesService.getSalesOrdersFromServer();
-        },
-        error: err => {
-          console.error('Error posting product', err);
-        }
-      });
-  }
+  //   this._posService.addProductSale(payload)
+  //     .subscribe({
+  //       next: res => {
+  //         this._posSalesService.getSalesOrdersFromServer();
+  //       },
+  //       error: err => {
+  //         console.error('Error posting product', err);
+  //       }
+  //     });
+  // }
+
+ onProductSelected(productId: number): void {
+ const selectedProduct = this.products.find((p: any) => p.id === productId);
+  if (!selectedProduct) return;
+
+  console.log('[DEBUG] Raw Selected Product:', selectedProduct);
+
+  const tempGroup = {
+    purity: selectedProduct.purity_name,
+    price: selectedProduct.price,
+    purity_value: selectedProduct.purity_value,
+    weight: selectedProduct.weight,
+    stones: selectedProduct.stones || [],
+    retail_making_charge: selectedProduct.retail_making_charge,
+    discount: selectedProduct.discount || 0,
+    max_discount: selectedProduct.max_discount,
+    selectedVat: this.selectedVatId
+  };
+
+  const goldPrice = this.calcGoldPriceAccordingToPurity(tempGroup);
+  const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
+  const totalPrice = this.calcTotalPrice(tempGroup);
+  const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
+
+  console.log('[DEBUG] Calculated Prices:', {
+    goldPrice,
+    totalPrice,
+    totalWithVat
+  });
+console.log(tempGroup);
+
+  const payload = {
+    product: selectedProduct.id,
+    amount: totalPrice
+  };
+
+  console.log('[DEBUG] Payload to send:', payload);
+  this._posService.addProductSale(payload).subscribe({
+    next: res => {
+      this._posSalesService.getSalesOrdersFromServer(); // Refresh after post
+    },
+    error: err => {
+      console.error('Error posting product', err);
+    }
+  });
+}
+
   get totalPrice(): number {
     const total = this.salesDataOrders.reduce((sum: number, group: any) => {
       return sum + this.calcTotalPrice(group);

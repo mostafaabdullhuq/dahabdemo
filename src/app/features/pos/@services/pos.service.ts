@@ -36,7 +36,7 @@ export class PosService {
   getProductSaleOrdersRecipts(): Observable<any>{
     return this._http.getRequest(`${environment.api_url}pos/order-product-receipt/sale/`);
   }
-  getProductSalesList(minimal:boolean = true ,page:any =1 , pageSize=1000000): Observable<any>{
+  getProductSalesList(minimal:boolean = false ,page:any =1 , pageSize=1000000): Observable<any>{
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}pos/product-sale/?${param}`);
   }
