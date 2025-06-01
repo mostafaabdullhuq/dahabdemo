@@ -67,7 +67,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let item of invoiceData?.sales">
+    <tr *ngFor="let item of invoiceData?.products?.sale">
       <td>
         <img [src]="item.attachment" alt="item image" width="50" height="50" class="img-thumbnail">
       </td>
@@ -75,13 +75,13 @@
       <td>{{ item.tag_number }}</td>
       <td class="text-end">{{ item.gross_weight }}</td>
       <td class="text-end">{{ item.sub_total }}</td>
-      <td class="text-end">{{ item.subtotal * 0.10 }}</td>
+      <td class="text-end">{{ item.sub_total }}</td>
     </tr>
   </tbody>
   <tfoot>
     <tr>
       <th colspan="5" class="text-end"> Total</th>
-      <th class="text-end">000</th>
+      <th class="text-end">{{invoiceData.total_amount}}</th>
     </tr>
   </tfoot>
 
@@ -97,7 +97,7 @@
             <li class="d-flex justify-content-between"><strong>Subtotal (exc vat) </strong> : <span>{{invoiceData?.sub_total}}</span></li>
             <li class="d-flex justify-content-between"><strong>Discount </strong> : <span>{{invoiceData?.discount}}</span></li>
             <li class="d-flex justify-content-between"><strong>Vat (10%) </strong> : <span>{{invoiceData?.tax}}</span></li>
-            <li class="d-flex justify-content-between"><strong>Net Amount (inc vat) </strong> : <span>{{invoiceData?.amount}}</span></li>
+            <li class="d-flex justify-content-between"><strong>Net Amount (inc vat) </strong> : <span>{{invoiceData?.total_amount}}</span></li>
         </ul>
     </div>
 </div>
