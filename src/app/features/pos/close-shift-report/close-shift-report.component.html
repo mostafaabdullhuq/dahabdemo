@@ -6,7 +6,7 @@
     </ng-template>
     <div class="invoice-container container my-5 p-4 shadow rounded-4 bg-white" id="reoprt-section">
         <div class="d-flex justify-content-between mb-4">
-            <h2 class="text-primary">Register from ( opening time - closing time )</h2>
+            <h2 class="text-primary">Register from ( {{reportData?.opening_time}} - {{reportData?.closing_time}} )</h2>
             <img style="width: 10%; height: 10%;" [src]="orgImg" alt="org img">
         </div>
 
@@ -24,7 +24,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of reportData?.sales">
+                <tr *ngFor="let item of reportData?.financial_data">
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
                     <td class="text-end">{{ item.gross_weight }}</td>
@@ -94,21 +94,21 @@
         </table>
         <div class="container-fluid">
             <div class="row  justify-content-end totals">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <strong>Notes</strong>
                     <p class=" border border-1 rounded-3"></p>
                 </div>
-                <div class="col-md-4 fw-bold border border-1 rounded-3">
+                <div class="col-md-6 fw-bold border border-1 rounded-3">
                     <ul class="list-unstyled">
                         <strong>Register Details</strong>
                         <li class="d-flex justify-content-between"><span>User name </span> :
-                            <span>{{reportData?.sub_total}}</span>
+                            <span>{{reportData?.register_details?.user_name}}</span>
                         </li>
                         <li class="d-flex justify-content-between"><span>Closing Time </span> :
-                            <span>{{reportData?.discount}}</span>
+                            <span>{{reportData?.register_details?.closing_time}}</span>
                         </li>
                         <li class="d-flex justify-content-between"><span>Branch Name </span> :
-                            <span>{{reportData?.tax}}</span>
+                            <span>{{reportData?.register_details?.branch_name}}</span>
                         </li>
                     </ul>
                 </div>
