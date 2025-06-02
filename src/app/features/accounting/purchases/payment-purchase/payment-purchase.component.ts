@@ -18,8 +18,10 @@ export class PaymentPurchaseComponent implements OnInit{
   products: any = [];
   manualGoldPrice:any = 0;
   paymentForm!: FormGroup;
+  ttbs:any = []
+  branches:any =[]
   paymentTypeOptions:any = [
-    {id:'Tag NO' , name:'Tag NO'},
+    {id:'Tag No' , name:'Tag NO'},
     {id:'TTB' , name:'TTB'},
     {id:'Amount' , name:'Amount'},
     {id:'Scrap' , name:'Scrap'},
@@ -47,8 +49,14 @@ export class PaymentPurchaseComponent implements OnInit{
   this._dropdownService.getProducts().subscribe(res=>{
     this.products = res?.results;
   });
+  this._dropdownService.getTTBs().subscribe(res=>{
+    this.products = res?.results;
+  });
+  this._dropdownService.getBranches().subscribe(res=>{
+    this.branches = res?.results;
+  });
   this._dropdownService.getPaymentMethods().subscribe(res=>{
-    this.paymentMethod = res;
+    this.paymentMethod = res?.results;
   });
   this._accService.getGoldPrice(this.paymentData?.branch)?.subscribe(res => {
   this.manualGoldPrice = res?.manual_gold_price;
@@ -74,7 +82,7 @@ updateAmountsBasedOnGoldPrice() {
     const metalRate = baseRate * purityFactor;
     const amount = pureWeight * metalRate;
 
-    group.get('amount')?.setValue(amount.toFixed(3));
+    group.get('amount')?.setValue(amount.toFixed(2));
   });
 }
 patchForm(data: any) {
@@ -102,6 +110,7 @@ initForm(){
       value: [0],
       purity_rate: [0],
       total_weight: [''],
+      branch:[''],
       items: this._formBuilder.array([]),
     });
 }
@@ -158,7 +167,10 @@ createItem(data?: any): FormGroup {
 
   // Calculate pure weight dynamically
   group.get('weight')?.valueChanges.subscribe(() => this.calculatePureWeight(group));
-  group.get('value')?.valueChanges.subscribe(() => this.calculatePureWeight(group));
+  group.get('value')?.valueChanges.subscribe((res) => {this.calculatePureWeight(group)
+console.log(res);
+
+  });
   group.get('purity_rate')?.valueChanges.subscribe(() => this.calculatePureWeight(group));
 
   // Attach value logic when type changes
@@ -185,27 +197,27 @@ updateSingleAmount(group: FormGroup) {
   const pureWeight = parseFloat(group.get('pure_weight')?.value) || 0;
 
   let purityFactor = 1;
-  if (purity === 22 || purity === '22k') {
+  if (purity === 22 || purity === '22k' || purity === '22K') {
     purityFactor = 0.916;
-  } else if (purity === 21 || purity === '21k') {
+  } else if (purity === 21 || purity === '21k' || purity === '21K') {
     purityFactor = 0.88;
-  } else if (purity === 18 || purity === '18k') {
+  } else if (purity === 18 || purity === '18k' || purity === '18K') {
     purityFactor = 0.75;
   }
 
   const metalRate = baseRate * purityFactor;
   const amount = pureWeight * metalRate;
 
-  group.get('amount')?.setValue(amount.toFixed(3), { emitEvent: false });
+  group.get('amount')?.setValue(amount.toFixed(2), { emitEvent: false });
 }
 attachValueListener(group: FormGroup, type: string): void {
-  const valueControl = group.get('value');
+  const valueControl = group.get('value');  
 
   // Remove previous listener by resetting (will only trigger one-time setup here)
   valueControl?.valueChanges?.pipe(take(1)).subscribe((selectedId: number) => {
     let selectedItem: any;
 
-    if (type === 'Tag NO') {
+    if (type === 'Tag No') {
       selectedItem = this.products.find((p: { id: number; }) => p.id === selectedId);
       group.patchValue({
         product_id: selectedItem?.id || 0,
@@ -213,6 +225,15 @@ attachValueListener(group: FormGroup, type: string): void {
         purity_rate: selectedItem?.purity_value || 0,
         purity: selectedItem?.purity || 0
       });
+    }
+    else if (type === 'TTB') {
+      selectedItem = this.ttbs.find((p: { id: number; }) => p.id === selectedId);
+      group.patchValue({
+        product_id: selectedItem?.id || 0,
+        weight: selectedItem?.gross_weight || '0',
+        purity_rate: selectedItem?.purity_value || 0,
+        purity: selectedItem?.purity || 0
+      })
     } else if (type === 'Scrap') {
       selectedItem = this.scrap.find((s: { id: number; }) => s.id === selectedId);
       group.patchValue({
@@ -235,7 +256,7 @@ calculatePureWeight(group: FormGroup) {
   const purityRate = parseFloat(group.get('purity_rate')!.value) || 0;
 
   const pureWeight = weight * purityRate;
-  group.get('pure_weight')!.setValue(pureWeight.toFixed(3), { emitEvent: false });
+  group.get('pure_weight')!.setValue(pureWeight.toFixed(2), { emitEvent: false });
 }
 addItem(data?: any) {
   this.items.push(this.createItem(data));
@@ -263,18 +284,19 @@ submit() {
     this.paymentForm.markAllAsTouched();
     return;
   }
-
+  
   const formValue = this.paymentForm.value;
-  const formattedDate = new Date(formValue.payment_date).toISOString().slice(0, 10);
+    const formattedDate = new Date(formValue.payment_date).toISOString().slice(0, 10);
 
   const payload = {
     purchase_order: this.paymentData?.id,
     payment_date: formattedDate,
-    total_amount: this.totalAmount.toString(),
-    total_weight: this.totalWeight.toString(),
+    branch: formValue.branch,
+   // total_amount: this.totalAmount.toString(),
+  //  total_weight: this.totalWeight.toString(),
     items: formValue.items.map((item: any) => {
       const base = {
-        purchase_payment: item.purchase_payment,
+        //purchase_payment: item.purchase_payment,
         type: item.type,
         is_fixed: item.type === 'Amount',
         amount: item.amount.toString(),
@@ -283,17 +305,35 @@ submit() {
         pure_weight: item.pure_weight.toString(),
         weight: item.weight.toString(),
       };
+      const scrapBase = {
+        //purchase_payment: item.purchase_payment,
+        type: item.type,
+        is_fixed: item.type === 'Amount',
+       // amount: item.amount.toString(),
+        description: item.description,
+        quantity: item.quantity,
+        pure_weight: (item.pure_weight - (item.pure_weight * 1/100)).toString() ,
+        weight: item.weight.toString(),
+      };
+
+
+      if(item?.type ==='Scrap'){
+        return {
+          ...scrapBase,
+          product_id: item.value
+        };
+      }
 
       // Conditionally include product_id or payment_method
-      if (item.type === 'Tag NO' || item.type === 'Scrap') {
+      if (item.type === 'Tag No' || item.type === 'Scrap') {
         return {
           ...base,
-          product_id: item.product_id
+          product_id: item.value
         };
       } else if (item.type === 'Amount') {
         return {
           ...base,
-          payment_method: item.payment_method
+          payment_method: item.value
         };
       } else {
         // For other types like TTB
@@ -301,6 +341,7 @@ submit() {
           ...base
         };
       }
+      
     })
   };
 

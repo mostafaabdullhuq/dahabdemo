@@ -32,7 +32,11 @@ export class AddEditPurchaseComponent implements OnInit{
 purchases: any[] = [];
 payments: any[] = [];
 paymentMethods:any = [];
-
+status:any = [
+  {id:'pending', name:'pending'},
+  {id:'completed', name:'completed'},
+  {id:'cancelled', name:'canceled'}
+]
 manualGoldPrice:any = 0
 
   nextPageUrl: string | null = null;
@@ -46,7 +50,7 @@ selectedPurityValue: number = 1;
     private _dropdownService: DropdownsService,
     private _activeRoute: ActivatedRoute
   ) { }
-decimalInputs = 3;
+decimalInputs = 2;
   ngOnInit(): void {
     const productId = this._activeRoute.snapshot.paramMap.get('id');
     if (productId)
@@ -69,8 +73,8 @@ decimalInputs = 3;
     this._dropdownService.getCountries().subscribe(data => {
       this.countries = data?.results;
     });
-    this._accService.getExpenseCategories().subscribe(data=>{
-      this.categories = data;
+    this._dropdownService.getCategories().subscribe(data=>{
+      this.categories = data?.results;
     })
     this._dropdownService.getPurities().subscribe(data => {
       this.purities = data?.results;
@@ -115,12 +119,16 @@ decimalInputs = 3;
         tax: taxRate?.tax_rate
       });
 
-      this.updateMetalRate();     // uses gold price & purity
+      this.updateMetalRate(); // uses gold price & purity
       this.calculateMetalValue();
       this.calculateTax();
       this.calculateGrossWeight();
       this.calculateLineTotal();
     });
+
+    this._accService.getBranchPaymentMethods(branchId).subscribe(res=>{
+      this.paymentMethods = res
+    })
   });
 this.addEditExpenseForm.get('purity')?.valueChanges.subscribe(purityId => {
   const selectedPurity = this.purities.find(p => p.id === purityId);
@@ -142,9 +150,11 @@ this.addEditExpenseForm.get('purity')?.valueChanges.subscribe(purityId => {
 
   this.addEditExpenseForm.get('making_charge')?.valueChanges.subscribe(() => {
     this.calculateLineTotal();
+    this.calculateTax();
   });
   const stones = this.addEditExpenseForm.get('stones') as FormArray;
 stones.valueChanges.subscribe(() => {
+    this.calculateTax();
   this.watchStoneControls(); // Keep updating as stones are added
 });
   }
@@ -164,16 +174,19 @@ calculateMetalValue() {
 calculateTax(): void {
   const metalValue = Number(this.addEditExpenseForm.get('metal_value')?.value) || 0;
   const taxRate = Number(this.addEditExpenseForm.get('tax')?.value) || 0;
+  const makingCharge = Number(this.addEditExpenseForm.get('making_charge')?.value) || 0;
 
   const stones = this.addEditExpenseForm.get('stones') as FormArray;
-  const stonesRetailTotal = stones.controls.reduce((total, stone) => {
-    const retailValue = Number(stone.get('retail_value')?.value) || 0;
-    return total + retailValue;
+  const stonesValueTotal = stones.controls.reduce((total, stone) => {
+    const value = Number(stone.get('value')?.value) || 0;
+    return total + value;
   }, 0);
 
-  const taxAmount = ((taxRate) * metalValue) + stonesRetailTotal;
+  const subtotal = metalValue + makingCharge + stonesValueTotal;
+  const taxAmount = subtotal //* taxRate;
+
   this.addEditExpenseForm.patchValue({
-    tax_amount: Number(taxAmount.toFixed(this.decimalInputs))
+    tax_amount: +taxAmount.toFixed(this.decimalInputs)
   });
 }
 private subscribedStones = new WeakSet<AbstractControl>();
@@ -497,30 +510,22 @@ removePayment(index: number) {
 
 //   return +goldPrice.toFixed(this.decimalPlaces);
 // }
-private toFormData(obj: any, form?: FormData, namespace?: string): FormData {
-  const fd = form || new FormData();
+toFormData(payload: any): FormData {
+  const formData = new FormData();
 
-  for (const propertyName in obj) {
-    if (!obj.hasOwnProperty(propertyName) || obj[propertyName] === undefined || obj[propertyName] === null) {
-      continue;
-    }
-
-    const formKey = namespace ? `${namespace}[${propertyName}]` : propertyName;
-    const value = obj[propertyName];
-
-    if (value instanceof Date) {
-      fd.append(formKey, value.toISOString());
-    } else if (typeof value === 'object' && !(value instanceof File)) {
-      // If it's an object or array, recursively call toFormData
-      this.toFormData(value, fd, formKey);
-    } else {
-      // Append primitive or file
-      fd.append(formKey, value);
+  for (const key in payload) {
+    if (payload.hasOwnProperty(key)) {
+      if (key === 'attachment' && payload[key]) {
+        formData.append(key, payload[key]); // assuming it's a File
+      } else {
+        formData.append(key, payload[key]);
+      }
     }
   }
 
-  return fd;
+  return formData;
 }
+
 onSubmit(): void {
   if (this.addEditExpenseForm.invalid) {
     this.addEditExpenseForm.markAllAsTouched();
@@ -528,69 +533,67 @@ onSubmit(): void {
   }
 
   const formValue = this.addEditExpenseForm.value;
-
-  const payload = {
+  
+  const formattedDate = new Date(formValue.expected_delivery_date).toISOString().slice(0, 10);
+  const formattedPaymentDate = new Date(formValue.payment_date).toISOString().slice(0, 10);
+  const items = this.purchases.map(item => ({
+    quantity: 1,
+    line_total_amount: item.line_total_amount,
+    product: {
+      name: item.tag_number,
+      making_charge: item.making_charge,
+      retail_making_charge: item.retail_making_charge,
+      weight: item.metal_weight,
+      branch: formValue.branch,
+      branch_id: formValue.branch,
+      id: item.product_id || 0,
+      country: item.country,
+      purity_name: item.purity,
+      gross_weight: item.gross_weight,
+      category: item.category,
+      size: item.size,
+      designer: item.designer,
+      color: item.color,
+      is_active: true,
+      stones: this.stonesArray.value.map((stone: any) => ({
+        stone_id: stone.stone,
+        stone_name: stone.stone,
+        value: stone.value,
+        weight: stone.weight,
+        retail_value: stone.retail_value
+      }))
+    }
+  }));
+const payments = {
+  items: formValue.payments,
+  payment_date: formattedPaymentDate
+};
+ const totalAmount = this.purchases.reduce((sum, item) => sum + Number(item.line_total_amount || 0), 0);
+  const totalWeight = this.purchases.reduce((sum, item) => sum + Number(item.gross_weight || 0), 0);
+  const payload: any = {
     supplier_name: formValue.supplier,
-    expected_delivery_date: formValue.expected_delivery_date,
+    expected_delivery_date: formattedDate,
     branch_name: formValue.branch,
     branch: formValue.branch,
     supplier: formValue.supplier,
     tax_amount: formValue.tax_amount,
-    total_weight: formValue.gross_weight,
+    total_amount:totalAmount,
+    total_weight: totalWeight,
     type: formValue.payment_type,
-    attachment: formValue.attachment,  // you should take from form value
-    items: this.purchases.map(item => ({
-      quantity: 1,
-      line_total_amount: item.line_total_amount,
-      product: {
-        name: item.tag_number,
-        making_charge: item.making_charge,
-        retail_making_charge: item.retail_making_charge,
-        weight: item.metal_weight,
-        branch: formValue.branch,
-        branch_id: formValue.branch,
-        id: item.product_id || 0,
-        country: item.country,
-        purity_name: item.purity,
-        category_name: item.category,
-        size_name: item.size,
-        designer_name: item.designer,
-        color_name: item.color,
-        is_active: true,
-        stones: this.stonesArray.value.map((stone: any) => ({
-          stone_id: stone.stone,
-          stone_name: stone.stone,
-          value: stone.value,
-          weight: stone.weight,
-          retail_value: stone.retail_value
-        }))
-      }
-    }))
+    attachment: formValue.attachment, // file
+    items: JSON.stringify(items) ,
+    payments: JSON.stringify(payments)
   };
 
-  // Convert payload to FormData
   const formDataPayload = this.toFormData(payload);
 
-  console.log('🔹 FormData Payload:', formDataPayload);
+  const request$ = this.productId && this.isEditMode
+    ? this._accService.updatePurchase(this.productId, formDataPayload)
+    : this._accService.addPurchase(formDataPayload);
 
-  if (this.productId && this.isEditMode) {
-    this._accService.updatePurchase(this.productId,formDataPayload).subscribe({
-      next: (res) => {
-        this.addEditExpenseForm.reset();
-      },
-      error: (err) => {
-        console.error(err);
-      }
-    });
-  } else {
-    this._accService.addPurchase(formDataPayload).subscribe({
-      next: (res) => {
-        this.addEditExpenseForm.reset();
-      },
-      error: (err) => {
-        console.error(err);
-      }
-    });
-  }
+  request$.subscribe({
+    next: () => this.addEditExpenseForm.reset(),
+    error: (err) => console.error(err)
+  });
 }
 }

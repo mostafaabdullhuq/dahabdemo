@@ -20,12 +20,16 @@
                                 optionLabel="name" optionValue="id" placeholder="Select branch"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
-                            <app-dropdowns label="payment type" formControlName="payment_type" [options]="[{id:'fixed'},{id:'unfixed'}]"
+                            <app-dropdowns label="purchase type" formControlName="payment_type" [options]="[{id:'fixed'},{id:'unfixed'}]"
                                 optionLabel="id" optionValue="id" placeholder="Select sub Category"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
                             <app-input-date formControlName="expected_delivery_date" inputName="date" placeholder="Enter expected delivery date">
                             </app-input-date>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="status" formControlName="status" [options]="status"
+                                optionLabel="name" optionValue="id" placeholder="Select status"></app-dropdowns>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Attachment <sup class="text-danger">*</sup> </label>

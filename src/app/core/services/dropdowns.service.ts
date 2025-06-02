@@ -91,6 +91,10 @@ export class DropdownsService {
     const url = `${this.API}product/?${params ?? param}`;
     return this._http.getRequest<any>(url);
   }
+  getTTBs(nextPageUrl: string | null = null, params?: string): Observable<any> {
+    const url = nextPageUrl || `${this.API}purchases/payment/ttb/`;
+    return this._http.getRequest<any>(url);
+  }
   getCustomersGroup(nextPageUrl: string | null = null, params?: string): Observable<any> {
     const url = nextPageUrl || `${this.API}customer/groups/?${params}`;
     return this._http.getRequest<any>(url);

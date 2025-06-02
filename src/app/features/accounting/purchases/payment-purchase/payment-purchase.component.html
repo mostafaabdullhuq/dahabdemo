@@ -64,6 +64,10 @@
                         placeholder="Enter payment date">
                     </app-input-date>
                 </div>
+                <div class="col-md-6">
+                    <app-dropdowns label="branch" formControlName="branch" [options]="branches"
+                                optionLabel="name" optionValue="id" placeholder="Select branch"></app-dropdowns>
+                </div>
             </div>
         </div>
         <table class="table" formArrayName="items">
@@ -90,9 +94,11 @@
                     <td>
                         <ng-container [ngSwitch]="item.get('type')?.value">
                             <!-- Tag NO -->
-                            <app-dropdowns *ngSwitchCase="'Tag NO'" formControlName="value" [options]="products"
+                            <app-dropdowns *ngSwitchCase="'Tag No'" formControlName="value" [options]="products"
                                 optionLabel="name" optionValue="id" placeholder="Select Product"></app-dropdowns>
-
+                                <!-- TTB -->
+                            <app-dropdowns *ngSwitchCase="'TTB'" formControlName="value" [options]="ttbs"
+                                optionLabel="name" optionValue="id" placeholder="Select TTB"></app-dropdowns>
                             <!-- Scrap -->
                             <app-dropdowns *ngSwitchCase="'Scrap'" formControlName="value" [options]="scrap"
                                 optionLabel="name" optionValue="id" placeholder="Select Scrap"></app-dropdowns>
