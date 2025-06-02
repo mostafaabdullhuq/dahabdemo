@@ -24,6 +24,7 @@ import { DialogModule } from 'primeng/dialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TreeModule } from 'primeng/tree';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { ChartModule } from 'primeng/chart';
 
 // Components
 import { InputTextComponent } from './components/input-text/input-text.component';
@@ -69,7 +70,8 @@ const primeNgModules = [
   DialogModule,
 TreeModule,
   SplitButtonModule,
-  ToggleSwitchModule
+  ToggleSwitchModule,
+  ChartModule
 ]
 
 @NgModule({
