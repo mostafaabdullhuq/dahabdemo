@@ -70,14 +70,16 @@ salesDataOrders:any =[];
         currency: savedCurrency ? Number(savedCurrency) : ''
       });
     }
-    this._posStatusService.shiftData$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
-        this.shiftData = data;
-        if (this.shiftData?.is_active) {
-          this.getCurrencies();
-        }
-      });
+    this._posStatusService.checkShiftStatus(); // Trigger refresh
+
+  this._posStatusService.shiftData$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(data => {
+      this.shiftData = data;
+      if (this.shiftData?.is_active) {
+        this.getCurrencies();
+      }
+    });
     this._posService.getPaymentMethods().subscribe(res => {
       this.paymnetMethods = res
     })
@@ -228,6 +230,7 @@ onPlaceOrder() {
         next: res => {
           this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''))
             this.openOrderInvoice();
+            
         }
       });
     }
