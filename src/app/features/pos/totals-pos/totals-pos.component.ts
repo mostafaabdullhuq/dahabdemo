@@ -11,6 +11,12 @@ import { SalesPosComponent } from '../sales-pos/sales-pos.component';
 import { PaymentMethodsPopupComponent } from './payment-methods-popup/payment-methods-popup.component';
 import { PosSalesService } from '../@services/pos-sales.service';
 import { PlaceOrderInvoiceComponent } from '../place-order-invoice/place-order-invoice.component';
+import { PosPurchaseService } from '../@services/pos-purchase.service';
+import { PosRepairService } from '../@services/pos-repair.service';
+import { PosSilverService } from '../@services/pos-silver.service';
+import { PosDiamondService } from '../@services/pos-diamond.service';
+import { PosGoldReceiptService } from '../@services/pos-gold-receipt.service';
+import { PosReturnsService } from '../@services/pos-returns.service';
 
 @Component({
   selector: 'app-totals-pos',
@@ -40,6 +46,12 @@ salesDataOrders:any =[];
     private _posService: PosService,
     private _posStatusService: PosStatusService,
     private _posSalesService: PosSalesService,
+    private _posPurchaseService: PosPurchaseService,
+    private _posRepairService: PosRepairService,
+    private _posReturnService: PosReturnsService,
+    private _posSilverService: PosSilverService,
+    private _posDiamondService: PosDiamondService,
+    private _posGoldService: PosGoldReceiptService,
     private _posSharedService: PosSharedService) {
 
   }
@@ -230,7 +242,13 @@ onPlaceOrder() {
         next: res => {
           this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''))
             this.openOrderInvoice();
-            
+            this._posSalesService.getSalesOrdersFromServer();
+            this._posDiamondService.fetchDiamondOrders();
+            this._posSilverService.fetchSilverOrders();
+            this._posPurchaseService.fetchPurchaseProducts();
+            this._posGoldService.fetchGoldReceiptProducts();
+            this._posRepairService.fetchRepairProducts();
+            this._posReturnService.fetchReturnOrders();
         }
       });
     }

@@ -194,7 +194,8 @@ this._posStatusService.shiftData$
 totalAmount(): number {
   return this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
     const amount = parseFloat(group.amount) || 0;
-  //  this._posSharedService.setRepairTotalPrice(sum + amount)
+    console.log(sum + amount);
+  // this._posSharedService.setRepairTotalPrice(sum + amount)
   //  console.log(sum + amount );
     return sum + amount;
   }, 0);

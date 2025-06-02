@@ -11,7 +11,7 @@
                     </app-dropdowns>
                 </div>
                 <div class="col-md-12">
-                    <app-dropdowns [disabled]="salesDataOrders?.length > 0 && selectedCurrency" [required]="true" label="Currencies" formControlName="currency" [options]="currencies"
+                    <app-dropdowns [disabled]="selectedCurrency" [required]="true" label="Currencies" formControlName="currency" [options]="currencies"
                         optionLabel="currency_name" optionValue="currency" placeholder="Select a currency">
                     </app-dropdowns>
                 </div>

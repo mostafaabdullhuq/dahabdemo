@@ -54,8 +54,8 @@
 
             </div>
         </div>
-
-        @if (invoiceData?.products?.sale != []) {
+        @if (invoiceData?.products?.sale.length > 0) {
+        <h6 class="py-2">Sales</h6>
         <table class="table table-bordered align-middle text-sm">
             <thead class="table-light">
                 <tr>
@@ -89,7 +89,9 @@
         </table>
         }
         
-        @if (invoiceData?.products?.gold_receipt != []) {
+        @if (invoiceData?.products?.gold_receipt.length > 0) {
+        <h6 class="py-2">Gold receipt</h6>
+
         <table class="table table-bordered align-middle text-sm">
             <thead class="table-light">
                 <tr>
@@ -123,7 +125,8 @@
         </table>
         }
         
-        @if (invoiceData?.products?.return != []) {
+        @if (invoiceData?.products?.return.length > 0) {
+        <h6 class="py-2">Returns</h6>
         <table class="table table-bordered align-middle text-sm">
             <thead class="table-light">
                 <tr>
@@ -157,7 +160,9 @@
         </table>
         }
 
-        @if (invoiceData?.products?.repair != []) {
+        @if (invoiceData?.products?.repair.length > 0) {
+        <h6 class="py-2">Repair</h6>
+
         <table class="table table-bordered align-middle text-sm">
             <thead class="table-light">
                 <tr>
@@ -191,7 +196,9 @@
         </table>
         }
         
-        @if (invoiceData?.products?.purchase != []) {
+        @if (invoiceData?.products?.purchase.length > 0) {
+        <h6 class="py-2">Purchase old gold</h6>
+
         <table class="table table-bordered align-middle text-sm">
             <thead class="table-light">
                 <tr>
