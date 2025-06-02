@@ -290,10 +290,9 @@ onVatChange(vatId: number, group: any): void {
  onProductSelected(productId: number): void {
  const selectedProduct = this.products.find((p: any) => p.id === productId);
   if (!selectedProduct) return;
-
-  console.log('[DEBUG] Raw Selected Product:', selectedProduct);
-
-  const tempGroup = {
+this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
+        const branchTaxNo = res?.tax_rate || 0;
+          const tempGroup = {
     purity: selectedProduct.purity_name,
     price: selectedProduct.price,
     purity_value: selectedProduct.purity_value,
@@ -315,11 +314,11 @@ onVatChange(vatId: number, group: any): void {
     totalPrice,
     totalWithVat
   });
-console.log(tempGroup);
 
   const payload = {
     product: selectedProduct.id,
-    amount: totalPrice
+    amount: totalPrice,
+    vat_amount:branchTaxNo
   };
 
   console.log('[DEBUG] Payload to send:', payload);
@@ -331,6 +330,7 @@ console.log(tempGroup);
       console.error('Error posting product', err);
     }
   });
+      });
 }
 
   get totalPrice(): number {
