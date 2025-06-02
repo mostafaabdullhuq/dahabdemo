@@ -55,9 +55,9 @@
                                     <td>{{ group.stones[1]?.retail_value }}</td>
                                     <td>{{ group.stones[2]?.retail_value }}</td>
                                     <td>
-                                        <app-dropdowns [options]="taxes" optionLabel="rate" optionValue="id"
+                                       <app-dropdowns [options]="taxes" optionLabel="rate" optionValue="id"
                                             placeholder="Select Vat" [(ngModel)]="selectedVatId"
-                                            >
+                                            (selectionChange)="onVatChange($event, group)">
                                         </app-dropdowns>
                                     </td>
                                     <!-- (selectionChange)="onVatChange($event, group)" -->

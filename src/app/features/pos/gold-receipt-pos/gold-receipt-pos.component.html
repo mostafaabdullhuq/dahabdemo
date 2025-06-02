@@ -11,9 +11,9 @@
                             optionLabel="name" optionValue="id"
                             placeholder="Select a purity"></app-dropdowns>
                     </div>
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <app-input-text formControlName="price" placeholder="price" type="number" inputName="price"></app-input-text>
-                    </div>
+                    </div> -->
                     <div class="col-md-6">
                         <app-input-text formControlName="description" placeholder="description" type="text" inputName="description"></app-input-text>
                     </div>
@@ -24,11 +24,14 @@
                         <app-input-text formControlName="amount" placeholder="amount" type="number" inputName="amount"></app-input-text>
                     </div>
                     <div class="col-md-6">
+                        <app-input-text formControlName="amount_with_tax" placeholder="amount with tax" type="number" inputName="amount with tax"></app-input-text>
+                    </div>
+                    <div class="col-md-6">
                             <label class="form-label"> Attachment <sup class="text-danger">*</sup> </label>
                             <app-upload-input formControlName="attachment" label="Upload Image"></app-upload-input>
                     </div>
                     <div class="btns-group">
-                <button [disabled]="selectedCurrency && isShiftActive" type="submit" class="my-4 submit-btn">
+                <button  type="submit" class="my-4 submit-btn">
                     Add</button>
             </div>
                 </div>
@@ -54,6 +57,7 @@
                                 <th>Purity</th>
                                 <th>Description</th>
                                 <td>Price</td>
+                                <th>Actions</th>
 
                             </ng-template>
 
@@ -63,7 +67,11 @@
                                 <td>{{ group.purity_name }}</td>
                                 <td>{{ group.description }}</td>
                                 <td>{{group.amount}}</td>
-
+<td>
+                                    <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'"
+                                        [model]="menuItem" dropdownIcon="pi pi-cog" appendTo="body">
+                                    </p-splitbutton>
+                                </td>
                             </ng-template>
                         </app-input-table>
                         <div class="d-flex justify-content-end w-100">

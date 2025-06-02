@@ -36,7 +36,27 @@ export class SilverComponent implements OnInit, OnDestroy {
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
   ) { }
 
+onVatChange(vatId: number, group: any): void {
+  group.selectedVat = vatId;
 
+  const vat = this.taxes.find((t: { id: number }) => t.id === vatId);
+  const vatRate = vat?.rate || 0;
+
+  // Patch VAT rate into the form
+  this.productForm.get('vat')?.patchValue(vatRate);
+
+  // Track if it's the first or second+ selection
+  if (!group._vatSelectedOnce) {
+    group._vatSelectedOnce = true; // first time, don't send
+  } else {
+    // second time or more, send to backend
+    const pId = group?.id;
+    const form = this._formBuilder.group({
+      vat_amount: [vatRate]
+    });
+    this._posService.setDiscountProductSale(pId, form.value).subscribe();
+  }
+}
   ngOnInit(): void {
     this.productForm = this._formBuilder.group({
       product_id: ['', Validators.required]

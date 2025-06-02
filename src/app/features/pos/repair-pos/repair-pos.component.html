@@ -11,9 +11,9 @@
                             optionLabel="name" optionValue="id"
                             placeholder="Select a purity"></app-dropdowns>
                     </div>
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <app-input-text formControlName="price" placeholder="price" type="number" inputName="price"></app-input-text>
-                    </div>
+                    </div> -->
                     <div class="col-md-6">
                         <app-input-text formControlName="description" placeholder="description" type="text" inputName="description"></app-input-text>
                     </div>
@@ -22,6 +22,9 @@
                     </div>
                     <div class="col-md-6">
                         <app-input-text formControlName="amount" placeholder="amount" type="number" inputName="amount"></app-input-text>
+                    </div>
+                    <div class="col-md-6">
+                        <app-input-text [disabled]="true" formControlName="amount_with_tax" placeholder="amount with tax" type="number" inputName="amount with tax"></app-input-text>
                     </div>
                     <div class="col-md-6">
                             <label class="form-label"> Attachment <sup class="text-danger">*</sup> </label>

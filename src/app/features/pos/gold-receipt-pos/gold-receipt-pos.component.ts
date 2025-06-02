@@ -3,13 +3,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PosService } from '../@services/pos.service';
 import { PosSalesService } from '../@services/pos-sales.service';
-import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
+import { combineLatest, distinctUntilChanged, filter, startWith, Subject, takeUntil } from 'rxjs';
 import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { PosReturnsService } from '../@services/pos-returns.service';
 import { PosPurchaseService } from '../@services/pos-purchase.service';
 import { PosRepairService } from '../@services/pos-repair.service';
 import { PosGoldReceiptService } from '../@services/pos-gold-receipt.service';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-gold-receipt-pos',
@@ -30,11 +31,14 @@ export class GoldReceiptPosComponent implements OnInit, OnDestroy {
   selectedCurrency: any = ''
   private destroy$ = new Subject<void>();
   defualtVat = 0;
-  shiftData: any = []
+  shiftData: any = [];
+      menuItem: MenuItem[] = [];
+  
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
     , private _posGoldReceiptService: PosGoldReceiptService
   ) { }
+  isShiftActive:boolean = false;
 
   ngOnInit(): void {
     const customerID = sessionStorage.getItem('customer')
@@ -42,8 +46,9 @@ export class GoldReceiptPosComponent implements OnInit, OnDestroy {
       customer: [customerID],
       weight: ['', Validators.required],
       amount: ['', Validators.required],
-      price: ['', Validators.required],
+      price: [''],
       purity: [''],
+      amount_with_tax: [{ value: 0, disabled: true }],
       description: [''],
       attachment: [''],
       tax: [''],
@@ -53,24 +58,35 @@ export class GoldReceiptPosComponent implements OnInit, OnDestroy {
       this.purities = res?.results;
     });
     this.getPurchaseOrders()
-    this._posStatusService.shiftData$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
-        this.shiftData = data;
-        if (this.shiftData && this.shiftData?.is_active) {
-          this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
-            this.manualGoldPrice = res?.manual_gold_price;
-          });
-        }
+this._posStatusService.shiftData$
+  .pipe(takeUntil(this.destroy$))
+  .subscribe(data => {
+    this.shiftData = data;
+
+    if (this.shiftData?.is_active) {
+      this._posService.getGoldPrice(this.shiftData.branch).subscribe(res => {
+        this.manualGoldPrice = res?.manual_gold_price;
       });
+
+      this._posService.getBranchTax(this.shiftData.branch).subscribe(res => {
+        const taxRate = res?.tax_rate || 0;
+        this.productForm.get('tax')?.patchValue(taxRate);
+
+        // 🔁 Set up dynamic calculation
+        this.listenToAmountAndTax();
+      });
+    }
+  });
 
     this._posSharedService.selectedCurrency$
       .subscribe(currency => {
         if (currency) {
           this.selectedCurrency = currency;
         } else {
-          this.selectedCurrency = null;
+          this.selectedCurrency = sessionStorage.getItem('currency') ?? null;
         }
+        console.log(this.selectedCurrency);
+        
       });
 
     this.productForm.get('product_id')?.valueChanges
@@ -88,8 +104,17 @@ export class GoldReceiptPosComponent implements OnInit, OnDestroy {
       .subscribe(status => {
         this.isShiftActive = status;
       });
+        this.menuItem = [
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => {
+          this.removeItem(this.selectedRowData?.id);
+        }
+      }
+    ];
+      
   }
-  isShiftActive:boolean = false;
   getPurchaseOrders() {
     this._posGoldReceiptService.goldReceiptProducts$.subscribe(res => {
       this.purchaseTableData = res;
@@ -115,6 +140,31 @@ export class GoldReceiptPosComponent implements OnInit, OnDestroy {
         }
       });
   }
+  selectedRowData:any
+      onRowClick(rowData: any): void {
+    this.selectedRowData = rowData;
+  }
+        removeItem(id: any) {
+    this._posService.deleteProductPos(id).subscribe({
+      next: res => {
+        this._posGoldReceiptService.fetchGoldReceiptProducts();
+      },
+    })
+  }
+  private listenToAmountAndTax(): void {
+  combineLatest([
+    this.productForm.get('amount')!.valueChanges.pipe(startWith(this.productForm.get('amount')?.value || 0)),
+    this.productForm.get('tax')!.valueChanges.pipe(startWith(this.productForm.get('tax')?.value || 0)),
+  ])
+  .pipe(takeUntil(this.destroy$))
+  .subscribe(([amount, taxRate]) => {
+    const numericAmount = +amount || 0;
+    const numericTax = +taxRate || 0;
+    const amountWithTax = numericAmount + (numericAmount * numericTax / 100);
+
+    this.productForm.get('amount_with_tax')?.patchValue(amountWithTax.toFixed(2), { emitEvent: false });
+  });
+}
   totalAmount(): number {
   return this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
     const amount = parseFloat(group.amount) || 0;
@@ -151,7 +201,7 @@ updateGoldReceiptTotals(): void {
     formData.append('weight', formValue.weight);
     formData.append('customer', formValue.customer);
     formData.append('amount', formValue.amount);
-    formData.append('price', formValue.price);
+    formData.append('price', formValue.amount);
     formData.append('purity', formValue.purity ?? '');
     formData.append('description', formValue.description ?? '');
     formData.append('tax', formValue.tax ?? '');

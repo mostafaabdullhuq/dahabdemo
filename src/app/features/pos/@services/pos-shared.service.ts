@@ -60,33 +60,67 @@ export class PosSharedService {
 
   constructor() {
     // Grand total (including repair)
-    combineLatest([
-      this.salesTotalGrand$,
-      this.purchaseTotalGrand$,
-      this.repairTotalGrand$,
-      this.goldReceiptTotalGrand$,
-      this.returnTotalGrand$,
-      this.silverTotalGrand$,
-      this.diamondTotalGrand$,
-    ]).subscribe(([diamondTotalGrand,silverTotalGrand, salesTotal, purchaseTotal, repairTotal ,goldReceiptTotalGrand ,returnTotalGrand]) => {
-      const grandTotal = (salesTotal + repairTotal + goldReceiptTotalGrand + silverTotalGrand + diamondTotalGrand) - purchaseTotal - returnTotalGrand;
-      this.grandTotalWithVatSubject.next(grandTotal);
-    });
+    // combineLatest([
+    //   this.salesTotalGrand$,
+    //   this.purchaseTotalGrand$,
+    //   this.repairTotalGrand$,
+    //   this.goldReceiptTotalGrand$,
+    //   this.returnTotalGrand$,
+    //   this.silverTotalGrand$,
+    //   this.diamondTotalGrand$,
+    // ]).subscribe(([diamondTotalGrand,silverTotalGrand, salesTotal, purchaseTotal, repairTotal ,goldReceiptTotalGrand ,returnTotalGrand]) => {
+    //   const grandTotal = (salesTotal + repairTotal + goldReceiptTotalGrand + silverTotalGrand + diamondTotalGrand) - purchaseTotal - returnTotalGrand;
+    //   this.grandTotalWithVatSubject.next(grandTotal);
+    // });
+combineLatest([
+  this.salesTotalGrand$,
+  this.purchaseTotalGrand$,
+  this.repairTotalGrand$,
+  this.goldReceiptTotalGrand$,
+  this.returnTotalGrand$,
+  this.silverTotalGrand$,
+  this.diamondTotalGrand$,
+]).subscribe(([sales, purchase, repair, goldReceipt, ret, silver, diamond]) => {
+  const positiveTotal = sales + repair + goldReceipt + silver + diamond;
+  let grandTotal = positiveTotal - purchase - ret;
 
+  if (positiveTotal === 0 && (purchase > 0 || ret > 0)) {
+    grandTotal = -Math.abs(purchase + ret); // Only return or purchase exists
+  }
+
+  this.grandTotalWithVatSubject.next(+grandTotal.toFixed(3));
+});
     // Total price (including repair)
-    combineLatest([
-      this.salesTotalPrice$,
-      this.purchaseTotalPrice$,
-      this.repairTotalPrice$,
-      this.goldReceiptTotalPrice$,
-      this.returnTotalPrice$,
-      this.silverTotalPrice$,
-      this.diamondTotalPrice$,
-    ]).subscribe(([diamondTotalPrice ,silverTotalPrice , salesTotalPrice, purchaseTotalPrice, repairTotalPrice , goldReceiptTotalPrice ,returnTotalPrice]) => {      
-      const totalPrice = (salesTotalPrice  + repairTotalPrice + goldReceiptTotalPrice + silverTotalPrice + diamondTotalPrice) - purchaseTotalPrice - returnTotalPrice;
-      this.totalPriceSubject.next(+totalPrice.toFixed(3));
-    });
+    // combineLatest([
+    //   this.salesTotalPrice$,
+    //   this.purchaseTotalPrice$,
+    //   this.repairTotalPrice$,
+    //   this.goldReceiptTotalPrice$,
+    //   this.returnTotalPrice$,
+    //   this.silverTotalPrice$,
+    //   this.diamondTotalPrice$,
+    // ]).subscribe(([diamondTotalPrice ,silverTotalPrice , salesTotalPrice, purchaseTotalPrice, repairTotalPrice , goldReceiptTotalPrice ,returnTotalPrice]) => {      
+    //   const totalPrice = (salesTotalPrice  + repairTotalPrice + goldReceiptTotalPrice + silverTotalPrice + diamondTotalPrice) - purchaseTotalPrice - returnTotalPrice;
+    //   this.totalPriceSubject.next(+totalPrice.toFixed(3));
+    // });
+combineLatest([
+  this.salesTotalPrice$,
+  this.purchaseTotalPrice$,
+  this.repairTotalPrice$,
+  this.goldReceiptTotalPrice$,
+  this.returnTotalPrice$,
+  this.silverTotalPrice$,
+  this.diamondTotalPrice$,
+]).subscribe(([sales, purchase, repair, goldReceipt, ret, silver, diamond]) => {
+  const positiveTotal = sales + repair + goldReceipt + silver + diamond;
+  let totalPrice = positiveTotal - purchase - ret;
 
+  if (positiveTotal === 0 && (purchase > 0 || ret > 0)) {
+    totalPrice = -Math.abs(purchase + ret); // Only return or purchase exists
+  }
+
+  this.totalPriceSubject.next(+totalPrice.toFixed(3));
+});
     // Total price (including repair)
     combineLatest([
       this.salesTotalTax$,

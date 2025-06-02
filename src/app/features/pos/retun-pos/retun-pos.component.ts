@@ -28,7 +28,7 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
   selectedCurrency: any = ''
   private destroy$ = new Subject<void>();
   defualtVat = 0;
-  shiftData:any = []
+  shiftData:any = [];
   menuItem: MenuItem[] = [];
   constructor(private _formBuilder: FormBuilder, private _posReturnService: PosReturnsService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
@@ -203,7 +203,7 @@ const totalVat = this.returnDataOrders.reduce((acc: number, group: any) => {
 }, 0);
   // Update shared VAT immediately
   const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-  this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
+  //this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
 
   const totalWithVat = baseTotal + vatAmount;
   return +totalWithVat.toFixed(decimalPlaces);
@@ -212,11 +212,11 @@ calcGrandTotalWithVat(): number {
   if (!this.returnDataOrders || this.returnDataOrders.length === 0) return 0;
 
   const total = this.returnDataOrders.reduce((sum: number, group: any) => {
-    return sum + this.calcTotalPriceWithVat(group);
+   // return sum + this.calcTotalPriceWithVat(group);
   }, 0);
 
   const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    this._posSharedService.setGrandTotalWithVat(+total.toFixed(decimalPlaces));
+  //  this._posSharedService.setGrandTotalWithVat(+total.toFixed(decimalPlaces));
   
   return +total.toFixed(decimalPlaces);
 }
@@ -239,18 +239,38 @@ calcGrandTotalWithVat(): number {
         }
       });
   }
+  // get totalPrice(): number {
+  //   const total = this.returnDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (group.amount || 0), 0) || 0;
+  // //  const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+  //   // const formattedTotal = +total.toFixed(decimalPlaces);
+
+  //   this._posSharedService.setReturnTotalGrand(total)
+  //   this._posSharedService.setReturnTotalPrice(total)
+  //   return total
+  // }
   get totalPrice(): number {
-    const total = this.returnDataOrders.reduce((sum: number, group: any) => {
-      return sum + this.calcTotalPrice(group);
-    }, 0);
+  const totalWithVat = this.returnDataOrders?.reduce(
+    (sum: any, item: { amount: any; }) => sum + (item.amount || 0),
+    0
+  ) || 0;
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
-    const formattedTotal = +total.toFixed(decimalPlaces);
-    this._posSharedService.setReturnTotalPrice(formattedTotal);
-    this._posSharedService.setReturnTotalGrand(formattedTotal);
+  const totalWithoutVat = this.returnDataOrders?.reduce(
+    (sum: number, item: { amount: number; vat_amount: number; }) => {
+      const amount = item.amount || 0;
+      const vat = item.vat_amount || 0;
+      return sum + (amount - vat);
+    },
+    0
+  ) || 0;
+//  const decimalPlaces:number = this.selectedCurrency?.currency_decimal_point ?? 3;
+  // Set grand total (includes VAT)
+  this._posSharedService.setReturnTotalGrand(+totalWithVat);
 
-    return formattedTotal;
-  }
+  // Set net total (excludes VAT)
+  this._posSharedService.setReturnTotalPrice(+totalWithoutVat);
+
+  return totalWithoutVat;
+}
     selectedRowData: any = [];
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;

@@ -60,4 +60,8 @@ export class PosService {
   getShiftReport(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/shift-report/`);
   }
+
+  getBranchTax(id:any): Observable<any>{
+    return this._http.getRequest(`${environment.api_url}branch/tax/${id}/`)
+  }
 }

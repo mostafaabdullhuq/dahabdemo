@@ -15,83 +15,64 @@
             <thead class="table-light">
                 <tr>
                     <th>Payment Method</th>
-                    <th>Sales</th>
-                    <th class="text-end">Return</th>
-                    <th class="text-end">Purchase old gold</th>
-                    <th class="text-end">Repair</th>
-                    <th class="text-end">Gold price</th>
-                    <th class="text-end">Total Payment</th>
+                    <th *ngFor="let type of reportData?.financial_data['Transaction Types']">
+                        {{ type }}
+                    </th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of reportData?.financial_data">
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.tag_number }}</td>
-                    <td class="text-end">{{ item.gross_weight }}</td>
-                    <td class="text-end">{{ item.sub_total }}</td>
-                    <td class="text-end">{{ item.subtotal}}</td>
-                    <td class="text-end">{{ item.subtotal}}</td>
+                <tr *ngFor="let method of reportData?.financial_data['Payment Methods']">
+                    <td>{{ method }}</td>
+                    <td *ngFor="let type of reportData?.financial_data['Transaction Types']" class="text-end">
+                        {{
+                        reportData?.financial_data['Amounts']?.[method]?.[type] !== undefined
+                        ? (reportData.financial_data['Amounts'][method][type] | number:'1.2-2')
+                        : '0.00'
+                        }}
+                    </td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
-                    <th colspan="6" class="text-end"> Total</th>
-                    <th class="text-end">000</th>
+                    <th>Total</th>
+                    <th *ngFor="let type of reportData?.financial_data['Transaction Types']" class="text-end">
+                        {{ getTotalByType(type) | number:'1.2-2' }}
+                    </th>
                 </tr>
             </tfoot>
         </table>
 
-        <h6>transaction details</h6>
-        <table class="table table-bordered align-middle text-sm">
-            <thead class="table-light">
-                <tr>
-                    <th>No. of transactions</th>
-                    <th>Sales</th>
-                    <th class="text-end">Return</th>
-                    <th class="text-end">Purchase old gold</th>
-                    <th class="text-end">Repair</th>
-                    <th class="text-end">Gold price</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of reportData?.sales">
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.tag_number }}</td>
-                    <td class="text-end">{{ item.gross_weight }}</td>
-                    <td class="text-end">{{ item.sub_total }}</td>
-                    <td class="text-end">{{ item.subtotal}}</td>
-                </tr>
-            </tbody>
-        </table>
+        <h6>Transaction Details</h6>
+<table class="table table-bordered align-middle text-sm">
+  <thead class="table-light">
+    <tr>
+      <th *ngFor="let key of getTransactionKeys()">{{ key }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td *ngFor="let key of getTransactionKeys()" class="text-end">
+        {{ reportData?.number_of_transcation[key] }}
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-        <h6>Inventory in / out </h6>
-        <table class="table table-bordered align-middle text-sm">
-            <thead class="table-light">
-                <tr>
-                    <th>No. of transactions</th>
-                    <th>Silver </th>
-                    <th class="text-end">18K</th>
-                    <th class="text-end">22K</th>
-                    <th class="text-end">24K</th>
-                    <th class="text-end">28K</th>
-                    <th class="text-end">Gold Par</th>
-                    <th class="text-end">Diamond</th>
-                    <th class="text-end">Stones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of reportData?.sales">
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.tag_number }}</td>
-                    <td class="text-end">{{ item.gross_weight }}</td>
-                    <td class="text-end">{{ item.sub_total }}</td>
-                    <td class="text-end">{{ item.subtotal}}</td>
-                    <td class="text-end">{{ item.subtotal}}</td>
-                    <td class="text-end">{{ item.subtotal}}</td>
-                    <td class="text-end">{{ item.subtotal}}</td>
-                </tr>
-            </tbody>
-        </table>
+      <h6>Inventory In / Out</h6>
+<table class="table table-bordered align-middle text-sm">
+  <thead class="table-light">
+    <tr>
+      <th>Inventory In</th>
+      <th>Inventory Out</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="text-end">{{ reportData?.inventory_reflection_count?.in_count || 0 }}</td>
+      <td class="text-end">{{ reportData?.inventory_reflection_count?.out_count || 0 }}</td>
+    </tr>
+  </tbody>
+</table>
         <div class="container-fluid">
             <div class="row  justify-content-end totals">
                 <div class="col-md-6">
@@ -103,6 +84,9 @@
                         <strong>Register Details</strong>
                         <li class="d-flex justify-content-between"><span>User name </span> :
                             <span>{{reportData?.register_details?.user_name}}</span>
+                        </li>
+                        <li class="d-flex justify-content-between"><span>Opening cash balance </span> :
+                            <span>{{reportData?.opening_cash_balance}}</span>
                         </li>
                         <li class="d-flex justify-content-between"><span>Closing Time </span> :
                             <span>{{reportData?.register_details?.closing_time}}</span>

@@ -29,7 +29,22 @@ getReportData(){
 this.reportData = res
   })
 }
+getTotalByType(type: string): number {
+  const amounts = this.reportData?.financial_data?.Amounts || {};
+  const paymentMethods = this.reportData?.financial_data?.['Payment Methods'] || [];
 
+  let total = 0;
+  for (const method of paymentMethods) {
+    const val = amounts[method]?.[type];
+    if (val !== undefined) total += val;
+  }
+  return total;
+}
+getTransactionKeys(): string[] {
+  return this.reportData
+    ? Object.keys(this.reportData.number_of_transcation)
+    : [];
+}
 printInvoice() {
   const printContents = document.getElementById('reoprt-section')?.innerHTML;
   const originalContents = document.body.innerHTML;
@@ -40,5 +55,18 @@ printInvoice() {
     document.body.innerHTML = originalContents;
     // window.location.reload(); // reload to restore Angular bindings
   }
+}
+paymentMethods: string[] = [];
+amounts: any = {};
+
+
+// Helper to calculate totals per column
+getTotal(type: string): number {
+  let total = 0;
+  for (const method of this.paymentMethods) {
+    const val = this.amounts[method]?.[type];
+    if (val !== undefined) total += val;
+  }
+  return total;
 }
 }
