@@ -164,7 +164,7 @@ salesDataOrders:any =[];
       .subscribe(currencyValue => {
         sessionStorage.setItem('currency', currencyValue);
         this.selectedCurrency = this.currencies.find(
-          (currency: any) => currency.currency == (currencyValue ?? sessionStorage.getItem('currency'))
+          (currency: any) => currency.pk == (currencyValue ?? sessionStorage.getItem('currency'))
         );
         this._posSharedService.setSelectedCurrency(this.selectedCurrency);
       });
@@ -174,7 +174,7 @@ salesDataOrders:any =[];
     if (initialValue) {
       sessionStorage.setItem('currency', initialValue);
       this.selectedCurrency = this.currencies.find(
-        (currency: any) => currency.currency == initialValue
+        (currency: any) => currency.pk == initialValue
       );
       this._posSharedService.setSelectedCurrency(this.selectedCurrency);
     }
@@ -222,7 +222,7 @@ onPlaceOrder() {
   }
 
   const formValue = this.totalForm.value;
-  this.totalForm.get('currency')?.patchValue(this.selectedCurrency?.pk)
+  this.totalForm.get('currency')?.patchValue(parseInt(this.selectedCurrency?.pk))
   // If no payments set, fallback to selected payment_method + totalWithVat
   if (!formValue.payments || formValue.payments.length === 0) {
     const paymentMethodId = this.totalForm.get('payment_method')?.value;
@@ -240,15 +240,34 @@ onPlaceOrder() {
     if (res?.order_id) {
       this._posService.addOrder(res.order_id, this.totalForm.value).subscribe({
         next: res => {
-          this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''))
-            this.openOrderInvoice();
-            this._posSalesService.getSalesOrdersFromServer();
-            this._posDiamondService.fetchDiamondOrders();
-            this._posSilverService.fetchSilverOrders();
-            this._posPurchaseService.fetchPurchaseProducts();
-            this._posGoldService.fetchGoldReceiptProducts();
-            this._posRepairService.fetchRepairProducts();
-            this._posReturnService.fetchReturnOrders();
+          this.totalPrice = 0;
+          this.discountAmount = 0;
+          this.totalWithVat = 0;
+          this.totalVat = 0;
+          this.totalForm.patchValue({ payments: [] });
+          this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
+          this.openOrderInvoice();
+          this._posSalesService.getSalesOrdersFromServer();
+          this._posDiamondService.fetchDiamondOrders();
+          this._posSilverService.fetchSilverOrders();
+          this._posPurchaseService.fetchPurchaseProducts();
+          this._posGoldService.fetchGoldReceiptProducts();
+          this._posRepairService.fetchRepairProducts();
+          this._posReturnService.fetchReturnOrders();
+          this._posSharedService.setTotalPrice(0);
+          this._posSharedService.setGrandTotalWithVat(0);
+          this._posSharedService.setVat(0);
+          this._posSharedService.setDiscountAmount(0);
+        },
+        error: () => {
+          console.log(parseInt(sessionStorage?.getItem('currency') || ''));
+          
+          this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
+        },
+        complete:()=>{
+          console.log(parseInt(sessionStorage?.getItem('currency') || ''));
+
+          this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
         }
       });
     }

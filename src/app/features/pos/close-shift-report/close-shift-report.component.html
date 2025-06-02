@@ -57,19 +57,28 @@
     </tr>
   </tbody>
 </table>
-
-      <h6>Inventory In / Out</h6>
-<table class="table table-bordered align-middle text-sm">
+<h6>Inventory In / Out</h6>
+<table class="table table-bordered align-middle text-sm text-center">
   <thead class="table-light">
     <tr>
-      <th>Inventory In</th>
-      <th>Inventory Out</th>
+      <th></th>
+      <ng-container *ngFor="let key of inventoryKeys">
+        <th colspan="1">{{ key }}</th>
+      </ng-container>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td class="text-end">{{ reportData?.inventory_reflection_count?.in_count || 0 }}</td>
-      <td class="text-end">{{ reportData?.inventory_reflection_count?.out_count || 0 }}</td>
+      <td><strong>In</strong></td>
+      <ng-container *ngFor="let key of inventoryKeys">
+        <td>{{ reportData?.inventory_reflection_count?.[key]?.in || 0 }}</td>
+      </ng-container>
+    </tr>
+    <tr>
+      <td><strong>Out</strong></td>
+      <ng-container *ngFor="let key of inventoryKeys">
+        <td>{{ reportData?.inventory_reflection_count?.[key]?.out || 0 }}</td>
+      </ng-container>
     </tr>
   </tbody>
 </table>

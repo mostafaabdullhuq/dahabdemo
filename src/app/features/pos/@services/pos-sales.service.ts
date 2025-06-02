@@ -40,4 +40,5 @@ export class PosSalesService {
       this._salesReciepts$.next(res || []);
     });
   }
+  
 }

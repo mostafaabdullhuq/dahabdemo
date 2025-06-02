@@ -32,6 +32,8 @@ export class PosSharedService {
   private goldReceiptTotalTaxSubject = new BehaviorSubject<number>(0);
   private repairTotalTaxSubject = new BehaviorSubject<number>(0);
   private salesTotalTaxSubject = new BehaviorSubject<number>(0);
+  private silverTotalTaxSubject = new BehaviorSubject<number>(0);
+  private diamondTotalTaxSubject = new BehaviorSubject<number>(0);
 
   // Observables
   goldPrice$ = this.goldPriceSubject.asObservable();
@@ -57,6 +59,8 @@ export class PosSharedService {
   goldReceiptTotalTax$ = this.goldReceiptTotalTaxSubject.asObservable();
   repairTotalTax$ = this.repairTotalTaxSubject.asObservable();
   salesTotalTax$ = this.salesTotalTaxSubject.asObservable();
+  silverTotalTax$ = this.silverTotalTaxSubject.asObservable();
+  diamondTotalTax$ = this.diamondTotalTaxSubject.asObservable();
 
   constructor() {
     // Grand total (including repair)
@@ -126,8 +130,10 @@ combineLatest([
       this.salesTotalTax$,
       this.goldReceiptTotalTax$,
       this.repairTotalTax$,
-    ]).subscribe(([salesTotalTax, repairTotalTax, goldReceiptTotalTax]) => {      
-      const totalVat = (salesTotalTax  + repairTotalTax + goldReceiptTotalTax);
+      this.silverTotalTax$,
+      this.diamondTotalTax$
+    ]).subscribe(([salesTotalTax, repairTotalTax, goldReceiptTotalTax , silverTotalTax ,diamondTotalTax]) => {      
+      const totalVat = (salesTotalTax  + repairTotalTax + goldReceiptTotalTax + silverTotalTax + diamondTotalTax);
       this.vatValue.next(+totalVat.toFixed(3));
     });
   }
@@ -223,5 +229,11 @@ combineLatest([
   }
   setSalesTax(total: number) {
     this.salesTotalTaxSubject.next(total);
+  }
+  setSilverTax(total: number) {
+    this.silverTotalTaxSubject.next(total);
+  }
+  setDiamondTax(total: number) {
+    this.diamondTotalTaxSubject.next(total);
   }
 }

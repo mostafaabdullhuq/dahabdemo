@@ -62,13 +62,28 @@ export class PurchasesComponent implements OnInit{
       { field: "id", header: "Refrence Number" },
     { field: "supplier_name", header: "Supplier Name" },
     { field: "order_date", header: "Date" },
+    {
+  field: "status",
+  header: "Status",
+  body: (row: any) => {
+    if (row?.status === 'pending') {
+      return `<span class="badge rounded-pill text-bg-warning">Pending</span>`;
+    } else if (row?.status === 'cancelled') {
+      return `<span class="badge rounded-pill text-bg-danger">Cancelled</span>`;
+    } else if (row?.status === 'completed') {
+      return `<span class="badge rounded-pill text-bg-success">Completed</span>`;
+    } else {
+      return `<span>${row?.status || 'Unknown'}</span>`;
+    }
+  }
+},
     { field: "metal_amount", header: "Metal Amount" },
     { field: "metal_weight", header: "Metal Weight" },
-    { field: "making_charge", header: "Making Charge" },
+    { field: "metal_making_charge", header: "Making Charge" },
     { field: "tax_amount", header: "Tax" },
     { field: "total_stone_value", header: "Total Stone Value" },
-    { field: "total_amount", header: "Total Amount" },
-    { field: "user", header: "User" },
+    { field: "total_metal_amount", header: "Total Amount" },
+    { field: "salesman", header: "User" },
     { field: "total_items", header: "Total Items" },
     { field: "total_weight", header: "Total Weight" },
     { field: "type", header: "Type Of Transaction" },

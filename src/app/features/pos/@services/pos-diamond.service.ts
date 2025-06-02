@@ -32,7 +32,7 @@ export class PosDiamondService {
       }
     });
   }
-  addProductSilver(form:any): Observable<any>{
+  addProductDiamond(form:any): Observable<any>{
     return this._http.postRequest(`${environment.api_url}pos/order-product/diamond/`, form);
   }
   // Optional getter for direct access

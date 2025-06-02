@@ -40,10 +40,10 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     this.productForm = this._formBuilder.group({
       product_id: ['', Validators.required]
     })
-    
-    this._posService.getProductSalesList().subscribe((res) => {
-      this.products = res?.results;
-    });
+    this.getProductList()
+    // this._posService.getProductSalesList().subscribe((res) => {
+    //   this.products = res?.results;
+    // });
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results;
       this.selectedVatId = this.taxes[0].id; // Set first VAT as default
@@ -134,11 +134,20 @@ this._posStatusService.shiftActive$
     // initial load
     this._posSalesService.getSalesOrdersFromServer();
   }
+  getProductList(){
+    this._posService.getProductSalesList().subscribe((res) => {
+      this.products = res?.results;
+    });
+  }
   removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
         this._posSalesService.getSalesOrdersFromServer();
       },
+      error: () => { },
+      complete: () => {
+        this.getProductList()
+      }
     })
   }
   calcGoldPriceAccordingToPurity(group: any): number {
@@ -328,6 +337,9 @@ this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
     },
     error: err => {
       console.error('Error posting product', err);
+    },
+    complete:() =>{
+      this.getProductList()
     }
   });
       });

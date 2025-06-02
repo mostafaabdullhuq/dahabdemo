@@ -14,11 +14,13 @@ export class CloseShiftReportComponent implements OnInit{
   orgImg:any = JSON.parse(localStorage.getItem('user')|| '')?.image;
   reportData:any = {};
   @Output() onSubmitPayments = new EventEmitter<any[]>();
+  inventoryKeys: string[] = [];
 
   constructor( private _formBuilder: FormBuilder, private _posService: PosService) { }
 
   ngOnInit(): void {
-   this.getReportData()
+   this.getReportData();
+ 
   }
  
   showDialog() {
@@ -26,7 +28,11 @@ export class CloseShiftReportComponent implements OnInit{
   }
 getReportData(){
   this._posService.getShiftReport().subscribe(res=>{
-this.reportData = res
+this.reportData = res;
+if(this.reportData){
+    const inventoryData = this.reportData?.inventory_reflection_count || {};
+  this.inventoryKeys = Object.keys(inventoryData);
+}
   })
 }
 getTotalByType(type: string): number {

@@ -113,8 +113,18 @@ this._posStatusService.shiftActive$
       next: res => {
         this._posReturnService.fetchReturnOrders();
       },
+      error:()=>{},
+      complete:()=>{this.getProductList()}
     })
   }
+  getProductList(){
+    const params = `orderproduct__order_id=${this.productForm.get('reciept_id')?.value}
+        &orderproduct__order__customer_id=${sessionStorage.getItem('customer')}`
+        this._posReturnService.getReturnProducts(params).subscribe((res) => {
+        this.products = res?.results;
+      });
+  }
+
   isShiftActive:boolean = false;
   getReturnsOrder() {
       this._posReturnService.fetchReturnOrders();
@@ -236,7 +246,8 @@ calcGrandTotalWithVat(): number {
         },
         error: err => {
           console.error('Error posting product', err);
-        }
+        },
+      complete:()=>{this.getProductList()}
       });
   }
   // get totalPrice(): number {

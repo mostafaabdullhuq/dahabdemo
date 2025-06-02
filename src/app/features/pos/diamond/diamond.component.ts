@@ -122,6 +122,12 @@ this._posStatusService.shiftActive$
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
   }
+getProductList(){
+  this._posService.getProductSalesList().subscribe((res) => {
+      this.products = res?.results;
+    });
+}
+
   getSalesOrder() {
     this._posDiamondService.returnOrders$
       .subscribe((res: any) => {
@@ -131,32 +137,17 @@ this._posStatusService.shiftActive$
     // initial load
     this._posDiamondService.fetchDiamondOrders();
   }
-  onVatChange(vatId: number, group: any): void {
-  group.selectedVat = vatId;
 
-  const vat = this.taxes.find((t: { id: number }) => t.id === vatId);
-  const vatRate = vat?.rate || 0;
-
-  // Patch VAT rate into the form
-  this.productForm.get('vat')?.patchValue(vatRate);
-
-  // Track if it's the first or second+ selection
-  if (!group._vatSelectedOnce) {
-    group._vatSelectedOnce = true; // first time, don't send
-  } else {
-    // second time or more, send to backend
-    const pId = group?.id;
-    const form = this._formBuilder.group({
-      vat_amount: [vatRate]
-    });
-    this._posService.setDiscountProductSale(pId, form.value).subscribe();
-  }
-}
   removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
         this._posDiamondService.fetchDiamondOrders();
       },
+      error: () => { },
+      complete: () => {
+        this.getProductList()
+      }
+
     })
   }
     get totalPrice(): number {
@@ -204,24 +195,161 @@ this._posStatusService.shiftActive$
 
 priceOfProductToPatch:any = 0;
 
-  onProductSelected(productId: number): void {
-    const selectedProduct = this.products.find((p: any) => p.id === productId);
-    if (!selectedProduct) return;    
-    const payload = {
-      product: selectedProduct.id,
-      amount: selectedProduct.amount //selectedProduct.retail_making_charge
-    };
-
-    this._posDiamondService.addProductSilver(payload)
-      .subscribe({
-        next: res => {
-          this._posDiamondService.fetchDiamondOrders();
-        },
-        error: err => {
-          console.error('Error posting product', err);
-        }
-      });
+  calcMetalValueAccordingToPurity(group: any) {
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
+    const metalValue = this.calcGoldPriceAccordingToPurity(group) * group?.weight;
+    this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
+    return +metalValue.toFixed(decimalPlaces);
   }
+    calcTotalPrice(group: any): number {
+    this.priceOfProductToPatch = 0;
+    const metalValue = this.calcMetalValueAccordingToPurity(group);
+
+    const makingCharge = +group?.retail_making_charge || 0;
+    const discountPercentage = +group?.discount || 0;
+
+    // Calculate discount amount
+    const discountAmount = (discountPercentage / 100) * makingCharge;
+
+    // Share the discount amount with the service
+    this._posSharedService.setDiscountAmount(discountAmount);
+
+    const discountedMakingCharge = makingCharge - discountAmount;
+
+    const stoneValues = (group?.stones || [])
+      .slice(0, 3)
+      .reduce((sum: number, stone: any) => sum + (+stone?.retail_value || 0), 0);
+
+    const total = metalValue + discountedMakingCharge + stoneValues;
+
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+
+this.priceOfProductToPatch = +total.toFixed(decimalPlaces);
+
+    return +total.toFixed(decimalPlaces);
+  }
+onVatChange(vatId: number, group: any): void {
+  group.selectedVat = vatId;
+
+  const vat = this.taxes.find((t: { id: number }) => t.id === vatId);
+  const vatRate = vat?.rate || 0;
+
+  // Patch VAT rate into the form
+  this.productForm.get('vat')?.patchValue(vatRate);
+
+  // Recalculate grand total with VAT
+  this.calcGrandTotalWithVat();
+
+  // Track if it's the first or second+ selection
+  if (!group._vatSelectedOnce) {
+    group._vatSelectedOnce = true; // first time, don't send
+  } else {
+    // second time or more, send to backend
+    const pId = group?.id;
+    const form = this._formBuilder.group({
+      vat_amount: [vatRate]
+    });
+    this._posService.setDiscountProductSale(pId, form.value).subscribe();
+  }
+}
+  calcTotalPriceWithVat(group: any): number {
+    this.priceOfProductToPatch = 0
+    const baseTotal = this.calcTotalPrice(group);
+    const vatRate = +this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat)?.rate || 0;
+    const vatAmount = (vatRate / 100) * baseTotal;
+    const totalVat = this.silverDataOrders.reduce((acc: number, group: any) => {
+      const baseTotal = this.calcTotalPrice(group); // your existing method
+      const vatRate = +this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat)?.rate || 0;
+      const vatAmount = (vatRate / 100) * baseTotal;
+      return acc + vatAmount;
+    }, 0);
+    // Update shared VAT immediately
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    this._posSharedService.setDiamondTax(+totalVat.toFixed(decimalPlaces));
+
+    const totalWithVat = baseTotal + vatAmount;
+    return +totalWithVat.toFixed(decimalPlaces);
+  }
+  calcGrandTotalWithVat(): number {
+    if (!this.silverDataOrders || this.silverDataOrders.length === 0) return 0;
+
+    const total = this.silverDataOrders.reduce((sum: number, group: any) => {
+      return sum + this.calcTotalPriceWithVat(group);
+    }, 0);
+
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    this._posSharedService.setDiamondTotalGrand(+total.toFixed(decimalPlaces));
+
+    return +total.toFixed(decimalPlaces);
+  }
+
+   onProductSelected(productId: number): void {
+ const selectedProduct = this.products.find((p: any) => p.id === productId);
+  if (!selectedProduct) return;
+this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
+        const branchTaxNo = res?.tax_rate || 0;
+          const tempGroup = {
+    purity: selectedProduct.purity_name,
+    price: selectedProduct.price,
+    purity_value: selectedProduct.purity_value,
+    weight: selectedProduct.weight,
+    stones: selectedProduct.stones || [],
+    retail_making_charge: selectedProduct.retail_making_charge,
+    discount: selectedProduct.discount || 0,
+    max_discount: selectedProduct.max_discount,
+    selectedVat: this.selectedVatId
+  };
+
+  const goldPrice = this.calcGoldPriceAccordingToPurity(tempGroup);
+  const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
+  const totalPrice = this.calcTotalPrice(tempGroup);
+  const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
+
+  console.log('[DEBUG] Calculated Prices:', {
+    goldPrice,
+    totalPrice,
+    totalWithVat
+  });
+
+  const payload = {
+    product: selectedProduct.id,
+    amount: totalPrice,
+    vat_amount:branchTaxNo
+  };
+
+  console.log('[DEBUG] Payload to send:', payload);
+  this._posDiamondService.addProductDiamond(payload).subscribe({
+    next: res => {
+      this._posDiamondService.fetchDiamondOrders(); // Refresh after post
+    },
+    error: err => {
+      console.error('Error posting product', err);
+    },
+    complete:() =>{
+      this.getSalesOrder()
+        this.getProductList()
+    }
+  });
+      });
+}
+  // onProductSelected(productId: number): void {
+  //   const selectedProduct = this.products.find((p: any) => p.id === productId);
+  //   if (!selectedProduct) return;    
+  //   const payload = {
+  //     product: selectedProduct.id,
+  //     amount: selectedProduct.amount //selectedProduct.retail_making_charge
+  //   };
+
+  //   this._posDiamondService.addProductSilver(payload)
+  //     .subscribe({
+  //       next: res => {
+  //         this._posDiamondService.fetchDiamondOrders();
+  //       },
+  //       error: err => {
+  //         console.error('Error posting product', err);
+  //       }
+  //     });
+  // }
   // get totalPrice(): number {
   //   const total = this.silverDataOrders.reduce((sum: number, group: any) => {
   //     return sum + group?.amount;
