@@ -140,8 +140,8 @@ this._posStatusService.shiftActive$
   }
     get totalPrice(): number {
     const total = this.silverDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (group.amount || 0), 0) || 0;
-    this._posSharedService.setSilverTotalPrice(total)
-    this._posSharedService.setSilverTotalGrand(total)
+    this._posSharedService.setDiamondTotalPrice(total)
+    this._posSharedService.setDiamondTotalGrand(total)
   return total
 }
   calcGoldPriceAccordingToPurity(group: any): number {
