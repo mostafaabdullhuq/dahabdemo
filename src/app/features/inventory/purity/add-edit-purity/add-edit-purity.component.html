@@ -25,7 +25,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <app-input-text formControlName="purity_value" inputName="purity value" [required]="true"
+                            <app-input-text formControlName="purity_value" inputName="purity value" 
                                 placeholder="Enter purity value" type="number">
                                 @if ((addEditPurityForm.get('purity_value')?.errors?.['required'] &&
                                 addEditPurityForm.get('purity_value')?.touched)) {

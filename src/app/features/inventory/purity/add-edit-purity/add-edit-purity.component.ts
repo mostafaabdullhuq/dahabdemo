@@ -46,7 +46,7 @@ export class AddEditPurityComponent {
   private initForm(): void {
     this.addEditPurityForm = this._formBuilder.group({
       name: ['', [Validators.required]],
-      purity_value: ['',[Validators.required]],
+      purity_value: [''],
     });
   }
 
