@@ -29,11 +29,14 @@
                                 placeholder="Enter tag number">
                             </app-input-text>
                         </div>
-                        <div class="col-md-4">
+                        <!-- <div class="col-md-4">
                             <app-input-text formControlName="color" inputName="Color" placeholder="Enter color">
                             </app-input-text>
+                        </div> -->
+<div class="col-md-4">
+                            <app-dropdowns label="color" formControlName="color" [options]="colors"
+                                optionLabel="name" optionValue="id" placeholder="Select a color"></app-dropdowns>
                         </div>
-
                         <div class="col-md-12">
                             <app-input-text formControlName="description" inputName="Description"
                                 placeholder="Product description">
@@ -63,12 +66,14 @@
                             <app-input-text formControlName="max_discount" inputName="Max Discount" type="number"
                                 placeholder="Enter max discount (%)" [required]="true"></app-input-text>
                         </div>
-
-                        <div class="col-md-4">
-                            <app-input-text formControlName="making_charge" inputName="Making Charge" type="number"
-                                placeholder="Enter making charge" [required]="true"></app-input-text>
-                        </div>
-
+<div class="col-md-4">
+    <app-input-text formControlName="making_charge" inputName="Making Charge" type="number"
+        placeholder="Enter making charge" [required]="true"></app-input-text>
+</div>
+<div class="col-md-4">
+    <app-input-text formControlName="retail_making_charge" inputName="retail Making Charge" type="number"
+        placeholder="Enter retail making charge" [required]="true"></app-input-text>
+</div>
                         <div class="col-md-4">
                             <app-input-text formControlName="weight" inputName="Weight" type="number" [required]="true"
                                 placeholder="Enter weight in grams"></app-input-text>
@@ -136,6 +141,10 @@
                                 <app-input-text formControlName="weight" inputName="Weight"
                                     placeholder="Enter Weight"></app-input-text>
                             </div>
+                            <div class="col-md-3">
+                                <app-input-text formControlName="retail_value" inputName="retail value"
+                                    placeholder="Enter retail value"></app-input-text>
+                            </div>
                             <div class="col-md-2 d-flex align-items-center mt-3 justify-content-center">
                             <button type="button" class="btn btn-danger text-end mt-5 delete-btn btn-sm"
                                 (click)="removeStone(i)">
@@ -150,11 +159,6 @@
                 <h6 class="section-form-header mt-4">Meta Info</h6>
                 <div class="container section-form">
                     <div class="row">
-                        <div class="col-md-4">
-                            <app-dropdowns label="Stock Point" formControlName="stock_point" [options]="stockPoints"
-                                optionLabel="name" optionValue="id" placeholder="Select stock point"></app-dropdowns>
-                        </div>
-
                         <div class="col-md-3 mt-2">
                             <app-check-box formControlName="is_active" inputId="is_active"
                                 label="is active product ?"></app-check-box>
@@ -180,6 +184,10 @@
                             <app-input-text formControlName="stock_quantity" inputName="Stock Quantity"
                                 placeholder="Enter quantity">
                             </app-input-text>
+                        </div>
+                        <div class="col-md-4">
+                            <app-dropdowns label="Stock Point" formControlName="stock_point" [options]="stockPoints"
+                                optionLabel="name" optionValue="id" placeholder="Select stock point"></app-dropdowns>
                         </div>
                         <div class="col-md-3 mt-2">
                             <app-check-box formControlName="is_active" [inputId]="'isActive'+i"

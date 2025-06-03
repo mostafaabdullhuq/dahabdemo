@@ -24,7 +24,7 @@ export class AddEditProductComponent {
     brands:any[]=[];
     branches:any[]=[];
     stones:any[]=[];
-
+colors:any[]=[]
     nextPageUrl: string | null = null;
     isLoading = false;
     selectedBranches =[];
@@ -52,6 +52,9 @@ export class AddEditProductComponent {
 
       this._dropdownService.getBrands().subscribe(data => {
       this.brands = data?.results;
+    });
+    this._dropdownService.getColor().subscribe(data => {
+      this.colors = data?.results;
     });
     this._dropdownService.getCategories().subscribe(data => {
       this.categories = data?.results;
@@ -90,7 +93,7 @@ export class AddEditProductComponent {
   selectedPurityValue: number | null = null;
     private initForm(): void {
       this.addEditProductForm = this._formBuilder.group({
-        stock_point: [''],
+    //    stock_point: [''],
         is_active: [''],
         discount: [''],
         max_discount: [''],
@@ -104,6 +107,7 @@ export class AddEditProductComponent {
         purity_id: [''],
         unit_id: [''],
         brand_id: [''],
+        retail_making_charge:[''],
         category_id: [''],
         description: [''],
         name: [''],
@@ -116,8 +120,9 @@ export class AddEditProductComponent {
   this._inventoryService.getProductById(productId).subscribe((product: any) => {
     // Patch the main form fields
     this.addEditProductForm.patchValue({
-      stock_point: product.stock_point,
+     // stock_point: product.stock_point,
       is_active: product.is_active,
+      retail_making_charge:product.retail_making_charge,
       discount: product.discount,
       max_discount: product.max_discount,
       price: product.price,
@@ -148,7 +153,8 @@ export class AddEditProductComponent {
       product.branches.forEach((stock: any) => {
         this.addStockItem({
           branch_id: stock.branch_id,
-          stock_quantity: stock.stock_quantity
+          stock_quantity: stock.stock_quantity,
+          stock_point:stock.stock_point
         });
       });
     }
@@ -169,12 +175,13 @@ export class AddEditProductComponent {
   return this.addEditProductForm.get('stones') as FormArray;
 }
 
-addStone(stone = { stone_id: null, value: null, weight: null }): void {
+addStone(stone = { stone_id: null, value: null, weight: null , retail_value:null}): void {
   this.stonesArray.push(
     this._formBuilder.group({
       stone_id: [stone.stone_id],
       value: [stone.value],
-      weight: [stone.weight]
+      weight: [stone.weight],
+      retail_value: [stone.retail_value],
     })
   );
 }
@@ -243,7 +250,9 @@ private addCustomFields(): void {
       return this._formBuilder.group({
         branch_id: [data.branch_id || ''],
         stock_quantity: [data.stock_quantity || 0],
-        is_active: [data.is_active || false, ]
+        is_active: [data.is_active || false, ],
+        stock_point: [data.stock_point || '', ],
+        
       });
     }
     get stockInfoArray(): FormArray {
