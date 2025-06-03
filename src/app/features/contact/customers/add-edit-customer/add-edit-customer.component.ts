@@ -106,7 +106,7 @@ export class AddEditCustomerComponent {
     }
 
     onSubmit(): void {
-      if (this.addEditCustomerForm.invalid) return;
+   //   if (this.addEditCustomerForm.invalid) return;
     
       const formData = new FormData();
       const formValue = this.addEditCustomerForm.value;
@@ -124,11 +124,11 @@ export class AddEditCustomerComponent {
       }
     
       // Prepare and append custom_fields payload from FormArray
-      const customFieldsPayload = formValue.custom_fields.map((field: any) => ({
-        field_key: field.field_key,
-        value: field.value
-      }));
-      formData.append('custom_fields', JSON.stringify(customFieldsPayload));
+      // const customFieldsPayload = formValue.custom_fields.map((field: any) => ({
+      //   field_key: field.field_key.trim(),
+      //   value: field.value
+      // }));
+      // formData.append('custom_fields', JSON.stringify(customFieldsPayload));
     
       // Send as FormData
       const request$ = this.isEditMode && this.customerId
