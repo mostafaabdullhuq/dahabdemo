@@ -36,7 +36,7 @@
                             </app-input-text>
                         </div>
                         <div class="col-md-6">
-                            <app-input-text formControlName="email" inputName="Email" type="email" [required]="true"
+                            <app-input-text formControlName="email" inputName="Email" type="email" 
                                 placeholder="Enter your email">
                                 @if ((addEditCustomerForm.get('email')?.errors?.['required'] &&
                                 addEditCustomerForm.get('email')?.touched)) {
@@ -54,7 +54,7 @@
                             </app-input-text>
                         </div>
                         <div class="col-md-6">
-                            <app-input-text formControlName="cpr" inputName="CPR"
+                            <app-input-text formControlName="cpr" [required]="true" inputName="CPR"
                                 placeholder="Enter CPR">
                             </app-input-text>
                         </div>
@@ -64,7 +64,7 @@
                         </div>
                         
                         <div class="col-md-6">
-                            <app-dropdowns label="Select group" [required]="true" id="group" formControlName="group"
+                            <app-dropdowns label="Select group" id="group" formControlName="group"
                                 [options]="customersGroup" optionLabel="name" optionValue="id" placeholder="Select a group">
                             </app-dropdowns>
                         </div>

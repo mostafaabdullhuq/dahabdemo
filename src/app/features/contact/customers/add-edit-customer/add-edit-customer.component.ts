@@ -55,12 +55,12 @@ export class AddEditCustomerComponent {
     private initForm(): void {
       this.addEditCustomerForm = this._formBuilder.group({
         name: ['',Validators.required],
-        email: ['',Validators.required],
+        email: [''],
         address: [''],
         phone: ['',Validators.required],
-        cpr_attachment: [''],
+        cpr_attachment: ['',Validators.required],
         cpr: ['',Validators.required],
-        group: ['',Validators.required],
+        group: [''],
         custom_fields:this._formBuilder.array([])
       });
     }
