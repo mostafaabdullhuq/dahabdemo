@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../@services/settings.service';
 import { SharedModule } from '../../../../shared/shared.module';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
@@ -29,6 +29,7 @@ export class AddEditBranchComponent implements OnInit {
     private _formBuilder: FormBuilder,
     private _activeRoute: ActivatedRoute,
     private _dropdownService: DropdownsService,
+    private _router: Router,
   ) { }
   customFields: any = [];
 
@@ -43,10 +44,10 @@ export class AddEditBranchComponent implements OnInit {
     }
     this._dropdownService.getCountryCore().subscribe(res => {
       this.countries = res?.results;
-      this.addEditBranchForm.get('country')?.valueChanges.subscribe(res=>{
-        this.paymentMethods= [];
+      this.addEditBranchForm.get('country')?.valueChanges.subscribe(res => {
+        this.paymentMethods = [];
         this.addEditBranchForm.get('payment_methods')?.reset();
-        const paymentMethodsParams=`country__icontains=${res}`
+        const paymentMethodsParams = `country__icontains=${res}`
         this._dropdownService.getPaymentMethods(paymentMethodsParams).subscribe(res => {
           this.paymentMethods = res?.results;
         })
@@ -55,7 +56,7 @@ export class AddEditBranchComponent implements OnInit {
     this._dropdownService.getCurrencies().subscribe(res => {
       this.currenciesList = res?.results;
     });
-   
+
     this._dropdownService.getTaxes().subscribe(res => {
       this.taxRates = res?.results;
     });
@@ -85,50 +86,50 @@ export class AddEditBranchComponent implements OnInit {
     this.addCurrency()
   }
 
- private loadBrandsData(brandId: number | string): void {
-  this._sttingService.getBranchById(brandId).subscribe((unit: any) => {
-    if (!unit) return;
+  private loadBrandsData(brandId: number | string): void {
+    this._sttingService.getBranchById(brandId).subscribe((unit: any) => {
+      if (!unit) return;
 
-    // 1. Patch simple fields
-    this.addEditBranchForm.patchValue({
-      name: unit?.name,
-      address_line: unit?.address_line,
-      country: unit?.country,
-      mobile: unit?.mobile,
-      landline: unit?.landline,
-      email: unit?.email,
-      tax_rate: unit?.tax_rate,
-      manual_gold_price: unit?.manual_gold_price,
-      payment_methods: unit?.payment_methods?.map((pm: any) => ({
-        payment_method: pm.payment_method
-      })) || []
-    });
+      // 1. Patch simple fields
+      this.addEditBranchForm.patchValue({
+        name: unit?.name,
+        address_line: unit?.address_line,
+        country: unit?.country,
+        mobile: unit?.mobile,
+        landline: unit?.landline,
+        email: unit?.email,
+        tax_rate: unit?.tax_rate,
+        manual_gold_price: unit?.manual_gold_price,
+        payment_methods: unit?.payment_methods?.map((pm: any) => ({
+          payment_method: pm.payment_method
+        })) || []
+      });
 
-    // 2. Patch currencies
-    const currenciesFormArray = this.addEditBranchForm.get('currencies') as FormArray;
-    currenciesFormArray.clear();
-    if (unit?.currencies?.length) {
-      unit.currencies.forEach((currencyItem: any) => {
-        currenciesFormArray.push(this._formBuilder.group({
-          currency: [currencyItem.currency, Validators.required],
-          exchange_rate: [currencyItem.exchange_rate, Validators.required],
+      // 2. Patch currencies
+      const currenciesFormArray = this.addEditBranchForm.get('currencies') as FormArray;
+      currenciesFormArray.clear();
+      if (unit?.currencies?.length) {
+        unit.currencies.forEach((currencyItem: any) => {
+          currenciesFormArray.push(this._formBuilder.group({
+            currency: [currencyItem.currency, Validators.required],
+            exchange_rate: [currencyItem.exchange_rate, Validators.required],
+          }));
+        });
+      }
+
+      // 3. Patch custom_fields (if your backend returns an object like { key: value })
+      const customFieldsArray = this.addEditBranchForm.get('custom_fields') as FormArray;
+      customFieldsArray.clear();
+      const fieldObj = unit?.custom_fields || []; // should be an object like { key: value }
+
+      unit?.custom_fields.forEach((field: { field_name: string | number; value: string | number }) => {
+        customFieldsArray.push(this._formBuilder.group({
+          field_key: [field?.field_name],
+          value: [field?.value || '']
         }));
       });
-    }
-
-    // 3. Patch custom_fields (if your backend returns an object like { key: value })
-    const customFieldsArray = this.addEditBranchForm.get('custom_fields') as FormArray;
-    customFieldsArray.clear();
-    const fieldObj = unit?.custom_fields || []; // should be an object like { key: value }
-
-    unit?.custom_fields.forEach((field: { field_name: string | number; value:string | number }) => {
-      customFieldsArray.push(this._formBuilder.group({
-        field_key: [field?.field_name],
-        value: [field?.value || '']
-      }));
     });
-  });
-}
+  }
 
   get currencies(): FormArray {
     return this.addEditBranchForm.get('currencies') as FormArray;
@@ -179,24 +180,24 @@ export class AddEditBranchComponent implements OnInit {
       exchange_rate: item.exchange_rate
     }));
 
- const paymentMethods = rawValue.payment_methods?.map((pm: any) => ({
-  payment_method: pm
-})) || [];
+    const paymentMethods = rawValue.payment_methods?.map((pm: any) => ({
+      payment_method: pm
+    })) || [];
 
-const formattedData = {
-  ...rawValue,
-  custom_fields: customFieldsObj,
-  currencies: currenciesArray,
-  payment_methods: paymentMethods
-};
+    const formattedData = {
+      ...rawValue,
+      custom_fields: customFieldsObj,
+      currencies: currenciesArray,
+      payment_methods: paymentMethods
+    };
     if (this.isEditMode && this.brandId) {
       this._sttingService.updateBranch(this.brandId, formattedData).subscribe({
-        next: res => console.log('User updated successfully', res),
+        next: res => this._router.navigate([`setting/branch`]),
         error: err => console.error('Error updating user', err)
       });
     } else {
       this._sttingService.addBranch(formattedData).subscribe({
-        next: res => console.log('User created successfully', res),
+        next: res => this._router.navigate([`setting/branch`]),
         error: err => console.error('Error creating user', err)
       });
     }
