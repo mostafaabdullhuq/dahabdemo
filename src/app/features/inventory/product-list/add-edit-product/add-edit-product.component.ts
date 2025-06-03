@@ -89,12 +89,12 @@ export class AddEditProductComponent {
         stock_point: [''],
         is_active: [''],
         discount: [''],
-        max_discount: ['',Validators.required],
-        price: ['',Validators.required],
+        max_discount: [''],
+        price: [''],
         tag_number: [''],
-        making_charge: ['',Validators.required],
+        making_charge: [''],
         color: [''],
-        weight: ['',Validators.required],
+        weight: [''],
         designer_id: [''],
         size_id: [''],
         purity_id: [''],
@@ -102,48 +102,65 @@ export class AddEditProductComponent {
         brand_id: [''],
         category_id: [''],
         description: [''],
-        name: ['',Validators.required],
+        name: [''],
             stones: this._formBuilder.array([]), // FormArray for stones
         branches: this._formBuilder.array([]),
-      image: [null, Validators.required]
+      image: [null]
       });
     }
-    private loadProductData(productId: number | string): void {
-      this._inventoryService.getProductById(productId).subscribe((product: any) => {
-        this.addEditProductForm.patchValue({
-          stones: product.stones,
-          stone_kr: product.stone_kr,
-          stock_point: product.stock_point,
-          is_active: product.is_active,
-          discount: product.discount,
-          max_discount: product.max_discount,
-          tag_number: product.tag_number,
-          making_charge: product.making_charge,
-          weight: product.weight,
-          designer_id: product.designer_id,
-          size_id: product.size_id,
-          purity_id: product.purity_id,
-          unit_id: product.unit_id,
-          brand_id: product.brand_id,
-          category_id: product.category_id,
-          description: product.description,
-          name: product.name
-        });
-        if (product.branches && Array.isArray(product.branches)) {
-          product.branches.forEach((stock: { branch_id: any; stock_quantity: any; }) => {
-            this.addStockItem({
-              branch_id: stock.branch_id,
-              stock_quantity: stock.stock_quantity
-            });
-          });
-        }
-        if (product.stones && Array.isArray(product.stones)) {
-  product.stones.forEach((stone: any) => this.addStone(stone));
-}
-      });
-      
+   private loadProductData(productId: number | string): void {
+  this._inventoryService.getProductById(productId).subscribe((product: any) => {
+    // Patch the main form fields
+    this.addEditProductForm.patchValue({
+      stock_point: product.stock_point,
+      is_active: product.is_active,
+      discount: product.discount,
+      max_discount: product.max_discount,
+      price: product.price,
+      tag_number: product.tag_number,
+      making_charge: product.making_charge,
+      weight: product.weight,
+      designer_id: product.designer_id,
+      size_id: product.size_id,
+      purity_id: product.purity_id,
+      unit_id: product.unit_id,
+      brand_id: product.brand_id,
+      category_id: product.category_id,
+      description: product.description,
+      name: product.name,
+      image: product.image
+    });
+
+    // Clear and add stones if any
+    this.stonesArray.clear();
+    if (Array.isArray(product.stones)) {
+      product.stones.forEach((stone: any) => this.addStone(stone));
     }
 
+    // Clear and add branches if any
+    const branchesArray = this.addEditProductForm.get('branches') as FormArray;
+    branchesArray.clear();
+    if (Array.isArray(product.branches)) {
+      product.branches.forEach((stock: any) => {
+        this.addStockItem({
+          branch_id: stock.branch_id,
+          stock_quantity: stock.stock_quantity
+        });
+      });
+    }
+
+    // Add custom fields dynamically if available
+    if (product.custom_fields && Array.isArray(product.custom_fields)) {
+      this.customFields = product.custom_fields;
+      this.addCustomFields();
+      product.custom_fields.forEach((field: { field_name: any; value: any; }) => {
+        if (this.addEditProductForm.contains(field.field_name)) {
+          this.addEditProductForm.get(field.field_name)?.setValue(field.value || '');
+        }
+      });
+    }
+  });
+}
     get stonesArray(): FormArray {
   return this.addEditProductForm.get('stones') as FormArray;
 }
@@ -151,9 +168,9 @@ export class AddEditProductComponent {
 addStone(stone = { stone_id: null, value: null, weight: null }): void {
   this.stonesArray.push(
     this._formBuilder.group({
-      stone_id: [stone.stone_id, Validators.required],
-      value: [stone.value, Validators.required],
-      weight: [stone.weight, Validators.required]
+      stone_id: [stone.stone_id],
+      value: [stone.value],
+      weight: [stone.weight]
     })
   );
 }
@@ -220,9 +237,9 @@ private addCustomFields(): void {
   
     private createStockGroup(data: any = {}): FormGroup {
       return this._formBuilder.group({
-        branch_id: [data.branch_id || '', Validators.required],
-        stock_quantity: [data.stock_quantity || '', Validators.required],
-        is_active: [data.is_active || '', ]
+        branch_id: [data.branch_id || ''],
+        stock_quantity: [data.stock_quantity || 0],
+        is_active: [data.is_active || false, ]
       });
     }
     get stockInfoArray(): FormArray {
