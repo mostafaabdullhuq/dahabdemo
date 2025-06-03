@@ -8,9 +8,7 @@
 <div class="menu-container d-flex flex-column flex-shrink-0 p-3">
     <ul class="nav nav-pills flex-column mb-auto">
         <!-- Super Admin -->
-         <li>
-        <a [routerLink]="['/dashboard']" routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-user me-2"></i> User Dashboard</a>
-         </li>
+        
         <li>
             <a class="nav-link text-dark d-flex justify-content-between  d-flex justify-content-between"
                 data-bs-toggle="collapse" href="#submenuSuperAdmin" role="button" aria-expanded="false"
@@ -29,6 +27,9 @@
                 </ul>
             </div>
         </li>
+         <li>
+        <a [routerLink]="['/dashboard']" routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-user me-2"></i> User Dashboard</a>
+         </li>
         <!-- Settings -->
         <!-- <li>
             <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
