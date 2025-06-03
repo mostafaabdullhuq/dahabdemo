@@ -93,13 +93,24 @@ this.currencies = res?.results
       });
     }
   
-    private loadBrandsData(busnissId: number | string): void {
-      this._settingsService.getBusinessById(busnissId).subscribe((unit:any) => {
-        this.addEditBusinessForm.patchValue({
-          name: unit?.name,
-        });
+private loadBrandsData(businessId: number | string): void {
+  this._settingsService.getBusinessById(businessId).subscribe((unit: any) => {
+    if (unit) {
+      this.addEditBusinessForm.patchValue({
+        name: unit.name || '',
+        financial_year_start: unit.financial_year_start || '',
+        currency: unit.currency || '',
+        time_zone: unit.time_zone || '',
+        time_format: unit.time_format || '',
+        date_format: unit.date_format || '',
+        contact_number: unit.contact_number || '',
+        alternate_contact_number: unit.alternate_contact_number || '',
+        logo: unit.logo || '',
+        website: unit.website || '',
       });
     }
+  });
+}
   
 onSubmit(): void {
   if (this.addEditBusinessForm.invalid) return;
