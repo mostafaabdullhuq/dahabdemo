@@ -140,9 +140,13 @@ this._posStatusService.shiftActive$
     // initial load
     this._posSalesService.getSalesOrdersFromServer();
   }
-  getProductList(){
+  getProductList() {
     this._posService.getProductSalesList().subscribe((res) => {
-      this.products = res?.results;
+      //this.products = res?.results;
+      this.products = res?.results.map((product: { name: any; tag_number: any; }) => ({
+        ...product,
+        displayLabel: ` ${product.tag_number} ${product.name}`
+      }));
     });
   }
   removeItem(id: any) {
