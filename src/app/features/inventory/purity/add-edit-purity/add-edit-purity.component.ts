@@ -59,23 +59,34 @@ export class AddEditPurityComponent {
     });
   }
 
-  onSubmit(): void {
-    if (this.addEditPurityForm.invalid) return;
+ onSubmit(): void {
+  if (this.addEditPurityForm.invalid) return;
 
-    const formData = this.addEditPurityForm?.value;
-    console.log(this.selectedBranches);
-    
-    if (this.isEditMode && this.purityId) {
-      this._inventoryService.updatePurity(this.purityId, formData).subscribe({
-        next: res => this._router.navigate([`inventory/purities`]),
-        error: err => console.error('Error updating user', err)
-      });
-    } else {
-      this._inventoryService.addPurity(formData).subscribe({
-        next: res => this._router.navigate([`inventory/purities`]),
-        error: err => console.error('Error creating user', err)
-      });
-    }
+  let payload: any;
+
+  if (!this.addEditPurityForm.value.purity_value) {
+    // Only send name
+    payload = {
+      name: this.addEditPurityForm.value.name
+    };
+  } else {
+    // Send the full form data
+    payload = this.addEditPurityForm.value;
   }
+
+  console.log(this.selectedBranches);
+
+  if (this.isEditMode && this.purityId) {
+    this._inventoryService.updatePurity(this.purityId, payload).subscribe({
+      next: res => this._router.navigate([`inventory/purities`]),
+      error: err => console.error('Error updating purity', err)
+    });
+  } else {
+    this._inventoryService.addPurity(payload).subscribe({
+      next: res => this._router.navigate([`inventory/purities`]),
+      error: err => console.error('Error creating purity', err)
+    });
+  }
+}
 
 }
