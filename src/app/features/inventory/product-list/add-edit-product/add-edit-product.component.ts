@@ -39,7 +39,6 @@ colors:any[]=[]
   
     ngOnInit(): void {
       const productId = this._activeRoute.snapshot.paramMap.get('id');
-    console.log(productId);
     if(productId)
       this.productId = productId;
       this.initForm();
@@ -137,7 +136,7 @@ colors:any[]=[]
       category_id: product.category_id,
       description: product.description,
       name: product.name,
-      image: product.image
+      // image: product?.image
     });
 
     // Clear and add stones if any
@@ -147,17 +146,27 @@ colors:any[]=[]
     }
 
     // Clear and add branches if any
-    const branchesArray = this.addEditProductForm.get('branches') as FormArray;
-    branchesArray.clear();
-    if (Array.isArray(product.branches)) {
-      product.branches.forEach((stock: any) => {
-        this.addStockItem({
-          branch_id: stock.branch_id,
-          stock_quantity: stock.stock_quantity,
-          stock_point:stock.stock_point
-        });
-      });
-    }
+  const branchesArray = this.addEditProductForm.get('branches') as FormArray;
+branchesArray.clear();
+
+if (product.branches?.length) {
+  console.log(product.branches);
+  
+  product.branches.forEach((stock: any) => {
+    this.addStockItem({
+      branch_id: stock.branch_id,
+      stock_quantity: stock.stock_quantity,
+      stock_point: stock.stock_point,
+      is_active: stock.is_active,
+    });
+  });
+  fetch(product.image)
+  .then(res => res.blob())
+  .then(blob => {
+    const file = new File([blob], "image.jpg", { type: blob.type });
+    this.addEditProductForm.patchValue({ image: file });
+  });
+}
 
     // Add custom fields dynamically if available
     if (product.custom_fields && Array.isArray(product.custom_fields)) {
