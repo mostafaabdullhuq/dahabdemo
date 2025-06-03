@@ -145,7 +145,7 @@ this._posStatusService.shiftActive$
       //this.products = res?.results;
       this.products = res?.results.map((product: { name: any; tag_number: any; }) => ({
         ...product,
-        displayLabel: ` ${product.tag_number} ${product.name}`
+        displayLabel: ` ${product.tag_number} | ${product.name}`
       }));
     });
   }
