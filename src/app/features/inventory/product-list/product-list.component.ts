@@ -50,7 +50,18 @@ export class ProductListComponent {
     'No Image For This Product'
   },
         { field: "name", header: "Name" },
+        {
+          field: "is_active", header: "Active",
+          body: (row: any) => {
+            if (row?.is_active) {
+              return `<span class="badge rounded-pill text-bg-success">Active</span>`;
+            } else {
+              return `<span class="badge rounded-pill text-bg-secondary">Inactive</span>`;
+            }
+          }
+        },
     { field: "price", header: "Price" },
+    { field: "weight", header: "Weight" },
     {
   field: 'details',
   header: 'Details',
