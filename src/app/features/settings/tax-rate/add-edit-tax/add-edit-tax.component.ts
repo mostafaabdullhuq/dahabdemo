@@ -38,7 +38,7 @@ export class AddEditTaxComponent implements OnInit{
         this.isEditMode = true
       }
 
-      this._dropdownService.getCountries().subscribe(res=>{
+      this._dropdownService.getCountryCore().subscribe(res=>{
         this.country = res?.results
       })
     }

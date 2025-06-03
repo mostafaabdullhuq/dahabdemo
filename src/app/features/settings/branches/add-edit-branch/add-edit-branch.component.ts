@@ -41,8 +41,8 @@ export class AddEditBranchComponent implements OnInit {
       this.loadBrandsData(this.brandId);
       this.isEditMode = true
     }
-    this._dropdownService.getCountries().subscribe(res => {
-      this.countries = res;
+    this._dropdownService.getCountryCore().subscribe(res => {
+      this.countries = res?.results;
       this.addEditBranchForm.get('country')?.valueChanges.subscribe(res=>{
         this.paymentMethods= [];
         this.addEditBranchForm.get('payment_methods')?.reset();
