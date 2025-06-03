@@ -127,8 +127,14 @@ this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         this.salesDataOrders = res;
-        console.log(this.salesDataOrders);
-        
+        if(this.salesDataOrders.length == 0){
+          this._posSharedService.setTotalPrice(0)
+          this._posSharedService.setVat(0)
+          this._posSharedService.setGrandTotalWithVat(0)
+          this._posSharedService.setSalesTax(0)
+          this._posSharedService.setSalesTotalGrand(0)
+          this._posSharedService.setSalesTotalPrice(0)
+        }
       });
 
     // initial load
@@ -146,7 +152,8 @@ this._posStatusService.shiftActive$
       },
       error: () => { },
       complete: () => {
-        this.getProductList()
+        this.getProductList();
+        
       }
     })
   }

@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ComponentRef, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ComponentRef, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PosService } from '../@services/pos.service';
 import { PosStatusService } from '../@services/pos-status.service';
@@ -55,8 +55,8 @@ salesDataOrders:any =[];
     private _posSharedService: PosSharedService) {
 
   }
+
   ngAfterViewInit(): void {
-    this.onChangeCurrency();    
   }
   ngOnInit(): void {
     
@@ -81,6 +81,7 @@ salesDataOrders:any =[];
         customer: savedCustomer ? Number(savedCustomer) : '',
         currency: savedCurrency ? Number(savedCurrency) : ''
       });
+      this.onChangeCurrency();    
     }
     this._posStatusService.checkShiftStatus(); // Trigger refresh
 
@@ -165,8 +166,12 @@ salesDataOrders:any =[];
         sessionStorage.setItem('currency', currencyValue);
         this.selectedCurrency = this.currencies.find(
           (currency: any) => currency.pk == (currencyValue ?? sessionStorage.getItem('currency'))
-        );
+        );        
         this._posSharedService.setSelectedCurrency(this.selectedCurrency);
+        this._posSharedService.selectedCurrency$.subscribe(res=>{
+          
+        })
+        
       });
 
     // Manually trigger once on init or after patch
@@ -260,14 +265,12 @@ onPlaceOrder() {
           this._posSharedService.setDiscountAmount(0);
         },
         error: () => {
-          console.log(parseInt(sessionStorage?.getItem('currency') || ''));
           
-          this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
+          // this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
         },
         complete:()=>{
-          console.log(parseInt(sessionStorage?.getItem('currency') || ''));
 
-          this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
+          // this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
         }
       });
     }

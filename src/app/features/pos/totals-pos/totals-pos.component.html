@@ -11,8 +11,8 @@
                     </app-dropdowns>
                 </div>
                 <div class="col-md-12">
-                    <app-dropdowns [disabled]="selectedCurrency" [required]="true" label="Currencies" formControlName="currency" [options]="currencies"
-                        optionLabel="currency_name" optionValue="currency" placeholder="Select a currency">
+                    <app-dropdowns [disabled]="totalVat !=0 || totalWithVat !=0|| totalPrice!=0 || discountAmount!=0" [required]="true" label="Currencies" formControlName="currency" [options]="currencies"
+                        optionLabel="currency_name" optionValue="pk" placeholder="Select a currency">
                     </app-dropdowns>
                 </div>
             </div>
