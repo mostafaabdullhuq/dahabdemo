@@ -45,15 +45,18 @@ export class AddEditTaxComponent implements OnInit{
   
     private initForm(): void {
       this.addEditBrandForm = this._formBuilder.group({
-        name: ['', [Validators.required]],
-        country: [''],
+      //  name: ['', [Validators.required]],
+      //  country: [''],
+        tax: [''],
       });
     }
   
     private loadBrandsData(brandId: number | string): void {
       this._settingService.getTaxRateById(brandId).subscribe((unit:any) => {
         this.addEditBrandForm.patchValue({
-          name: unit?.name,
+       //   name: unit?.name,
+       //   country: unit?.country,
+          tax: unit?.tax,
         });
       });
     }
