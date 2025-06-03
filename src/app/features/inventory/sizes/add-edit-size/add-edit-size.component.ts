@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../shared/shared.module';
 import { InventoryService } from '../../@services/inventory.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-edit-size',
@@ -25,7 +25,8 @@ export class AddEditSizeComponent {
     private _inventoryService: InventoryService,
     private _formBuilder: FormBuilder,
     private _dropdownService: DropdownsService,
-    private _activeRoute:ActivatedRoute
+    private _activeRoute:ActivatedRoute,
+        private _router:Router
   ) {}
 
   ngOnInit(): void {
@@ -63,13 +64,13 @@ export class AddEditSizeComponent {
     console.log(this.selectedBranches);
     
     if (this.isEditMode && this.sizeId) {
-      this._inventoryService.updateUnit(this.sizeId, formData).subscribe({
-        next: res => console.log('User updated successfully', res),
+      this._inventoryService.updatePurity(this.sizeId, formData).subscribe({
+        next: res => this._router.navigate([`setting/sizes`]),
         error: err => console.error('Error updating user', err)
       });
     } else {
-      this._inventoryService.addUnit(formData).subscribe({
-        next: res => console.log('User created successfully', res),
+      this._inventoryService.addPurity(formData).subscribe({
+        next: res => this._router.navigate([`setting/sizes`]),
         error: err => console.error('Error creating user', err)
       });
     }

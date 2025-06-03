@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../shared/shared.module';
 import { InventoryService } from '../../@services/inventory.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-edit-brand',
@@ -24,7 +24,8 @@ export class AddEditBrandComponent {
     constructor(
       private _inventoryService: InventoryService,
       private _formBuilder: FormBuilder,
-      private _activeRoute:ActivatedRoute
+      private _activeRoute:ActivatedRoute,
+      private _router:Router,
     ) {}
   
     ngOnInit(): void {
@@ -61,12 +62,12 @@ export class AddEditBrandComponent {
       
       if (this.isEditMode && this.brandId) {
         this._inventoryService.updateBrand(this.brandId, formData).subscribe({
-          next: res => console.log('User updated successfully', res),
+        next: res => this._router.navigate([`setting/brands`]),
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._inventoryService.addBrand(formData).subscribe({
-          next: res => console.log('User created successfully', res),
+        next: res => this._router.navigate([`setting/brands`]),
           error: err => console.error('Error creating user', err)
         });
       }

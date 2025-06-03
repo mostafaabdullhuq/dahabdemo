@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { InventoryService } from '../../@services/inventory.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
@@ -33,7 +33,8 @@ export class AddEditProductComponent {
       private _inventoryService: InventoryService,
       private _formBuilder: FormBuilder,
       private _dropdownService: DropdownsService,
-      private _activeRoute:ActivatedRoute
+      private _activeRoute:ActivatedRoute,
+          private _router:Router
     ) {}
   
     ngOnInit(): void {
@@ -210,7 +211,7 @@ private addCustomFields(): void {
       : this._inventoryService.addProduct(formData);
   
     request$.subscribe({
-      next: res => console.log(this.isEditMode ? 'Updated' : 'Created', res),
+              next: res => this._router.navigate([`setting/products`]),
       error: err => console.error('Error', err)
     });
   }

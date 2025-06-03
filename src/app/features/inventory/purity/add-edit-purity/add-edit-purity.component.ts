@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { InventoryService } from '../../@services/inventory.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 
 @Component({
@@ -25,7 +25,8 @@ export class AddEditPurityComponent {
     private _inventoryService: InventoryService,
     private _formBuilder: FormBuilder,
     private _dropdownService: DropdownsService,
-    private _activeRoute:ActivatedRoute
+    private _activeRoute:ActivatedRoute,
+        private _router:Router
   ) {}
 
   ngOnInit(): void {
@@ -66,12 +67,12 @@ export class AddEditPurityComponent {
     
     if (this.isEditMode && this.purityId) {
       this._inventoryService.updateUnit(this.purityId, formData).subscribe({
-        next: res => console.log('User updated successfully', res),
+        next: res => this._router.navigate([`setting/purities`]),
         error: err => console.error('Error updating user', err)
       });
     } else {
       this._inventoryService.addUnit(formData).subscribe({
-        next: res => console.log('User created successfully', res),
+        next: res => this._router.navigate([`setting/purities`]),
         error: err => console.error('Error creating user', err)
       });
     }

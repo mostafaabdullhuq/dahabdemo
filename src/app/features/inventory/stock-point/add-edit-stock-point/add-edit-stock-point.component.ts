@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { InventoryService } from '../../@services/inventory.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
@@ -25,7 +25,8 @@ export class AddEditStockPointComponent {
       private _inventoryService: InventoryService,
       private _formBuilder: FormBuilder,
       private _dropdownService: DropdownsService,
-      private _activeRoute:ActivatedRoute
+      private _activeRoute:ActivatedRoute,
+          private _router:Router
     ) {}
   
     ngOnInit(): void {
@@ -61,12 +62,12 @@ export class AddEditStockPointComponent {
       
       if (this.isEditMode && this.stockpointId) {
         this._inventoryService.updateStockPoint(this.stockpointId, formData).subscribe({
-          next: res => console.log('User updated successfully', res),
+        next: res => this._router.navigate([`setting/stockpoints`]),
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._inventoryService.addStockPoint(formData).subscribe({
-          next: res => console.log('User created successfully', res),
+        next: res => this._router.navigate([`setting/stockpoints`]),
           error: err => console.error('Error creating user', err)
         });
       }

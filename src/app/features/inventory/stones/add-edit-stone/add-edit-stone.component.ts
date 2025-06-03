@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { InventoryService } from '../../@services/inventory.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 
 @Component({
@@ -22,7 +22,8 @@ export class AddEditStoneComponent {
     constructor(
       private _inventoryService: InventoryService,
       private _formBuilder: FormBuilder,
-      private _activeRoute:ActivatedRoute
+      private _activeRoute:ActivatedRoute,
+          private _router:Router
     ) {}
   
     ngOnInit(): void {
@@ -57,12 +58,12 @@ export class AddEditStoneComponent {
       
       if (this.isEditMode && this.stoneId) {
         this._inventoryService.updateStone(this.stoneId, formData).subscribe({
-          next: res => console.log('User updated successfully', res),
+        next: res => this._router.navigate([`setting/stones`]),
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._inventoryService.addStone(formData).subscribe({
-          next: res => console.log('User created successfully', res),
+        next: res => this._router.navigate([`setting/stones`]),
           error: err => console.error('Error creating user', err)
         });
       }

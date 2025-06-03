@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { InventoryService } from '../../@services/inventory.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 
 @Component({
@@ -23,7 +23,8 @@ export class AddEditDesignerComponent {
     constructor(
       private _inventoryService: InventoryService,
       private _formBuilder: FormBuilder,
-      private _activeRoute:ActivatedRoute
+      private _activeRoute:ActivatedRoute,
+          private _router:Router
     ) {}
   
     ngOnInit(): void {
@@ -59,12 +60,12 @@ export class AddEditDesignerComponent {
       
       if (this.isEditMode && this.designerId) {
         this._inventoryService.updateDesigner(this.designerId, formData).subscribe({
-          next: res => console.log('User updated successfully', res),
+        next: res => this._router.navigate([`setting/designers`]),
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._inventoryService.addDesigner(formData).subscribe({
-          next: res => console.log('User created successfully', res),
+        next: res => this._router.navigate([`setting/designers`]),
           error: err => console.error('Error creating user', err)
         });
       }
