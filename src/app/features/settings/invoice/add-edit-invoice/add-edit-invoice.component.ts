@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../../shared/shared.module';
+import { SettingsService } from '../../@services/settings.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-edit-invoice',
@@ -8,9 +10,9 @@ import { SharedModule } from '../../../../shared/shared.module';
   templateUrl: './add-edit-invoice.component.html',
   styleUrl: './add-edit-invoice.component.scss'
 })
-export class AddEditInvoiceComponent implements OnInit{
+export class AddEditInvoiceComponent implements OnInit {
   invoiceForm!:FormGroup;
-  constructor(private _formBuilder:FormBuilder){}
+  constructor(private _router:Router, private _formBuilder:FormBuilder , private _settingService:SettingsService){}
   ngOnInit(): void {
     this.invoiceForm = this._formBuilder.group({
       layout_name: [''],
@@ -55,5 +57,17 @@ export class AddEditInvoiceComponent implements OnInit{
       payment_date: ['']
     });
   }
-  onSubmit(){}
+  onSubmit(){
+    // if (this.invoiceForm.invalid) return;
+  
+      const formData = this.invoiceForm?.value;      
+        this._settingService.addInvoiceLayout(formData).subscribe({
+          next: res => {console.log('User created successfully', res)
+    this._router.navigate([`setting/invoice`]);
+          },
+          error: err => {
+    this._router.navigate([`setting/invoice`]);
+          }
+        });
+      }
 }
