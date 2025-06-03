@@ -60,12 +60,12 @@ export class AddEditDesignerComponent {
       
       if (this.isEditMode && this.designerId) {
         this._inventoryService.updateDesigner(this.designerId, formData).subscribe({
-        next: res => this._router.navigate([`setting/designers`]),
+        next: res => this._router.navigate([`inventory/designers`]),
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._inventoryService.addDesigner(formData).subscribe({
-        next: res => this._router.navigate([`setting/designers`]),
+        next: res => this._router.navigate([`inventory/designers`]),
           error: err => console.error('Error creating user', err)
         });
       }

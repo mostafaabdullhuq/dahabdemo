@@ -59,12 +59,12 @@ export class AddEditColorComponent {
     
     if (this.isEditMode && this.colorId) {
       this._inventoryService.updateColor(this.colorId, formData).subscribe({
-        next: res => this._router.navigate([`setting/colors`]),
+        next: res => this._router.navigate([`inventory/colors`]),
         error: err => console.error('Error updating user', err)
       });
     } else {
       this._inventoryService.addColor(formData).subscribe({
-        next: res => this._router.navigate([`setting/colors`]),
+        next: res => this._router.navigate([`inventory/colors`]),
         error: err => console.error('Error creating user', err)
       });
     }

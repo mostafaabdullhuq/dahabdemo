@@ -58,12 +58,12 @@ export class AddEditStoneComponent {
       
       if (this.isEditMode && this.stoneId) {
         this._inventoryService.updateStone(this.stoneId, formData).subscribe({
-        next: res => this._router.navigate([`setting/stones`]),
+        next: res => this._router.navigate([`inventory/stones`]),
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._inventoryService.addStone(formData).subscribe({
-        next: res => this._router.navigate([`setting/stones`]),
+        next: res => this._router.navigate([`inventory/stones`]),
           error: err => console.error('Error creating user', err)
         });
       }

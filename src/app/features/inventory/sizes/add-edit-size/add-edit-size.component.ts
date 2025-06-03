@@ -65,12 +65,12 @@ export class AddEditSizeComponent {
     
     if (this.isEditMode && this.sizeId) {
       this._inventoryService.updatePurity(this.sizeId, formData).subscribe({
-        next: res => this._router.navigate([`setting/sizes`]),
+        next: res => this._router.navigate([`inventory/sizes`]),
         error: err => console.error('Error updating user', err)
       });
     } else {
       this._inventoryService.addPurity(formData).subscribe({
-        next: res => this._router.navigate([`setting/sizes`]),
+        next: res => this._router.navigate([`inventory/sizes`]),
         error: err => console.error('Error creating user', err)
       });
     }

@@ -66,13 +66,13 @@ export class AddEditPurityComponent {
     console.log(this.selectedBranches);
     
     if (this.isEditMode && this.purityId) {
-      this._inventoryService.updateUnit(this.purityId, formData).subscribe({
-        next: res => this._router.navigate([`setting/purities`]),
+      this._inventoryService.updatePurity(this.purityId, formData).subscribe({
+        next: res => this._router.navigate([`inventory/purities`]),
         error: err => console.error('Error updating user', err)
       });
     } else {
-      this._inventoryService.addUnit(formData).subscribe({
-        next: res => this._router.navigate([`setting/purities`]),
+      this._inventoryService.addPurity(formData).subscribe({
+        next: res => this._router.navigate([`inventory/purities`]),
         error: err => console.error('Error creating user', err)
       });
     }

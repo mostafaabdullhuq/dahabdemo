@@ -211,7 +211,7 @@ private addCustomFields(): void {
       : this._inventoryService.addProduct(formData);
   
     request$.subscribe({
-              next: res => this._router.navigate([`setting/products`]),
+              next: res => this._router.navigate([`inventory/products`]),
       error: err => console.error('Error', err)
     });
   }

@@ -62,12 +62,12 @@ export class AddEditStockPointComponent {
       
       if (this.isEditMode && this.stockpointId) {
         this._inventoryService.updateStockPoint(this.stockpointId, formData).subscribe({
-        next: res => this._router.navigate([`setting/stockpoints`]),
+        next: res => this._router.navigate([`inventory/stockpoints`]),
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._inventoryService.addStockPoint(formData).subscribe({
-        next: res => this._router.navigate([`setting/stockpoints`]),
+        next: res => this._router.navigate([`inventory/stockpoints`]),
           error: err => console.error('Error creating user', err)
         });
       }

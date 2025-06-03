@@ -67,12 +67,12 @@ export class AddEditCategoryComponent {
       
       if (this.isEditMode && this.categoryId) {
         this._inventoryService.updateCategory(this.categoryId, formData).subscribe({
-        next: res => this._router.navigate([`setting/categories`]),
+        next: res => this._router.navigate([`inventory/categories`]),
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._inventoryService.addCategory(formData).subscribe({
-          next: res => this._router.navigate([`setting/categories`]),
+          next: res => this._router.navigate([`inventory/categories`]),
           error: err => console.error('Error creating user', err)
         });
       }

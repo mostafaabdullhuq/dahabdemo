@@ -62,12 +62,12 @@ export class AddEditBrandComponent {
       
       if (this.isEditMode && this.brandId) {
         this._inventoryService.updateBrand(this.brandId, formData).subscribe({
-        next: res => this._router.navigate([`setting/brands`]),
+        next: res => this._router.navigate([`inventory/brands`]),
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._inventoryService.addBrand(formData).subscribe({
-        next: res => this._router.navigate([`setting/brands`]),
+        next: res => this._router.navigate([`inventory/brands`]),
           error: err => console.error('Error creating user', err)
         });
       }
