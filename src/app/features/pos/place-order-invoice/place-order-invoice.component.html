@@ -70,19 +70,19 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.sale">
                     <td>
-                        <img [src]="item.attachment" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
-                    <td class="text-end">{{ item.gross_weight }}</td>
-                    <td class="text-end">{{ item.sub_total }}{{invoiceData?.currency}}</td>
-                    <td class="text-end">{{ item.price }}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.gross_weight | number:'1.3-3'}}</td>
+                    <td class="text-end">{{ item.sub_total | number:'1.3-3'}}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.price | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{invoiceData.total_amount}}</th>
+                    <th class="text-end">{{invoiceData.total_amount| number:'1.3-3'}}</th>
                 </tr>
             </tfoot>
         
@@ -106,19 +106,19 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.gold_receipt">
                     <td>
-                        <img [src]="item.attachment" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
-                    <td class="text-end">{{ item.gross_weight }}</td>
-                    <td class="text-end">{{ item.sub_total }}{{invoiceData?.currency}}</td>
-                    <td class="text-end">{{ item.price }}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.gross_weight | number:'1.3-3'}}</td>
+                    <td class="text-end">{{ item.sub_total| number:'1.3-3' }}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.price | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{invoiceData.total_amount}}{{invoiceData?.currency}}</th>
+                    <th class="text-end">{{invoiceData.total_amount | number:'1.3-3'}}{{invoiceData?.currency}}</th>
                 </tr>
             </tfoot>
         
@@ -141,19 +141,19 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.return">
                     <td>
-                        <img [src]="item.attachment" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
-                    <td class="text-end">{{ item.gross_weight }}</td>
-                    <td class="text-end">{{ item.sub_total }}{{invoiceData?.currency}}</td>
-                    <td class="text-end">{{ item.price }}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.gross_weight | number:'1.3-3'}}</td>
+                    <td class="text-end">{{ item.sub_total | number:'1.3-3'}}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.price | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{invoiceData.total_amount}}{{invoiceData?.currency}}</th>
+                    <th class="text-end">{{invoiceData.total_amount| number:'1.3-3'}}{{invoiceData?.currency}}</th>
                 </tr>
             </tfoot>
         
@@ -177,19 +177,19 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.repair">
                     <td>
-                        <img [src]="item.attachment" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
-                    <td class="text-end">{{ item.gross_weight }}</td>
-                    <td class="text-end">{{ item.sub_total }}{{invoiceData?.currency}}</td>
-                    <td class="text-end">{{ item.price }}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.gross_weight| number:'1.3-3' }}</td>
+                    <td class="text-end">{{ item.sub_total | number:'1.3-3'}}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.price | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{invoiceData.total_amount}}{{invoiceData?.currency}}</th>
+                    <th class="text-end">{{invoiceData.total_amount| number:'1.3-3'}}{{invoiceData?.currency}}</th>
                 </tr>
             </tfoot>
         
@@ -213,19 +213,19 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.purchase">
                     <td>
-                        <img [src]="item.attachment" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
-                    <td class="text-end">{{ item.gross_weight }}</td>
-                    <td class="text-end">{{ item.sub_total }}{{invoiceData?.currency}}</td>
-                    <td class="text-end">{{ item.price }}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.gross_weight| number:'1.3-3' }}</td>
+                    <td class="text-end">{{ item.sub_total | number:'1.3-3'}}{{invoiceData?.currency}}</td>
+                    <td class="text-end">{{ item.price | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{invoiceData.total_amount}}{{invoiceData?.currency}}</th>
+                    <th class="text-end">{{invoiceData.total_amount| number:'1.3-3'}}{{invoiceData?.currency}}</th>
                 </tr>
             </tfoot>
         
@@ -240,13 +240,13 @@
                 <div class="col-md-4 fw-bold border border-1 rounded-3">
                     <ul class="list-unstyled">
                         <li class="d-flex justify-content-between"><strong>Subtotal (exc vat) </strong> :
-                            <span>{{invoiceData?.sub_total}}{{invoiceData?.currency}}</span></li>
+                            <span>{{invoiceData?.sub_total| number:'1.3-3'}}{{invoiceData?.currency}}</span></li>
                         <li class="d-flex justify-content-between"><strong>Discount </strong> :
-                            <span>{{invoiceData?.discount}}</span></li>
+                            <span>{{invoiceData?.discount| number:'1.3-3'}}</span></li>
                         <li class="d-flex justify-content-between"><strong>Vat (10%) </strong> :
                             <span>{{invoiceData?.tax}}{{invoiceData?.currency}}</span></li>
                         <li class="d-flex justify-content-between"><strong>Net Amount (inc vat) </strong> :
-                            <span>{{invoiceData?.total_amount}} {{invoiceData?.currency}}</span></li>
+                            <span>{{invoiceData?.total_amount| number:'1.3-3'}} {{invoiceData?.currency}}</span></li>
                     </ul>
                 </div>
             </div>
