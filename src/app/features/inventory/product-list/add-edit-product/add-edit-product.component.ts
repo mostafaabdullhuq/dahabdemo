@@ -132,6 +132,7 @@ colors:any[]=[]
       size_id: product.size_id,
       purity_id: product.purity_id,
       unit_id: product.unit_id,
+      color: product.color_id,
       brand_id: product.brand_id,
       category_id: product.category_id,
       description: product.description,
@@ -160,7 +161,7 @@ if (product.branches?.length) {
       is_active: stock.is_active,
     });
   });
-  fetch(product.image)
+  fetch(product?.image)
   .then(res => res.blob())
   .then(blob => {
     const file = new File([blob], "image.jpg", { type: blob.type });
