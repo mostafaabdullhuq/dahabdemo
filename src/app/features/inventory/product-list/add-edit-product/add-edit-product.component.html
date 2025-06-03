@@ -90,9 +90,12 @@
                                 optionLabel="name" optionValue="id" placeholder="Select a category"></app-dropdowns>
                         </div>
 
-                        <div class="col-md-4">
-                            <app-dropdowns label="Purity Rate" formControlName="purity_id" [options]="purities"
+                        <div class="col-md-3">
+                            <app-dropdowns label="Purity" formControlName="purity_id" [options]="purities"
                                 optionLabel="name" optionValue="id" placeholder="Select purity"></app-dropdowns>
+                        </div>
+                        <div class="col-md-1 mt-5 pt-3 fw-bold">
+                            <span>{{selectedPurityValue}}</span>
                         </div>
 
                         <div class="col-md-4">

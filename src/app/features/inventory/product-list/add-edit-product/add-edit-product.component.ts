@@ -81,9 +81,13 @@ export class AddEditProductComponent {
       this.customFields = res;
             this.addCustomFields();
 
-    })
+    });
+    this.addEditProductForm.get('purity_id')?.valueChanges.subscribe((id) => {
+    const selected = this.purities.find(p => p.id === id);
+    this.selectedPurityValue = selected?.purity_value ?? null;
+  });
     }
-  
+  selectedPurityValue: number | null = null;
     private initForm(): void {
       this.addEditProductForm = this._formBuilder.group({
         stock_point: [''],

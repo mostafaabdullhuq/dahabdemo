@@ -111,37 +111,38 @@ export class ProductListComponent {
         console.log('Total records:', this.totalRecords);  // Debugging log
       });
     }
-    onSearch(): void {
-      const formValues = this.filterForm.value;
-    
-      const queryParts: string[] = [];
-    
-      Object.keys(formValues).forEach(key => {
-        const value = formValues[key];
-        if (value !== null && value !== '' && value !== undefined) {
-          const encodedKey = encodeURIComponent(key);
-          const encodedValue = encodeURIComponent(value).replace(/%20/g, '+'); // Replace space with +
-          queryParts.push(`${encodedKey}=${encodedValue}`);
-        }
-      });
-    
-      const queryParams = queryParts.join('&');
-    
-      this.getProducts(queryParams, 1, 10);
+ searchQuery = ''; // Holds the current query string
+
+onSearch(): void {
+  const formValues = this.filterForm.value;
+  const queryParts: string[] = [];
+
+  Object.keys(formValues).forEach(key => {
+    const value = formValues[key];
+    if (value !== null && value !== '' && value !== undefined) {
+      const encodedKey = encodeURIComponent(key);
+      const encodedValue = encodeURIComponent(value).replace(/%20/g, '+');
+      queryParts.push(`${encodedKey}=${encodedValue}`);
     }
-    loadProducts(event: any): void {
-    const page = event.first / event.rows + 1;
-    const pageSize = event.rows;
-  
-    this.first = event.first;
-    this.pageSize = pageSize;
-  
-    this._inventoryService.getProducts('',page,pageSize)
-      .subscribe((res) => {
-        this.products = res.results;
-        this.totalRecords = res.count;
-      });
-  }
+  });
+
+  this.searchQuery = queryParts.join('&');
+  this.loadProducts({ first: 0, rows: this.pageSize }); // reset to first page
+}
+
+loadProducts(event: any): void {
+  const page = event.first / event.rows + 1;
+  const pageSize = event.rows;
+
+  this.first = event.first;
+  this.pageSize = pageSize;
+
+  this._inventoryService.getProducts(this.searchQuery, page, pageSize)
+    .subscribe((res) => {
+      this.products = res.results;
+      this.totalRecords = res.count;
+    });
+}
   selectedProduct: any;
   
   productMenuItems: MenuItem[] = [
