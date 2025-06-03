@@ -132,12 +132,12 @@ colors:any[]=[]
       size_id: product.size_id,
       purity_id: product.purity_id,
       unit_id: product.unit_id,
-      color: product.color_id,
+      color: product.color,
       brand_id: product.brand_id,
       category_id: product.category_id,
       description: product.description,
       name: product.name,
-      // image: product?.image
+      image: product?.image
     });
 
     // Clear and add stones if any
@@ -161,12 +161,12 @@ if (product.branches?.length) {
       is_active: stock.is_active,
     });
   });
-  fetch(product?.image)
-  .then(res => res.blob())
-  .then(blob => {
-    const file = new File([blob], "image.jpg", { type: blob.type });
-    this.addEditProductForm.patchValue({ image: file });
-  });
+  // fetch(product?.image)
+  // .then(res => res.blob())
+  // .then(blob => {
+  //   const file = new File([blob], "image.jpg", { type: blob.type });
+  //   this.addEditProductForm.patchValue({ image: file });
+  // });
 }
 
     // Add custom fields dynamically if available
