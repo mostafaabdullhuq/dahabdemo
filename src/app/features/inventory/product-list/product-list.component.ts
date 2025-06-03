@@ -84,7 +84,7 @@ export class ProductListComponent {
         designer: [''],
         brand: [''],
         category: [''],
-        name: [''],
+        name__icontains: [''],
         branch: [''],
         purity: [''],
         size: [''],

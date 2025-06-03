@@ -16,7 +16,7 @@
                             <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
                         </div>
                     <div class="col-md-4">
-                        <app-input-text formControlName="name" placeholder="Enter product name" type="name" inputName="name"></app-input-text>
+                        <app-input-text formControlName="name__icontains" placeholder="Enter product name" type="name" inputName="name"></app-input-text>
                     </div>
                     <div class="col-md-4">
                         <app-dropdowns label="Branch" [options]="branches" optionLabel="name" optionValue="id"
