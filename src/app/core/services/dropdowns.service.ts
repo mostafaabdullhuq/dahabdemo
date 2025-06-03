@@ -42,9 +42,14 @@ export class DropdownsService {
   }
     getAccounts(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
-    const url = nextPageUrl || `${this.API}accounting/accounts/?${param}`;
+    const url = nextPageUrl || `${this.API}accounting/accounts/subaccounts/${param}`;
     return this._http.getRequest<any>(url);
   }
+  //   getSubAccounts(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
+  //   const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+  //   const url = nextPageUrl || `${this.API}accounting/accounts/subaccounts/?${param}`;
+  //   return this._http.getRequest<any>(url);
+  // }
   getRoles(nextPageUrl: string | null = null): Observable<any> {
     const url = nextPageUrl || `${this.API}business/roles/`;
     return this._http.getRequest<any>(url);

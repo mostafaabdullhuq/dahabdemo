@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SettingsService } from '../../@services/settings.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
@@ -26,6 +26,7 @@ export class AddEditPaymentOptionsComponent implements OnInit{
       private _formBuilder: FormBuilder,
       private _activeRoute:ActivatedRoute,
       private _dropdownService:DropdownsService,
+      private _router:Router
     ) {}
   
     ngOnInit(): void {
@@ -74,12 +75,15 @@ export class AddEditPaymentOptionsComponent implements OnInit{
       
       if (this.isEditMode && this.brandId) {
         this._settingService.updatePaymentOption(this.brandId, formData).subscribe({
-          next: res => console.log('User updated successfully', res),
+          next: res => {
+                this._router.navigate([`setting/payment-options`]);
+          },
           error: err => console.error('Error updating user', err)
         });
       } else {
         this._settingService.addPaymentOption(formData).subscribe({
-          next: res => console.log('User created successfully', res),
+          next: res => this._router.navigate([`setting/payment-options`])
+          ,
           error: err => console.error('Error creating user', err)
         });
       }

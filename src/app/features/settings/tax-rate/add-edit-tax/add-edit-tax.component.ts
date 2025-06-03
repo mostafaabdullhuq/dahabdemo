@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SettingsService } from '../../@services/settings.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 
@@ -26,6 +26,7 @@ export class AddEditTaxComponent implements OnInit{
       private _formBuilder: FormBuilder,
       private _activeRoute:ActivatedRoute,
       private _dropdownService:DropdownsService,
+      private _router:Router
     ) {}
   
     ngOnInit(): void {
@@ -74,8 +75,12 @@ export class AddEditTaxComponent implements OnInit{
         });
       } else {
         this._settingService.addTaxRate(formData).subscribe({
-          next: res => console.log('User created successfully', res),
-          error: err => console.error('Error creating user', err)
+          next: res => {console.log('User created successfully', res)
+    this._router.navigate([`setting/tax-rate`]);
+          },
+          error: err => {
+    this._router.navigate([`setting/tax-rate`]);
+          }
         });
       }
     }
