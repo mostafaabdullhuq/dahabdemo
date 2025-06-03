@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { InventoryService } from '../../@services/inventory.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 
 @Component({
@@ -25,7 +25,8 @@ export class AddEditUnitComponent {
       private _inventoryService: InventoryService,
       private _formBuilder: FormBuilder,
       private _dropdownService: DropdownsService,
-      private _activeRoute:ActivatedRoute
+      private _activeRoute:ActivatedRoute,
+      private _router:Router
     ) {}
   
     ngOnInit(): void {
@@ -61,22 +62,33 @@ export class AddEditUnitComponent {
       });
     }
   
-    onSubmit(): void {
-      if (this.addEditUnitForm.invalid) return;
-  
-      const formData = this.addEditUnitForm?.value;
-      console.log(this.selectedBranches);
-      
-      if (this.isEditMode && this.unitId) {
-        this._inventoryService.updateUnit(this.unitId, formData).subscribe({
-          next: res => console.log('User updated successfully', res),
-          error: err => console.error('Error updating user', err)
-        });
-      } else {
-        this._inventoryService.addUnit(formData).subscribe({
-          next: res => console.log('User created successfully', res),
-          error: err => console.error('Error creating user', err)
-        });
-      }
+ onSubmit(): void {
+  if (this.addEditUnitForm.invalid) return;
+
+  const rawFormData = this.addEditUnitForm.value;
+
+  // Build payload with only truthy values (excluding null, undefined, empty string, 0 if you want)
+  const payload: any = {};
+  Object.keys(rawFormData).forEach(key => {
+    const value = rawFormData[key];
+    // Check for null, undefined, or empty string
+    if (value !== null && value !== undefined && value !== '') {
+      payload[key] = value;
     }
+  });
+
+  console.log(this.selectedBranches);
+
+  if (this.isEditMode && this.unitId) {
+    this._inventoryService.updateUnit(this.unitId, payload).subscribe({
+        next: res => this._router.navigate([`inventory/units`]),
+      error: err => console.error('Error updating user', err)
+    });
+  } else {
+    this._inventoryService.addUnit(payload).subscribe({
+        next: res => this._router.navigate([`inventory/units`]),
+      error: err => console.error('Error creating user', err)
+    });
+  }
+}
 }
