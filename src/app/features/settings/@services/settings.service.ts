@@ -14,7 +14,7 @@ export class SettingsService {
     return this._http.postRequest(`${environment.api_url}business/settings/business/`,addForm);
   }
   getBusinessById(id:number | string){
-    return this._http.getRequest(`${environment.api_url}business/settings/business/${id}`);
+    return this._http.getRequest(`${environment.api_url}superadmin/all-businesses/${id}`);
   }
   updateBusiness(id:number | string, editForm:FormGroup | FormData){
     return this._http.patchRequest(`${environment.api_url}business/settings/business/${id}/` , editForm);
