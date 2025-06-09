@@ -15,7 +15,7 @@
                                 <div class="card">
                                     <div>
                                         <p class="time-text"><span>Income</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                        <p class="day-text"> DB {{finacialData?.income}}</p>
                                     </div>
                                     <div>
                                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
@@ -27,7 +27,7 @@
                                 <div class="card">
                                     <div>
                                         <p class="time-text"><span>Expense</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                        <p class="day-text"> DB {{finacialData?.expenses}}</p>
                                     </div>
                                     <div>
                                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
@@ -39,7 +39,7 @@
                                 <div class="card">
                                     <div>
                                         <p class="time-text"><span>Purchase</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                        <p class="day-text"> DB {{finacialData?.purchases}}</p>
                                     </div>
                                     <div>
                                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
@@ -51,7 +51,7 @@
                                 <div class="card">
                                     <div>
                                         <p class="time-text"><span>Profit</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                        <p class="day-text"> DB {{finacialData?.profit}}</p>
                                     </div>
                                     <div>
                                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
@@ -63,7 +63,7 @@
                                 <div class="card">
                                     <div>
                                         <p class="time-text"><span>Purchase Due Amount</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                        <p class="day-text"> DB {{finacialData?.purchase_due_amount}}</p>
                                     </div>
                                     <div>
                                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
@@ -75,7 +75,7 @@
                                 <div class="card">
                                     <div>
                                         <p class="time-text"><span>Total Stock Value</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                        <p class="day-text"> DB {{finacialData?.receivables}}</p>
                                     </div>
                                     <div>
                                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
@@ -87,10 +87,10 @@
                                 <div class="card">
                                     <div>
                                         <p class="time-text"><span>Purchase Due Weight</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                        <p class="day-text"> DB {{finacialData?.purchase_due_weight}}</p>
                                     </div>
                                     <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
+                                        <img class="text-center mx-2" style="width: 4rem; height: 4rem;"
                                             src="dashboard/receiver.png" alt="">
                                     </div>
                                 </div>
@@ -101,7 +101,7 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <p-chart type="pie" [data]="data" [options]="options" class="w-full md:w-[40rem]" />
+                <p-chart type="pie" [data]="dataFinancial" [options]="options" class="w-full md:w-[40rem]" />
             </div>
         </div>
         <hr>
@@ -110,60 +110,26 @@
                 <div class="cards-container py-3">
                     <div class="card-1">
                         <h4 class="section-form-header mt-2 mb-5">Inventory </h4>
+                        <div class="row row-gap-4 pb-4">
+                            <div class="col-md-4 " *ngFor="let item of inventoryData?.purity_totals  | keyvalue">
+                            <div class="card">
+                                <div>
+                                    <p class="time-text"><span>{{ item?.key }}</span></p>
+                                    <p class="day-text">BD {{ item.value  }}</p>
+                                </div>
+                                <div>
+                                    <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
+                                        src="dashboard/gold-ingots.png" alt="">
+                                </div>
+                            </div>
+                        </div>
+                        </div>
                         <div class="row row-gap-4">
-                            <div class="col-md-4 ">
+                            <div class="col-md-4 " *ngFor="let item of inventoryData?.category_totals  | keyvalue">
                                 <div class="card">
                                     <div>
-                                        <p class="time-text"><span>18 K</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/gold-ingots.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>21 K</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/gold-ingots.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>22 K</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/gold-ingots.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>24 K</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/gold-ingots.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>Silver</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                        <p class="time-text"><span>{{item?.key}}</span></p>
+                                        <p class="day-text">BD {{item?.value}}</p>
                                     </div>
                                     <div>
                                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
@@ -171,56 +137,34 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>Stones</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/crystal.png" alt="">
-                                    </div>
+                        </div>
+                        <div class="row row-gap-4 pt-4">
+                            <div class="col-md-4 " *ngFor="let item of inventoryData?.stone_totals  | keyvalue">
+                            <div class="card">
+                                <div>
+                                    <p class="time-text"><span>{{ item?.key }}</span></p>
+                                <p class="day-text">BD {{ item.value  }}</p>
+                                </div>
+                                <div>
+                                    <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
+                                        src="dashboard/crystal.png" alt="">
                                 </div>
                             </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>Diamond</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/diamond.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>Pearls</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/pearls.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
                         </div>
                     </div>
 
                 </div>
             </div>
             <div class="col-md-3">
-                <p-chart type="pie" [data]="data" [options]="options" class="w-full md:w-[40rem]" />
+                <p-chart type="pie" [data]="dataInventry" [options]="options" class="w-full md:w-[40rem]" />
                 <div class="container pt-4">
                     <div class="row d-flex justify-content-center align-items-center">
                         <div class="col-md-6">
                             <h5>Total Stock Items</h5>
                         </div>
                         <div class="col-md-6">
-                            <h5>1500 PCS</h5>
+                            <h5>{{inventoryData?.total_stock_items}} PCS</h5>
                         </div>
                     </div>
                 </div>
@@ -234,11 +178,11 @@
                     <div class="card-1">
                         <h4 class="section-form-header mt-2 mb-5">Transactions </h4>
                         <div class="row row-gap-4">
-                            <div class="col-md-4 ">
+                            <div class="col-md-4 " *ngFor="let item of transData?.purity_totals  | keyvalue">
                                 <div class="card">
                                     <div>
-                                        <p class="time-text"><span>18 K</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                             <p class="time-text"><span>{{ item?.key }}</span></p>
+                                    <p class="day-text">BD {{ item.value  }}</p>
                                     </div>
                                     <div>
                                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
@@ -246,47 +190,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 ">
+                        </div>
+                        <div class="row row-gap-4">
+                            <div class="col-md-4 " *ngFor="let item of transData?.category_totals  | keyvalue">
                                 <div class="card">
                                     <div>
-                                        <p class="time-text"><span>21 K</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/gold-ingots.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>22 K</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/gold-ingots.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>24 K</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/gold-ingots.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>Silver</span></p>
-                                        <p class="day-text">BD 1000</p>
+                                        <p class="time-text"><span>{{item?.key}}</span></p>
+                                        <p class="day-text">BD {{item?.value}}</p>
                                     </div>
                                     <div>
                                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
@@ -294,42 +204,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>Stones</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/crystal.png" alt="">
-                                    </div>
+                        </div>
+                        <div class="row row-gap-4 pt-4">
+                            <div class="col-md-4 " *ngFor="let item of transData?.stone_totals  | keyvalue">
+                            <div class="card">
+                                <div>
+                                    <p class="time-text"><span>{{ item?.key }}</span></p>
+                                <p class="day-text">BD {{ item.value  }}</p>
+                                </div>
+                                <div>
+                                    <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
+                                        src="dashboard/crystal.png" alt="">
                                 </div>
                             </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>Diamond</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/diamond.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 ">
-                                <div class="card">
-                                    <div>
-                                        <p class="time-text"><span>Pearls</span></p>
-                                        <p class="day-text">BD 1000</p>
-                                    </div>
-                                    <div>
-                                        <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                            src="dashboard/pearls.png" alt="">
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
                         </div>
                     </div>
 
@@ -339,7 +227,7 @@
                 <div class="card mb-3" style="min-height: 18rem;">
                     <div>
                         <p class="time-text"><span>Pending Repair</span></p>
-                        <p class="day-text">BD 1000</p>
+                        <p class="day-text">{{transData?.total_repair}}</p>
                     </div>
                     <div>
                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/repair.png"
@@ -348,8 +236,8 @@
                 </div>
                 <div class="card" style="min-height: 18rem;">
                     <div>
-                        <p class="time-text"><span>Pending G. Recept</span></p>
-                        <p class="day-text">BD 1000</p>
+                        <p class="time-text"><span>Pending G. Receipt</span></p>
+                        <p class="day-text">{{transData?.total_gold_receipt}}</p>
                     </div>
                     <div>
                         <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/clock.png"

@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, effect, inject, OnInit, PLATFORM_ID } fro
 import { SharedModule } from '../../shared/shared.module';
 import { isPlatformBrowser } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
+import { UserDashboardService } from './user-dashboard.service';
 @Component({
   selector: 'app-user-dashboard',
   imports: [SharedModule],
@@ -10,13 +11,6 @@ import { ChartModule } from 'primeng/chart';
 })
 export class UserDashboardComponent implements OnInit {
   userName: any = JSON.parse(localStorage?.getItem('user') ?? '').username;
-
-  // data:any[]= [
-  //   {title:'Income', balance:"DB 1000"},
-  //   {title:'Expenses', balance:"DB 1000"},
-  //   {title:'purchase', balance:"DB 1000"},
-  //   {title:'profile', balance:"DB 1000"},
-  // ]
   inventory: any[] = [
     { title: 'Silver', balance: "DB 1000" },
     { title: 'Gold', balance: "DB 1000" },
@@ -24,32 +18,45 @@ export class UserDashboardComponent implements OnInit {
     { title: 'stones', balance: "DB 1000" },
   ]
 
-  data: any;
+  dataInventry: any;
+  dataFinancial: any;
   dataPars: any;
-
+finacialData:any;
+inventoryData:any;
+transData:any;
   options: any;
   optionsPar: any;
 
   platformId = inject(PLATFORM_ID);
 
 
-  constructor(private cd: ChangeDetectorRef) { }
+  constructor(private cd: ChangeDetectorRef,private _userDashboardServ:UserDashboardService) { }
 
   ngOnInit() {
-    this.initChart();
-    this.initChartPars()
+    this.initChartPars();
+    this._userDashboardServ.getFinancialDashboardData().subscribe(res=>{
+      this.finacialData = res;
+      this.initChartFinance();
+    });
+    this._userDashboardServ.getInventoryDashboardData().subscribe(res=>{
+      this.inventoryData = res;
+      this.initChartInventory();
+    });
+    this._userDashboardServ.getTransactionsDashboardData().subscribe(res=>{
+      this.transData = res;
+    });
   }
 
-  initChart() {
+  initChartFinance() {
     if (isPlatformBrowser(this.platformId)) {
       const documentStyle = getComputedStyle(document.documentElement);
       const textColor = documentStyle.getPropertyValue('--text-color') || '#000'; // fallback to black if undefined
 
-      this.data = {
-        labels: ['Current Assets', 'Fixed Assets'],
+      this.dataFinancial = {
+        labels: this.finacialData?.chart_data?.labels,
         datasets: [
           {
-            data: [540, 325],
+            data: this.finacialData?.chart_data?.data,
             backgroundColor: ['#299D91', '#E8E8E8'], // black, white, black
             hoverBackgroundColor: ['#299D91', '#E8E8E8'] // dark gray, light gray, dark gray
           }
@@ -71,6 +78,36 @@ export class UserDashboardComponent implements OnInit {
     }
   }
 
+initChartInventory() {
+    if (isPlatformBrowser(this.platformId)) {
+      const documentStyle = getComputedStyle(document.documentElement);
+      const textColor = documentStyle.getPropertyValue('--text-color') || '#000'; // fallback to black if undefined
+
+      this.dataInventry = {
+        labels: this.inventoryData?.chart_data?.labels,
+        datasets: [
+          {
+            data: this.inventoryData?.chart_data?.data,
+            backgroundColor: ['#299D91', '#E8E8E8'], // black, white, black
+            hoverBackgroundColor: ['#299D91', '#E8E8E8'] // dark gray, light gray, dark gray
+          }
+        ]
+      };
+
+      this.options = {
+        plugins: {
+          legend: {
+            labels: {
+              usePointStyle: true,
+              color: textColor
+            }
+          }
+        }
+      };
+
+      this.cd.markForCheck();
+    }
+  }
 initChartPars() {
     if (isPlatformBrowser(this.platformId)) {
         const documentStyle = getComputedStyle(document.documentElement);
