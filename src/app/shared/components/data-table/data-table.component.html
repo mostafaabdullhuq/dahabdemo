@@ -9,7 +9,7 @@
       <th *ngFor="let col of columns">
         {{ col?.header }}
       </th>
-      <th>Actions</th>
+      <th *ngIf="hasContext">Actions</th>
     </tr>
   </ng-template>
 
@@ -21,7 +21,7 @@
           {{ resolveFieldData(rowData, col.field) }}
         </ng-template>
       </td>
-      <td>
+      <td *ngIf="hasContext">
         <p-splitButton label="" icon="pi pi-cog" [model]="getActions(rowData)" size="small" appendTo="body"
           severity="secondary" (onDropdownClick)="onRowClick(rowData)">
         </p-splitButton>

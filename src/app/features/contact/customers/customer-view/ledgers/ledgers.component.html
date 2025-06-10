@@ -23,7 +23,8 @@
             </form>
         </app-filter-collapse>
         <div class="table-container">
-        <app-data-table 
+        <app-data-table
+        [hasContext]="false" 
         [data]="ledgerData" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
             (pageChange)="loadCustomersLedgers($event)">
         </app-data-table>

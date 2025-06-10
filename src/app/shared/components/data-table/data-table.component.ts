@@ -10,6 +10,7 @@ import { MenuItem } from 'primeng/api';
 export class DataTableComponent implements OnInit {
   @Input() data!: any[];
   @Input() cols!: any[];
+  @Input() hasContext:boolean = true;
   @Input() totalRecords!: number;
   @Input() first!: number;
   @Input() rows!: number;
