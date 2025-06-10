@@ -5,7 +5,7 @@
         <h3>Customers</h3>
         <hr>
         <div class="header-btns">
-            <button [routerLink]="['/contact/customer/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add Customer</button>
+            <button *ngIf="permissionService.hasPermission(68)" [routerLink]="['/contact/customer/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add Customer</button>
         </div>
     </div>
     <div class="filter-container container">

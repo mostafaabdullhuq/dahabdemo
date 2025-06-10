@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ContactService } from '../@services/contact.service';
 import { ConfirmationPopUpService } from '../../../shared/services/confirmation-pop-up.service';
 import { MenuItem } from 'primeng/api';
+import { PermissionService } from '../../../core/services/permission.service';
 
 @Component({
   selector: 'app-suppliers',
@@ -12,7 +13,7 @@ import { MenuItem } from 'primeng/api';
   templateUrl: './suppliers.component.html',
   styleUrl: './suppliers.component.scss'
 })
-export class SuppliersComponent {
+export class SuppliersComponent implements OnInit{
     suppliers: any[] = [];
     cols: any[] = [];
     filterForm!: FormGroup;
@@ -24,7 +25,8 @@ export class SuppliersComponent {
       private _contactService: ContactService,
       private _formBuilder: FormBuilder,
       private _router: Router,
-      private _confirmPopUp: ConfirmationPopUpService
+      private _confirmPopUp: ConfirmationPopUpService,
+          public permissionService:PermissionService
     ) { }
   
     ngOnInit(): void {
@@ -43,6 +45,27 @@ export class SuppliersComponent {
         search: '',
       });
       this.getSuppliers();
+      if (this.permissionService.hasPermission(73)) {
+        this.suppliersMenuItems.push({
+          label: 'Edit',
+          icon: 'pi pi-fw pi-pen-to-square',
+          command: () => this.editSupplier(this.selectedProduct)
+        })
+      }
+      if (this.permissionService.hasPermission(71)) {
+        this.suppliersMenuItems.push({
+        label: 'View',
+        icon: 'pi pi-fw pi-eye',
+        command: () => this.viewTransactions(this.selectedProduct)
+      })
+      }
+      if (this.permissionService.hasPermission(74)) {
+        this.suppliersMenuItems.push({
+        label: 'Delete',
+        icon: 'pi pi-fw pi-trash',
+        command: () => this.showConfirmDelete(this.selectedProduct)
+      })
+      }
     }
   
     // Get suppliers with filtering and pagination
@@ -70,24 +93,7 @@ export class SuppliersComponent {
     }
     selectedProduct: any;
   
-    suppliersMenuItems: MenuItem[] = [
-      {
-        label: 'Edit',
-        icon: 'pi pi-fw pi-pen-to-square',
-        command: () => this.editSupplier(this.selectedProduct)
-      },
-      {
-        label: 'View',
-        icon: 'pi pi-fw pi-eye',
-        command: () => this.viewTransactions(this.selectedProduct)
-      },
-      {
-        label: 'Delete',
-        icon: 'pi pi-fw pi-trash',
-        command: () => this.showConfirmDelete(this.selectedProduct)
-      }
-  
-    ];
+    suppliersMenuItems: MenuItem[] = [];
   
     editSupplier(user: any) {
       this._router.navigate([`contact/supplier/edit/${user?.id}`]);

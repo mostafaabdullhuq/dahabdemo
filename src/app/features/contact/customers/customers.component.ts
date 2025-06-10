@@ -7,6 +7,7 @@ import { ConfirmationPopUpService } from '../../../shared/services/confirmation-
 import { MenuItem } from 'primeng/api';
 import { TransactionsComponent } from './customer-view/transactions/transactions.component';
 import { CustomerViewComponent } from './customer-view/customer-view.component';
+import { PermissionService } from '../../../core/services/permission.service';
 
 @Component({
   selector: 'app-customers',
@@ -26,7 +27,8 @@ export class CustomersComponent {
     private _contactService: ContactService,
     private _formBuilder: FormBuilder,
     private _router: Router,
-    private _confirmPopUp: ConfirmationPopUpService
+    private _confirmPopUp: ConfirmationPopUpService,
+    public permissionService:PermissionService
   ) { }
 
   ngOnInit(): void {
@@ -45,6 +47,30 @@ export class CustomersComponent {
       search: '',
     });
     this.getCustomers();
+
+
+    if (this.permissionService.hasPermission(69)) {
+      this.customersMenuItems.push({
+      label: 'Edit',
+      icon: 'pi pi-fw pi-pen-to-square',
+      command: () => this.editCustomer(this.selectedProduct)
+    })
+    }
+
+    if (this.permissionService.hasPermission(68)) {
+    this.customersMenuItems.push({
+      label: 'View',
+      icon: 'pi pi-fw pi-eye',
+      command: () => this.viewTransactions(this.selectedProduct)
+    })
+    }
+    if (this.permissionService.hasPermission(70)) {
+    this.customersMenuItems.push({
+      label: 'Delete',
+      icon: 'pi pi-fw pi-trash',
+      command: () => this.showConfirmDelete(this.selectedProduct)
+    })
+    }
   }
 
   // Get customers with filtering and pagination
@@ -71,24 +97,8 @@ export class CustomersComponent {
       });
   }
   selectedProduct: any;
-
-  customersMenuItems: MenuItem[] = [
-    {
-      label: 'Edit',
-      icon: 'pi pi-fw pi-pen-to-square',
-      command: () => this.editCustomer(this.selectedProduct)
-    },
-    {
-      label: 'View',
-      icon: 'pi pi-fw pi-eye',
-      command: () => this.viewTransactions(this.selectedProduct)
-    },
-    {
-      label: 'Delete',
-      icon: 'pi pi-fw pi-trash',
-      command: () => this.showConfirmDelete(this.selectedProduct)
-    }
-  ];
+customersMenuItems:MenuItem[]=[]
+  
   viewTransactions(data: any) {
     this._router.navigate([`contact/customer-view/${data?.id}`])
   }
