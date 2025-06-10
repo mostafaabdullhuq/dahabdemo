@@ -5,6 +5,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import { Router, RouterLink } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { ConfirmationPopUpService } from '../../../shared/services/confirmation-pop-up.service';
+import { PermissionService } from '../../../core/services/permission.service';
 
 @Component({
   selector: 'app-users',
@@ -24,7 +25,8 @@ export class UsersComponent {
     private _userManage: UserManagmentService,
     private _formBuilder: FormBuilder,
     private _router:Router,
-    private _confirmPopUp:ConfirmationPopUpService
+    private _confirmPopUp:ConfirmationPopUpService,
+    public permissionService: PermissionService
   ) { }
 
   ngOnInit(): void {
@@ -38,11 +40,28 @@ export class UsersComponent {
     this.filterForm = this._formBuilder.group({
       username: '',
       search: '',
-      phone_number:'',
-      isActive:null,
-      email:'',
+      phone_number: '',
+      isActive: null,
+      email: '',
     });
     this.getUsers();
+    this.productMenuItems = [];
+
+    if (this.permissionService.hasPermission(4)) {
+      this.productMenuItems.push({
+        label: 'Edit',
+        icon: 'pi pi-fw pi-pen-to-square',
+        command: () => this.editUser(this.selectedProduct)
+      });
+    }
+
+    if (this.permissionService.hasPermission(5)) {
+      this.productMenuItems.push({
+        label: 'Delete',
+        icon: 'pi pi-fw pi-trash',
+        command: () => this.showConfirmDelete(this.selectedProduct)
+      });
+    }
   }
 
   // Get users with filtering and pagination
@@ -70,19 +89,7 @@ loadUsers(event: any): void {
 }
 selectedProduct: any;
 
-productMenuItems: MenuItem[] = [
-  {
-    label: 'Edit',
-    icon: 'pi pi-fw pi-pen-to-square',
-    command: () => this.editUser(this.selectedProduct)
-  },
-  {
-    label: 'Delete',
-    icon: 'pi pi-fw pi-trash',
-    command: () => this.showConfirmDelete(this.selectedProduct)
-  }
-  
-];
+productMenuItems: MenuItem[] = [];
 
 editUser(user: any) {
   this._router.navigate([`user-management/users/edit/${user?.id}`]);

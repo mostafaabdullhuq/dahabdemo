@@ -163,6 +163,11 @@ loadProducts(event: any): void {
       command: () => this.editUser(this.selectedProduct)
     },
     {
+      label: 'Print Labels',
+      icon: 'pi pi-paintbrush',
+      command: () => this.openPrintLabel(this.selectedProduct)
+    },
+    {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
       command: () => this.showConfirmDelete(this.selectedProduct)
@@ -172,6 +177,9 @@ loadProducts(event: any): void {
   
   editUser(user: any) {
     this._router.navigate([`inventory/product/edit/${user?.id}`]);
+  }
+  openPrintLabel(data:any){
+    this._router.navigate([`inventory/product/product-label`]);
   }
   deleteProduct(user:any){
     this._inventoryService.deleteProduct(user?.id).subscribe(res=>{

@@ -3,6 +3,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { isPlatformBrowser } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { UserDashboardService } from './user-dashboard.service';
+import { PermissionService } from '../../core/services/permission.service';
 @Component({
   selector: 'app-user-dashboard',
   imports: [SharedModule],
@@ -30,10 +31,11 @@ transData:any;
   platformId = inject(PLATFORM_ID);
 
 
-  constructor(private cd: ChangeDetectorRef,private _userDashboardServ:UserDashboardService) { }
+  constructor(private cd: ChangeDetectorRef,private _userDashboardServ:UserDashboardService, public permissionService:PermissionService) { }
 
   ngOnInit() {
-    this.initChartPars();
+    if(this.permissionService.hasPermission(113)){
+      this.initChartPars();
     this._userDashboardServ.getFinancialDashboardData().subscribe(res=>{
       this.finacialData = res;
       this.initChartFinance();
@@ -45,6 +47,7 @@ transData:any;
     this._userDashboardServ.getTransactionsDashboardData().subscribe(res=>{
       this.transData = res;
     });
+    }
   }
 
   initChartFinance() {

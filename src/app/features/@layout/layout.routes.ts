@@ -57,6 +57,7 @@ import { AccountingTabsComponent } from '../accounting/accounting-tabs/accountin
 import { JournalEntryComponent } from '../accounting/journal-entry/journal-entry.component';
 import { AddEditJournalEntryComponent } from '../accounting/journal-entry/add-edit-journal-entry/add-edit-journal-entry.component';
 import { UserDashboardComponent } from '../user-dashboard/user-dashboard.component';
+import { ProductLabelsComponent } from '../inventory/product-labels/product-labels.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -80,6 +81,7 @@ export const routes: Routes = [
       { path: 'products', component: ProductListComponent },
       { path: 'product/add', component: AddEditProductComponent },
       { path: 'product/edit/:id', component: AddEditProductComponent },
+      { path: 'product/product-label', component: ProductLabelsComponent },
 
       { path: 'units', component: UnitsComponent },
       { path: 'unit/add', component: AddEditUnitComponent },

@@ -26,7 +26,7 @@ export class AddEditUserComponent implements OnInit{
     private _userManage: UserManagmentService,
     private _formBuilder: FormBuilder,
     private _dropdownService: DropdownsService,
-    private _activeRoute:ActivatedRoute
+    private _activeRoute:ActivatedRoute,
   ) {}
 
   ngOnInit(): void {

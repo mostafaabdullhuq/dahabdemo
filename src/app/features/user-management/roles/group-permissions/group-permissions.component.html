@@ -15,6 +15,7 @@
           <app-check-box
             [inputId]="group.actions['add']"
             label="Add"
+            [checked]="selectedPermissions.has(group.actions['add'])"
             (change)="togglePermission(group.actions['add'])"
           ></app-check-box>
         </div>
@@ -22,6 +23,7 @@
           <app-check-box
             [inputId]="group.actions['edit']"
             label="Edit"
+            [checked]="selectedPermissions.has(group.actions['edit'])"
             (change)="togglePermission(group.actions['edit'])"
           ></app-check-box>
         </div>
@@ -29,6 +31,7 @@
           <app-check-box
             [inputId]="group.actions['view']"
             label="View"
+            [checked]="selectedPermissions.has(group.actions['view'])"
             (change)="togglePermission(group.actions['view'])"
           ></app-check-box>
         </div>
@@ -36,6 +39,7 @@
           <app-check-box
             [inputId]="group.actions['delete']"
             label="Delete"
+            [checked]="selectedPermissions.has(group.actions['delete'])"
             (change)="togglePermission(group.actions['delete'])"
           ></app-check-box>
         </div>

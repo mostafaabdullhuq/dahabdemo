@@ -69,34 +69,40 @@ export class GroupPermissionsComponent implements OnChanges ,OnInit{
       entity,
       actions
     }));
+    console.log(this.groupedPermissions);
+    
   }
 
-  togglePermission(id: number): void {
+togglePermission(id: any, forceAdd?: boolean): void {
+  if (forceAdd === true) {
+    this.selectedPermissions.add(id);
+  } else if (forceAdd === false) {
+    this.selectedPermissions.delete(id);
+  } else {
     if (this.selectedPermissions.has(id)) {
       this.selectedPermissions.delete(id);
     } else {
       this.selectedPermissions.add(id);
     }
   }
-  private loadRoleData(roleId: string | number): void {
-    this._userManagmentService.getRoleById(roleId).subscribe((role: any) => {
-      // Assuming this.permissions contains the list of all permissions with their ids
-      const permissionIds = this.permissions
-        .filter(permission => role.permissions.includes(permission.name))
-        .map(permission => permission.id); // Map names to ids
-      
-      console.log(permissionIds);
-      
-      // Patching the form with the response data
-      this.form.patchValue({
-        role_name: role.name, // Patch role_name with 'name' from the API response
-        permissions: permissionIds // Patch permissions with the corresponding ids
-      });
-      
-      // Update selectedPermissions with the ids directly (this ensures correct initial state)
-      this.selectedPermissions = new Set(permissionIds);
+  console.log('Selected Permissions:', this.selectedPermissions);
+}
+private loadRoleData(roleId: string | number): void {
+  this._userManagmentService.getRoleById(roleId).subscribe((role: any) => {
+    const permissionIds = role.permissions;
+
+    this.form.patchValue({
+      role_name: role.role_name,
+      permissions: permissionIds
     });
-  }
+
+    // Clear the selectedPermissions set
+    this.selectedPermissions.clear();
+
+    // Call togglePermission for each permission ID to add them
+    permissionIds.forEach((id: any) => this.togglePermission(id));
+  });
+}
   
   
   submit(): void {

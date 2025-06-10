@@ -11,6 +11,7 @@ import { FormGroup } from '@angular/forms';
 export class UserManagmentService {
 
   constructor(private _http: SingletonService) { }
+  
   //-----> Users API
   // Get Users 
   getUsers(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {

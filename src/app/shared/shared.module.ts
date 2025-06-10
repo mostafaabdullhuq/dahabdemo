@@ -38,6 +38,7 @@ import { ConfirmationPopUpService } from './services/confirmation-pop-up.service
 import { UploadInputComponent } from './components/upload-input/upload-input.component';
 import { InputTableComponent } from './components/input-table/input-table.component';
 import { InputDateComponent } from './components/input-date/input-date.component';
+import { DialogService } from 'primeng/dynamicdialog';
 
 const components = [
   InputTextComponent,
@@ -95,7 +96,8 @@ TreeModule,
   ],
   providers:[
     ConfirmationService,
-    ConfirmationPopUpService
+    ConfirmationPopUpService,
+    DialogService
   ]
 })
 export class SharedModule { }
