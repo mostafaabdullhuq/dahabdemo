@@ -25,7 +25,8 @@ export class UserDashboardComponent implements OnInit {
 finacialData:any;
 inventoryData:any;
 transData:any;
-  options: any;
+  optionsInventory: any;
+  optionsFinancial: any;
   optionsPar: any;
 
   platformId = inject(PLATFORM_ID);
@@ -50,36 +51,55 @@ transData:any;
     }
   }
 
-  initChartFinance() {
-    if (isPlatformBrowser(this.platformId)) {
-      const documentStyle = getComputedStyle(document.documentElement);
-      const textColor = documentStyle.getPropertyValue('--text-color') || '#000'; // fallback to black if undefined
+initChartFinance() {
+  if (isPlatformBrowser(this.platformId)) {
+    console.log('Labels:', this.finacialData?.chart_data?.labels);
+    console.log('Data:', this.finacialData?.chart_data?.data);
 
-      this.dataFinancial = {
-        labels: this.finacialData?.chart_data?.labels,
-        datasets: [
-          {
-            data: this.finacialData?.chart_data?.data,
-            backgroundColor: ['#299D91', '#E8E8E8'], // black, white, black
-            hoverBackgroundColor: ['#299D91', '#E8E8E8'] // dark gray, light gray, dark gray
-          }
-        ]
-      };
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
 
-      this.options = {
-        plugins: {
-          legend: {
-            labels: {
-              usePointStyle: true,
-              color: textColor
-            }
+    this.dataFinancial = {
+      labels: this.finacialData?.chart_data?.labels,
+      datasets: [
+        {
+          data: this.finacialData?.chart_data?.data,
+          backgroundColor: [
+            '#299D91',
+            '#F0F4F3',
+            '#D9E6E4',
+            '#B8D8D3',
+            '#E8E8E9',
+            '#C1C9C8',
+            '#A0B1B0'
+          ],
+          hoverBackgroundColor: [
+            '#237C77',
+            '#D9E6E4',
+            '#B8D8D3',
+            '#99BCB8',
+            '#D1D3D4',
+            '#A0B1B0',
+            '#7F8D8B'
+          ]
+        }
+      ]
+    };
+
+    this.optionsFinancial = {
+      plugins: {
+        legend: {
+          labels: {
+            usePointStyle: true,
+            color: textColor
           }
         }
-      };
+      }
+    };
 
-      this.cd.markForCheck();
-    }
+    this.cd.markForCheck();
   }
+}
 
 initChartInventory() {
     if (isPlatformBrowser(this.platformId)) {
@@ -97,7 +117,7 @@ initChartInventory() {
         ]
       };
 
-      this.options = {
+      this.optionsInventory = {
         plugins: {
           legend: {
             labels: {

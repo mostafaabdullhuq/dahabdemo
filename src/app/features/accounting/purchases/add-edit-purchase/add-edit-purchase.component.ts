@@ -50,7 +50,7 @@ selectedPurityValue: number = 1;
     private _dropdownService: DropdownsService,
     private _activeRoute: ActivatedRoute
   ) { }
-decimalInputs = 2;
+decimalInputs = 3;
   ngOnInit(): void {
     const productId = this._activeRoute.snapshot.paramMap.get('id');
     if (productId)
@@ -94,18 +94,7 @@ decimalInputs = 2;
     this._dropdownService.getUnits().subscribe(data => {
       this.units = data?.results;
     });
-  //   this.onBranchChange();
-  // this.handleMetalValueCalc(); // ✅ only once here
- 
-// this.addEditExpenseForm.get('metal_weight')?.valueChanges.subscribe(() => {
-//   this.calculateMetalValue();
-// });
-// this.addEditExpenseForm.get('making_charge')?.valueChanges.subscribe(() => this.calculateLineTotal());
-// this.addEditExpenseForm.get('tax_amount')?.valueChanges.subscribe(() => this.calculateLineTotal());
-// this.addEditExpenseForm.get('metal_weight')?.valueChanges.subscribe(() => this.calculateLineTotal());
-
-// // Optional: also watch changes to stone value fields
-// this.stonesArray.valueChanges.subscribe(() => this.calculateLineTotal());
+  
    this.addEditExpenseForm.get('branch')?.valueChanges.subscribe(branchId => {
     if (!branchId) return;
 
@@ -175,6 +164,7 @@ calculateTax(): void {
   const metalValue = Number(this.addEditExpenseForm.get('metal_value')?.value) || 0;
   const taxRate = Number(this.addEditExpenseForm.get('tax')?.value) || 0;
   const makingCharge = Number(this.addEditExpenseForm.get('making_charge')?.value) || 0;
+  const metalWeight = Number(this.addEditExpenseForm.get('metal_weight')?.value) || 0;
 
   const stones = this.addEditExpenseForm.get('stones') as FormArray;
   const stonesValueTotal = stones.controls.reduce((total, stone) => {
@@ -182,8 +172,8 @@ calculateTax(): void {
     return total + value;
   }, 0);
 
-  const subtotal = metalValue + makingCharge + stonesValueTotal;
-  const taxAmount = subtotal //* taxRate;
+  const subtotal = metalValue + (makingCharge * metalWeight) + stonesValueTotal;
+  const taxAmount = subtotal * (taxRate/100);
 
   this.addEditExpenseForm.patchValue({
     tax_amount: +taxAmount.toFixed(this.decimalInputs)
@@ -219,11 +209,15 @@ calculateGrossWeight() {
 
 calculateLineTotal() {
   const metalValue = Number(this.addEditExpenseForm.get('metal_value')?.value) || 0;
-const metalWeight = Number(this.addEditExpenseForm.get('metal_weight')?.value) || 0;
-const makingCharge = Number(this.addEditExpenseForm.get('making_charge')?.value) || 0;
-const taxAmount = Number(this.addEditExpenseForm.get('tax_amount')?.value) || 0;
-const total = metalValue + (makingCharge * metalWeight) + taxAmount;
-  this.addEditExpenseForm.patchValue({ line_total_amount: (+total).toFixed(this.decimalInputs) });
+  const metalWeight = Number(this.addEditExpenseForm.get('metal_weight')?.value) || 0;
+  const makingCharge = Number(this.addEditExpenseForm.get('making_charge')?.value) || 0;
+  const taxAmount = Number(this.addEditExpenseForm.get('tax_amount')?.value) || 0;
+
+  const total = metalValue + (makingCharge * metalWeight) + taxAmount;
+
+  this.addEditExpenseForm.patchValue({
+    line_total_amount: (+total).toFixed(this.decimalInputs)
+  });
 }
 // calculateMetalValue(): void {
 //   const metalRate = +this.addEditExpenseForm.get('metal_rate')?.value || 0;
@@ -271,6 +265,7 @@ const total = metalValue + (makingCharge * metalWeight) + taxAmount;
       gross_weight: [null],
       line_total_amount: [null],
       color: [null],
+      status: [null],
       size: [null],
       designer: [null],
       country: [null],
@@ -364,6 +359,7 @@ removePayment(index: number) {
       attachment: expense.attachment,
       reference_number: expense.reference_number,
       notes: expense.notes,
+      status: expense.status,
       is_recurring: expense.is_recurring,
       is_refund: expense.is_refund,
       expense_as_vat: expense.expense_as_vat,
