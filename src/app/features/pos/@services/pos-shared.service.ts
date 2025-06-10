@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +7,16 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 export class PosSharedService {
   private currencySource = new BehaviorSubject<any>(null);
   selectedCurrency$ = this.currencySource.asObservable();
-
+private orderPlacedSource = new Subject<void>();
+private returnOrderPlacedSource = new Subject<void>();
+  orderPlaced$ = this.orderPlacedSource.asObservable();
+  returnORrderPlaced$ = this.returnOrderPlacedSource.asObservable();
+  notifyOrderPlaced() {
+    this.orderPlacedSource.next();
+  }
+  notifyReturnsOrderPlaced() {
+    this.returnOrderPlacedSource.next();
+  }
   // Prices
   private goldPriceSubject = new BehaviorSubject<number>(0);
   private metalValueSubject = new BehaviorSubject<number>(0);

@@ -107,6 +107,10 @@ this._posStatusService.shiftActive$
         }
       }
     ];
+
+     this._posSharedService.returnORrderPlaced$.subscribe(() => {
+    this.getReturnsOrder();
+  });
   }
     removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({

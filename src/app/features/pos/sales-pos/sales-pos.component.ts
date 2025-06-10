@@ -107,6 +107,10 @@ this._posStatusService.shiftActive$
       .subscribe(status => {
         this.isShiftActive = status;
       });
+
+      this._posSharedService.orderPlaced$.subscribe(() => {
+    this.getProductList();
+  });
   }
   isShiftActive:boolean = false;
   selectedRowData: any = [];

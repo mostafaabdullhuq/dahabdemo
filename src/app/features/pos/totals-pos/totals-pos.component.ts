@@ -252,6 +252,8 @@ onPlaceOrder() {
           this.totalForm.patchValue({ payments: [] });
           this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
           this.openOrderInvoice();
+          this._posSharedService.notifyOrderPlaced();
+          this._posSharedService.notifyReturnsOrderPlaced();
           this._posSalesService.getSalesOrdersFromServer();
           this._posDiamondService.fetchDiamondOrders();
           this._posSilverService.fetchSilverOrders();
@@ -263,6 +265,7 @@ onPlaceOrder() {
           this._posSharedService.setGrandTotalWithVat(0);
           this._posSharedService.setVat(0);
           this._posSharedService.setDiscountAmount(0);
+
         },
         error: () => {
           
