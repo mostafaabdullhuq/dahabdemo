@@ -245,4 +245,10 @@ export class InventoryService {
   deleteTransferBranch(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/stock/bulk-transfer/${id}`);
   }
+
+
+  /// Imports
+  importProducts(file:any){
+    return this._http.postRequest(`${environment.api_url}product/import/`, file);
+  }
 }

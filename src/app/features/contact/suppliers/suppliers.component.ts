@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -136,4 +136,34 @@ export class SuppliersComponent implements OnInit{
   
       this.getSuppliers(queryParams, 1, 10);
     }
+
+         @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    this.submitFile(file);
+
+    // Reset input so user can upload the same file again if needed
+    input.value = '';
+  }
+
+  submitFile(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this._contactService.importSuppliers(formData).subscribe({
+      next: (res) => {
+        this.loadsuppliers({ first: 0, rows: this.pageSize }); // reset to first page
+        // You can show a success message or refresh data here
+      },
+      error: (err) => {
+        console.error('Import failed:', err);
+        // Show error message here
+      },
+    });
+  }
   }

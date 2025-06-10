@@ -154,4 +154,12 @@ addAttachSupplier(supplierId:any,addForm:any){
 deleteAttachSupplier(supplierId:any,id:any){
  return this._http.deleteRequest(`${environment.api_url}suppliers/docs/${supplierId}/${id}/`);
 }
+
+///Imports
+  importCustomers(file:any){
+    return this._http.postRequest(`${environment.api_url}customer/import/`, file);
+  }
+   importSuppliers(file:any){
+    return this._http.postRequest(`${environment.api_url}suppliers/import/`, file);
+  }
 }

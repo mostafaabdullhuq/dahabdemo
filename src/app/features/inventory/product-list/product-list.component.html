@@ -5,8 +5,14 @@
         <h3>Products</h3>
         <hr>
         <div class="header-btns">
+            <button class="add-btn text-center" (click)="fileInput.click()">
+                <i class="pi pi-file-import px-2"></i>Import products
+            </button>
+            <input #fileInput type="file" accept=".csv" (change)="onFileSelected($event)" hidden />
             <button [routerLink]="['/inventory/product/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add product</button>
+       
         </div>
+        
     </div>
     <div class="filter-container container">
         <app-filter-collapse>
