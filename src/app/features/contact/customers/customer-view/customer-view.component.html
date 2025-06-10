@@ -21,6 +21,7 @@
         </p-tablist>
         <p-tabpanels>
             <p-tabpanel value="0">
+                <app-ledgers [customerId]="customerId" />
             </p-tabpanel>
             <p-tabpanel value="1">
                 <app-transactions [customerId]="customerId"/>

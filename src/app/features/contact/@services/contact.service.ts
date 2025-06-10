@@ -42,6 +42,14 @@ export class ContactService {
     const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}customer/transactions/${id}/${params}` );
   }
+  getCustomerLedgers(id:any,search: string = '', page: number = 1, pageSize: number = 10):Observable<any>{
+     // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+    const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}customer/ledger/${id}/${params}` );
+  }
   getCustomerPayments(id:any,search: string = '', page: number = 1, pageSize: number = 10){
     // const params = new HttpParams()
    //   .set('', search)

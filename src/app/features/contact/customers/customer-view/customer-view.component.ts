@@ -5,10 +5,11 @@ import { ActivatedRoute } from '@angular/router';
 import { ContactService } from '../../@services/contact.service';
 import { PaymentsComponent } from './payments/payments.component';
 import { DocumentsComponent } from './documents/documents.component';
+import { LedgersComponent } from "./ledgers/ledgers.component";
 
 @Component({
   selector: 'app-customer-view',
-  imports: [SharedModule, TransactionsComponent, PaymentsComponent,DocumentsComponent ],
+  imports: [SharedModule, TransactionsComponent, PaymentsComponent, DocumentsComponent, LedgersComponent],
   templateUrl: './customer-view.component.html',
   styleUrl: './customer-view.component.scss'
 })
