@@ -3,7 +3,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UserManagmentService } from '../../@services/user-managment.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-edit-user',
@@ -27,6 +27,7 @@ export class AddEditUserComponent implements OnInit{
     private _formBuilder: FormBuilder,
     private _dropdownService: DropdownsService,
     private _activeRoute:ActivatedRoute,
+    private _router:Router
   ) {}
 
   ngOnInit(): void {
@@ -86,12 +87,12 @@ export class AddEditUserComponent implements OnInit{
     
     if (this.isEditMode && this.userId) {
       this._userManage.updateUser(this.userId, formData).subscribe({
-        next: res => console.log('User updated successfully', res),
+        next: res => this._router.navigate([`user-management/users`]),
         error: err => console.error('Error updating user', err)
       });
     } else {
       this._userManage.addUser(formData).subscribe({
-        next: res => console.log('User created successfully', res),
+        next: res => this._router.navigate([`user-management/users`]),
         error: err => console.error('Error creating user', err)
       });
     }

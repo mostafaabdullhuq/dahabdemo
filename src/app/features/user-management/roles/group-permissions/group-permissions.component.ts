@@ -2,7 +2,7 @@ import { UserManagmentService } from './../../@services/user-managment.service';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../../shared/shared.module';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 interface PermissionGroup {
   entity: string;
   actions: {
@@ -23,7 +23,7 @@ export class GroupPermissionsComponent implements OnChanges ,OnInit{
   form: FormGroup;
   roleId: string | number = '';
 
-  constructor(private fb: FormBuilder, private _userManagmentService:UserManagmentService,private _activeRoute: ActivatedRoute) {
+  constructor(    private _router:Router,private fb: FormBuilder, private _userManagmentService:UserManagmentService,private _activeRoute: ActivatedRoute) {
     this.form = this.fb.group({
       role_name: ['']
     });
@@ -126,12 +126,12 @@ private loadRoleData(roleId: string | number): void {
 
     if (this.isEditMode && this.roleId) {
       this._userManagmentService.updateRole(this.roleId, payload).subscribe({
-        next: res => console.log('Role updated successfully', res),
+        next: res => this._router.navigate([`user-management/roles`]),
         error: err => console.error('Error updating role', err)
       });
     } else {
       this._userManagmentService.addRole(payload).subscribe({
-        next: res => console.log('Role created successfully', res),
+        next: res => this._router.navigate([`user-management/roles`]),
         error: err => console.error('Error creating role', err)
       });
     }
