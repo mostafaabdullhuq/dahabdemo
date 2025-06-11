@@ -33,7 +33,10 @@ getInvoiceData(){
 this.invoiceData = res
   })
 }
-
+getTotalPrice(products: any[]): number {
+  if (!products || products.length === 0) return 0;
+  return products.reduce((sum, item) => sum + (item.price || 0), 0);
+}
 printInvoice() {
   const printContents = document.getElementById('invoice-section')?.innerHTML;
   const originalContents = document.body.innerHTML;

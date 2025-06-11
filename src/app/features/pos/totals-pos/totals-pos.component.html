@@ -5,13 +5,23 @@
     
             <!-- Customer & Currency Selection -->
             <div class="row mb-4">
-                <div class="col-md-12 mb-3">
+                <div class="col-md-11 mb-3 me-0 pe-0">
                     <app-dropdowns [required]="true" label="Customers" formControlName="customer" [options]="customers"
                         optionLabel="name" optionValue="id" placeholder="Select a customer">
                     </app-dropdowns>
                 </div>
+                <div class="col-md-1 m-0 p-0">
+                <label class="opacity-0">btn </label>
+                <p-button (onClick)="openAddCustomerPopup()" size="small" class="add-btn white-icon-btn"
+                    [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
+                <ng-template #tooltipContent>
+                    <button [disabled]="selectedCurrency && isShiftActive" class="flex items-center">
+                        Add Customer
+                    </button>
+                </ng-template>
+            </div>
                 <div class="col-md-12">
-                    <app-dropdowns [disabled]="totalVat !=0 || totalWithVat !=0|| totalPrice!=0 || discountAmount!=0" [required]="true" label="Currencies" formControlName="currency" [options]="currencies"
+                    <app-dropdowns (selectionChange)="onChangeCurrency()" [disabled]="totalVat !=0 || totalWithVat !=0|| totalPrice!=0 || discountAmount!=0" [required]="true" label="Currencies" formControlName="currency" [options]="currencies"
                         optionLabel="currency_name" optionValue="pk" placeholder="Select a currency">
                     </app-dropdowns>
                 </div>

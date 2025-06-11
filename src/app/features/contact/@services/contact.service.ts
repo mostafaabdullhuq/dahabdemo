@@ -29,7 +29,7 @@ export class ContactService {
     return this._http.patchRequest(`${environment.api_url}customer/${id}/` , editForm);
   }
   deleteCustomer(id:number ){
-    return this._http.deleteRequest(`${environment.api_url}customer/${id}`);
+    return this._http.deleteRequest(`${environment.api_url}customer/${id}/`);
   }
   getCustomerCustomLabel(){
     return this._http.getRequest(`${environment.api_url}customer/custom-field-label/` );
@@ -113,7 +113,7 @@ deleteAttach(customerId:any,id:any){
     return this._http.patchRequest(`${environment.api_url}suppliers/${id}/` , editForm);
   }
   deleteSupplier(id:number ){
-    return this._http.deleteRequest(`${environment.api_url}suppliers/${id}`);
+    return this._http.deleteRequest(`${environment.api_url}suppliers/${id}/`);
   }
 
   getSupplierInventory(id:any,search: string = '', page: number = 1, pageSize: number = 10){

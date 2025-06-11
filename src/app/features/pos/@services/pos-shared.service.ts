@@ -40,6 +40,7 @@ private returnOrderPlacedSource = new Subject<void>();
   private diamondTotalGrandSubject = new BehaviorSubject<number>(0);
   private goldReceiptTotalTaxSubject = new BehaviorSubject<number>(0);
   private repairTotalTaxSubject = new BehaviorSubject<number>(0);
+  private returnTotalTaxSubject = new BehaviorSubject<number>(0);
   private salesTotalTaxSubject = new BehaviorSubject<number>(0);
   private silverTotalTaxSubject = new BehaviorSubject<number>(0);
   private diamondTotalTaxSubject = new BehaviorSubject<number>(0);
@@ -67,6 +68,7 @@ private returnOrderPlacedSource = new Subject<void>();
   diamondTotalPrice$ = this.diamondTotalPriceSubject.asObservable();
   goldReceiptTotalTax$ = this.goldReceiptTotalTaxSubject.asObservable();
   repairTotalTax$ = this.repairTotalTaxSubject.asObservable();
+  returnTotalTax$ = this.returnTotalTaxSubject.asObservable();
   salesTotalTax$ = this.salesTotalTaxSubject.asObservable();
   silverTotalTax$ = this.silverTotalTaxSubject.asObservable();
   diamondTotalTax$ = this.diamondTotalTaxSubject.asObservable();
@@ -140,9 +142,10 @@ combineLatest([
       this.goldReceiptTotalTax$,
       this.repairTotalTax$,
       this.silverTotalTax$,
-      this.diamondTotalTax$
-    ]).subscribe(([salesTotalTax, repairTotalTax, goldReceiptTotalTax , silverTotalTax ,diamondTotalTax]) => {      
-      const totalVat = (salesTotalTax  + repairTotalTax + goldReceiptTotalTax + silverTotalTax + diamondTotalTax);
+      this.diamondTotalTax$,
+      this.returnTotalTax$,
+    ]).subscribe(([salesTotalTax, repairTotalTax, goldReceiptTotalTax , silverTotalTax ,diamondTotalTax,returnTotalTax]) => {      
+      const totalVat = (salesTotalTax  + repairTotalTax + goldReceiptTotalTax + silverTotalTax + diamondTotalTax)-returnTotalTax;
       this.vatValue.next(+totalVat.toFixed(3));
     });
   }
@@ -235,6 +238,9 @@ combineLatest([
   }
   setRepairTotalTax(total: number) {
     this.repairTotalTaxSubject.next(total);
+  }
+  setReturnTotalTax(total: number) {
+    this.returnTotalTaxSubject.next(total);
   }
   setSalesTax(total: number) {
     this.salesTotalTaxSubject.next(total);

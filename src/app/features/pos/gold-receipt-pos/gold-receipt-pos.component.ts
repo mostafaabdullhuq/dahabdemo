@@ -51,7 +51,7 @@ export class GoldReceiptPosComponent implements OnInit, OnDestroy {
       amount_with_tax: [{ value: 0, disabled: true }],
       description: [''],
       attachment: [''],
-      tax: [''],
+      tax: [{ value: 0, disabled: true } ],
     })
 
     this._dropdownService.getPurities().subscribe((res) => {

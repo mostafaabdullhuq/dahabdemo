@@ -17,6 +17,7 @@ import { PosSilverService } from '../@services/pos-silver.service';
 import { PosDiamondService } from '../@services/pos-diamond.service';
 import { PosGoldReceiptService } from '../@services/pos-gold-receipt.service';
 import { PosReturnsService } from '../@services/pos-returns.service';
+import { AddCustomerPopupComponent } from '../../../shared/components/add-customer-popup/add-customer-popup.component';
 
 @Component({
   selector: 'app-totals-pos',
@@ -109,7 +110,7 @@ salesDataOrders:any =[];
 
 
     // 4. Listen for changes and update sessionStorage
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
     this._posSharedService.goldPrice$.subscribe(price => {
       this.goldPrice = +price;
     });
@@ -156,6 +157,14 @@ salesDataOrders:any =[];
       .subscribe((res: any) => {
         this.salesDataOrders = res;
       });
+
+       this.totalForm.get('customer')?.valueChanges.subscribe(customerId => {
+      if (customerId) {
+        sessionStorage.setItem('customer', customerId);
+        this._posReturnService.refetchReceiptsProducts(customerId);
+      }
+    });
+  
   }
   onChangeCurrency() {
     const currencyControl = this.totalForm.get('currency');
@@ -249,6 +258,8 @@ onPlaceOrder() {
           this.discountAmount = 0;
           this.totalWithVat = 0;
           this.totalVat = 0;
+          sessionStorage.removeItem('customer');
+          this.totalForm.get('customer')?.patchValue(null)
           this.totalForm.patchValue({ payments: [] });
           this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
           this.openOrderInvoice();
@@ -279,8 +290,25 @@ onPlaceOrder() {
     }
   });
 }
+openAddCustomerPopup() {
+  this.container.clear();
+  this.componentRef = this.container.createComponent(AddCustomerPopupComponent);
+  this.componentRef.instance.visible = true;
 
+  // 👇 Subscribe to the event to refresh customers
+  this.componentRef.instance.customerAdded.subscribe((res:any) => {
+    this.reloadCustomers(res);
+  });
+}
 
+reloadCustomers(data:any) {
+  this._dropDownsService.getCustomers().subscribe(res => {
+    this.customers = res?.results;
+    if(data && data?.id){
+      this.totalForm.get('customer')?.patchValue(data?.id)
+    }
+  });
+}
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

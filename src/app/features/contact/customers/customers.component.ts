@@ -107,9 +107,7 @@ customersMenuItems:MenuItem[]=[]
   }
   deleteCustomer(user: any) {
     this._contactService.deleteCustomer(user?.id).subscribe(res=>{
-      if(res){
-        this.loadCustomers(1)
-      }
+        this.loadCustomers({ first: 0, rows: this.pageSize }); // reset to first page
     })
   }
   showConfirmDelete(user: any) {

@@ -100,9 +100,7 @@ export class SuppliersComponent implements OnInit{
     }
     deleteSupplier(user: any) {
       this._contactService.deleteSupplier(user?.id).subscribe(res=>{
-        if(res){
           this.getSuppliers()
-        }
       })
     }
     showConfirmDelete(user: any) {

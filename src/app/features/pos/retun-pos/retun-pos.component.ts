@@ -44,6 +44,9 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
     this._posReturnService.getReturnReciepts(params).subscribe((res) => {
       this.receipts = res?.results;
     });
+    this._posReturnService.receipts$.subscribe(receipts => {
+      this.receipts = receipts;
+    });
     this.productForm.get('reciept_id')?.valueChanges.subscribe(res=>{
       if(res){
         const params = `orderproduct__order_id=${res}
@@ -89,6 +92,8 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
 
       this._posReturnService.returnOrders$.subscribe(data => {
       this.returnDataOrders = data;
+      const totalVatAmount = data.reduce((acc, item) => acc + (item.vat_amount || 0), 0);
+          this._posSharedService.setReturnTotalTax(totalVatAmount)
     });
 
     // If needed, manually trigger a refresh
@@ -111,6 +116,7 @@ this._posStatusService.shiftActive$
      this._posSharedService.returnORrderPlaced$.subscribe(() => {
     this.getReturnsOrder();
   });
+  
   }
     removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
@@ -132,6 +138,22 @@ this._posStatusService.shiftActive$
   isShiftActive:boolean = false;
   getReturnsOrder() {
       this._posReturnService.fetchReturnOrders();
+      
+  }
+  refetchReceiptsProducts(selectedCustomer:any){
+    const params = `customer_id=${sessionStorage?.getItem('customer')}`
+    this._posReturnService.getReturnReciepts(params).subscribe((res) => {
+      this.receipts = res?.results;
+    });
+    this.productForm.get('reciept_id')?.valueChanges.subscribe(res=>{
+      if(res){
+        const params = `orderproduct__order_id=${res}
+        &orderproduct__order__customer_id=${sessionStorage.getItem('customer')}`
+        this._posReturnService.getReturnProducts(params).subscribe((res) => {
+        this.products = res?.results;
+      });
+      }
+    })
   }
   calcGoldPriceAccordingToPurity(group: any): number {
     if (

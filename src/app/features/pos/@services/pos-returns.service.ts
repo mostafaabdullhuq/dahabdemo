@@ -37,6 +37,14 @@ export class PosReturnsService {
       }
     });
   }
+   private receiptsSubject = new BehaviorSubject<any[]>([]);
+  receipts$ = this.receiptsSubject.asObservable();
+  refetchReceiptsProducts(customerId: any): void {
+    const params = `customer_id=${customerId}`;
+    this.getReturnReciepts(params).subscribe((res) => {
+      this.receiptsSubject.next(res?.results || []);
+    });
+  }
 
   // Optional getter for direct access
   get currentReturnOrders(): any[] {

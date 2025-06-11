@@ -50,7 +50,7 @@ branchTaxNo:any = 0;
       amount_with_tax: [{ value: 0, disabled: true } ],
       description: [''],
       attachment: [''],
-      tax: [''],
+      tax: [{ value: 0, disabled: true } ],
       add_gram: [''],
     })
     
