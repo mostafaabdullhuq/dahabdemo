@@ -135,9 +135,9 @@ salesDataOrders:any =[];
     // Subscribe to the total with vat
     this._posSharedService.grandTotalWithVat$.subscribe(vat => {
       this.totalWithVat = +vat;
-      (this.totalForm.get('payments') as FormArray).at(0).patchValue({
-        amount: this.totalWithVat
-      });
+      // (this.totalForm.get('payments') as FormArray).at(0).patchValue({
+      //   amount: this.totalWithVat
+      // });
     });
 
     // Subscribe to the vat
@@ -164,7 +164,9 @@ salesDataOrders:any =[];
         this._posReturnService.refetchReceiptsProducts(customerId);
       }
     });
-  
+  this._posSharedService.refreshCurrency$.subscribe((res) => {
+    this.getCurrencies(res);
+  });
   }
   onChangeCurrency() {
     const currencyControl = this.totalForm.get('currency');
@@ -193,8 +195,8 @@ salesDataOrders:any =[];
       this._posSharedService.setSelectedCurrency(this.selectedCurrency);
     }
   }
-  getCurrencies() {
-    this._posService.getCurrenciesByBranchId(this.shiftData?.branch).subscribe((res: any) => {
+  getCurrencies(curr?:any) {
+    this._posService.getCurrenciesByBranchId(curr ?? this.shiftData?.branch).subscribe((res: any) => {
       this.currencies = res?.results;
       const savedCustomer = sessionStorage.getItem('customer');
       const savedCurrency = sessionStorage.getItem('currency');
@@ -211,16 +213,30 @@ salesDataOrders:any =[];
   }
   componentRef!: ComponentRef<any>;
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
-
+paymentsFromPopup:any[] =[]
   openMultiPaymentMethods() {
     this.container.clear();
     this.componentRef = this.container.createComponent(PaymentMethodsPopupComponent);
     this.componentRef.instance.visible = true;
     this.componentRef.instance.baymentMethods = this.paymnetMethods;
+ this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
+  console.log('Received payments:', payments);
+  this.paymentsFromPopup = payments;
 
-    this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
-      this.totalForm.patchValue({ payments }); // Push array to form
-    });
+  const paymentFormArray = this.totalForm.get('payments') as FormArray;
+  paymentFormArray.clear(); // Clear the existing one
+
+  payments.forEach(payment => {
+    paymentFormArray.push(this._formBuilder.group({
+      payment_method: [payment.payment_method, Validators.required],
+      amount: [payment.amount, Validators.required]
+    }));
+  });
+
+  console.log(this.totalForm.value);
+
+  this.onPlaceOrder(this.totalForm.value, true);
+});
   }
 
   openOrderInvoice(){
@@ -228,31 +244,36 @@ salesDataOrders:any =[];
     this.componentRef = this.container.createComponent(PlaceOrderInvoiceComponent);
     this.componentRef.instance.showDialog();
   }
-onPlaceOrder() {
+onPlaceOrder(form?:any,isPopup:boolean= false) {
+    console.log(form);
+
   if (this.totalForm.invalid) {
-    // Optionally, you can show some error or mark the form as touched to display validation messages
     this.totalForm.markAllAsTouched();
-    return; // Stop here if form is invalid
+    return;
   }
 
-  const formValue = this.totalForm.value;
-  this.totalForm.get('currency')?.patchValue(parseInt(this.selectedCurrency?.pk))
-  // If no payments set, fallback to selected payment_method + totalWithVat
-  if (!formValue.payments || formValue.payments.length === 0) {
+  this.totalForm.get('currency')?.patchValue(parseInt(this.selectedCurrency?.pk));
+
+  if (isPopup === false) {
     const paymentMethodId = this.totalForm.get('payment_method')?.value;
+    const fallbackPayment = [{
+      payment_method: paymentMethodId,
+      amount: this.totalWithVat
+    }];
 
-    if (paymentMethodId) {
-      const fallbackPayment = [{
-        payment_method: paymentMethodId,
-        amount: this.totalWithVat
-      }];
-      this.totalForm.patchValue({ payments: fallbackPayment });
-    }
+    // Clear and rebuild payments FormArray
+    const paymentFormArray = this.totalForm.get('payments') as FormArray;
+    paymentFormArray.clear();
+    fallbackPayment.forEach(payment => {
+      paymentFormArray.push(this._formBuilder.group({
+        payment_method: [payment.payment_method, Validators.required],
+        amount: [payment.amount, Validators.required]
+      }));
+    });
   }
-
   this._posService.getOrderId().subscribe(res => {
     if (res?.order_id) {
-      this._posService.addOrder(res.order_id, this.totalForm.value).subscribe({
+      this._posService.addOrder(res.order_id, form ?? this.totalForm.value).subscribe({
         next: res => {
           this.totalPrice = 0;
           this.discountAmount = 0;
@@ -260,7 +281,7 @@ onPlaceOrder() {
           this.totalVat = 0;
           sessionStorage.removeItem('customer');
           this.totalForm.get('customer')?.patchValue(null)
-          this.totalForm.patchValue({ payments: [] });
+          this.totalForm.get('payments')?.reset();
           this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
           this.openOrderInvoice();
           this._posSharedService.notifyOrderPlaced();

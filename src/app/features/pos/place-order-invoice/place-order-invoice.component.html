@@ -47,7 +47,8 @@
                             <p class="mb-1"><strong>Date:</strong> {{ invoiceData?.order_date | date:'dd-mm-yyyy' }}</p>
                             <p class="mb-1"><strong>Number:</strong> {{ invoiceData?.invoice_id }}</p>
                             <p class="mb-1"><strong>Method:</strong> {{invoiceData?.payment_method}}</p>
-                            <p class="mb-0"><strong>Payment date:</strong> {{ invoiceData?.payment_date  | date:'dd-mm-yyyy'}}</p>
+                            <p class="mb-0"><strong>Payment date:</strong> {{ invoiceData?.payment_date |
+                                date:'dd-mm-yyyy'}}</p>
                         </div>
                     </div>
                 </div>
@@ -63,6 +64,7 @@
                     <th>Description</th>
                     <th>Tag Number</th>
                     <th class="text-end">Gross Weight</th>
+                    <th class="text-end">Tax</th>
                     <th class="text-end">Subtotal</th>
                     <th class="text-end">Total</th>
                 </tr>
@@ -70,11 +72,13 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.sale">
                     <td>
-                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50"
+                            class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
                     <td class="text-end">{{ item.gross_weight | number:'1.3-3'}}</td>
+                    <td class="text-end">{{ item.vat | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                     <td class="text-end">{{ item.sub_total | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                     <td class="text-end">{{ item.price | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                 </tr>
@@ -82,13 +86,14 @@
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.sale) | number:'1.3-3' }} {{ invoiceData?.currency }}</th>
+                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.sale) | number:'1.3-3' }} {{
+                        invoiceData?.currency }}</th>
                 </tr>
             </tfoot>
-        
+
         </table>
         }
-        
+
         @if (invoiceData?.products?.gold_receipt.length > 0) {
         <h6 class="py-2">Gold receipt</h6>
 
@@ -99,6 +104,7 @@
                     <th>Description</th>
                     <th>Tag Number</th>
                     <th class="text-end">Gross Weight</th>
+                    <th class="text-end">Tax</th>
                     <th class="text-end">Subtotal</th>
                     <th class="text-end">Total</th>
                 </tr>
@@ -106,11 +112,13 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.gold_receipt">
                     <td>
-                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50"
+                            class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
                     <td class="text-end">{{ item.gross_weight | number:'1.3-3'}}</td>
+                    <td class="text-end">{{ item.vat | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                     <td class="text-end">{{ item.sub_total| number:'1.3-3' }}{{invoiceData?.currency}}</td>
                     <td class="text-end">{{ item.price | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                 </tr>
@@ -118,13 +126,14 @@
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.gold_receipt) | number:'1.3-3' }} {{ invoiceData?.currency }}</th>
+                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.gold_receipt) | number:'1.3-3' }} {{
+                        invoiceData?.currency }}</th>
                 </tr>
             </tfoot>
-        
+
         </table>
         }
-        
+
         @if (invoiceData?.products?.return.length > 0) {
         <h6 class="py-2">Returns</h6>
         <table class="table table-bordered align-middle text-sm">
@@ -134,6 +143,7 @@
                     <th>Description</th>
                     <th>Tag Number</th>
                     <th class="text-end">Gross Weight</th>
+                    <th class="text-end">Tax</th>
                     <th class="text-end">Subtotal</th>
                     <th class="text-end">Total</th>
                 </tr>
@@ -141,11 +151,13 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.return">
                     <td>
-                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50"
+                            class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
                     <td class="text-end">{{ item.gross_weight | number:'1.3-3'}}</td>
+                    <td class="text-end">{{ item.vat | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                     <td class="text-end">{{ item.sub_total | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                     <td class="text-end">{{ item.price | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                 </tr>
@@ -153,10 +165,11 @@
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.return) | number:'1.3-3' }} {{ invoiceData?.currency }}</th>
+                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.return) | number:'1.3-3' }} {{
+                        invoiceData?.currency }}</th>
                 </tr>
             </tfoot>
-        
+
         </table>
         }
 
@@ -170,6 +183,8 @@
                     <th>Description</th>
                     <th>Tag Number</th>
                     <th class="text-end">Gross Weight</th>
+                    <th class="text-end">Tax</th>
+
                     <th class="text-end">Subtotal</th>
                     <th class="text-end">Total</th>
                 </tr>
@@ -177,11 +192,14 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.repair">
                     <td>
-                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50"
+                            class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
                     <td class="text-end">{{ item.gross_weight| number:'1.3-3' }}</td>
+                    <td class="text-end">{{ item.vat | number:'1.3-3'}}{{invoiceData?.currency}}</td>
+
                     <td class="text-end">{{ item.sub_total | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                     <td class="text-end">{{ item.price | number:'1.3-3'}}{{invoiceData?.currency}}</td>
                 </tr>
@@ -189,13 +207,14 @@
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.repair) | number:'1.3-3' }} {{ invoiceData?.currency }}</th>
+                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.repair) | number:'1.3-3' }} {{
+                        invoiceData?.currency }}</th>
                 </tr>
             </tfoot>
-        
+
         </table>
         }
-        
+
         @if (invoiceData?.products?.purchase.length > 0) {
         <h6 class="py-2">Purchase old gold</h6>
 
@@ -213,7 +232,8 @@
             <tbody>
                 <tr *ngFor="let item of invoiceData?.products?.purchase">
                     <td>
-                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50" class="img-thumbnail">
+                        <img [src]="item.attachment ?? item?.image" alt="item image" width="50" height="50"
+                            class="img-thumbnail">
                     </td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.tag_number }}</td>
@@ -225,10 +245,11 @@
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end"> Total</th>
-                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.purchase) | number:'1.3-3' }} {{ invoiceData?.currency }}</th>
+                    <th class="text-end">{{getTotalPrice(invoiceData?.products?.purchase) | number:'1.3-3' }} {{
+                        invoiceData?.currency }}</th>
                 </tr>
             </tfoot>
-        
+
         </table>
         }
         <div class=" w-100">
@@ -241,13 +262,20 @@
                     <ul class="list-unstyled">
                         <li class="d-flex justify-content-between">
                             <strong>Subtotal (exc vat) </strong> :
-                            <span class="text-end">{{invoiceData?.sub_total| number:'1.3-3'}}{{invoiceData?.currency}}</span></li>
+                            <span class="text-end">{{invoiceData?.sub_total|
+                                number:'1.3-3'}}{{invoiceData?.currency}}</span>
+                        </li>
                         <li class="d-flex justify-content-between"><strong>Discount </strong> :
-                            <span class="text-end">{{invoiceData?.discount| number:'1.3-3'}}</span></li>
+                            <span class="text-end">{{invoiceData?.discount| number:'1.3-3'}}</span>
+                        </li>
                         <li class="d-flex justify-content-between"><strong>Vat (10%) </strong> :
-                            <span class="text-end"> {{invoiceData?.tax | number:'1.3-3' }} {{invoiceData?.currency}}</span></li>
+                            <span class="text-end"> {{invoiceData?.tax | number:'1.3-3' }}
+                                {{invoiceData?.currency}}</span>
+                        </li>
                         <li class="d-flex justify-content-between"><strong>Net Amount (inc vat) </strong> :
-                            <span class="text-end"> {{invoiceData?.total_amount| number:'1.3-3'}} {{invoiceData?.currency}}</span></li>
+                            <span class="text-end"> {{invoiceData?.total_amount| number:'1.3-3'}}
+                                {{invoiceData?.currency}}</span>
+                        </li>
                     </ul>
                 </div>
             </div>

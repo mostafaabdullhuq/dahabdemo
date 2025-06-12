@@ -240,6 +240,9 @@ updateRepairTotals(): void {
   }
 
 onSubmit(): void {
+  this.productForm.get('tax')?.enable();
+  console.log(this.productForm.value);
+  console.log(this.productForm.value);
   if (this.productForm.invalid) return;
 
   const formValue = this.productForm.value;
@@ -266,6 +269,7 @@ onSubmit(): void {
     next: (res) => {
       this.productForm.reset();
       this.getPurchaseOrders(); // Refresh data
+  this.productForm.get('tax')?.disable();
     },
     error: (err) => console.error('Error submitting', err)
   });

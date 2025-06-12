@@ -251,4 +251,11 @@ combineLatest([
   setDiamondTax(total: number) {
     this.diamondTotalTaxSubject.next(total);
   }
+// Refetch currency
+  private refreshCurrencySource = new Subject<void>();
+  refreshCurrency$ = this.refreshCurrencySource.asObservable();
+
+  triggerRefreshCurrency(currency:any) {
+    this.refreshCurrencySource.next(currency);
+  }
 }

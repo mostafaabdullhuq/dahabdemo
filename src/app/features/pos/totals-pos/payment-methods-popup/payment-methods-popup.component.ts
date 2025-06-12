@@ -3,6 +3,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PosStatusService } from '../../@services/pos-status.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { PosService } from '../../@services/pos.service';
+import { PosSharedService } from '../../@services/pos-shared.service';
 
 @Component({
   selector: 'app-payment-methods-popup',
@@ -14,14 +15,18 @@ export class PaymentMethodsPopupComponent {
   visible: boolean = false;
   registerPosForm!: FormGroup;
   baymentMethods: any = [];
-  @Output() onSubmitPayments = new EventEmitter<any[]>();
+  totalWithVat:any = 0;
+  @Output() onSubmitPayments = new EventEmitter<any>();
 
-  constructor(private _posStatusService:PosStatusService, private _formBuilder: FormBuilder, private _dropdownsService: DropdownsService, private _posService: PosService) { }
+  constructor(private _posSharedService:PosSharedService,private _posStatusService:PosStatusService, private _formBuilder: FormBuilder, private _dropdownsService: DropdownsService, private _posService: PosService) { }
 
   ngOnInit(): void {
     this.registerPosForm = this._formBuilder.group({
     payments: this._formBuilder.array([this.createPaymentFormGroup()])
   });
+   this._posSharedService.grandTotalWithVat$.subscribe(vat => {
+      this.totalWithVat = +vat;
+    });
   }
   createPaymentFormGroup(): FormGroup {
   return this._formBuilder.group({
@@ -44,9 +49,27 @@ removePayment(index: number) {
   showDialog() {
     this.visible = true;
   }
+  get totalPayable(): number {
+  return this.payments.controls.reduce((acc, control) => {
+    const amount = +control.get('amount')?.value || 0;
+    return acc + amount;
+  }, 0);
+}
+
+get changeReturn(): number {
+  const change = this.totalPayable - this.totalWithVat;
+  return change > 0 ? change : 0;
+}
+
+get balance(): number {
+  const bal = this.totalWithVat - this.totalPayable;
+  return bal > 0 ? bal : 0;
+}
  submitForm(form: FormGroup) {
     if (form.valid) {
-      this.onSubmitPayments.emit(form.value.payments); // 👈 Emit data to parent
+      console.log(form.value.payments);
+      
+      this.onSubmitPayments.emit(form.value.payments);
       this.visible = false;
     }
   }

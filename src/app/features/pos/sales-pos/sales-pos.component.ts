@@ -139,6 +139,7 @@ this._posStatusService.shiftActive$
           this._posSharedService.setSalesTotalGrand(0)
           this._posSharedService.setSalesTotalPrice(0)
         }
+        this.productForm.get('product_id')?.patchValue(null)
       });
 
     // initial load

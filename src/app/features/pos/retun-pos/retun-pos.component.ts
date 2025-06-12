@@ -268,7 +268,8 @@ calcGrandTotalWithVat(): number {
     this._posReturnService.addProductReturn(payload)
       .subscribe({
         next: res => {
-          this._posReturnService.fetchReturnOrders()
+          this._posReturnService.fetchReturnOrders();
+          this.productForm.get('product_id')?.patchValue(null)
         },
         error: err => {
           console.error('Error posting product', err);

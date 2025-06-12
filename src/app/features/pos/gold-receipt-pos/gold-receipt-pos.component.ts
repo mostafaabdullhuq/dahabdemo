@@ -192,6 +192,7 @@ updateGoldReceiptTotals(): void {
   console.log('Gold Receipt Total Grand:', totalGrand);
 }
   onSubmit(): void {
+    this.productForm.get('tax')?.enable();
     if (this.productForm.invalid) return;
 
     const formValue = this.productForm.value;
@@ -217,6 +218,7 @@ updateGoldReceiptTotals(): void {
       next: (res) => {
         this.productForm.reset();
         this.getPurchaseOrders(); // Refresh data
+        this.productForm.get('tax')?.disable();
       },
       error: (err) => console.error('Error submitting', err)
     });
