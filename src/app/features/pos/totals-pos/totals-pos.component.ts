@@ -253,9 +253,11 @@ onPlaceOrder(form?:any,isPopup:boolean= false) {
   }
 
   this.totalForm.get('currency')?.patchValue(parseInt(this.selectedCurrency?.pk));
-
+  console.log(form);
+  console.log(this.totalForm.value);
+  
   if (isPopup === false) {
-    const paymentMethodId = this.totalForm.get('payment_method')?.value;
+  const paymentMethodId = form?.payment_method || this.totalForm?.value.payments[0].payment_method;
     const fallbackPayment = [{
       payment_method: paymentMethodId,
       amount: this.totalWithVat
