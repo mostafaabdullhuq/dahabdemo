@@ -1,0 +1,85 @@
+<div class="card flex justify-center">
+    <p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '50rem' }">
+        <ng-template pTemplate="header">
+            <div class="d-flex justify-content-center align-items-center">
+                <h4><i class="pi pi-calculator me-2" style="font-size: 2rem"></i>Add Acc</h4>
+            </div>
+        </ng-template>
+        <div class="add-form">
+            <form [formGroup]="addEditAccForm" class="container" (ngSubmit)="onSubmit()">
+                <section class="form-section">
+                    <h6 class="section-form-header">Account info</h6>
+                    <div class="container section-form">
+                        <div class="row">
+
+                            <!-- Account Type -->
+                            <div class="col-md-6">
+                                <app-dropdowns label="Select Account Type" id="accountType"
+                                    formControlName="account_type" [options]="accounts" optionLabel="name"
+                                    optionValue="id" placeholder="Select an Account Type">
+                                </app-dropdowns>
+                            </div>
+
+                            <!-- Sub Account -->
+                            <div class="col-md-6">
+                                <app-dropdowns label="Select Sub Account" id="subAccount" formControlName="sub_account"
+                                    [options]="subAcc" optionLabel="name" optionValue="id"
+                                    placeholder="Select a Sub Account">
+                                </app-dropdowns>
+                            </div>
+
+                            <!-- Name -->
+                            <div class="col-md-6">
+                                <app-input-text formControlName="name" inputName="name" placeholder="Enter your name">
+                                    @if ((addEditAccForm.get('name')?.errors?.['required'] &&
+                                    addEditAccForm.get('name')?.touched)) {
+                                    <div class="text-danger mt-1">
+                                        <small><i class="text-danger pi pi-times-circle px-2"
+                                                style="font-size: 0.8rem"></i>Name is required</small>
+                                    </div>
+                                    }
+                                </app-input-text>
+                            </div>
+
+                            <!-- Parent Account -->
+                            <div class="col-md-6">
+                                <app-dropdowns label="Select Parent Account" id="parentAccount"
+                                    formControlName="parent_account" [options]="accounts" optionLabel="name"
+                                    optionValue="id" placeholder="Select a Parent Account">
+                                </app-dropdowns>
+                            </div>
+
+                            <!-- Balance -->
+                            <div class="col-md-6">
+                                <app-input-text formControlName="balance" [required]="true" [type]="'number'"
+                                    inputName="balance" placeholder="Enter Balance">
+                                </app-input-text>
+                            </div>
+
+                            <!-- Date -->
+                            <div class="col-md-6">
+                                <app-input-date formControlName="date" inputName="date" placeholder="Enter date">
+                                </app-input-date>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-md-12">
+                                <app-input-text formControlName="description" [required]="true" inputName="description"
+                                    placeholder="Enter description">
+                                </app-input-text>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <div class="btns-group">
+                    <button type="submit" class="my-4 submit-btn">
+                        {{ isEditMode ? 'Update' : 'Submit' }}
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </p-dialog>
+</div>

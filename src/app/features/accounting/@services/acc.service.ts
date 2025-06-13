@@ -124,4 +124,13 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
   deleteJournalEntry(id: number) {
     return this._http.deleteRequest(`${environment.api_url}accounting/${id}/`);
   }
+  getAccById(id: any) {
+    return this._http.getRequest(`${environment.api_url}/${id}/`);
+  }
+  addAcc(form:any) {
+    return this._http.postRequest(`${environment.api_url}/`, form);
+  }
+  updateAcc(id: number | string, editForm: any) {
+    return this._http.patchRequest(`${environment.api_url}/${id}/`, editForm);
+  }
 }

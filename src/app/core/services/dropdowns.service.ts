@@ -40,9 +40,14 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}user/?${param}`;
     return this._http.getRequest<any>(url);
   }
-    getAccounts(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
+  getAccounts(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
     const url = nextPageUrl || `${this.API}accounting/accounts/subaccounts/?${param}`;
+    return this._http.getRequest<any>(url);
+  }
+  getMainAccounts(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
+    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+    const url = nextPageUrl || `${this.API}accounting/accounts/`;
     return this._http.getRequest<any>(url);
   }
   //   getSubAccounts(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {

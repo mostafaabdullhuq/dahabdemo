@@ -1,46 +1,39 @@
+<ng-container #container></ng-container>
+
 <div class="d-flex justify-content-between align-items-center p-4">
   <h2 class="text-xl font-semibold">Chart of Accounts</h2>
   <div class="space-x-2">
     <div class="header-btns">
-        <button
-      class="add-btn"
-      (click)="collapseAll()"
-    >
-      Collapse All
-    </button>
+      <button class="add-btn" (click)="collapseAll()">
+        Collapse All
+      </button>
+      <button class="add-btn" (click)="addAcc()">
+        <i class="pi pi-plus me-1"></i> Add Account
+      </button>
     </div>
   </div>
 </div>
-<p-tree
-  [value]="nodes"
-  [loading]="loading"
-  selectionMode="single"
-  [lazy]="true"
-  (onNodeExpand)="onNodeExpand($event)"
-  expandIcon="pi pi-chevron-down"
-  collapseIcon="pi pi-chevron-up"
-  styleClass="w-full md:w-[30rem] p-4 rounded-xl shadow-md border border-gray-200"
->
+<p-tree [value]="nodes" [loading]="loading" selectionMode="single" [lazy]="true" (onNodeExpand)="onNodeExpand($event)"
+  expandIcon="pi pi-chevron-down" collapseIcon="pi pi-chevron-up"
+  styleClass="w-full md:w-[30rem] p-4 rounded-xl shadow-md border border-gray-200">
   <!-- Default node template with icon -->
   <ng-template let-node pTemplate="default">
-    <div class="flex items-center space-x-2">
-      <i
-        class="text-primary pi pi-folder mx-3"
-      ></i>
+    <div class="d-flex justify-content-center align-items-center items-center space-x-2">
+      <i class="text-primary pi pi-folder mx-3"></i>
       <span class="font-medium text-surface-700 dark:text-surface-100">
         {{ node.label }}
+      </span>
+      <span class="d-flex justify-content-around align-items-center mx-3">
+        <button class="btn"><i class="pi pi-eye text-success"></i></button>
+        <button (click)="addAcc(node.key)" class="btn"><i class="pi pi-file-edit text-warning"></i></button>
       </span>
     </div>
   </ng-template>
 
   <!-- Optional: Template for external URL nodes -->
   <ng-template let-node pTemplate="url">
-    <a
-      [href]="node.data"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="text-surface-700 dark:text-surface-100 hover:text-primary"
-    >
+    <a [href]="node.data" target="_blank" rel="noopener noreferrer"
+      class="text-surface-700 dark:text-surface-100 hover:text-primary">
       {{ node.label }}
     </a>
   </ng-template>
