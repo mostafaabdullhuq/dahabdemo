@@ -23,6 +23,12 @@ export class AccService {
     const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}transactions/${params}`);
   }
+  getTransactionById(id: number | string) {
+    return this._http.getRequest(`${environment.api_url}transactions/${id}/`);
+  }
+  updateTransaction(id: number | string, editForm: FormGroup | FormData) {
+    return this._http.patchRequest(`${environment.api_url}transactions/${id}/`, editForm);
+  }
   deleteTransaction(id: number) {
     return this._http.deleteRequest(`${environment.api_url}transactions/${id}`);
   }
@@ -38,22 +44,22 @@ export class AccService {
   addPurchase(form: any) {
     return this._http.postRequest(`${environment.api_url}purchases/`, form);
   }
-    updatePurchase(id: number | string, editForm: FormGroup | FormData) {
+  updatePurchase(id: number | string, editForm: FormGroup | FormData) {
     return this._http.patchRequest(`${environment.api_url}purchases/${id}/`, editForm);
   }
-  getPurchaseById(id:number | string){
+  getPurchaseById(id: number | string) {
     return this._http.getRequest(`${environment.api_url}purchases/${id}/`);
   }
   deletePurchase(id: number) {
     return this._http.deleteRequest(`${environment.api_url}purchases/${id}`);
   }
-  getBranchTax(id:any): Observable<any>{
+  getBranchTax(id: any): Observable<any> {
     return this._http.getRequest(`${environment.api_url}branch/tax/${id}`);
   }
-getBranchPaymentMethods(id:any){
+  getBranchPaymentMethods(id: any) {
     return this._http.getRequest(`${environment.api_url}branch/payment-method/${id}`);
   }
-  
+
   getExpenses(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     // const params = new HttpParams()
     //   .set('', search)
@@ -74,7 +80,7 @@ getBranchPaymentMethods(id:any){
   deleteExpense(id: number) {
     return this._http.deleteRequest(`${environment.api_url}expenses/expenses/${id}/`);
   }
-addExpensePayment(id: number| string , form: FormData | FormGroup) {
+  addExpensePayment(id: number | string, form: FormData | FormGroup) {
     return this._http.postRequest(`${environment.api_url}expenses/expenses/${id}/payments/`, form);
   }
 
@@ -88,23 +94,23 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
   updateExpenseCategory(id: number | string, editForm: FormGroup | FormData) {
     return this._http.patchRequest(`${environment.api_url}expenses/category/${id}/`, editForm);
   }
-  getExpenseCategoryById(id:number | string){
+  getExpenseCategoryById(id: number | string) {
     return this._http.getRequest(`${environment.api_url}expenses/category/${id}`);
   }
   deleteExpenseCategory(id: number) {
     return this._http.deleteRequest(`${environment.api_url}expenses/category/${id}/`);
   }
 
-    getChartOfAcc(search:string): Observable<any> {
+  getChartOfAcc(search: string): Observable<any> {
     const params = `?${search}`
     return this._http.getRequest(`${environment.api_url}accounting/accounts/${params}`);
   }
 
-  addPurchasePayment(form:any) {
+  addPurchasePayment(form: any) {
     return this._http.postRequest(`${environment.api_url}purchases/payment/`, form);
   }
 
-  addJournalEntry(form:any) {
+  addJournalEntry(form: any) {
     return this._http.postRequest(`${environment.api_url}accounting/`, form);
   }
   updateJournalEntry(id: number | string, editForm: any) {
@@ -118,7 +124,7 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
     const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}accounting/${params}`);
   }
-   getJournalEntryById(id:number | string){
+  getJournalEntryById(id: number | string) {
     return this._http.getRequest(`${environment.api_url}accounting/${id}`);
   }
   deleteJournalEntry(id: number) {
@@ -127,18 +133,18 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
   getAccById(id: any) {
     return this._http.getRequest(`${environment.api_url}accounting/accounts/${id}/`);
   }
-  addAcc(form:any, parendId:any) {
+  addAcc(form: any, parendId: any) {
     const params = `?parent_id=${parendId}`
-    return this._http.postRequest(`${environment.api_url}accounting/accounts/${params?? ''}`, form);
+    return this._http.postRequest(`${environment.api_url}accounting/accounts/${params ?? ''}`, form);
   }
   updateAcc(id: number | string, editForm: any) {
     return this._http.patchRequest(`${environment.api_url}/${id}/`, editForm);
   }
-  getAccLedgerById(id: any, filterForm:any):Observable<any>{
+  getAccLedgerById(id: any, filterForm: any): Observable<any> {
     return this._http.getRequest(`${environment.api_url}accounting/accounts/${id}/ledger/`);//?${filterForm}
   }
 
-    getAccDashboard(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+  getAccDashboard(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     // const params = new HttpParams()
     //   .set('', search)
     //   .set('page', page.toString())
@@ -146,8 +152,8 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
     const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}accounting/accounts/dashboard/`);
   }
-    getAccSearchByParams(id: any) {
-      const param = `?account_type=${id}`
+  getAccSearchByParams(id: any) {
+    const param = `?account_type=${id}`
     return this._http.getRequest(`${environment.api_url}accounting/accounts/${param}`);
   }
 }
