@@ -58,6 +58,7 @@ import { JournalEntryComponent } from '../accounting/journal-entry/journal-entry
 import { AddEditJournalEntryComponent } from '../accounting/journal-entry/add-edit-journal-entry/add-edit-journal-entry.component';
 import { UserDashboardComponent } from '../user-dashboard/user-dashboard.component';
 import { ProductLabelsComponent } from '../inventory/product-labels/product-labels.component';
+import { ViewAccLedgerComponent } from '../accounting/view-acc-ledger/view-acc-ledger.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -168,6 +169,7 @@ export const routes: Routes = [
       { path: 'expenses-cat/edit/:id', component:AddEditExpenseCatComponent},
 
       { path: 'accounting', component: AccountingTabsComponent },
+      { path: 'ledger-view/:id', component: ViewAccLedgerComponent },
       { path: 'chart-of-acc', component: ChartOfAccComponent },
       { path: 'journal-entry', component: JournalEntryComponent },
       { path: 'journal-entry/add', component: AddEditJournalEntryComponent },

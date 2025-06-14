@@ -125,12 +125,24 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
     return this._http.deleteRequest(`${environment.api_url}accounting/${id}/`);
   }
   getAccById(id: any) {
-    return this._http.getRequest(`${environment.api_url}/${id}/`);
+    return this._http.getRequest(`${environment.api_url}accounting/accounts/${id}/`);
   }
   addAcc(form:any) {
-    return this._http.postRequest(`${environment.api_url}/`, form);
+    return this._http.postRequest(`${environment.api_url}accounting/accounts/`, form);
   }
   updateAcc(id: number | string, editForm: any) {
     return this._http.patchRequest(`${environment.api_url}/${id}/`, editForm);
+  }
+  getAccLedgerById(id: any, filterForm:any):Observable<any>{
+    return this._http.getRequest(`${environment.api_url}accounting/accounts/${id}/ledger/?${filterForm}`);
+  }
+
+    getAccDashboard(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+    const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}accounting/accounts/dashboard/`);
   }
 }

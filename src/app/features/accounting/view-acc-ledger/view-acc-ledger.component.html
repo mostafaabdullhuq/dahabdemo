@@ -1,0 +1,77 @@
+<p-confirmdialog />
+
+<section>
+    <div class="header-container">
+        <h3>acc Ledger View</h3>
+        <hr>
+        <div class="header-btns">
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                <table class="table table-borderless">
+                    <tr class="pt-1">
+                        <th>Business Name</th>
+                        <td>Dahab</td>
+                    </tr>
+                    <tr class="pt-2">
+                        <th>Name</th>
+                        <td>Accounts Receivable (A/R)</td>
+                    </tr>
+                    <tr class="pt-2">
+                        <th>Account Type</th>
+                        <td>Asset</td>
+                    </tr>
+                    <tr class="pt-2">
+                        <th>Account Sub Type</th>
+                        <td>Accounts Receivable (A/R)</td>
+                    </tr>
+                    <tr class="pt-2">
+                        <th>Detail Type</th>
+                        <td>Accounts Receivable (A/R)</td>
+                    </tr>
+                    <tr class="pt-2">
+                        <th>Balance</th>
+                        <td>-128.053 BD</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-7">
+                <div class="filter-container">
+                    <app-filter-collapse>
+                        <form class="container" [formGroup]="filterForm">
+                            <div class="row">
+                                <div class="col-md-12 d-flex w-100 flex-column">
+                                    <label for="">Date Range</label>
+                                    <p-datepicker [size]="'small'" formControlName="date_range" selectionMode="range"
+                                        [readonlyInput]="false" />
+                                </div>
+                                <div class="col-md-6">
+                                    <app-dropdowns label="Select Parent Account" id="parentAccount"
+                                        formControlName="account" [options]="accounts" optionLabel="name"
+                                        optionValue="id" placeholder="Select a Parent Account">
+                                    </app-dropdowns>
+                                </div>
+                                <div class="col-md-12 d-flex w-100 flex-column">
+                                    <label for="">Date Range</label>
+                                    <p-datepicker [size]="'small'" formControlName="date_range" selectionMode="range"
+                                        [readonlyInput]="false" />
+                                </div>
+                            </div>
+                            <div class="btns-group">
+                                <button class=" submit-btn" (click)="onSearch()">Search</button>
+                            </div>
+                        </form>
+                    </app-filter-collapse>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="table-container">
+        <app-data-table (rowSelected)="selectedProduct = $event" [data]="ledgers" [cols]="cols"
+            [totalRecords]="totalRecords" [first]="first" [rows]="pageSize" (pageChange)="loadLedgers($event)">
+        </app-data-table>
+    </div>
+</section>

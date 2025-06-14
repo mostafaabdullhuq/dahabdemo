@@ -73,68 +73,43 @@ export class AddEditAccComponent implements OnInit{
     
   
 private loadAccData(accId: number | string): void {
-  this._accService.getAccById(accId).subscribe((customer: any) => {
+  this._accService.getAccById(accId).subscribe((acc: any) => {
     this.addEditAccForm.patchValue({
-      name: customer?.name,
-      balance: customer?.cpr, // if balance = cpr in the backend
-      account_type: customer?.group, // if group = account type
-      date: customer?.date,
-      description: customer?.description,
-      parent_account: customer?.parent_account,
-      sub_account: customer?.sub_account,
+      name: acc?.name,
+      balance: acc?.balance, // if 'cpr' is backend balance field
+      account_type: acc?.account_type,
+      date: new Date(acc?.created_at),
+      description: acc?.description,
+      parent_account: acc?.parent,
+      sub_account: acc?.subaccounts?.length ? acc.subaccounts[0].id : null
     });
   });
 }
 
-    onSubmit(): void {
-   //   if (this.addEditAccForm.invalid) return;
-    
-      const formData = new FormData();
-      const formValue = this.addEditAccForm.value;
-    
-      // Append standard fields (excluding custom_fields and image)
-      Object.keys(formValue).forEach(key => {
-        if (key !== 'custom_fields' && key !== 'image' && formValue[key] != null) {
-          formData.append(key, formValue[key]);
-        }
-      });
-    
-      // Append image separately
-      if (formValue.image) {
-        formData.append('image', formValue.image);
-      }
-    
-      // Prepare and append custom_fields payload from FormArray
-      // const customFieldsPayload = formValue.custom_fields.map((field: any) => ({
-      //   field_key: field.field_key.trim(),
-      //   value: field.value
-      // }));
-      // formData.append('custom_fields', JSON.stringify(customFieldsPayload));
-    
-      // Send as FormData
-      const request$ = this.isEditMode && this.accId
-        ? this._accService.updateAcc(this.accId, formData)
-        : this._accService.addAcc(formData);
-    
-      request$.subscribe({
-        next: res => console.log(this.isEditMode ? 'Updated' : 'Created', res),
-        error: err => console.error('Error', err)
-      });
-    }
-    selectedImageFile: File | null = null;
-previewUrl: string | ArrayBuffer | null = null;
-
-onImageSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files[0]) {
-    this.selectedImageFile = input.files[0];
-
-    const reader = new FileReader();
-    reader.onload = e => {
-      this.previewUrl = reader.result;
-    };
-    reader.readAsDataURL(this.selectedImageFile);
+onSubmit(): void {
+  if (this.addEditAccForm.invalid) {
+    this.addEditAccForm.markAllAsTouched();
+    return;
   }
-}
 
+  const formValue = this.addEditAccForm.value;
+
+  const payload = {
+    name: formValue.name,
+    account_type: formValue.account_type,
+    balance: formValue.balance,
+    date: formValue.date,
+    description: formValue.description,
+    subaccounts: formValue.sub_account ? [{ id: formValue.sub_account }] : []
+  };
+
+  const request$ = this.isEditMode && this.accId
+    ? this._accService.updateAcc(this.accId, payload)
+    : this._accService.addAcc(payload);
+
+  request$.subscribe({
+    next: res => console.log(this.isEditMode ? 'Updated' : 'Created', res),
+    error: err => console.error('Error', err)
+  });
+}
 }
