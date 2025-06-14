@@ -23,13 +23,13 @@ export class PaymentsComponent implements OnInit{
     if (this.customerId) {
       this.getPayments(this.customerId)
     }
+    
     this.cols = [
-      { field: "id", header: "ID" },
-      { field: "created_at", header: "Date" },
+      { field: "reference_number", header: "ID" },
+      { field: "payment_date", header: "Date" },
       { field: "payment_method", header: "Payment Method" },
       { field: "amount", header: "Amount" },
       { field: "transaction_type", header: "Transaction Type" },
-      { field: "payment_method_name", header: "Payment Method Name" },
     ];
     this.filterForm = this._formBuilder.group({
       search: '',

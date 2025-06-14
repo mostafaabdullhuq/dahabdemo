@@ -61,7 +61,8 @@ export class AddEditCustomerComponent {
         cpr_attachment: ['',Validators.required],
         cpr: ['',Validators.required],
         group: [''],
-        custom_fields:this._formBuilder.array([])
+        custom_fields:this._formBuilder.array([]),
+        opening_balance:['']
       });
     }
     get customFieldsFormArray(): FormArray {      
@@ -93,6 +94,7 @@ export class AddEditCustomerComponent {
         cpr_attachment: customer?.cpr_attachment,
         cpr: customer?.cpr,
         group: customer?.group,
+        opening_balance: customer?.opening_balance,
         });
         // Patch custom fields
     const customFieldsArray = this.addEditCustomerForm.get('custom_fields') as FormArray;

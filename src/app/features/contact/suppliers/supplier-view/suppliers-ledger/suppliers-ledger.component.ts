@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ContactService } from '../../../@services/contact.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { ContactService } from '../../../@services/contact.service';
 import { SharedModule } from '../../../../../shared/shared.module';
 
 @Component({
-  selector: 'app-ledgers',
+  selector: 'app-suppliers-ledger',
   imports: [SharedModule],
-  templateUrl: './ledgers.component.html',
-  styleUrl: './ledgers.component.scss'
+  templateUrl: './suppliers-ledger.component.html',
+  styleUrl: './suppliers-ledger.component.scss'
 })
-export class LedgersComponent implements OnInit{
+export class SuppliersLedgerComponent implements OnInit{
 @Input() customerId:any = '';
 ledgerData:any = [];
 filterForm!: FormGroup;
@@ -32,7 +32,7 @@ constructor( private _contactService:ContactService, private _formBuilder:FormBu
   { field: "id", header: "Ref No" },
   { field: "location", header: "Location" },
   { field: "payment_method", header: "Payment Method" },
-   { 
+  { 
     field: "total_due_amount", 
     header: "Total Due Amount",
     body: (row: any) =>   !isNaN(Number(row?.total_due_amount)) ? Number(row.total_due_amount).toFixed(3) : '-'
@@ -73,18 +73,18 @@ constructor( private _contactService:ContactService, private _formBuilder:FormBu
   }
   getLedgerData(params?:any){
     if(this.customerId){
-      this._contactService.getCustomerLedgers(this.customerId , params)?.subscribe(res=>{
+      this._contactService.getSupplierLedgers(this.customerId , params)?.subscribe(res=>{
       this.ledgerData = res?.results;
     })
     }
   }
-    loadCustomersLedgers(event: any): void {
+    loadSupplierLedgers(event: any): void {
     const page = event.first / event.rows + 1;
     const pageSize = event.rows;
 
     this.first = event.first;
     this.pageSize = pageSize;
-    this._contactService.getCustomerLedgers(this.customerId)?.subscribe((res:any)=>{
+    this._contactService.getSupplierLedgers(this.customerId)?.subscribe((res:any)=>{
       this.ledgerData = res.results || []; ;
       this.totalRecords = res.count;
     })

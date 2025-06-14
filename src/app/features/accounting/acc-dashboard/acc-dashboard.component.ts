@@ -35,7 +35,7 @@ export class AccDashboardComponent {
     ngOnInit(): void {
       this.cols = [
         { field: 'name', header: 'Account Name' },
-        { field: 'balance', header: 'Account Balance' },
+        { field: 'total_balance', header: 'Account Balance' },
       ];
       this.filterForm = this._formBuilder.group({
         search: '',

@@ -31,10 +31,10 @@ liabilitiesChartData:any;
     const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
 
     this.dataLiabilities = {
-      labels: this.liabilitiesChartData?.chart_data?.labels,
+      labels: this.liabilitiesChartData?.labels,
       datasets: [
         {
-          data: this.liabilitiesChartData?.chart_data?.data,
+          data: this.liabilitiesChartData?.data,
           backgroundColor: [
             '#299D91',
             '#F0F4F3',

@@ -31,10 +31,10 @@ revenueChartData:any;
     const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
 
     this.dataRevenue = {
-      labels: this.revenueChartData?.chart_data?.labels,
+      labels: this.revenueChartData?.labels,
       datasets: [
         {
-          data: this.revenueChartData?.chart_data?.data,
+          data: this.revenueChartData?.data,
           backgroundColor: [
             '#299D91',
             '#F0F4F3',

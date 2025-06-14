@@ -134,7 +134,7 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
     return this._http.patchRequest(`${environment.api_url}/${id}/`, editForm);
   }
   getAccLedgerById(id: any, filterForm:any):Observable<any>{
-    return this._http.getRequest(`${environment.api_url}accounting/accounts/${id}/ledger/?${filterForm}`);
+    return this._http.getRequest(`${environment.api_url}accounting/accounts/${id}/ledger/`);//?${filterForm}
   }
 
     getAccDashboard(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {

@@ -31,10 +31,10 @@ expensesChartData:any;
     const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
 
     this.dataExpenses = {
-      labels: this.expensesChartData?.chart_data?.labels,
+      labels: this.expensesChartData?.labels,
       datasets: [
         {
-          data: this.expensesChartData?.chart_data?.data,
+          data: this.expensesChartData?.data,
           backgroundColor: [
             '#299D91',
             '#F0F4F3',

@@ -46,7 +46,7 @@ export class JournalEntryComponent implements OnInit {
   ngOnInit(): void {
     this.cols = [
       { field: "id", header: "Refrence Number" },
-    { field: "journal_date", header: "journal date" },
+    { field: "date", header: "journal date" },
     { field: "added_by", header: "added by" },
     { field: "type", header: "Type" },
     { field: "user_name", header: "User" },

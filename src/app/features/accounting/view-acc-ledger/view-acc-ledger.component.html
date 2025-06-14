@@ -13,27 +13,23 @@
                 <table class="table table-borderless">
                     <tr class="pt-1">
                         <th>Business Name</th>
-                        <td>Dahab</td>
+                        <td>{{localAccData?.business}}</td>
                     </tr>
                     <tr class="pt-2">
                         <th>Name</th>
-                        <td>Accounts Receivable (A/R)</td>
+                        <td>{{localAccData?.name}}</td>
                     </tr>
                     <tr class="pt-2">
-                        <th>Account Type</th>
-                        <td>Asset</td>
+                        <th>Code</th>
+                        <td>{{localAccData?.code}}</td>
                     </tr>
                     <tr class="pt-2">
-                        <th>Account Sub Type</th>
-                        <td>Accounts Receivable (A/R)</td>
+                        <th>Opening Balance</th>
+                        <td>{{localAccData?.opening_balance}}</td>
                     </tr>
                     <tr class="pt-2">
-                        <th>Detail Type</th>
-                        <td>Accounts Receivable (A/R)</td>
-                    </tr>
-                    <tr class="pt-2">
-                        <th>Balance</th>
-                        <td>-128.053 BD</td>
+                        <th>Total Balance</th>
+                        <td>{{localAccData?.total_balance}} BD</td>
                     </tr>
                 </table>
             </div>
@@ -53,10 +49,11 @@
                                         optionValue="id" placeholder="Select a Parent Account">
                                     </app-dropdowns>
                                 </div>
-                                <div class="col-md-12 d-flex w-100 flex-column">
-                                    <label for="">Date Range</label>
-                                    <p-datepicker [size]="'small'" formControlName="date_range" selectionMode="range"
-                                        [readonlyInput]="false" />
+                                <div class="col-md-6">
+                                    <app-dropdowns label="Select Bransh" id="branch"
+                                        formControlName="branch" [options]="branches" optionLabel="name"
+                                        optionValue="id" placeholder="Select a Bransh">
+                                    </app-dropdowns>
                                 </div>
                             </div>
                             <div class="btns-group">

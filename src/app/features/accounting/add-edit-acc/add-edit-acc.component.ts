@@ -66,7 +66,7 @@ export class AddEditAccComponent implements OnInit{
       date: [''],
       description: [''],
       parent_account: [''],
-      sub_account: [''],
+      sub_account: [null],
     });
   }
    
@@ -74,14 +74,16 @@ export class AddEditAccComponent implements OnInit{
   
 private loadAccData(accId: number | string): void {
   this._accService.getAccById(accId).subscribe((acc: any) => {
+    const selectedSubAccountIds = acc?.subaccounts?.map((sub: any) => sub.id) || [];
+
     this.addEditAccForm.patchValue({
       name: acc?.name,
-      balance: acc?.balance, // if 'cpr' is backend balance field
+      balance: acc?.balance,
       account_type: acc?.account_type,
       date: new Date(acc?.created_at),
       description: acc?.description,
       parent_account: acc?.parent,
-      sub_account: acc?.subaccounts?.length ? acc.subaccounts[0].id : null
+      // sub_accounts: selectedSubAccountIds
     });
   });
 }
@@ -100,7 +102,7 @@ onSubmit(): void {
     balance: formValue.balance,
     date: formValue.date,
     description: formValue.description,
-    subaccounts: formValue.sub_account ? [{ id: formValue.sub_account }] : []
+    subaccounts: formValue.sub_account ? [{ id: formValue.sub_accounts }] : []
   };
 
   const request$ = this.isEditMode && this.accId

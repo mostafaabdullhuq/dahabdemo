@@ -6,10 +6,11 @@ import { TransactionsComponent } from './inventory/inventory.component';
 import { ActivatedRoute } from '@angular/router';
 import { ContactService } from '../../@services/contact.service';
 import { ParchasesComponent } from "./parchases/parchases.component";
+import { SuppliersLedgerComponent } from "./suppliers-ledger/suppliers-ledger.component";
 
 @Component({
   selector: 'app-supplier-view',
-  imports: [SharedModule, PaymentsComponent, DocumentsComponent, TransactionsComponent, ParchasesComponent],
+  imports: [SharedModule, PaymentsComponent, DocumentsComponent, TransactionsComponent,ParchasesComponent, SuppliersLedgerComponent],
   templateUrl: './supplier-view.component.html',
   styleUrl: './supplier-view.component.scss'
 })

@@ -54,19 +54,23 @@
                             </app-input-text>
                         </div>
                         <div class="col-md-6">
-                            <app-input-text formControlName="cpr" [required]="true" inputName="CPR"
-                                placeholder="Enter CPR">
+                            <app-input-text formControlName="opening_balance" [required]="true" type="number" inputName="opening balance"
+                                placeholder="Enter opening balance">
                             </app-input-text>
+                        </div>
+                        <div class="col-md-6">
+                            <app-dropdowns label="Select group" id="group" formControlName="group"
+                                [options]="customersGroup" optionLabel="name" optionValue="id" placeholder="Select a group">
+                            </app-dropdowns>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">CPR attachment <sup class="text-danger">*</sup> </label>
                             <app-upload-input formControlName="cpr_attachment" label="Upload File"></app-upload-input>
                         </div>
-                        
                         <div class="col-md-6">
-                            <app-dropdowns label="Select group" id="group" formControlName="group"
-                                [options]="customersGroup" optionLabel="name" optionValue="id" placeholder="Select a group">
-                            </app-dropdowns>
+                            <app-input-text formControlName="cpr" [required]="true" inputName="CPR"
+                                placeholder="Enter CPR">
+                            </app-input-text>
                         </div>
                     </div>
                 </div>

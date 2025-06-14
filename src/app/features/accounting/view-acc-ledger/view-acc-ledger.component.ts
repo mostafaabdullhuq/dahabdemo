@@ -68,6 +68,7 @@ export class ViewAccLedgerComponent {
     // Correct pagination parameters and make API call
     this._accService.getAccLedgerById(this.accId,search).subscribe(res => {
       this.ledgers = res?.journal_entries?.lines;
+      this.localAccData = res;
       //this.totalRecords = res?.count;  // Ensure the total count is updated
     });
   }

@@ -52,6 +52,7 @@ constructor( private _contactService:ContactService, private _formBuilder:FormBu
       { field: "salesman_name", header: "Salesman Name" },
       { field: "total_items", header: "Total Items" },
     ];
+    
     this.filterForm = this._formBuilder.group({
       search: '',
       order__orderproduct__order_type: '',
