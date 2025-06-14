@@ -18,51 +18,80 @@ revenueChartData:any;
   platformId = inject(PLATFORM_ID);
   constructor(private cd: ChangeDetectorRef,private _accDashboardServ:AccChartsService, public permissionService:PermissionService) { }
   ngOnInit(): void {
-    this._accDashboardServ.getAssetsChart().subscribe(res=>{
+    this._accDashboardServ.getRevenueChart().subscribe(res=>{
       this.revenueChartData = res;
       this.initChart();
     });
   }
+  data: any;
 
-  initChart() {
-  if (isPlatformBrowser(this.platformId)) {
+    options: any;
 
+initChart() {
+  if (isPlatformBrowser(this.platformId) && this.revenueChartData) {
     const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
 
-    this.dataRevenue = {
-      labels: this.revenueChartData?.labels,
+    const baseColors = [
+      'rgba(249, 115, 22, 1)',
+      'rgba(6, 182, 212, 1)',
+      'rgba(107, 114, 128, 1)',
+      'rgba(139, 92, 246, 1)',
+      'rgba(16, 185, 129, 1)',
+      'rgba(236, 72, 153, 1)',
+      'rgba(251, 191, 36, 1)',
+    ];
+
+    const pointColors = this.revenueChartData.labels.map((_: any, i: number) => baseColors[i % baseColors.length]);
+
+    this.data = {
+      labels: this.revenueChartData.labels,
       datasets: [
         {
-          data: this.revenueChartData?.data,
-          backgroundColor: [
-            '#299D91',
-            '#F0F4F3',
-            '#D9E6E4',
-            '#B8D8D3',
-            '#E8E8E9',
-            '#C1C9C8',
-            '#A0B1B0'
-          ],
-          hoverBackgroundColor: [
-            '#237C77',
-            '#D9E6E4',
-            '#B8D8D3',
-            '#99BCB8',
-            '#D1D3D4',
-            '#A0B1B0',
-            '#7F8D8B'
-          ]
+          label: 'Revenue',
+          data: this.revenueChartData.data,
+          fill: false,
+          borderColor: 'rgba(0,0,0,0.1)', // optional light line
+          tension: 0.4,
+          pointBackgroundColor: pointColors,
+          pointBorderColor: pointColors,
+          pointRadius: 6,
+          pointHoverRadius: 8
         }
       ]
     };
 
-    this.optionsLine = {
+    this.options = {
+      indexAxis: 'x', // horizontal: use 'y'
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
       plugins: {
         legend: {
           labels: {
-            usePointStyle: true,
             color: textColor
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            color: textColorSecondary
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false
+          }
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false
           }
         }
       }
@@ -71,4 +100,77 @@ revenueChartData:any;
     this.cd.markForCheck();
   }
 }
+// initChart() {
+//   if (isPlatformBrowser(this.platformId) && this.revenueChartData) {
+//     const documentStyle = getComputedStyle(document.documentElement);
+//     const textColor = documentStyle.getPropertyValue('--p-text-color');
+//     const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+//     const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+
+//     const baseColors = [
+//       'rgba(249, 115, 22, 1)',
+//       'rgba(6, 182, 212, 1)',
+//       'rgba(107, 114, 128, 1)',
+//       'rgba(139, 92, 246, 1)',
+//       'rgba(16, 185, 129, 1)',
+//       'rgba(236, 72, 153, 1)',
+//       'rgba(251, 191, 36, 1)',
+//     ];
+
+//     // Create one dataset per label, each dataset has one data point only
+//    const datasets = this.revenueChartData.labels.map((label: any, i: number) => ({
+//   label,
+//   data: this.revenueChartData.labels.map((_: any, j: number) => (i === j ? this.revenueChartData.data[j] : null)),
+//   borderColor: baseColors[i % baseColors.length],
+//   backgroundColor: baseColors[i % baseColors.length],
+//   fill: false,
+//   tension: 0.4,
+//   spanGaps: true, // to handle nulls without breaking lines
+//   pointRadius: 6,
+//   pointHoverRadius: 8,
+// }));
+
+// this.data = {
+//   labels: this.revenueChartData.labels,
+//   datasets,
+// };
+
+//     this.options = {
+//       indexAxis: 'x',
+//       maintainAspectRatio: false,
+//       aspectRatio: 0.6,
+//       plugins: {
+//         legend: {
+//           labels: {
+//             color: textColor,
+//           }
+//         }
+//       },
+//       scales: {
+//         x: {
+//           beginAtZero: true,
+//           ticks: {
+//             color: textColorSecondary,
+//           },
+//           grid: {
+//             color: surfaceBorder,
+//             drawBorder: false,
+//           }
+//         },
+//         y: {
+//           ticks: {
+//             color: textColorSecondary,
+//           },
+//           grid: {
+//             color: surfaceBorder,
+//             drawBorder: false,
+//           }
+//         }
+//       }
+//     };
+
+//     this.cd.markForCheck();
+//   }
+// }
+
 }

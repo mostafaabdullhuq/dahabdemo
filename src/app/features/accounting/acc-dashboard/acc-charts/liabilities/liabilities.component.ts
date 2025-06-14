@@ -24,51 +24,71 @@ liabilitiesChartData:any;
     });
   }
 
-  initChart() {
+initChart() {
   if (isPlatformBrowser(this.platformId)) {
-
     const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+
+    const backgroundColors = [
+      'rgba(249, 115, 22, 0.2)',
+      'rgba(6, 182, 212, 0.2)',
+      'rgba(107, 114, 128, 0.2)',
+      'rgba(139, 92, 246, 0.2)',
+    ];
+    const borderColors = [
+      'rgb(249, 115, 22)',
+      'rgb(6, 182, 212)',
+      'rgb(107, 114, 128)',
+      'rgb(139, 92, 246)',
+    ];
 
     this.dataLiabilities = {
-      labels: this.liabilitiesChartData?.labels,
+      labels: this.liabilitiesChartData.labels,
       datasets: [
         {
-          data: this.liabilitiesChartData?.data,
-          backgroundColor: [
-            '#299D91',
-            '#F0F4F3',
-            '#D9E6E4',
-            '#B8D8D3',
-            '#E8E8E9',
-            '#C1C9C8',
-            '#A0B1B0'
-          ],
-          hoverBackgroundColor: [
-            '#237C77',
-            '#D9E6E4',
-            '#B8D8D3',
-            '#99BCB8',
-            '#D1D3D4',
-            '#A0B1B0',
-            '#7F8D8B'
-          ]
+          label: 'Liabilities',
+          data: this.liabilitiesChartData.data,
+          backgroundColor: this.liabilitiesChartData.data.map((_: any, i: number) => backgroundColors[i % backgroundColors.length]),
+          borderColor: this.liabilitiesChartData.data.map((_: any, i: number) => borderColors[i % borderColors.length]),
+          borderWidth: 1,
         }
       ]
     };
 
     this.optionsBar = {
+      indexAxis: 'x', // horizontal bars
       plugins: {
         legend: {
           labels: {
-            usePointStyle: true,
-            color: textColor
-          }
-        }
-      }
+            color: textColor,
+          },
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+          },
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+          },
+        },
+      },
     };
 
     this.cd.markForCheck();
   }
 }
+
 }

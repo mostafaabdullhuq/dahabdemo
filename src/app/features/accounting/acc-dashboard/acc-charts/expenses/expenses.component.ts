@@ -24,51 +24,73 @@ expensesChartData:any;
     });
   }
 
-  initChart() {
+initChart() {
   if (isPlatformBrowser(this.platformId)) {
-
     const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+
+    const backgroundColors = [
+      'rgba(249, 115, 22, 0.2)',
+      'rgba(6, 182, 212, 0.2)',
+      'rgba(107, 114, 128, 0.2)',
+      'rgba(139, 92, 246, 0.2)',
+    ];
+    const borderColors = [
+      'rgb(249, 115, 22)',
+      'rgb(6, 182, 212)',
+      'rgb(107, 114, 128)',
+      'rgb(139, 92, 246)',
+    ];
+
+    const datasets = this.expensesChartData.labels.map((label: string, i: number) => ({
+      label: label,
+      data: [this.expensesChartData.data[i]],
+      backgroundColor: backgroundColors[i % backgroundColors.length],
+      borderColor: borderColors[i % borderColors.length],
+      borderWidth: 1,
+    }));
 
     this.dataExpenses = {
-      labels: this.expensesChartData?.labels,
-      datasets: [
-        {
-          data: this.expensesChartData?.data,
-          backgroundColor: [
-            '#299D91',
-            '#F0F4F3',
-            '#D9E6E4',
-            '#B8D8D3',
-            '#E8E8E9',
-            '#C1C9C8',
-            '#A0B1B0'
-          ],
-          hoverBackgroundColor: [
-            '#237C77',
-            '#D9E6E4',
-            '#B8D8D3',
-            '#99BCB8',
-            '#D1D3D4',
-            '#A0B1B0',
-            '#7F8D8B'
-          ]
-        }
-      ]
+      labels: [''], // Single group, each dataset becomes a separate horizontal bar
+      datasets: datasets
     };
 
     this.optionsBar = {
+      indexAxis: 'x', // 🔁 This rotates the bars horizontally
       plugins: {
         legend: {
           labels: {
-            usePointStyle: true,
-            color: textColor
-          }
-        }
-      }
+            color: textColor,
+          },
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+          },
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+          },
+        },
+      },
     };
 
     this.cd.markForCheck();
   }
 }
+
+
+
 }

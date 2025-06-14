@@ -48,7 +48,7 @@ export class JournalEntryComponent implements OnInit {
       { field: "id", header: "Refrence Number" },
     { field: "date", header: "journal date" },
     { field: "added_by", header: "added by" },
-    { field: "type", header: "Type" },
+    { field: "status", header: "Type" },
     { field: "user_name", header: "User" },
     { field: "supplier", header: "Supplier" },
     { field: "customer", header: "Customer" },

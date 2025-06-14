@@ -33,7 +33,7 @@
 
                             <!-- Sub Account -->
                             <div class="col-md-6">
-                                <app-dropdowns label="Select Sub Account" id="subAccount" formControlName="sub_account"
+                                <app-dropdowns label="Select Parent Account" id="parentType" formControlName="parent_type"
                                     [options]="subAcc" optionLabel="name" optionValue="id"
                                     placeholder="Select a Sub Account">
                                 </app-dropdowns>
@@ -47,16 +47,16 @@
 
 
                             <!-- Parent Account -->
-                            <div class="col-md-6">
-                                <app-dropdowns label="Select Parent Account" id="parentAccount"
-                                    formControlName="parent_account" [options]="subAcc" optionLabel="name"
-                                    optionValue="id" placeholder="Select a Parent Account">
+                            <div class="col-md-6" *ngIf="subSubAcc.length !==0">
+                                <app-dropdowns label="Select Details Type" id="Details"
+                                    formControlName="sub_acc" [options]="subSubAcc" optionLabel="name"
+                                    optionValue="id" placeholder="Select an Account">
                                 </app-dropdowns>
                             </div>
 
                             <!-- Balance -->
                             <div class="col-md-6">
-                                <app-input-text formControlName="balance" [required]="true" [type]="'number'"
+                                <app-input-text formControlName="opening_balance" [required]="true" [type]="'number'"
                                     inputName="balance" placeholder="Enter Balance">
                                 </app-input-text>
                             </div>

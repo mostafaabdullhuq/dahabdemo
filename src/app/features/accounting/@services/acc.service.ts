@@ -127,8 +127,9 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
   getAccById(id: any) {
     return this._http.getRequest(`${environment.api_url}accounting/accounts/${id}/`);
   }
-  addAcc(form:any) {
-    return this._http.postRequest(`${environment.api_url}accounting/accounts/`, form);
+  addAcc(form:any, parendId:any) {
+    const params = `?parent_id=${parendId}`
+    return this._http.postRequest(`${environment.api_url}accounting/accounts/${params?? ''}`, form);
   }
   updateAcc(id: number | string, editForm: any) {
     return this._http.patchRequest(`${environment.api_url}/${id}/`, editForm);
@@ -144,5 +145,9 @@ addExpensePayment(id: number| string , form: FormData | FormGroup) {
     //   .set('page_size', pageSize.toString());
     const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}accounting/accounts/dashboard/`);
+  }
+    getAccSearchByParams(id: any) {
+      const param = `?account_type=${id}`
+    return this._http.getRequest(`${environment.api_url}accounting/accounts/${param}`);
   }
 }

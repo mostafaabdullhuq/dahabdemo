@@ -74,6 +74,9 @@ export class ChartOfAccComponent {
     this.componentRef = this.container.createComponent(AddEditAccComponent);
     this.componentRef.instance.visible = true;
     this.componentRef.instance.accId = id;
+    this.componentRef.instance.onSubmitAcc.subscribe(()=>{
+          this.loadNodes();
+    })
   }
 
 }
