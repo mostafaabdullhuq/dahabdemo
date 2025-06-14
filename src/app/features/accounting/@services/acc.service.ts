@@ -15,7 +15,7 @@ export class AccService {
 
   //-----> acc API
   // Get acc 
-  getTransactions(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+  getTransactions(search: any = '', page: number = 1, pageSize: number = 10): Observable<any> {
     // const params = new HttpParams()
     //   .set('', search)
     //   .set('page', page.toString())

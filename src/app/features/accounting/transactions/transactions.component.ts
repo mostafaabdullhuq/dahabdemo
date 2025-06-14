@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ConfirmationPopUpService } from '../../../shared/services/confirmation-pop-up.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { MenuItem } from 'primeng/api';
+import { DropdownsService } from '../../../core/services/dropdowns.service';
 
 @Component({
   selector: 'app-transactions',
@@ -15,44 +16,89 @@ import { MenuItem } from 'primeng/api';
 export class TransactionsComponent {
   transactions: any[] = [];
   transactionTypes: any[] = [
-     {
-    id: "", name:'All'
-  },
-  {
-    id: "sale", name:'Sales'
-  },
-  {
-    id: "purchase", name:'Purchase Old Gold'
-  },
-  {
-    id: "return", name:'Return'
-  },
-  {
-    id: "repair", name:'Repair'
-  },
-  {
-    id: "gold_receipt", name:'Gold Receipt'
-  }
+    {
+      id: "", name: 'All'
+    },
+    {
+      id: "sale", name: 'Sales'
+    },
+    {
+      id: "purchase", name: 'Purchase Old Gold'
+    },
+    {
+      id: "return", name: 'Return'
+    },
+    {
+      id: "repair", name: 'Repair'
+    },
+    {
+      id: "gold_receipt", name: 'Gold Receipt'
+    }
   ];
   cols: any[] = [];
   filterForm!: FormGroup;
   totalRecords: number = 0;
   pageSize: number = 10;
   first: number = 0;
-
+  customers: any = [];
+  branches: any = [];
+  paymentStatusOptions = [
+    { id: 'pending', name: 'Pending' },
+    { id: 'paid', name: 'Paid' },
+    { id: 'partially_paid', name: 'Partially Paid' }
+  ];
+  paymentMethods: any = [];
   constructor(
     private _accService: AccService,
     private _formBuilder: FormBuilder,
     private _router: Router,
+    private _dropdownService: DropdownsService,
     private _confirmPopUp: ConfirmationPopUpService
   ) { }
 
   ngOnInit(): void {
     this.cols = [
-      { field: "id", header: "Refrence Number" },
-      { field: "created_at", header: "Date" },
+      { field: "reference_number", header: "Refrence Number" },
+      {
+        field: "created_at", header: "Date",
+        body: (row: any) => {
+          if (!row?.created_at) return '-';
+          const date = new Date(row.created_at);
+          const formatted = `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+          return formatted;
+        }
+      },
       { field: "payment_method_name", header: "Payment Method" },
-      { field: "order_status", header: "Payment Status" },
+      {
+        field: "order_status", header: "Payment Status",
+        body: (row: any) => {
+          const status = row?.order_status;
+          let className = '';
+          let label = '';
+
+          switch (status) {
+            case 'pending':
+              className = 'badge rounded-pill text-bg-warning';
+              label = 'Pending';
+              break;
+            case 'paid':
+              className = 'badge rounded-pill text-bg-success';
+              label = 'Paid';
+              break;
+            case 'partially_paid':
+              className = 'badge rounded-pill text-bg-danger';
+              label = 'Partially Paid';
+              break;
+            default:
+              className = 'badge text-secondary';
+              label = status || 'Unknown';
+          }
+
+          return `<span class="${className}">${label}</span>`;
+        },
+        escape: false // 👈 important to allow HTML rendering in PrimeNG
+
+      },
       { field: "amount", header: "SubTotal" },
       { field: "orderproduct_count", header: "Product Count" },
       { field: "salesman_name", header: "Salesman" },
@@ -62,19 +108,63 @@ export class TransactionsComponent {
     ];
     this.filterForm = this._formBuilder.group({
       search: '',
-      transaction_type:''
+      transaction_type: '',
+      order__customer: '',
+      order__payment_date: '',
+      order__payment_method: '',
+      order__status: '',
+      shift__branch: ''
     });
     this.getTransactions();
+    this._dropdownService.getCustomers().subscribe(data => {
+      this.customers = data?.results;
+    });
+    this._dropdownService.getPaymentMethods().subscribe(res => {
+      this.paymentMethods = res?.results
+    });
+    this._dropdownService.getBranches().subscribe(res => {
+      this.branches = res?.results;
+    })
   }
 
   // Get transactions with filtering and pagination
   getTransactions(search: any = '', page: number = 1, pageSize: number = 10): void {
-    //const searchParams = new URLSearchParams(this.filterForm.value).toString() || '';
-    const params = `search=${this.filterForm?.value?.search}&transaction_type=${this.filterForm?.value?.transaction_type}`
-    // Correct pagination parameters and make API call
-    this._accService.getTransactions(this.filterForm?.value?.search || '', page, pageSize).subscribe(res => {
+    const filterValues = this.filterForm?.value || {};
+    const queryParts: string[] = [];
+
+    if (filterValues.search) {
+      queryParts.push(`search=${encodeURIComponent(filterValues.search)}`);
+    }
+    if (filterValues.transaction_type) {
+      queryParts.push(`transaction_type=${encodeURIComponent(filterValues.transaction_type)}`);
+    }
+    if (filterValues.order__customer) {
+      queryParts.push(`order__customer=${encodeURIComponent(filterValues.order__customer)}`);
+    }
+    if (filterValues.order__payment_date) {
+      const date = new Date(filterValues.order__payment_date);
+      const formattedDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+      queryParts.push(`order__payment_date=${encodeURIComponent(formattedDate)}`);
+    }
+    if (filterValues.order__payment_method) {
+      queryParts.push(`order__payment_method=${encodeURIComponent(filterValues.order__payment_method)}`);
+    }
+    if (filterValues.order__status) {
+      queryParts.push(`order__status=${encodeURIComponent(filterValues.order__status)}`);
+    }
+    if (filterValues.shift__branch) {
+      queryParts.push(`shift__branch=${encodeURIComponent(filterValues.shift__branch)}`);
+    }
+
+    // Add pagination params
+    queryParts.push(`page=${page}`);
+    queryParts.push(`page_size=${pageSize}`);
+
+    const params = queryParts.join('&');
+
+    this._accService.getTransactions(params).subscribe(res => {
       this.transactions = res?.results;
-      this.totalRecords = res?.count;  // Ensure the total count is updated
+      this.totalRecords = res?.count;
     });
   }
   loadTransactions(event: any): void {

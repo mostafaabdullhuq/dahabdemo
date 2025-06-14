@@ -23,6 +23,12 @@ export class AddEditTransactionComponent implements OnInit {
   customFields: any = [];
   paymentMethods: any = [];
   customers: any = [];
+  branches: any = [];
+  paymentStatusOptions = [
+  { id: 'pending', name: 'Pending' },
+  { id: 'paid', name: 'Paid' },
+  { id: 'partially_paid', name: 'Partially Paid' }
+];
   constructor(
     private _accService: AccService,
     private _formBuilder: FormBuilder,
@@ -46,7 +52,7 @@ export class AddEditTransactionComponent implements OnInit {
     });
     this._dropdownService.getCustomers().subscribe(res => {
       this.customers = res?.results;
-    })
+    });
   }
 
   private initForm(): void {

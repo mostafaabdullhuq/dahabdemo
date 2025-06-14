@@ -16,6 +16,28 @@
                             <app-dropdowns label="transaction" formControlName="transaction_type" [options]="transactionTypes"
                                 optionLabel="name" optionValue="id" placeholder="Select a type"></app-dropdowns>
                         </div>
+                    <div class="col-md-6">
+                            <app-dropdowns label="Customer" formControlName="order__customer" [options]="customers"
+                                optionLabel="name" optionValue="id" placeholder="Select a Customer"></app-dropdowns>
+                    </div>
+                    <div class="col-md-6">
+                            <app-input-date formControlName="order__payment_date" inputName="payment date"
+                                placeholder="Enter payment date">
+                            </app-input-date>
+                        </div>
+                         <div class="col-md-6">
+                            <app-dropdowns label="payment methods" formControlName="order__payment_method"
+                                [options]="paymentMethods" optionLabel="name" optionValue="id"
+                                placeholder="Select a payment method"></app-dropdowns>
+                        </div>
+                        <div class="col-md-6">
+                            <app-dropdowns label="Status" formControlName="order__status" [options]="paymentStatusOptions"
+                                optionLabel="name" optionValue="id" placeholder="Select a Status"></app-dropdowns>
+                    </div>
+                    <div class="col-md-6">
+                            <app-dropdowns label="branch" formControlName="shift__branch" [options]="branches"
+                                optionLabel="name" optionValue="id" placeholder="Select a branch"></app-dropdowns>
+                        </div>
                 </div>
                 <div class="btns-group">
                     <button class=" submit-btn" (click)="onSearch()">Search</button>
