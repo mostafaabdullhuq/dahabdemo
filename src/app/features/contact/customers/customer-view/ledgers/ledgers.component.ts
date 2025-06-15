@@ -89,6 +89,14 @@ constructor( private _contactService:ContactService, private _formBuilder:FormBu
       this.totalRecords = res.count;
     })
   }
+currentPage = 1;
+
+// Manual page change handler for buttons
+changePage(page: number) {
+  if (page < 1 || page > this.totalRecords) return;
+  this.currentPage = page;
+  this.getLedgerData();
+}
   onSearch(): void {
     const formValues = this.filterForm.value;
   

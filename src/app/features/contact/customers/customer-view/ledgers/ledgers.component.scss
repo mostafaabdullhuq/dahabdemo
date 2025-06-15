@@ -1,0 +1,119 @@
+.ledger-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 13px;
+  color: #222;
+  table-layout: fixed;
+  word-wrap: break-word;
+}
+
+/* Sticky main header to stay visible on scroll */
+.ledger-table thead tr.main-header {
+  background-color: #1f497d;
+  //color: #fff;
+  font-weight: 700;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.ledger-table th, .ledger-table td {
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  vertical-align: middle;
+}
+
+.amount-header {
+  text-align: center;
+  position: relative;
+  font-weight: 600;
+}
+
+.amount-subheader {
+  display: flex;
+  justify-content: space-around;
+  font-size: 10px;
+  font-weight: 600;
+  color: #555;
+  margin-top: 3px;
+}
+
+.amount-subheader span {
+  flex: 1;
+  text-align: center;
+}
+
+.ledger-row {
+  background-color: #fafafa;
+  transition: background-color 0.3s ease;
+}
+
+.ledger-row:hover {
+  background-color: #e9f0fa;
+}
+
+.items-header-row, .payments-header-row {
+  background-color: #dbe3f2;
+  font-weight: 600;
+  color: #1f497d;
+  border-top: 2px solid #1f497d;
+}
+
+.items-table, .payments-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.items-table th, .payments-table th {
+  background-color: #c3d0f5;
+  font-weight: 700;
+  border: 1px solid #a3b1d9;
+  padding: 6px 8px;
+  color: #1a3765;
+  text-align: center;
+}
+
+.items-table td, .payments-table td {
+  border: 1px solid #d6dff6;
+  padding: 6px 8px;
+  text-align: center;
+  color: #333;
+}
+
+.items-table td:first-child, .payments-table td:first-child {
+  text-align: left;
+}
+
+.text-end {
+  text-align: right;
+}
+
+.items-container, .payments-container {
+  padding: 0;
+}
+
+.amount-header > div.amount-subheader {
+  border-top: 1px solid rgba(255,255,255,0.5);
+  padding-top: 3px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+  .ledger-table, .items-table, .payments-table {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ledger-table, .items-table, .payments-table {
+    font-size: 10px;
+  }
+  .amount-subheader {
+    font-size: 8px;
+  }
+}

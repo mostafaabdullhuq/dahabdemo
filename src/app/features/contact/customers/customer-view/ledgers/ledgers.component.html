@@ -22,12 +22,127 @@
                 </div>
             </form>
         </app-filter-collapse>
-        <div class="table-container">
-        <app-data-table
-        [hasContext]="false" 
-        [data]="ledgerData" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
-            (pageChange)="loadCustomersLedgers($event)">
-        </app-data-table>
-    </div>
+         <div class="table-responsive">
+<table class="ledger-table" cellspacing="0" cellpadding="4" border="0" width="100%">
+  <thead>
+    <tr class="main-header">
+      <th>Date</th>
+      <th>Reference No</th>
+      <th>Type</th>
+      <th>Location</th>
+      <th>Payment Status</th>
+      <th colspan="5" class="amount-header">
+        Amount in BD
+        <div class="amount-subheader">
+          <span>Debit</span>
+          <span>Credit</span>
+          <span>Balance</span>
+        </div>
+      </th>
+      <th>Payment Method</th>
+      <th>Others</th>
+    </tr>
+  </thead>
+
+  <tbody *ngFor="let ledger of ledgerData">
+    <!-- Ledger row -->
+    <tr class="ledger-row">
+      <td>{{ ledger.order_date | date: 'dd/MM/yyyy' }}</td>
+      <!-- You don't have reference_number on root, so maybe use id or generate -->
+      <td>{{ 'ORD-' + ledger.id }}</td>
+      <td>{{ ledger.status }}</td>
+      <td>{{ ledger.location }}</td>
+      <td>{{ ledger.status | titlecase }}</td>
+
+      <!-- Amount columns -->
+      <!-- Assuming total_due_amount and total_paid_amount exist -->
+      <td class="text-end" colspan="3">{{ ledger.total_due_amount || 0 }} BD</td>
+      <td class="text-end" colspan="2">{{ ledger.total_paid_amount || 0 }} BD</td>
+
+      <td>{{ ledger.payment_method || '-' }}</td>
+      <td>-</td>
+    </tr>
+
+    <!-- Products Sub-table -->
+    <tr *ngIf="ledger.products?.length" class="items-header-row">
+      <td colspan="12" class="items-container">
+        <table class="items-table" width="100%" cellspacing="0" cellpadding="2" border="0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Discount Percent</th>
+              <th>Tax</th>
+              <th>Price inc. VAT</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of ledger.products; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ item.product_name }}</td>
+              <!-- Quantity is missing in your data sample, assuming 1 -->
+              <td>1 Pc(s)</td>
+              <td>{{ item.amount | number:'1.3-3' }} BD</td>
+              <td>{{ item.discount || 0 }} %</td>
+              <td>{{ item.vat_amount | number:'1.3-3' }} BD</td>
+              <td>{{ item.price_inc_vat | number:'1.3-3' }} BD</td>
+              <td>{{ item.sub_total | number:'1.3-3' }} BD</td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+
+    <!-- Payments Sub-table -->
+    <tr *ngIf="ledger.payments?.length" class="payments-header-row">
+      <td colspan="12" class="payments-container">
+        <table class="payments-table" width="100%" cellspacing="0" cellpadding="2" border="0">
+          <thead>
+            <tr>
+              <th>Payment Ref</th>
+              <th>Payment Date</th>
+              <th>Amount</th>
+              <th>Payment Method</th>
+              <th>Others</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let payment of ledger.payments">
+              <td>{{ payment.reference_number }}</td>
+              <!-- Payment date missing? Use transaction_status.transactions.payments[0].payment_date maybe -->
+              <td>
+                {{
+                  ledger.transaction_status?.transactions[0]?.payments[0]?.payment_date
+                    | date:'dd/MM/yyyy hh:mm a'
+                }}
+              </td>
+              <td class="text-end">{{ payment.amount | number:'1.3-3' }} BD</td>
+              <td>{{ payment.payment_method || ledger.transaction_status?.transactions[0]?.payments[0]?.payment_method || '-' }}</td>
+              <td>Payment For: ORD-{{ ledger.id }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="pagination-controls" style="margin-top: 10px; text-align: center;">
+  <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">Prev</button>
+  
+  <span *ngFor="let page of [].constructor(totalRecords); let i = index">
+    <button 
+      [class.active]="currentPage === i + 1" 
+      (click)="changePage(i + 1)">
+      {{ i + 1 }}
+    </button>
+  </span>
+
+  <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalRecords">Next</button>
+</div>
+
+</div>
     </div>
 </section>

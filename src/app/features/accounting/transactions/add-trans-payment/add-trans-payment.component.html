@@ -26,6 +26,10 @@
             </div> -->
         </div>
         <div class="content d-flex flex-column justify-content-between h-100">
+            <div class="items-center mb-2">
+                <app-dropdowns label="Branch" formControlName="branch" [options]="branches"
+                    optionLabel="name" optionValue="id" placeholder="Select a branch"></app-dropdowns>
+            </div>
             <div class="items-center">
                 <app-input-text formControlName="amount" placeholder="Amount" type="number"
                     inputName="Amount"></app-input-text>
