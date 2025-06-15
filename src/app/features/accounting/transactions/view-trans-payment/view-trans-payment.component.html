@@ -1,0 +1,139 @@
+<p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '60rem'}">
+    <ng-template pTemplate="header">
+        <div class="d-flex justify-content-center align-items-center">
+            <h4><i class="pi pi-receipt me-2" style="font-size: 2rem"></i>Transaction Payment</h4>
+        </div>
+    </ng-template>
+    <div class="invoice-container container my-5 p-4 shadow rounded-4 bg-white" id="invoice-section">
+        <div class="d-flex justify-content-between mb-4">
+            <h2 class="text-primary">Payment</h2>
+            <img style="width: 10%; height: 10%;" [src]="orgImg" alt="org img">
+        </div>
+
+        <div class="container my-5 invoice-header">
+            <div class="row g-4">
+
+                <!-- Shop Card -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary fw-bold">Shop</h6>
+                            <p class="mb-1"><strong>Shop name:</strong> {{ invoiceData?.branch_name }}</p>
+                            <p class="mb-1"><strong>Shop address:</strong>-</p>
+                            <p class="mb-1"><strong>VAT no.:</strong> {{ invoiceData?.tax }}</p>
+                            <p class="mb-0"><strong>CR no.:</strong> -</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Card -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary fw-bold">Customer</h6>
+                            <p class="mb-1"><strong>{{ invoiceData?.customer_name }}</strong></p>
+                            <p class="mb-1"><strong>CPR no.:</strong> {{invoiceData?.customer_cpr}}</p>
+                            <!-- <p class="mb-1">{{ invoiceData?.address }}</p> -->
+                            <p class="mb-0">{{ invoiceData?.customer_phone }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Card -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary fw-bold">Invoice</h6>
+                            <p class="mb-1"><strong>Date:</strong> {{ invoiceData?.payment_date | date:'dd-mm-yyyy' }}</p>
+                            <p class="mb-1"><strong>Number:</strong> {{ invoiceData?.reference_number }}</p>
+                            <p class="mb-1"><strong>Method:</strong> {{invoiceData?.payment_method}}</p>
+                            <p class="mb-1"><strong>Payment Status:</strong>
+                                <span class="badge rounded-pill mx-2" [ngClass]="{
+                                      'text-bg-warning': invoiceData?.payment_status === 'pending',
+                                      'text-bg-success': invoiceData?.payment_status === 'paid',
+                                      'text-bg-danger': invoiceData?.payment_status === 'partially_paid',
+                                      'text-bg-secondary': !['pending', 'paid', 'partially_paid'].includes(invoiceData?.payment_status)
+                                    }">
+                                    {{ invoiceData?.payment_status | titlecase }}
+                                </span>
+                            </p>
+                            <p class="mb-0"><strong>Payment date:</strong> {{ invoiceData?.payment_date |
+                                date:'dd-mm-yyyy'}}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <h6 class="py-2">Transactions</h6>
+        <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Image</th>
+                            <th>Product Name</th>
+                            <th>Tag Number</th>
+                            <th>Weight</th>
+                            <th>Price</th>
+                            <th>Discount</th>
+                            <th>VAT</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of invoiceData?.order_products; index as i">
+                            <td>{{ i + 1 }}</td>
+                            <td>
+                                <img [src]="item.product?.image" alt="item image" width="50" height="50"
+                                    class="img-thumbnail">
+                            </td>
+                            <td>{{ item.product?.name }}</td>
+                            <td>{{ item.product?.tag_number }}</td>
+                            <td>{{ item.product?.weight }}</td>
+                            <td>{{ item.product?.price| number:'1.3-3' }}{{invoiceData?.currency}}</td>
+                            <td>{{ item.discount| number:'1.3-3' }}{{invoiceData?.currency}}</td>
+                            <td>{{ item.vat_amount | number:'1.3-3'}}{{invoiceData?.currency}}</td>
+                            <td>{{ item.amount | number:'1.3-3'}}{{invoiceData?.currency}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        <div class=" w-100">
+            <strong>Terms & Conditions</strong>
+            <p class=" border border-1 rounded-3"></p>
+        </div>
+        <div class="container-fluid">
+            <div class="row  justify-content-end totals">
+                <div class="col-md-4 fw-bold border border-1 rounded-3">
+                    <ul class="list-unstyled">
+                        <li class="d-flex justify-content-between">
+                            <strong>Subtotal (exc vat) </strong> :
+                            <span class="text-end">{{invoiceData?.sub_total|
+                                number:'1.3-3'}}{{invoiceData?.currency}}</span>
+                        </li>
+                        <li class="d-flex justify-content-between"><strong>Discount </strong> :
+                            <span class="text-end">{{invoiceData?.discount| number:'1.3-3'}}</span>
+                        </li>
+                        <li class="d-flex justify-content-between"><strong>Vat (10%) </strong> :
+                            <span class="text-end"> {{invoiceData?.tax | number:'1.3-3' }}
+                                {{invoiceData?.currency}}</span>
+                        </li>
+                        <li class="d-flex justify-content-between"><strong>Net Amount (inc vat) </strong> :
+                            <span class="text-end"> {{invoiceData?.total_amount| number:'1.3-3'}}
+                                {{invoiceData?.currency}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 text-center text-muted">
+            <!-- Thank you for your business! -->
+        </div>
+    </div>
+    <div class="d-flex justify-content-end gap-2">
+        <p-button label="Cancel" severity="secondary" (click)="visible = false" />
+        <p-button label="Print" (click)="printInvoice()" />
+    </div>
+</p-dialog>

@@ -60,6 +60,7 @@ import { UserDashboardComponent } from '../user-dashboard/user-dashboard.compone
 import { ProductLabelsComponent } from '../inventory/product-labels/product-labels.component';
 import { ViewAccLedgerComponent } from '../accounting/view-acc-ledger/view-acc-ledger.component';
 import { AddEditTransactionComponent } from '../accounting/transactions/add-edit-transaction/add-edit-transaction.component';
+import { DeletedTransactionsComponent } from '../accounting/transactions/deleted-transactions/deleted-transactions.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -150,6 +151,7 @@ export const routes: Routes = [
     path: 'acc', children: [
       { path: '', redirectTo: 'transactions', pathMatch: 'full' },
       { path: 'transactions', component: TransactionsComponent },
+      { path: 'deleted-transactions', component: DeletedTransactionsComponent },
       { path: 'transaction/edit/:id', component: AddEditTransactionComponent },
       // { path: 'customer/add', component: AddEditCustomerComponent },
       // { path: 'customer-view/:id', component: CustomerViewComponent }

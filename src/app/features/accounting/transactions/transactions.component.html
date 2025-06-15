@@ -1,9 +1,13 @@
 <p-confirmdialog />
+<ng-container #container></ng-container>
 
 <section>
     <div class="header-container">
         <h3>Transactions </h3>
         <hr>
+        <div class="header-btns">
+            <button [routerLink]="['/acc/deleted-transactions']" class="add-btn text-center"><i class="pi pi-trash px-2"></i>Deleted Transactions</button>
+        </div>
     </div>
     <div class="filter-container container">
         <app-filter-collapse>

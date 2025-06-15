@@ -1,15 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, ComponentRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AccService } from '../@services/acc.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ConfirmationPopUpService } from '../../../shared/services/confirmation-pop-up.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { MenuItem } from 'primeng/api';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
+import { ViewTransPaymentComponent } from './view-trans-payment/view-trans-payment.component';
+import { AddTransPaymentComponent } from './add-trans-payment/add-trans-payment.component';
 
 @Component({
   selector: 'app-transactions',
-  imports: [SharedModule],
+  imports: [SharedModule, RouterLink],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss'
 })
@@ -189,6 +191,16 @@ export class TransactionsComponent {
       command: () => this.editTransaction(this.selectedTransaction)
     },
     {
+      label: 'Add Payment',
+      icon: 'pi pi-wallet',
+      command: () => this.openAddPayment(this.selectedTransaction?.id)
+    },
+    {
+      label: 'View Payment',
+      icon: 'pi pi-eye',
+      command: () => this.openViewPayment(this.selectedTransaction?.id)
+    },
+    {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
       command: () => this.showConfirmDelete(this.selectedTransaction)
@@ -201,9 +213,7 @@ export class TransactionsComponent {
   }
   deleteTransaction(user: any) {
     this._accService.deleteTransaction(user?.id).subscribe(res => {
-      if (res) {
         this.getTransactions()
-      }
     })
   }
   showConfirmDelete(user: any) {
@@ -233,5 +243,20 @@ export class TransactionsComponent {
     const queryParams = queryParts.join('&');
 
     this.getTransactions(queryParams, 1, 10);
+  }
+   componentRef!: ComponentRef<any>;
+  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
+  
+  openViewPayment(id:any){
+        this.container.clear();
+    this.componentRef = this.container.createComponent(ViewTransPaymentComponent);
+    this.componentRef.instance.showDialog();
+    this.componentRef.instance.transId=id
+  }
+    openAddPayment(id:any){
+        this.container.clear();
+    this.componentRef = this.container.createComponent(AddTransPaymentComponent);
+    this.componentRef.instance.showDialog();
+    this.componentRef.instance.transId=id
   }
 }

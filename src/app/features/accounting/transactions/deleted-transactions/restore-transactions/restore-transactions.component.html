@@ -1,0 +1,125 @@
+<p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '60rem'}">
+    <ng-template pTemplate="header">
+        <div class="d-flex justify-content-center align-items-center">
+            <h4><i class="pi pi-refresh me-2" style="font-size: 2rem"></i> Restore Transaction </h4>
+        </div>
+    </ng-template>
+    <section class="form-container">
+        <div class="add-form">
+            <form [formGroup]="addEditCustomerForm" class="container" (ngSubmit)="onSubmit()">
+                <section class="form-section">
+                    <!-- 🔹 customer Info -->
+                    <div class="row d-flex w-100 justify-content-between align-items-center">
+                        <div class="w-50 my-2">
+                            <h6 class="section-form-header">Transaction Info</h6>
+                        </div>
+                        <div class="w-50 me-auto text-end">
+                            <span class="badge rounded-pill" [ngClass]="{
+          'text-bg-warning': allDataOfTrans?.payment_status === 'pending',
+          'text-bg-success': allDataOfTrans?.payment_status === 'paid',
+          'text-bg-danger': allDataOfTrans?.payment_status === 'partially_paid',
+          'text-bg-secondary': !['pending', 'paid', 'partially_paid'].includes(allDataOfTrans?.payment_status)
+        }">
+                                {{ allDataOfTrans?.payment_status | titlecase }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="container section-form">
+                        <div class="row py-3">
+                            <div class="col-md-6">
+                                <strong>
+                                    Reference No:
+                                </strong>
+                                <span>{{allDataOfTrans?.reference_number}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <app-dropdowns label="payment status" formControlName="payment_status"
+                                    [options]="paymentStatusOptions" optionLabel="name" optionValue="id"
+                                    placeholder="Enter payment status"></app-dropdowns>
+                            </div>
+                            <div class="col-md-6">
+                                <app-dropdowns label="payment methods" formControlName="payment_method"
+                                    [options]="paymentMethods" optionLabel="name" optionValue="id"
+                                    placeholder="Select a payment method"></app-dropdowns>
+                            </div>
+                            <div class="col-md-6">
+                                <app-input-date formControlName="payment_date" inputName="payment date"
+                                    placeholder="Enter payment date">
+                                </app-input-date>
+                            </div>
+                            <div class="col-md-6">
+                                <app-dropdowns label="customer" formControlName="customer" [options]="customers"
+                                    optionLabel="name" optionValue="id" placeholder="Select a customer"></app-dropdowns>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- 🔹 Order Products Display Table -->
+                <h6 class="section-form-header mt-4">Order Products</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Image</th>
+                                <th>Product Name</th>
+                                <th>Tag Number</th>
+                                <th>Weight</th>
+                                <th>Price</th>
+                                <th>Discount</th>
+                                <th>VAT</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of orderProducts; index as i">
+                                <td>{{ i + 1 }}</td>
+                                <td>
+                                    <img [src]="item.product?.image" alt="item image" width="50" height="50"
+                                        class="img-thumbnail">
+                                </td>
+                                <td>{{ item.product?.name }}</td>
+                                <td>{{ item.product?.tag_number }}</td>
+                                <td>{{ item.product?.weight }}</td>
+                                <td>{{ item.product?.price| number:'1.3-3' }}</td>
+                                <td>{{ item.discount| number:'1.3-3' }}</td>
+                                <td>{{ item.vat_amount| number:'1.3-3' }}</td>
+                                <td>{{ item.amount | number:'1.3-3'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <div class="container pt-2">
+                    <div class="row  justify-content-end totals">
+                        <div class="col-md-4 fw-bold border border-1 rounded-3">
+                            <ul class="list-unstyled">
+                                <li class="d-flex justify-content-between">
+                                    <strong>Subtotal (exc vat) </strong> :
+                                    <span class="text-end">{{allDataOfTrans?.sub_total|
+                                        number:'1.3-3'}}{{allDataOfTrans?.currency}}</span>
+                                </li>
+                                <li class="d-flex justify-content-between"><strong>Discount </strong> :
+                                    <span class="text-end">{{allDataOfTrans?.discount| number:'1.3-3'}}</span>
+                                </li>
+                                <li class="d-flex justify-content-between"><strong>Vat (10%) </strong> :
+                                    <span class="text-end"> {{allDataOfTrans?.tax | number:'1.3-3' }}
+                                        {{allDataOfTrans?.currency}}</span>
+                                </li>
+                                <li class="d-flex justify-content-between"><strong>Net Amount (inc vat) </strong> :
+                                    <span class="text-end"> {{allDataOfTrans?.total_amount| number:'1.3-3'}}
+                                        {{allDataOfTrans?.currency}}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="btns-group">
+                    <button type="submit" class="my-4 submit-btn">Restore</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</p-dialog>

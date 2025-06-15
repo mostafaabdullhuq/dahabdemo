@@ -1,0 +1,50 @@
+<p-confirmdialog />
+<ng-container #container></ng-container>
+<section>
+    <div class="header-container">
+        <h3>Deleted Transactions </h3>
+        <hr>
+    </div>
+    <div class="filter-container container">
+        <app-filter-collapse>
+            <form class="container" [formGroup]="filterForm">
+                <div class="row">
+                    <div class="col-md-12">
+                        <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
+                    </div>
+                     <!-- <div class="col-md-3">
+                            <app-dropdowns label="status" formControlName="status" [options]="status"
+                                optionLabel="name" optionValue="id" placeholder="Select a status"></app-dropdowns>
+                        </div>
+                        <div class="col-md-3">
+                            <app-dropdowns label="type" formControlName="type" [options]="type"
+                                optionLabel="name" optionValue="id" placeholder="Select a type"></app-dropdowns>
+                        </div>
+                        <div class="col-md-3">
+                            <app-dropdowns label="branch" formControlName="branch" [options]="branches"
+                                optionLabel="name" optionValue="id" placeholder="Select a branch"></app-dropdowns>
+                        </div>
+                        <div class="col-md-3">
+                            <app-dropdowns label="supplier" formControlName="supplier" [options]="suppliers"
+                                optionLabel="name" optionValue="id" placeholder="Select a supplier"></app-dropdowns>
+                        </div>
+                        <div class="col-md-3">
+                        <app-input-date formControlName="order_date" inputName="order date"
+                                placeholder="Enter date">
+                            </app-input-date>
+                    </div> -->
+                </div>
+                <div class="btns-group">
+                    <button class=" submit-btn" (click)="onSearch()">Search</button>
+                </div>
+                </form >
+        </app-filter-collapse>
+    </div>
+
+    <div class="table-container">
+        <app-data-table [contextMenuItems]="expensesMenuItems"
+        (rowSelected)="selectedTransaction = $event" [data]="expenses" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+            (pageChange)="loadPurchases($event)">
+        </app-data-table>
+    </div>
+</section>

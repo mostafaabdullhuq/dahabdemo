@@ -1,0 +1,45 @@
+<form [formGroup]="registerPosForm">
+    <p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '50rem'}">
+        <ng-template pTemplate="header">
+            <div class="d-flex justify-content-center align-items-center">
+                <h4><i class="pi pi-wallet me-2" style="font-size: 2rem"></i>Payments</h4>
+            </div>
+        </ng-template>
+        <div class="container bg-secondary-subtle my-3 rounded-3">
+            <!-- <div class="row py-2">
+                <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <h6>Total payed amount</h6>
+                    <span>{{totalWithVat| number:'1.3-3'}}</span>
+                </div>
+                <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <h6>Total payable</h6>
+                    <span>{{totalPayable| number:'1.3-3'}}</span>
+                </div>
+                <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <h6>change return</h6>
+                    <span>{{changeReturn| number:'1.3-3'}}</span>
+                </div>
+                <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <h6>balance</h6>
+                    <span>{{balance| number:'1.3-3'}}</span>
+                </div>
+            </div> -->
+        </div>
+        <div class="content d-flex flex-column justify-content-between h-100">
+            <div class="items-center">
+                <app-input-text formControlName="amount" placeholder="Amount" type="number"
+                    inputName="Amount"></app-input-text>
+            </div>
+            <div class="items-center mb-2">
+                <app-dropdowns label="Payment Method" formControlName="payment_method" [options]="baymentMethods"
+                    optionLabel="name" optionValue="id" placeholder="Select a method"></app-dropdowns>
+            </div>
+        </div>
+        <div class="btns">
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <p-button label="Cancel" severity="secondary" (click)="visible = false" />
+                <p-button label="Save" (click)="submitForm(registerPosForm)" />
+            </div>
+        </div>
+    </p-dialog>
+</form>

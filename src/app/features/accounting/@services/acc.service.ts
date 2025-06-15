@@ -29,10 +29,23 @@ export class AccService {
   updateTransaction(id: number | string, editForm: FormGroup | FormData) {
     return this._http.patchRequest(`${environment.api_url}transactions/${id}/`, editForm);
   }
-  deleteTransaction(id: number) {
-    return this._http.deleteRequest(`${environment.api_url}transactions/${id}`);
+  restoreTransaction(id: number | string, editForm: FormGroup | FormData) {
+    return this._http.patchRequest(`${environment.api_url}transactions/restore/${id}/`, editForm);
   }
-
+  addPaymentTransaction(id:any,form: any) {
+    return this._http.postRequest(`${environment.api_url}transactions/payment/${id}/`, form);
+  }
+  deleteTransaction(id: number) {
+    return this._http.deleteRequest(`${environment.api_url}transactions/${id}/`);
+  }
+  getDeletedTransactions(search: any = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+    const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}transactions/deleted/${params}`);
+  }
   getPurchases(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     // const params = new HttpParams()
     //   .set('', search)

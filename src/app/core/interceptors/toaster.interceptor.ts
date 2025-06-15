@@ -15,7 +15,7 @@ export const toasterInterceptor: HttpInterceptorFn = (req, next) => {
   const ngZone = inject(NgZone);
 
   // Array of URL substrings for which toaster should NOT show
-  const excludedUrls = ['customer-orders','shift-status','business-custom-fields','order-product-receipt','order-product-discount', 'currencies', 'gold-price' , 'branch' ,'currencies' ,'payment-method'];
+  const excludedUrls = ['expenses-chart','liabilities-chart','revenue-chart','assets-chart','customer-orders','shift-status','business-custom-fields','order-product-receipt','order-product-discount', 'currencies', 'gold-price' , 'branch' ,'currencies' ,'payment-method'];
 
   return next(req).pipe(
     tap(event => {
