@@ -25,6 +25,7 @@ export class UserDashboardComponent implements OnInit {
 finacialData:any;
 inventoryData:any;
 transData:any;
+parChartFinancialData:any;
   optionsInventory: any;
   optionsFinancial: any;
   optionsPar: any;
@@ -36,10 +37,11 @@ transData:any;
 
   ngOnInit() {
     if(this.permissionService.hasPermission(113)){
-      this.initChartPars();
-    this._userDashboardServ.getFinancialDashboardData().subscribe(res=>{
-      this.finacialData = res;
-      this.initChartFinance();
+      this._userDashboardServ.getFinancialDashboardData().subscribe(res=>{
+        this.finacialData = res;
+        this.parChartFinancialData = res;
+        this.initChartFinance();
+        this.initChartPars();
     });
     this._userDashboardServ.getInventoryDashboardData().subscribe(res=>{
       this.inventoryData = res;
@@ -53,17 +55,17 @@ transData:any;
 
 initChartFinance() {
   if (isPlatformBrowser(this.platformId)) {
-    console.log('Labels:', this.finacialData?.chart_data?.labels);
-    console.log('Data:', this.finacialData?.chart_data?.data);
+    console.log('Labels:', this.finacialData?.pie_chart_data?.labels);
+    console.log('Data:', this.finacialData?.pie_chart_data?.data);
 
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
 
     this.dataFinancial = {
-      labels: this.finacialData?.chart_data?.labels,
+      labels: this.finacialData?.pie_chart_data?.labels,
       datasets: [
         {
-          data: this.finacialData?.chart_data?.data,
+          data: this.finacialData?.pie_chart_data?.data,
           backgroundColor: [
             '#299D91',
             '#F0F4F3',
@@ -132,67 +134,87 @@ initChartInventory() {
     }
   }
 initChartPars() {
-    if (isPlatformBrowser(this.platformId)) {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--p-text-color');
-        const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
-        const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+  if (isPlatformBrowser(this.platformId)) {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
 
-        this.dataPars = {
-            labels: [
-                'January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
-            ],
-            datasets: [
-                {
-                    type: 'bar',
-                    label: 'Amount',
-                    backgroundColor: '#299D91', // Set custom color
-                    data: [120, 90, 70, 110, 85, 100, 95, 105, 88, 132, 99, 101]
-                }
-            ]
-        };
+    const barChartData = this.parChartFinancialData?.bar_chart_data;
 
-        this.optionsPar = {
-            maintainAspectRatio: false,
-            aspectRatio: 0.8,
-            plugins: {
-                tooltip: {
-                    mode: 'index',
-                    intersect: false
-                },
-                legend: {
-                    labels: {
-                        color: textColor
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    stacked: false,
-                    ticks: {
-                        color: textColorSecondary
-                    },
-                    grid: {
-                        color: surfaceBorder,
-                        drawBorder: false
-                    }
-                },
-                y: {
-                    stacked: false,
-                    ticks: {
-                        color: textColorSecondary
-                    },
-                    grid: {
-                        color: surfaceBorder,
-                        drawBorder: false
-                    }
-                }
-            }
-        };
+    const barColors = [
+      '--p-gray-500',
+      '--p-bluegray-500',
+      '--p-cyan-500',
+      '--p-green-500',
+      '--p-indigo-500'
+    ];
 
-        this.cd.markForCheck();
-    }
+    const barDatasets = (barChartData?.bar?.data || []).map((item: any, index: number) => ({
+      type: 'bar',
+      label: item.label,
+      data: item.data,
+      backgroundColor: documentStyle.getPropertyValue(barColors[index % barColors.length]),
+      borderColor: 'white',
+      borderWidth: 2
+    }));
+
+    const lineDatasets = (barChartData?.line?.data || []).map((item: any) => ({
+      type: 'line',
+      label: item.label,
+      data: item.data,
+      borderColor: documentStyle.getPropertyValue('--p-orange-500'),
+      borderWidth: 2,
+      fill: false,
+      tension: 0.4,
+      pointRadius: 4,
+      pointBackgroundColor: documentStyle.getPropertyValue('--p-orange-500')
+    }));
+
+    this.dataPars = {
+      labels: barChartData?.labels || [],
+      datasets: [...lineDatasets, ...barDatasets]
+    };
+
+    this.optionsPar = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor
+          }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        }
+      },
+      responsive: true,
+      scales: {
+        x: {
+          stacked: false,
+          ticks: {
+            color: textColorSecondary
+          },
+          grid: {
+            color: surfaceBorder
+          }
+        },
+        y: {
+          stacked: false,
+          ticks: {
+            color: textColorSecondary
+          },
+          grid: {
+            color: surfaceBorder
+          }
+        }
+      }
+    };
+
+    this.cd.markForCheck();
+  }
 }
 
 
