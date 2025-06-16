@@ -150,22 +150,39 @@ print(): void {
 }
 
 printLabelsAndThenPrint(): void {
+  const payload = this.preparePayload();
+
   if (this.products.length === 1) {
     const productId = this.products[0].product_id;
-    const payload = this.preparePayload();
 
     this._inventoryService.addOnlyOneProductLabel(productId, payload).subscribe({
-      next: (res) => {
-        // proceed with printing after label is saved
+      next: () => {
         this.triggerPrintPopup();
       },
       error: (err) => {
         console.error(err);
-        this.triggerPrintPopup(); // still print even on error
+        this.triggerPrintPopup(); // Still trigger print even on error
+      }
+    });
+
+  } else if (this.products.length > 1) {
+    const productIds = this.products.map(p => p.product_id);
+    const bulkPayload = {
+      ...payload,
+      product_ids: productIds
+    };
+
+    this._inventoryService.addBulkOfProductLabel(bulkPayload).subscribe({
+      next: () => {
+        this.triggerPrintPopup();
+      },
+      error: (err) => {
+        console.error(err);
+        this.triggerPrintPopup(); // Still trigger print even on error
       }
     });
   } else {
-    this.triggerPrintPopup(); // for multiple products
+    this.triggerPrintPopup(); // fallback
   }
 }
 

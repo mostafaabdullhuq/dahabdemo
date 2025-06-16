@@ -30,14 +30,27 @@
             <th>Type</th>
             <th>Location</th>
             <th>Payment Status</th>
-            <th colspan="5" class="amount-header">
-              Amount in BD
+
+            <!-- Amount in BD Column -->
+            <th colspan="3" class="amount-header">
+              By Amount 
               <div class="amount-subheader">
                 <span>Debit</span>
                 <span>Credit</span>
                 <span>Balance</span>
               </div>
             </th>
+
+            <!-- Weight in BD Column -->
+            <th colspan="3" class="amount-header">
+              By Weight 
+              <div class="amount-subheader">
+                <span>Debit</span>
+                <span>Credit</span>
+                <span>Balance</span>
+              </div>
+            </th>
+
             <th>Payment Method</th>
             <th>Others</th>
           </tr>
@@ -52,35 +65,43 @@
             <td>{{ ledger.branch }}</td>
             <td>{{ ledger.payment_status }}</td>
 
-            <!-- Amount columns -->
-            <td class="text-end" colspan="3">
-              {{ ledger.total_due_amount | number:'1.3-3' }} BD
+            <!-- Amount in BD: Debit | Credit | Balance -->
+            <td class="text-end">
+              {{ ledger.total_due_amount | number:'1.3-3' }}
             </td>
-            <td class="text-end" colspan="2">
-              {{ ledger.total_paid_amount | number:'1.3-3' }} BD
-              <br />
-              <small class="text-muted">Weight: {{ ledger.total_paid_weight ?? '-' }}</small>
+            <td class="text-end">
+              {{ ledger.total_paid_amount | number:'1.3-3' }}
             </td>
-            <td>
-              {{ ledger.payment_method || '-' }}
-            </td>
-            <td>
-              <div>
-                <strong>Total Due:</strong> {{ ledger.total_due_amount | number:'1.3-3' }} BD
-              </div>
-              <div>
-                <strong>Total Paid:</strong> {{ ledger.total_paid_amount | number:'1.3-3' }} BD
-              </div>
-              <div>
-                <strong>Paid Weight:</strong> {{ ledger.total_paid_weight ?? '-' }}
-              </div>
+            <td class="text-end">
+              {{ (ledger.total_due_amount - ledger.total_paid_amount) | number:'1.3-3' }}
             </td>
 
+            <!-- Weight in BD: Debit | Credit | Balance -->
+            <td class="text-end">
+              {{ ledger.total_due_weight ?? '-' }}
+            </td>
+            <td class="text-end">
+              {{ ledger.total_paid_weight ?? '-' }}
+            </td>
+            <td class="text-end">
+              {{
+              ledger.total_due_weight && ledger.total_paid_weight
+              ? (ledger.total_due_weight - ledger.total_paid_weight)
+              : '-'
+              }}
+            </td>
+
+            <td>{{ ledger.payment_method || '-' }}</td>
+            <td>
+              <div><strong>Total Due:</strong> {{ ledger.total_due_amount | number:'1.3-3' }} BD</div>
+              <div><strong>Total Paid:</strong> {{ ledger.total_paid_amount | number:'1.3-3' }} BD</div>
+              <div><strong>Paid Weight:</strong> {{ ledger.total_paid_weight ?? '-' }}</div>
+            </td>
           </tr>
 
           <!-- Items Sub-table for Purchases -->
           <tr *ngIf="ledger.items?.length" class="items-header-row">
-            <td colspan="12" class="items-container">
+            <td colspan="13" class="items-container">
               <table class="items-table" width="100%" cellspacing="0" cellpadding="2" border="0">
                 <thead>
                   <tr>
@@ -110,7 +131,7 @@
 
           <!-- Payments Sub-table -->
           <tr *ngIf="ledger.payments?.length" class="payments-header-row">
-            <td colspan="12" class="payments-container">
+            <td colspan="13" class="payments-container">
               <table class="payments-table" width="100%" cellspacing="0" cellpadding="2" border="0">
                 <thead>
                   <tr>

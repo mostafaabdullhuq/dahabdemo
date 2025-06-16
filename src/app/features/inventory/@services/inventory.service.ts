@@ -250,6 +250,13 @@ export class InventoryService {
   addOnlyOneProductLabel(id:any, addForm:any): Observable<any>{
     return this._http.postRequest(`${environment.api_url}product/label/${id}/`,addForm);
   }
+  addBulkOfProductLabel( addForm:any): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}product/label/bulk/`,addForm);
+  }
+  getBulkOfProductLabel( addForm:any): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}product/label/bulk/`,addForm);
+  }
+
 
   /// Imports
   importProducts(file:any){

@@ -116,15 +116,15 @@
                     class="nav-link text-dark"><i class="pi pi-palette me-2"></i> Color</a>
                     <a *ngIf="permissionService.hasPermission(14)" [routerLink]="['/inventory/stock-transfer-list']" routerLinkActive="active-link"
                     class="nav-link text-dark"><i class="pi pi-random me-2"></i> Stock Transfer</a>
+                    <!-- LAbel -->
+                    <a [routerLink]="['inventory/product/product-label']" class="nav-link text-dark "
+                            data-bs-toggle="collapse" href="#label" role="button" aria-expanded="false"
+                            aria-controls="label">
+                            <i class="pi pi-barcode me-2"></i><span>Print Label</span>
+                        </a>
                 </ul>
             </div>
         </li>
-        <!-- LAbel -->
-        <a [routerLink]="['inventory/product/product-label']" class="nav-link text-dark "
-                data-bs-toggle="collapse" href="#label" role="button" aria-expanded="false"
-                aria-controls="label">
-                <i class="pi pi-barcode me-4"></i><span>Print Label</span>
-            </a>
 
         <!-- Accounting -->
         <li>
