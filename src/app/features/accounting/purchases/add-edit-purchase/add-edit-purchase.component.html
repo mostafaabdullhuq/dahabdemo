@@ -11,25 +11,37 @@
                 <h6 class="section-form-header">purchase Info</h6>
                 <div class="container section-form">
                     <div class="row">
-                        <div class="col-md-4">
-                            <app-dropdowns label="supplier" formControlName="supplier" [options]="suppliers" optionLabel="name"
-                                optionValue="id" placeholder="Select supplier"></app-dropdowns>
+                        <div class="col-md-3">
+                            <app-dropdowns label="supplier" formControlName="supplier" [options]="suppliers"
+                                optionLabel="name" optionValue="id" placeholder="Select supplier"></app-dropdowns>
+                        </div>
+                        <div class="col-md-1">
+                                <label class="opacity-0">btn </label>
+                                <p-button  [routerLink]="[ '/contact/supplier/add' ]"size="small" class="add-btn white-icon-btn"
+                                    [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
+                                <ng-template #tooltipContent>
+                                    <button class="flex items-center">
+                                        Add Supplier
+                                    </button>
+                                </ng-template>
                         </div>
                         <div class="col-md-4">
                             <app-dropdowns label="branch" formControlName="branch" [options]="branches"
                                 optionLabel="name" optionValue="id" placeholder="Select branch"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
-                            <app-dropdowns label="purchase type" formControlName="payment_type" [options]="[{id:'fixed'},{id:'unfixed'}]"
-                                optionLabel="id" optionValue="id" placeholder="Select sub Category"></app-dropdowns>
+                            <app-dropdowns label="purchase type" formControlName="payment_type"
+                                [options]="[{id:'fixed'},{id:'unfixed'}]" optionLabel="id" optionValue="id"
+                                placeholder="Select sub Category"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
-                            <app-input-date formControlName="expected_delivery_date" inputName="date" placeholder="Enter expected delivery date">
+                            <app-input-date formControlName="expected_delivery_date" inputName="date"
+                                placeholder="Enter expected delivery date">
                             </app-input-date>
                         </div>
                         <div class="col-md-4">
-                            <app-dropdowns label="status" formControlName="status" [options]="status"
-                                optionLabel="name" optionValue="id" placeholder="Select status"></app-dropdowns>
+                            <app-dropdowns label="status" formControlName="status" [options]="status" optionLabel="name"
+                                optionValue="id" placeholder="Select status"></app-dropdowns>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Attachment <sup class="text-danger">*</sup> </label>
@@ -57,7 +69,8 @@
                                 <td>{{ item.category }}</td>
                                 <td>{{ item.purity }}</td>
                                 <td>
-                                    <button class="delete-btn mx-3" type="button" (click)="purchases.splice(i, 1)"><i class="pi pi-trash  px-2"></i></button>
+                                    <button class="delete-btn mx-3" type="button" (click)="purchases.splice(i, 1)"><i
+                                            class="pi pi-trash  px-2"></i></button>
                                 </td>
                             </tr>
                         </ng-template>
@@ -106,15 +119,15 @@
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text type="number" formControlName="retail_making_charge" inputName="retail making charge"
-                                placeholder="Enter retail making charge">
+                            <app-input-text type="number" formControlName="retail_making_charge"
+                                inputName="retail making charge" placeholder="Enter retail making charge">
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
                             <!-- <app-input-text type="number" formControlName="tax" inputName="tax" placeholder="Enter tax">
                             </app-input-text> -->
-                            <app-dropdowns label="tax" formControlName="tax" [options]="taxRates"
-                                optionLabel="rate" optionValue="rate" placeholder="Select tax"></app-dropdowns>
+                            <app-dropdowns label="tax" formControlName="tax" [options]="taxRates" optionLabel="rate"
+                                optionValue="rate" placeholder="Select tax"></app-dropdowns>
                         </div>
                         <div class="col-md-4">
                             <app-input-text type="number" formControlName="tax_amount" inputName="tax amount"
@@ -122,13 +135,13 @@
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text  type="number" formControlName="gross_weight" inputName="gross weight"
+                            <app-input-text type="number" formControlName="gross_weight" inputName="gross weight"
                                 placeholder="Enter gross weight">
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
-                            <app-input-text type="number" formControlName="line_total_amount" inputName="line total amount"
-                                placeholder="Enter line total amount">
+                            <app-input-text type="number" formControlName="line_total_amount"
+                                inputName="line total amount" placeholder="Enter line total amount">
                             </app-input-text>
                         </div>
                         <div class="col-md-4">
@@ -158,14 +171,16 @@
                         </div>
                     </div>
                     <div class="header-btns">
-                        <button class="add-btn" type="button" (click)="addPurchaseRow()"><i class="pi pi-plus  px-2"></i>Add Purchase Row</button>
+                        <button class="add-btn" type="button" (click)="addPurchaseRow()"><i
+                                class="pi pi-plus  px-2"></i>Add Purchase Row</button>
                     </div>
                 </div>
                 <!-- 🔹 stones -->
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="section-form-header mt-4">stones</h6>
                     <div class="header-btns">
-                        <button class="add-btn" type="button" (click)="addStone()"><i class="pi pi-plus  px-2"></i></button>
+                        <button class="add-btn" type="button" (click)="addStone()"><i
+                                class="pi pi-plus  px-2"></i></button>
                     </div>
                 </div>
                 <div class="container section-form">
@@ -187,17 +202,19 @@
                             <div class="col-md-3 d-flex justify-content-between align-items-end">
                                 <app-input-text type="number" formControlName="retail_value" inputName="Retail Value"
                                     placeholder="Enter retail value"></app-input-text>
-                                    <button class="delete-btn mx-3" type="button" (click)="removeStone(i)"><i class="pi pi-trash  px-2"></i></button>
+                                <button class="delete-btn mx-3" type="button" (click)="removeStone(i)"><i
+                                        class="pi pi-trash  px-2"></i></button>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
                 <!-- 🔹 payment -->
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="section-form-header mt-4">Payment</h6>
-                <div class="header-btns">
-                        <button class="add-btn" type="button" (click)="addPayment()"><i class="pi pi-plus  px-2"></i></button>
+                    <div class="header-btns">
+                        <button class="add-btn" type="button" (click)="addPayment()"><i
+                                class="pi pi-plus  px-2"></i></button>
                     </div>
                 </div>
                 <div class="container section-form">
@@ -213,9 +230,10 @@
                                     [options]="paymentMethods" optionLabel="name" optionValue="id"
                                     placeholder="Select method">
                                 </app-dropdowns>
-                                    <button class="delete-btn mx-3" type="button" (click)="removePayment(i)"><i class="pi pi-trash  px-2"></i></button>
+                                <button class="delete-btn mx-3" type="button" (click)="removePayment(i)"><i
+                                        class="pi pi-trash  px-2"></i></button>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>

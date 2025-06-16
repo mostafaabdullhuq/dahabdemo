@@ -8,7 +8,7 @@ import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-add-edit-purchase',
-  imports: [SharedModule],
+  imports: [SharedModule,RouterLink],
   templateUrl: './add-edit-purchase.component.html',
   styleUrl: './add-edit-purchase.component.scss'
 })
