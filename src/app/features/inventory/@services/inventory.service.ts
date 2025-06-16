@@ -246,6 +246,10 @@ export class InventoryService {
     return this._http.deleteRequest(`${environment.api_url}product/stock/bulk-transfer/${id}`);
   }
 
+  /// Labels API
+  addOnlyOneProductLabel(id:any, addForm:any): Observable<any>{
+    return this._http.postRequest(`${environment.api_url}product/label/${id}/`,addForm);
+  }
 
   /// Imports
   importProducts(file:any){

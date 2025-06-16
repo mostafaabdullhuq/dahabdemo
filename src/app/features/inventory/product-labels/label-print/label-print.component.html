@@ -1,4 +1,4 @@
-<p-dialog header="Print Label" [modal]="true" [(visible)]="visible" [style]="{ width: '70rem' }">
+<p-dialog header="Print Label Preview" [modal]="true" [(visible)]="visible" [style]="{ width: '70rem' }">
 
     <div id="print-area">
         <ng-container class="d-flex w-100" *ngFor="let product of products">
@@ -6,19 +6,19 @@
                 <div class="content-data">
                     <div *ngIf="formData.show_product_name">{{ product.name }}</div>
                     <div class="details">
-                        <div *ngIf="formData.color">Color: {{ product.color }}</div>
-                        <div *ngIf="formData.category">Category: {{ product.category }}</div>
+                        <div *ngIf="formData.color"> {{ product.color }}</div>
+                        <div *ngIf="formData.category"> {{ product.category }}</div>
                     </div>
                     <div class="details">
                         <div *ngIf="formData.weight">{{ product.weight }} {{product?.unit}}</div>
-                        <div *ngIf="formData.brand">Brand: {{ product.brand }}</div>
+                        <div *ngIf="formData.brand">{{ product.brand }}</div>
                     </div>
                     <div class="details">
-                        <div *ngIf="formData.designer">Designer: {{ product.designer }}</div>
-                        <div *ngIf="formData.size">Size: {{ product.size }}</div>
+                        <div *ngIf="formData.designer"> {{ product.designer }}</div>
+                        <div class="ms-1" *ngIf="formData.size">{{ product.size }}</div>
                     </div>
 
-                    <div *ngIf="formData.purity">Purity: {{ product.purity }}</div>
+                    <div *ngIf="formData.purity">{{ product.purity }}</div>
                 </div>
                 <div class="empty opacity-0" style="opacity: 0 !important;"><label>test</label></div>
                 <div class="barcode">
@@ -27,9 +27,9 @@
                 </div>
             </div>
         </ng-container>
-        <div class="d-flex justify-content-end align-items-end">
-            <button type="button" (click)="print()" class="d-print-none">Print</button>
-        </div>
-
+        
+    </div>
+    <div class="d-flex justify-content-end align-items-end">
+        <button type="button" (click)="print()" class="d-print-none">Print</button>
     </div>
 </p-dialog>

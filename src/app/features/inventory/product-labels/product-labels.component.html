@@ -12,11 +12,15 @@
                 <h6 class="section-form-header">Label Info</h6>
                 <div class="container section-form">
                     <div class="row">
-                        <div class="col-md-10">
+                        <div class="col-md-8">
                             <app-dropdowns label="Product" formControlName="selected_product" [options]="products"
                                 (selectionChange)="addProduct()" optionLabel="name" optionValue="id"
                                 placeholder="Select a product">
                             </app-dropdowns>
+                        </div>
+                        <div class="col-md-4">
+                            <app-input-text inputName="printer name"  formControlName="printer_name"
+                                    placeholder="Enter printer name"></app-input-text>
                         </div>
                     </div>
                 </div>
@@ -55,7 +59,7 @@
                     </tbody>
                 </table>
             </section>
-            <h6 class="section-form-header">Label Info</h6>
+            <h6 class="section-form-header">display Info</h6>
             <div class="container section-form">
                 <div class="row">
                     <div class="col-md-4">

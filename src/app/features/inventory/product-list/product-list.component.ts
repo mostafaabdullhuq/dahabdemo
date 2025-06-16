@@ -179,7 +179,7 @@ loadProducts(event: any): void {
     this._router.navigate([`inventory/product/edit/${user?.id}`]);
   }
   openPrintLabel(data:any){
-    this._router.navigate([`inventory/product/product-label`]);
+this._router.navigate(['inventory/product/product-label'], { queryParams: { id: data?.id } });
   }
   deleteProduct(user:any){
     this._inventoryService.deleteProduct(user?.id).subscribe(res=>{
