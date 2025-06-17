@@ -61,6 +61,7 @@ import { ProductLabelsComponent } from '../inventory/product-labels/product-labe
 import { ViewAccLedgerComponent } from '../accounting/view-acc-ledger/view-acc-ledger.component';
 import { AddEditTransactionComponent } from '../accounting/transactions/add-edit-transaction/add-edit-transaction.component';
 import { DeletedTransactionsComponent } from '../accounting/transactions/deleted-transactions/deleted-transactions.component';
+import { AccReportsComponent } from '../accounting/acc-reports/acc-reports.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -177,6 +178,7 @@ export const routes: Routes = [
       { path: 'journal-entry', component: JournalEntryComponent },
       { path: 'journal-entry/add', component: AddEditJournalEntryComponent },
       { path: 'journal-entry/edit/:id', component: AddEditJournalEntryComponent },
+      { path: 'acc-reports', component: AccReportsComponent},
     ]
   },
   // settings

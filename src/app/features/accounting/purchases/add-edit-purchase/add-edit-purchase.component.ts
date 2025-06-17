@@ -352,27 +352,27 @@ export class AddEditPurchaseComponent implements OnInit {
     };
 
     this.purchases.push(item);
-      this.addEditExpenseForm.reset({
-    tag_number: '',
-    metal_rate: 0,
-    metal_value: 0,
-    metal_weight: 0,
-    purity: '',
-    purity_rate: 0,
-    category: '',
-    making_charge: 0,
-    retail_making_charge: 0,
-    tax: 0,
-    tax_amount: 0,
-    gross_weight: 0,
-    line_total_amount: 0,
-    color: '',
-    size: '',
-    designer: '',
-    country: '',
-    description: '',
-    attachment: '', // or null if you're using a file input
-  });
+  //     this.addEditExpenseForm.reset({
+  //   tag_number: '',
+  //   metal_rate: 0,
+  //   metal_value: 0,
+  //   metal_weight: 0,
+  //   purity: '',
+  //   purity_rate: 0,
+  //   category: '',
+  //   making_charge: 0,
+  //   retail_making_charge: 0,
+  //   tax: 0,
+  //   tax_amount: 0,
+  //   gross_weight: 0,
+  //   line_total_amount: 0,
+  //   color: '',
+  //   size: '',
+  //   designer: '',
+  //   country: '',
+  //   description: '',
+  //   attachment: '', // or null if you're using a file input
+  // });
   }
 
   private loadExpenseData(expenseId: number | string): void {
@@ -612,8 +612,8 @@ export class AddEditPurchaseComponent implements OnInit {
       : this._accService.addPurchase(formDataPayload);
 
     request$.subscribe({
-      next: () => this.addEditExpenseForm.reset(),
-      error: (err) => console.error(err)
+      next: () =>{} //this.addEditExpenseForm.reset(),
+      ,error: (err) => console.error(err)
     });
   }
 }
