@@ -94,7 +94,7 @@ addLine(): void {
     description: [''],
     credit: [''],
     debit: [''],
-    tax_rate: [''],
+    tax_rate: [0],
     is_quantity: [false],
     account: [null],
     user: [null],
@@ -126,12 +126,20 @@ private handleMutualExclusion(lineGroup: FormGroup): void {
   });
 }
 private loadExpenseData(expenseId: number | string): void {
-  this._accService.getPurchaseById(expenseId).subscribe((expense: any) => {
+  this._accService.getJournalEntryById(expenseId).subscribe((expense: any) => {
     this.addEditJournalForm.patchValue({
       reference_number: expense.reference_number,
-      date: expense.date,
+      date: new Date(expense.date),
       description: expense.description,
-      branch: expense.branch
+      branch: expense.branch,
+      credit:expense.credit,
+      debit:expense.debit,
+      tax_rate:expense.tax_rate,
+      is_quantity:expense.is_quantity,
+      account: expense.account,
+      user: expense.user,
+      customer: expense.customer,
+      supplier: expense.supplier
     });
 
     const linesArray = this._formBuilder.array<FormGroup<any>>([]);
@@ -182,7 +190,7 @@ onSubmit(): void {
       description: line.description,
       credit: line.credit,
       debit: line.debit,
-      tax_rate: line.tax_rate || '',
+      tax_rate: line.tax_rate || 0,
       is_quantity: line.is_quantity || false,
       account: line.account,
       user: line.user,

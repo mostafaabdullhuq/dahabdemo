@@ -52,7 +52,14 @@ parChartFinancialData:any;
     });
     }
   }
-
+generateColors(count: number): string[] {
+  const colors: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const hue = (i * 360) / count;
+    colors.push(`hsl(${hue}, 65%, 55%)`);
+  }
+  return colors;
+}
 initChartFinance() {
   if (isPlatformBrowser(this.platformId)) {
     console.log('Labels:', this.finacialData?.pie_chart_data?.labels);
@@ -88,16 +95,16 @@ initChartFinance() {
       ]
     };
 
-    this.optionsFinancial = {
-      plugins: {
-        legend: {
-          labels: {
-            usePointStyle: true,
-            color: textColor
+    this.optionsFinancial ={
+        plugins: {
+          legend: {
+            labels: {
+              usePointStyle: true,
+              color: textColor
+            }
           }
         }
-      }
-    };
+      };
 
     this.cd.markForCheck();
   }
@@ -113,7 +120,13 @@ initChartInventory() {
         datasets: [
           {
             data: this.inventoryData?.chart_data?.data,
-            backgroundColor: ['#299D91', '#E8E8E8'], // black, white, black
+            backgroundColor: ['#299D91',
+            '#F0F4F3',
+            '#D9E6E4',
+            '#B8D8D3',
+            '#E8E8E9',
+            '#C1C9C8',
+            '#A0B1B0'], // black, white, black
             hoverBackgroundColor: ['#299D91', '#E8E8E8'] // dark gray, light gray, dark gray
           }
         ]
