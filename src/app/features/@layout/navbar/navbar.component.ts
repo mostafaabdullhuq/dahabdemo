@@ -10,6 +10,7 @@ import { PermissionService } from '../../../core/services/permission.service';
 })
 export class NavbarComponent {
     items: MenuItem[] | undefined;
+    businessName :string =JSON.parse(localStorage.getItem('user') || '')?.business_name; 
     private permissionService = inject(PermissionService)
 constructor(){
   this.items = [];

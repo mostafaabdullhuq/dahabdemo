@@ -1,7 +1,7 @@
 <div class="menubar">
     <p-menubar [model]="items">
         <ng-template #start>
-            <h5 class="logo mt-1 me-5"><a>DAHAB</a></h5>
+            <h5 class="logo mt-1 me-5"><a>{{businessName}}</a></h5>
         </ng-template>
         <ng-template #item let-item let-root="root" class="d-flex justify-content-center">
             <a pRipple [routerLink]="[item.link]" class="flex items-center p-menubar-item-link">

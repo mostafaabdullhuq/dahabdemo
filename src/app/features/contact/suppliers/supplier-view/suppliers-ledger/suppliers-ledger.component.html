@@ -107,22 +107,22 @@
                   <tr>
                     <th>#</th>
                     <th>Product</th>
-                    <th>Unit Price</th>
-                    <th>Tax Amount</th>
-                    <th>Price Inc Tax</th>
                     <th>Gross Weight</th>
+                    <th>Metal Value</th><!-- Unit Price -->
+                    <th>Tax Amount</th>
                     <th>Making Charge</th>
+                    <th>Line Total</th><!--Price Inc Tax-->
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let item of ledger.items; let i = index">
                     <td>{{ i + 1 }}</td>
                     <td>{{ item.product_name }}</td>
+                    <td>{{ item.gross_weight ?? '-' }}</td>
                     <td>{{ item.unit_price | number: '1.3-3' }} BD</td>
                     <td>{{ item.tax_amount | number: '1.3-3' }} BD</td>
-                    <td>{{ item.price_inc_tax | number: '1.3-3' }} BD</td>
-                    <td>{{ item.gross_weight ?? '-' }}</td>
                     <td>{{ item.making_charge | number: '1.3-3' }} BD</td>
+                    <td>{{ item.price_inc_tax | number: '1.3-3' }} BD</td>
                   </tr>
                 </tbody>
               </table>
