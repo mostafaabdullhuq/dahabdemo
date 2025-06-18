@@ -10,8 +10,8 @@ export class UserDashboardService {
 
   constructor(private _http: SingletonService) { }
 
-  getFinancialDashboardData(): Observable<any> {
-    return this._http.getRequest(`${environment.api_url}dashboard/financial/`);
+  getFinancialDashboardData(params:string =''): Observable<any> {
+    return this._http.getRequest(`${environment.api_url}dashboard/financial/?${params}`);
   }
    getInventoryDashboardData(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}dashboard/inventory/`);

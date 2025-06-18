@@ -16,6 +16,7 @@ import { ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR } from '@angular/for
 })
 export class InputDateComponent {
   @Input() formControlName!: string;
+  @Input() showClear: boolean = false;
   @Input() inputSize: 'small' | 'large' = 'small';
   @Input() placeholder: string = '';
   @Input() showIcon: boolean = true;

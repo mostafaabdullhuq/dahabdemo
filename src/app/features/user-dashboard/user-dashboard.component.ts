@@ -1,9 +1,11 @@
 import { ChangeDetectorRef, Component, effect, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
-import { isPlatformBrowser } from '@angular/common';
+import { formatDate, isPlatformBrowser } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { UserDashboardService } from './user-dashboard.service';
 import { PermissionService } from '../../core/services/permission.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { DropdownsService } from '../../core/services/dropdowns.service';
 @Component({
   selector: 'app-user-dashboard',
   imports: [SharedModule],
@@ -29,14 +31,22 @@ parChartFinancialData:any;
   optionsInventory: any;
   optionsFinancial: any;
   optionsPar: any;
-
   platformId = inject(PLATFORM_ID);
+  
+  financialFilterForm!:FormGroup
+  branches: any;
 
 
-  constructor(private cd: ChangeDetectorRef,private _userDashboardServ:UserDashboardService, public permissionService:PermissionService) { }
+  constructor(private _dropdownService: DropdownsService,private _formBuilder: FormBuilder,private cd: ChangeDetectorRef,private _userDashboardServ:UserDashboardService, public permissionService:PermissionService) { }
 
   ngOnInit() {
+    this.financialFilterForm = this._formBuilder.group({
+      branch:'',
+      start_date:'',
+      end_date:''
+    })
     if(this.permissionService.hasPermission(113)){
+      
       this._userDashboardServ.getFinancialDashboardData().subscribe(res=>{
         this.finacialData = res;
         this.parChartFinancialData = res;
@@ -50,8 +60,47 @@ parChartFinancialData:any;
     this._userDashboardServ.getTransactionsDashboardData().subscribe(res=>{
       this.transData = res;
     });
+
+    this._dropdownService.getBranches().subscribe(res=>{
+      this.branches = res?.results;
+    })
     }
+      // Subscribe to form changes
+  this.financialFilterForm.valueChanges.subscribe(() => {
+    this.fetchFinancialData();
+  });
+
+
   }
+ fetchFinancialData() {
+  if (!this.permissionService.hasPermission(113)) return;
+
+  const formValues = this.financialFilterForm.value;
+  const params = [];
+
+  if (formValues.branch) {
+    params.push(`branch=${formValues.branch}`);
+  }
+
+  if (formValues.start_date) {
+    const formattedStartDate = formatDate(formValues.start_date, 'yyyy-MM-dd', 'en-US');
+    params.push(`start_date=${formattedStartDate}`);
+  }
+
+  if (formValues.end_date) {
+    const formattedEndDate = formatDate(formValues.end_date, 'yyyy-MM-dd', 'en-US');
+    params.push(`end_date=${formattedEndDate}`);
+  }
+
+  const query = params.join('&');
+
+  this._userDashboardServ.getFinancialDashboardData(query).subscribe(res => {
+    this.finacialData = res;
+    this.parChartFinancialData = res;
+    this.initChartFinance();
+    this.initChartPars();
+  });
+}
 generateColors(count: number): string[] {
   const colors: string[] = [];
   for (let i = 0; i < count; i++) {
