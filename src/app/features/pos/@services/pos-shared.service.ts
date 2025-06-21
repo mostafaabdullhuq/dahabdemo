@@ -7,6 +7,7 @@ import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
 export class PosSharedService {
   private currencySource = new BehaviorSubject<any>(null);
   selectedCurrency$ = this.currencySource.asObservable();
+  
 private orderPlacedSource = new Subject<void>();
 private returnOrderPlacedSource = new Subject<void>();
   orderPlaced$ = this.orderPlacedSource.asObservable();

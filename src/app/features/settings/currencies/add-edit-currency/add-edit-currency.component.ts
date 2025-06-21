@@ -51,7 +51,7 @@ export class AddEditCurrencyComponent implements OnInit{
       }
     });
 
-    this._dropdownService.getCurrencies().subscribe(res=>{
+    this._dropdownService.getCurrenciesFromCore().subscribe(res=>{
       this.currenciesList= res?.results
     })
   }
@@ -104,32 +104,30 @@ export class AddEditCurrencyComponent implements OnInit{
     const rawValue = this.addEditBranchForm.value;
 
     // 🔁 Format custom_fields as an object: { field_key: value, ... }
-    const customFieldsObj = rawValue.custom_fields.reduce((acc: any, field: any) => {
-      if (field.field_key && field.value != null) {
-        acc[field.field_key] = field.value;
-      }
-      return acc;
-    }, {});
+    // const customFieldsObj = rawValue.custom_fields.reduce((acc: any, field: any) => {
+    //   if (field.field_key && field.value != null) {
+    //     acc[field.field_key] = field.value;
+    //   }
+    //   return acc;
+    // }, {});
 
     // 🧾 Format currencies directly (already an array of objects)
-    const currenciesArray = rawValue.currencies.map((item: any) => ({
-      currency: item.currency,
-      exchange_rate: item.exchange_rate
-    }));
+    // const currenciesArray = rawValue.currencies.map((item: any) => ({
+    //   currency: item.currency,
+    //   exchange_rate: item.exchange_rate
+    // }));
 
     const formattedData = {
-      ...rawValue,
-      custom_fields: customFieldsObj,
-      currencies: currenciesArray,
+      ...rawValue
     };
 
     if (this.isEditMode && this.brandId) {
-      this._sttingService.updateBranch(this.brandId, formattedData).subscribe({
+      this._sttingService.updateCurrency(this.brandId, formattedData).subscribe({
         next: res => this._router.navigate([`setting/currencies`]),
         error: err => console.error('Error updating user', err)
       });
     } else {
-      this._sttingService.addBranch(formattedData).subscribe({
+      this._sttingService.addCurrency(formattedData).subscribe({
         next: res => this._router.navigate([`setting/currencies`]),
         error: err => console.error('Error creating user', err)
       });

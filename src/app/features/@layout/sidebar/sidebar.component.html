@@ -122,6 +122,8 @@
                             aria-controls="label">
                             <i class="pi pi-barcode me-2"></i><span>Print Label</span>
                         </a>
+                    <a *ngIf="permissionService.hasPermission(14)" [routerLink]="['/inventory/count-down']" routerLinkActive="active-link"
+                    class="nav-link text-dark"><i class="pi pi-stopwatch me-2"></i> Count Down</a>
                 </ul>
             </div>
         </li>

@@ -1,0 +1,35 @@
+<p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '30rem'}" (onHide)="onClose()">
+  <ng-template pTemplate="header">
+    <div class="d-flex justify-content-center align-items-center">
+      <h4>
+        <i class="pi pi-pen-to-square me-2" style="font-size: 2rem"></i>
+        Update Quantity
+      </h4>
+    </div>
+  </ng-template>
+
+  <div class="modal-body">
+    <div class="mb-3">
+      <label for="quantityInput" class="form-label">New Quantity</label>
+      <input
+        type="number"
+        id="quantityInput"
+        class="form-control"
+        [(ngModel)]="quantity"
+      />
+    </div>
+  </div>
+
+  <div class="btns-group gap-3">
+    <button
+      type="button"
+      class="btn-delete rounded-4 py-2 px-3"
+      (click)="onClose()"
+    >
+      Cancel
+    </button>
+    <button type="button" class="submit-btn" (click)="onSave()">
+      Save
+    </button>
+  </div>
+</p-dialog>

@@ -1,0 +1,161 @@
+<p-confirmdialog />
+
+<div class="container-fluid">
+    <!-- Status Messages -->
+    <div *ngIf="statusMessage" class="w-100 text-end me-auto py-3 text-{{statusMessage.type}}">
+        @if(statusMessage.type === 'success'){
+        <span><i class="pi pi-check-circle px-2"></i></span>
+        }@else if (statusMessage.type === 'danger') {
+        <span><i class="pi pi-times-circle px-2"></i></span>
+        }
+        {{statusMessage.text}}
+    </div>
+
+    <!-- Filter Form -->
+    <div class="container">
+        <form [formGroup]="filterForm" class="mb-4 section-form">
+            <div class="row">
+                <div class="section-form-header">
+                    Initialization
+                </div>
+                <div class="col-md-4">
+                    <label for="branchSelect" class="form-label">Branch</label>
+                    <select id="branchSelect" formControlName="branch" class="form-select">
+                        <option value="">Select a branch...</option>
+                        <option *ngFor="let branch of branches" [value]="branch.id">{{branch.name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="categorySelect" class="form-label">Category</label>
+                    <select id="categorySelect" formControlName="category" class="form-select">
+                        <option value="">All Categories</option>
+                        <option *ngFor="let category of categories" [value]="category.id">{{category.name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="stockPointSelect" class="form-label">Stock Point</label>
+                    <select id="stockPointSelect" formControlName="stockpoint" class="form-select">
+                        <option value="">All Stock Points</option>
+                        <option *ngFor="let stockPoint of stockPoints" [value]="stockPoint.id">{{stockPoint.name}}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-12 btns-group d-flex align-items-end justify-content-end">
+                    <button type="button" class="submit-btn me-2" (click)="initializeStockTaking()"
+                        [disabled]="isInitialized">
+                        Initialize
+                    </button>
+                </div>
+
+            </div>
+        </form>
+        <hr>
+        <div class="btns-group ">
+            <button type="button" class="btn add-btn" (click)="getStockTakingReport()"
+                [disabled]="!currentStockTakingId">
+                Show Report
+            </button>
+            <button type="button" class="delete-btn me-2" (click)="completeStockTaking()" [disabled]="!isInitialized">
+                Complete
+            </button>
+        </div>
+    </div>
+
+    <!-- Scanning Form -->
+    <form [formGroup]="scanningProductForm" class="mb-4">
+       <div class="d-flex flex-column">
+  <label for="">Scan a product</label>
+  <div class="input-group">
+    <input
+      #tagInput
+      type="text"
+      formControlName="product"
+      class="form-control"
+      placeholder="Scan product tag..."
+      [disabled]="!filterForm.get('branch')?.value"
+    />
+    <span class="input-group-text"><i class="pi pi-barcode"></i></span>
+  </div>
+
+  <div class="product-list mt-2">
+    <div class="list-group">
+      <div
+        *ngFor="let product of multipleProducts"
+        class="list-group-item list-group-item-action"
+      >
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-1">{{ product.name }}</h6>
+            <small>Tag: {{ product.tag_number }}</small>
+          </div>
+          <button class="submit-btn" (click)="selectProduct(product.id)">
+            Select
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </form>
+
+    <!-- Statistics -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <h6>Total Items</h6>
+                    <h3 id="totalItems">{{totalItems}}</h3>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h6>Items With Difference</h6>
+                    <h3 id="itemsWithDifference" [class.text-danger]="itemsWithDifference > 0">{{itemsWithDifference}}
+                    </h3>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h6>Total Difference</h6>
+                    <h3 id="totalDifference" [class.text-danger]="totalDifference !== 0">{{totalDifference}}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanned Items Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Tag Number</th>
+                    <th>Expected Qty</th>
+                    <th>Actual Qty</th>
+                    <th>Difference</th>
+                    <th>Stock Point</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="scannedItems">
+                <tr *ngIf="products.length === 0">
+                    <td colspan="7" class="text-center text-muted">No items found for the current selection. If you
+                        expect items, please check your filters or initialize a new stock taking session.</td>
+                </tr>
+                <tr *ngFor="let product of products" [id]="'item-' + product.id">
+                    <td>{{product.product_name}}</td>
+                    <td>{{product.tag_number}}</td>
+                    <td>{{product.expected_quantity}}</td>
+                    <td>{{product.actual_quantity}}</td>
+                    <td [class.text-danger]="product.difference !== 0">{{product.difference}}</td>
+                    <td>{{product.stock_point}}</td>
+                    <td class="header-btns">
+                        <button type="button" (click)="openQuantityModal(product)" class="update-btn">
+                            <i class="pi pi-pencil px-2"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<app-update-quantity-dialog [(visible)]="visible" [quantity]="selectedQuantity" (save)="handleQuantitySave($event)">
+</app-update-quantity-dialog>

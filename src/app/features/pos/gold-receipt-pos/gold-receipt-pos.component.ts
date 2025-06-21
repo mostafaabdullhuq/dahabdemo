@@ -85,7 +85,6 @@ this._posStatusService.shiftData$
         } else {
           this.selectedCurrency = sessionStorage.getItem('currency') ?? null;
         }
-        console.log(this.selectedCurrency);
         
       });
 

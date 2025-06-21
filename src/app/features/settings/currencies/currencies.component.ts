@@ -84,9 +84,7 @@ export class CurrenciesComponent implements OnInit{
   }
   deleteCurrency(user:any){
     this._sttingService.deleteCurrency(user?.id).subscribe(res=>{
-      if(res){
-        this.getCurrencies()
-      }
+      this.onSearch()
     })
   }
   showConfirmDelete(user: any) {

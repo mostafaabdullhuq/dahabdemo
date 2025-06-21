@@ -29,8 +29,8 @@ export class TaxRateComponent implements OnInit{
   
     ngOnInit(): void {
       this.cols = [
-        { field: 'name', header: 'Name' },
-        { field: 'rate', header: 'tax' },
+        { field: 'country', header: 'Name' },
+        { field: 'country_tax_rate', header: 'tax' },
       ];
       this.filterForm = this._formBuilder.group({
         search: '',

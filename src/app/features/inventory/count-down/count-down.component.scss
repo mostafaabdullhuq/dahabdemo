@@ -1,0 +1,41 @@
+
+.update-btn{
+     padding: 5px 15px;
+    outline: none;
+    color: rgb(204, 192, 56);
+    border: 1px solid rgb(204, 192, 56);
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    .pi{
+      color: rgb(204, 192, 56);
+    }
+    
+    
+}
+.product-list {
+  max-height: 200px; // adjust as needed
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background-color: #fff;
+
+  .list-group-item {
+    transition: background-color 0.2s ease-in-out;
+
+    &:hover {
+      background-color: #f1f1f1;
+    }
+
+    h6 {
+      font-weight: 600;
+    }
+
+    small {
+      color: #6c757d;
+    }
+  }
+}

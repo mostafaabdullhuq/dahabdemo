@@ -62,6 +62,7 @@ import { ViewAccLedgerComponent } from '../accounting/view-acc-ledger/view-acc-l
 import { AddEditTransactionComponent } from '../accounting/transactions/add-edit-transaction/add-edit-transaction.component';
 import { DeletedTransactionsComponent } from '../accounting/transactions/deleted-transactions/deleted-transactions.component';
 import { AccReportsComponent } from '../accounting/acc-reports/acc-reports.component';
+import { CountDownComponent } from '../inventory/count-down/count-down.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -126,6 +127,8 @@ export const routes: Routes = [
       { path: 'stock-transfer-list', component: TransferListComponent },
       { path: 'stock-transfer', component: StockTransferComponent },
       { path: 'stock-transfer/edit/:id', component: StockTransferComponent },
+
+      { path: 'count-down', component: CountDownComponent },
     ]
   },
   // Contacts

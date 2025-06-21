@@ -128,6 +128,10 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}business/settings/currencies/?${params}`;
     return this._http.getRequest<any>(url);
   }
+  getCurrenciesFromCore(nextPageUrl: string | null = null, params?: string): Observable<any> {
+    const url = nextPageUrl || `${this.API}core/currencies/?${params}`;
+    return this._http.getRequest<any>(url);
+  }
    getPaymentMethods(params?:string): Observable<any>{
     return this._http.getRequest(`${environment.api_url}business/settings/payment-methods/?${params}`);
   }

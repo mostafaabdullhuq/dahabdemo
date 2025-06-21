@@ -181,7 +181,7 @@ salesDataOrders:any =[];
         this._posSharedService.setSelectedCurrency(this.selectedCurrency);
         this._posSharedService.selectedCurrency$.subscribe(res=>{
           
-        })
+        });
         
       });
 
