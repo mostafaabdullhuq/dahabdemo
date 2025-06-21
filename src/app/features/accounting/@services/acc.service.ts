@@ -169,4 +169,9 @@ export class AccService {
     const param = `?account_type=${id}`
     return this._http.getRequest(`${environment.api_url}accounting/accounts/${param}`);
   }
+
+    /// Imports
+  importPurchase(file:any){
+    return this._http.postRequest(`${environment.api_url}purchases/import/`, file);
+  }
 }

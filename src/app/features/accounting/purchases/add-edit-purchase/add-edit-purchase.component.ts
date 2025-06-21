@@ -564,8 +564,6 @@ export class AddEditPurchaseComponent implements OnInit {
         retail_making_charge: item.retail_making_charge,
         weight: item.metal_weight,
         branch: formValue.branch,
-        branch_id: formValue.branch,
-        id: item.product_id || 0,
         country: item.country,
         purity_name: item.purity,
         gross_weight: item.gross_weight,
