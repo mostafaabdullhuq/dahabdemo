@@ -407,7 +407,8 @@ private loadExpenseData(expenseId: number | string): void {
     if (expense.items && expense.items.length > 0) {
       const firstItem = expense.items[0];
       this.addEditExpenseForm.patchValue({
-        tag_number: firstItem.product?.name,
+        tag_number: firstItem.product?.tag_number,
+        name: firstItem.product?.name,
         metal_rate: firstItem.metal_rate,
         metal_value: firstItem.metal_value,
         metal_weight: firstItem.product?.weight,
@@ -430,7 +431,7 @@ private loadExpenseData(expenseId: number | string): void {
       this.purchases = expense.items.map((item: any) => ({
         id: item.id,
         name: item.name,
-        tag_number: item.product?.name,
+        tag_number: item.product?.tag_number,
         metal_rate: item.metal_rate,
         metal_value: item.metal_value,
         metal_weight: item.product?.weight,

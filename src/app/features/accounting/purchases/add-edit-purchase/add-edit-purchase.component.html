@@ -54,26 +54,46 @@
     <ng-template pTemplate="header">
       <tr>
         <th>Tag Number</th>
+        <th>Name</th>
+        <th>designer</th>
+        <th>size</th>
+        <th>Category</th>
+        <th>Color</th>
         <th>Metal Rate</th>
         <th>Metal Value</th>
-        <th>Category</th>
+        <th>Metal weight</th>
+        <th>Gross weight</th>
+        <th>making charge</th>
+        <th>retail making charge</th>
+        <th>tax amount</th>
         <th>Purity</th>
+        <th>line total amount</th>
         <th>Actions</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-item let-i="rowIndex">
       <tr>
         <td>{{ item.tag_number }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.designer }}</td>
+        <td>{{ item.size }}</td>
+        <td>{{ item.category }}</td>
+        <td>{{ item.color }}</td>
         <td>{{ item.metal_rate }}</td>
         <td>{{ item.metal_value }}</td>
-        <td>{{ item.category }}</td>
+        <td>{{ item.metal_weight }}</td>
+        <td>{{ item.gross_weight }}</td>
+        <td>{{ item.making_charge }}</td>
+        <td>{{ item.retail_making_charge }}</td>
+        <td>{{ item.tax_amount }}</td>
         <td>{{ item.purity }}</td>
-        <td>
-          <button class="edit-btn mx-2" type="button" (click)="editPurchaseRow(item, i)">
-            <i class="pi pi-pencil px-2"></i>
+        <td>{{ item.line_total_amount }}</td>
+        <td class="d-flex g-1">
+          <button class="edit-btn btn-sm mx-2" type="button" (click)="editPurchaseRow(item, i)">
+            <i class="pi pi-pencil "></i>
           </button>
-          <button class="delete-btn mx-2" type="button" (click)="purchases.splice(i, 1)">
-            <i class="pi pi-trash px-2"></i>
+          <button class="delete-btn btn-sm mx-2" type="button" (click)="purchases.splice(i, 1)">
+            <i class="pi pi-trash "></i>
           </button>
         </td>
       </tr>
