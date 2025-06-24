@@ -1,7 +1,7 @@
 <p-table [columns]="cols" [value]="data" [paginator]="paginator" [totalRecords]="totalRecords" [first]="first"
   [rows]="rows" [lazy]="true" dataKey="id" stripedRows [size]="'small'"
   [tableStyle]="{ 'width':'100%', 'max-height': '10rem', 'min-height': '10rem' }" (onPage)="onPageChange($event)"
-  [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
+  [showCurrentPageReport]="true" [rowsPerPageOptions]="rowsPerPageOptions"
   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
   <ng-template pTemplate="header" let-columns>
@@ -26,6 +26,7 @@
           severity="secondary" (onDropdownClick)="onRowClick(rowData)">
         </p-splitButton>
       </td>
+      
     </tr>
   </ng-template>
 
@@ -34,7 +35,10 @@
       <td colspan="100%">No Data Found.</td>
     </tr>
   </ng-template>
-
+  <!-- FOOTER SLOT (FIXED) -->
+  <ng-template pTemplate="footer" let-columns>
+    <ng-content select="[table-footer]"></ng-content>
+  </ng-template>
   <ng-template pTemplate="paginatorleft">
     <p-button type="button" icon="pi pi-plus" text></p-button>
   </ng-template>

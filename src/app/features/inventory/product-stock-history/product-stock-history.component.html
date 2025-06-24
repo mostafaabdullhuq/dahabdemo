@@ -1,0 +1,94 @@
+<p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '60rem'}" (onHide)="onClose()">
+    <ng-template pTemplate="header">
+        <div class="d-flex justify-content-center align-items-center">
+            <h4>
+                <i class="pi pi-history me-2" style="font-size: 2rem"></i>
+                Product History
+            </h4>
+        </div>
+    </ng-template>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card-body">
+                    <a class="card1 d-flex flex-column justify-content-between">
+                        <p class=" d-flex flex-column">
+                            <strong>Ref NO : </strong>
+                            {{productHistoryCardData?.reference_number}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Current Stock : </strong>
+                            {{productHistoryCardData?.current_stock}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Date : </strong>
+                            {{productHistoryCardData?.date}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Quantity : </strong>
+                            {{productHistoryCardData?.quantity}}
+                        </p>
+                        <div class="go-corner">
+                            <div class="go-arrow">
+                                →
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-body">
+                    <a class="card1 d-flex flex-column justify-content-between">
+                        <p class=" d-flex flex-column">
+                            <strong>Transfer in : </strong>
+                            {{productHistoryCardData?.Transfer_in}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Transfer out : </strong>
+                            {{productHistoryCardData?.Transfer_out}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Customer : </strong>
+                            {{productHistoryCardData?.customer}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Supplier : </strong>
+                            {{productHistoryCardData?.supplier}}
+                        </p>
+                        <div class="go-corner">
+                            <div class="go-arrow">
+                                →
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-body">
+                    <a class="card1 d-flex flex-column justify-content-between">
+                        <p class=" d-flex flex-column">
+                            <strong>Total Purchase Old Gold : </strong>
+                            {{productHistoryCardData?.total_purchase_old_gold}}
+                        </p>
+                        <p class=" d-flex flex-column">
+                            <strong>Total purchase payment : </strong>
+                            {{productHistoryCardData?.total_purchase_payment }}
+                        </p>
+                        <div class="go-corner">
+                            <div class="go-arrow">
+                                →
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="table-container">
+        <app-data-table [hasContext]="false"
+         [data]="historyList" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+            (pageChange)="loadProductHistory($event)">
+        </app-data-table>
+    </div>
+    </div>
+</p-dialog>

@@ -50,36 +50,45 @@
                     </div>
                 </div>
                 <div class="table">
-                    <p-table [value]="purchases">
-                        <ng-template pTemplate="header">
-                            <tr>
-                                <th>Tag Number</th>
-                                <th>Metal Rate</th>
-                                <th>Metal Value</th>
-                                <th>Category</th>
-                                <th>Purity</th>
-                                <th>Actions</th>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="body" let-item let-i="rowIndex">
-                            <tr>
-                                <td>{{ item.tag_number }}</td>
-                                <td>{{ item.metal_rate }}</td>
-                                <td>{{ item.metal_value }}</td>
-                                <td>{{ item.category }}</td>
-                                <td>{{ item.purity }}</td>
-                                <td>
-                                    <button class="delete-btn mx-3" type="button" (click)="purchases.splice(i, 1)"><i
-                                            class="pi pi-trash  px-2"></i></button>
-                                </td>
-                            </tr>
-                        </ng-template>
-                    </p-table>
-                </div>
+  <p-table [value]="purchases">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Tag Number</th>
+        <th>Metal Rate</th>
+        <th>Metal Value</th>
+        <th>Category</th>
+        <th>Purity</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ item.tag_number }}</td>
+        <td>{{ item.metal_rate }}</td>
+        <td>{{ item.metal_value }}</td>
+        <td>{{ item.category }}</td>
+        <td>{{ item.purity }}</td>
+        <td>
+          <button class="edit-btn mx-2" type="button" (click)="editPurchaseRow(item, i)">
+            <i class="pi pi-pencil px-2"></i>
+          </button>
+          <button class="delete-btn mx-2" type="button" (click)="purchases.splice(i, 1)">
+            <i class="pi pi-trash px-2"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
                 <!-- 🔹Add row -->
                 <h6 class="section-form-header mt-4">Add Row</h6>
                 <div class="container section-form">
                     <div class="row">
+                        <div class="col-md-4">
+                            <app-input-text formControlName="name" inputName="name"
+                                placeholder="name">
+                            </app-input-text>
+                        </div>
                         <div class="col-md-4">
                             <app-input-text formControlName="tag_number" inputName="tag number"
                                 placeholder="tag number">

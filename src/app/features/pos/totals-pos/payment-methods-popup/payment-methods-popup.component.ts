@@ -14,6 +14,7 @@ import { PosSharedService } from '../../@services/pos-shared.service';
 export class PaymentMethodsPopupComponent {
   visible: boolean = false;
   registerPosForm!: FormGroup;
+  typeOfPayment:string=''
   baymentMethods: any = [];
   totalWithVat:any = 0;
   @Output() onSubmitPayments = new EventEmitter<any>();
@@ -28,6 +29,17 @@ export class PaymentMethodsPopupComponent {
       this.totalWithVat = +vat;
     });
   }
+
+get isCreditOverpaid(): boolean {
+  if (this.typeOfPayment !== 'credit') return false;
+
+  const totalPaymentAmount = this.payments.controls.reduce((acc, ctrl) => {
+    const val = parseFloat(ctrl.get('amount')?.value) || 0;
+    return acc + val;
+  }, 0);
+
+  return totalPaymentAmount >= this.totalWithVat;
+}
   createPaymentFormGroup(): FormGroup {
   return this._formBuilder.group({
     amount: ['', Validators.required],

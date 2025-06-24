@@ -52,8 +52,23 @@
 
     <div class="table-container">
         <app-data-table [contextMenuItems]="transactionsMenuItems"
-        (rowSelected)="selectedTransaction = $event" [data]="transactions" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+        (rowSelected)="selectedTransaction = $event" [rowsPerPageOptions]="rowsPerPageOptions" [data]="transactions" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
             (pageChange)="loadTransactions($event)">
+             <ng-container table-footer>
+    <tr>
+      <td *ngFor="let col of cols">
+        <ng-container class="fw-bold" [ngSwitch]="col.field">
+          <span class="fw-bold"style="font-size:14px" *ngSwitchCase="'reference_number'">Totals</span>
+          <span class="fw-bold"style="font-size:14px" *ngSwitchCase="'amount'">{{ totals.amount.toFixed(3) }}</span>
+          <span class="fw-bold"style="font-size:14px" *ngSwitchCase="'sub_total'">{{ totals.sub_total.toFixed(3) }}</span>
+          <span class="fw-bold"style="font-size:14px" *ngSwitchCase="'total_paid'">{{ totals.total_paid.toFixed(3) }}</span>
+          <span class="fw-bold"style="font-size:14px" *ngSwitchCase="'remaining_amount'">{{ totals.remaining_amount.toFixed(3) }}</span>
+          <span class="fw-bold"style="font-size:14px" *ngSwitchCase="'total_weight'">{{ totals.total_weight.toFixed(3) }}</span>
+          <span class="fw-bold"style="font-size:14px" *ngSwitchDefault></span>
+        </ng-container>
+      </td>
+    </tr>
+  </ng-container>
         </app-data-table>
     </div>
 </section>

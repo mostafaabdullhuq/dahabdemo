@@ -255,6 +255,7 @@ export class AddEditPurchaseComponent implements OnInit {
 
       // Purchase entry form
       tag_number: [null],
+      name: [null],
       metal_rate: [null],
       metal_value: [null],
       metal_weight: [null],
@@ -327,91 +328,172 @@ export class AddEditPurchaseComponent implements OnInit {
   removePayment(index: number) {
     this.paymentsArray.removeAt(index);
   }
-  addPurchaseRow(): void {
-    const formValue = this.addEditExpenseForm.value;
-    const item = {
-      tag_number: formValue.tag_number,
-      metal_rate: formValue.metal_rate,
-      metal_value: formValue.metal_value,
-      metal_weight: formValue.metal_weight,
-      purity: formValue.purity,
-      purity_rate: formValue.purity_rate,
-      category: formValue.category,
-      making_charge: formValue.making_charge,
-      retail_making_charge: formValue.retail_making_charge,
-      tax: formValue.tax,
-      tax_amount: formValue.tax_amount,
-      gross_weight: formValue.gross_weight,
-      line_total_amount: formValue.line_total_amount,
-      color: formValue.color,
-      size: formValue.size,
-      designer: formValue.designer,
-      country: formValue.country,
-      description: formValue.description,
-      image: formValue.attachment,
-    };
+addPurchaseRow(): void {
+  const formValue = this.addEditExpenseForm.value;
+  const item = {
+    id: this.editingIndex !== null ? this.purchases[this.editingIndex].id : null,
+    tag_number: formValue.tag_number,
+    metal_rate: formValue.metal_rate,
+    metal_value: formValue.metal_value,
+    metal_weight: formValue.metal_weight,
+    purity: formValue.purity,
+    purity_rate: formValue.purity_rate,
+    category: formValue.category,
+    making_charge: formValue.making_charge,
+    retail_making_charge: formValue.retail_making_charge,
+    tax: formValue.tax,
+    tax_amount: formValue.tax_amount,
+    gross_weight: formValue.gross_weight,
+    line_total_amount: formValue.line_total_amount,
+    color: formValue.color,
+    size: formValue.size,
+    name: formValue.name,
+    designer: formValue.designer,
+    country: formValue.country,
+    description: formValue.description,
+    image: formValue.attachment,
+  };
 
+  if (this.editingIndex !== null) {
+    // Update existing item
+    this.purchases[this.editingIndex] = item;
+    this.editingIndex = null;
+  } else {
+    // Add new item
     this.purchases.push(item);
+  }
+
+  // Reset form
+  this.addEditExpenseForm.patchValue({
+    tag_number: '',
+    name: '',
+    metal_rate: 0,
+    metal_value: 0,
+    metal_weight: 0,
+    purity: '',
+    purity_rate: 0,
+    category: '',
+    making_charge: 0,
+    retail_making_charge: 0,
+    tax: 0,
+    tax_amount: 0,
+    gross_weight: 0,
+    line_total_amount: 0,
+    color: '',
+    size: '',
+    designer: '',
+    country: '',
+    description: '',
+  });
+}
+
+private loadExpenseData(expenseId: number | string): void {
+  this._accService.getPurchaseById(expenseId).subscribe((expense: any) => {
+    // Patch basic form values
     this.addEditExpenseForm.patchValue({
-  tag_number: '',
-  metal_rate: 0,
-  metal_value: 0,
-  metal_weight: 0,
-  purity: '',
-  purity_rate: 0,
-  category: '',
-  making_charge: 0,
-  retail_making_charge: 0,
-  tax: 0,
-  tax_amount: 0,
-  gross_weight: 0,
-  line_total_amount: 0,
-  color: '',
-  size: '',
-  designer: '',
-  country: '',
-  description: '',
-});
-  }
-
-  private loadExpenseData(expenseId: number | string): void {
-    this._accService.getPurchaseById(expenseId).subscribe((expense: any) => {
-      this.addEditExpenseForm.patchValue({
-        total_amount: expense.total_amount,
-        expected_delivery_date: expense.expected_delivery_date,
-        attachment: expense.attachment,
-        reference_number: expense.reference_number,
-        notes: expense.notes,
-        status: expense.status,
-        is_recurring: expense.is_recurring,
-        is_refund: expense.is_refund,
-        expense_as_vat: expense.expense_as_vat,
-        recurring_interval: expense.recurring_interval,
-        recurring_interval_type: expense.recurring_interval_type,
-        recurring_start_date: expense.recurring_start_date,
-        recurring_end_date: expense.recurring_end_date,
-        number_of_recurring_payments: expense.number_of_recurring_payments,
-        branch: expense.branch,
-        business: expense.business,
-        invoice: expense.invoice,
-        purchase_order: expense.purchase_order,
-        user: expense.user,
-        customer: expense.customer,
-        applicable_tax: expense.applicable_tax,
-        category: expense.category,
-        sub_category: expense.sub_category,
-        payment: {
-          amount: expense.payment?.amount,
-          note: expense.payment?.note,
-          paid_date: expense.payment?.paid_date,
-          payment_account: expense.payment?.payment_account,
-          attachment: expense.payment?.attachment,
-          payment_method: expense.payment?.payment_method,
-        }
-      });
+      supplier: expense.supplier,
+      branch: expense.branch,
+      payment_type: expense.type,
+      expected_delivery_date: new Date( expense.expected_delivery_date),
+      //attachment: expense.attachment,
+      status: expense.status,
+      total_amount: expense.total_amount,
+      tax_amount: expense.tax_amount,
+      total_weight: expense.total_weight
     });
-  }
 
+    // Clear existing items and add new ones
+    this.purchases = [];
+    if (expense.items && expense.items.length > 0) {
+      const firstItem = expense.items[0];
+      this.addEditExpenseForm.patchValue({
+        tag_number: firstItem.product?.name,
+        metal_rate: firstItem.metal_rate,
+        metal_value: firstItem.metal_value,
+        metal_weight: firstItem.product?.weight,
+        purity: firstItem.product?.purity,
+        category: firstItem.product?.category,
+        making_charge: firstItem.product?.making_charge,
+        retail_making_charge: firstItem.product?.retail_making_charge,
+        tax: expense.tax_amount,
+        tax_amount: firstItem.tax_amount,
+        gross_weight: firstItem.product?.weight, // or calculate from metal + stones
+        line_total_amount: firstItem.line_total_amount,
+        color: firstItem.product?.color,
+        size: firstItem.product?.size,
+        designer: firstItem.product?.designer,
+        country: firstItem.product?.country,
+        description: firstItem.product?.description
+      });
+
+      // Add all items to purchases table
+      this.purchases = expense.items.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        tag_number: item.product?.name,
+        metal_rate: item.metal_rate,
+        metal_value: item.metal_value,
+        metal_weight: item.product?.weight,
+        purity: item.product?.purity,
+        category: item.product?.category_name,
+        making_charge: item.product?.making_charge,
+        retail_making_charge: item.product?.retail_making_charge,
+        tax: expense.tax_amount,
+        tax_amount: item.tax_amount,
+        gross_weight: item.product?.weight,
+        line_total_amount: item.line_total_amount,
+        color: item.product?.color_name,
+        size: item.product?.size_name,
+        designer: item.product?.designer_name,
+        country: item.product?.country,
+        description: item.product?.description,
+        is_returned: item.is_returned,
+        product_id: item.product?.id
+      }));
+    }
+
+    // Handle payments
+    this.paymentsArray.clear();
+    if (expense.payments && expense.payments.length > 0) {
+      expense.payments.forEach((payment: any) => {
+        const paymentGroup = this.createPayment();
+        paymentGroup.patchValue({
+          amount: payment.amount,
+          payment_method: payment.payment_method
+        });
+        this.paymentsArray.push(paymentGroup);
+      });
+    }
+  });
+}
+  editingIndex: number | null = null;
+
+editPurchaseRow(item: any, index: number): void {
+  // Store the index of the item being edited
+  this.editingIndex = index;
+  
+  // Patch the form values with the selected item
+  this.addEditExpenseForm.patchValue({
+    tag_number: item.tag_number,
+    metal_rate: item.metal_rate,
+    metal_value: item.metal_value,
+    metal_weight: item.metal_weight,
+    purity: item.purity,
+    category: item.category,
+    making_charge: item.making_charge,
+    name: item.name,
+    retail_making_charge: item.retail_making_charge,
+    tax: item.tax,
+    tax_amount: item.tax_amount,
+    gross_weight: item.gross_weight,
+    line_total_amount: item.line_total_amount,
+    color: item.color,
+    size: item.size,
+    designer: item.designer,
+    country: item.country,
+    description: item.description
+  });
+}
   //   onBranchChange() {
   //     this.addEditExpenseForm.get('branch')?.valueChanges.subscribe(branchId => {
   //       if (!branchId) return;
@@ -529,21 +611,24 @@ export class AddEditPurchaseComponent implements OnInit {
 
   //   return +goldPrice.toFixed(this.decimalPlaces);
   // }
-  toFormData(payload: any): FormData {
-    const formData = new FormData();
+toFormData(payload: any): FormData {
+  const formData = new FormData();
 
-    for (const key in payload) {
-      if (payload.hasOwnProperty(key)) {
-        if (key === 'attachment' && payload[key]) {
-          formData.append(key, payload[key]); // assuming it's a File
-        } else {
-          formData.append(key, payload[key]);
+  for (const key in payload) {
+    if (payload.hasOwnProperty(key)) {
+      // Skip appending 'attachment' if it's null, undefined, or empty string
+      if (key === 'attachment') {
+        if (payload[key]) {
+          formData.append(key, payload[key]); // only if truthy (i.e., a File)
         }
+      } else {
+        formData.append(key, payload[key]);
       }
     }
-
-    return formData;
   }
+
+  return formData;
+}
 
   onSubmit(): void {
     if (this.addEditExpenseForm.invalid) {
@@ -559,13 +644,17 @@ export class AddEditPurchaseComponent implements OnInit {
       quantity: 1,
       line_total_amount: item.line_total_amount,
       product: {
-        name: item.tag_number,
+       name: item.name,
         making_charge: item.making_charge,
         retail_making_charge: item.retail_making_charge,
         weight: item.metal_weight,
         branch: formValue.branch,
         country: item.country,
-        purity_name: item.purity,
+        purity: item.purity,
+        metal_rate: item.metal_rate,
+        metal_value: item.metal_value,
+        tax_amount: item.tax_amount,
+        // purity_name: item.purity,
         gross_weight: item.gross_weight,
         category: item.category,
         size: item.size,

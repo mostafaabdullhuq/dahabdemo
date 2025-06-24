@@ -269,6 +269,17 @@ export class InventoryService {
   deleteCountDown(id:number ){
     return this._http.deleteRequest(`${environment.api_url}product/color/${id}`);
   }
+
+  ///Storck History
+    getProductStockHistory(productId:any,search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    // const params = new HttpParams()
+    //   .set('', search)
+    //   .set('page', page.toString())
+    //   .set('page_size', pageSize.toString());
+      const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}product/stock-history/${productId}/${params}` );
+  }
+
   /// Imports
   importProducts(file:any){
     return this._http.postRequest(`${environment.api_url}product/import/`, file);

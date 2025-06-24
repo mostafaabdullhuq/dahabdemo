@@ -44,16 +44,38 @@ export class JournalEntryComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.cols = [
-      { field: "id", header: "Refrence Number" },
-    { field: "date", header: "journal date" },
-    { field: "added_by", header: "added by" },
-    { field: "status", header: "Type" },
-    { field: "user_name", header: "User" },
-    { field: "supplier", header: "Supplier" },
-    { field: "customer", header: "Customer" },
-    { field: "description", header: "Description" }
-  ];
+
+  this.cols = [
+      { field: "date", header: "date" },
+      { field: "voucher_number", header: "voucher number" },
+      { field: "source", header: "source" },
+      { field: "description", header: "description" },
+    {
+    field: 'lines', header: 'Debits',
+    body: (row: any) => {
+      // map each line's debit, join with <br> for multiline display
+      return row.lines.map((line: any) => 
+        line.debit !== '0.00' ? `<span class="text-success">${line.debit}</span>` : '-'
+      ).join('<br/>');
+    }
+  },
+  {
+    field: 'lines', header: 'Credits',
+    body: (row: any) => {
+      return row.lines.map((line: any) => 
+        line.credit !== '0.00' ? `<span class="text-danger">${line.credit}</span>` : '-'
+      ).join('<br/>');
+    }
+  },
+   {
+    field: 'lines', header: 'Line Description',
+    body: (row: any) => {
+      return row.lines.map((line: any) => 
+        line.debit !== '0.00' ? `<span style="color:green">${line.description}</span>` : '-'
+      ).join('<br/>');
+    }
+  }
+    ];
     this.filterForm = this._formBuilder.group({
       search: '',
       transaction_type:'',
@@ -86,7 +108,7 @@ export class JournalEntryComponent implements OnInit {
     date__range=${this.filterForm?.value?.date__range}&
     `
     // Correct pagination parameters and make API call
-    this._accService.getJournalEntry(this.filterForm?.value?.search || '', page, pageSize).subscribe(res => {
+    this._accService.getJournalEntry(search || '', page, pageSize).subscribe(res => {
       this.transactions = res?.results;
       this.totalRecords = res?.count;  // Ensure the total count is updated
     });
@@ -140,22 +162,41 @@ export class JournalEntryComponent implements OnInit {
       target: user?.id
     });
   }
-  onSearch(): void {
-    const formValues = this.filterForm.value;
+onSearch(): void {
+  const formValues = this.filterForm.value;
 
-    const queryParts: string[] = [];
+  const queryParts: string[] = [];
 
-    Object.keys(formValues).forEach(key => {
-      const value = formValues[key];
-      if (value !== null && value !== '' && value !== undefined) {
-        const encodedKey = encodeURIComponent(key);
-        const encodedValue = encodeURIComponent(value).replace(/%20/g, '+'); // Replace space with +
-        queryParts.push(`${encodedKey}=${encodedValue}`);
+  Object.keys(formValues).forEach(key => {
+    let value = formValues[key];
+
+    if (key === 'date__range' && Array.isArray(value) && value.length === 2) {
+      const [from, to] = value;
+      if (from && to) {
+        const fromDate = this.formatDate(from);
+        const toDate = this.formatDate(to);
+        value = `${fromDate},${toDate}`;
+      } else {
+        value = ''; // skip if dates are incomplete
       }
-    });
+    }
 
-    const queryParams = queryParts.join('&');
+    if (value !== null && value !== '' && value !== undefined) {
+      const encodedKey = encodeURIComponent(key);
+      const encodedValue = encodeURIComponent(value).replace(/%20/g, '+');
+      queryParts.push(`${encodedKey}=${encodedValue}`);
+    }
+  });
 
-    this.getJournalEntry(queryParams, 1, 10);
-  }
+  const queryParams = queryParts.join('&');
+  this.getJournalEntry(queryParams, 1, 10);
+}
+
+private formatDate(date: any): string {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 }

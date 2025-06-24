@@ -65,7 +65,7 @@ export class AuthService {
   }
 
   private storeTokens(tokens: ITokens, remember = true) {
-    const storage = remember ? localStorage : sessionStorage;
+    const storage =localStorage ;
     storage.setItem('tokens', JSON.stringify(tokens));
     this.currentTokens$.next(tokens);
   }

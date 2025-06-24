@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, shareReplay, tap } from 'rxjs';
+import { map, Observable, of, shareReplay, tap } from 'rxjs';
 import { SingletonService } from './singleton.service';
 import { environment } from '../../../environments/environment.development';
 
@@ -20,11 +20,25 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}suppliers/?${param}`;
     return this._http.getRequest<any>(url);
   }
+  // getTaxes(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
+  //   const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+  //   const url = nextPageUrl || `${this.API}business/settings/tax-rates/?${param}`;
+  //   return this._http.getRequest<any>(url);
+  // }
   getTaxes(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
-    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
-    const url = nextPageUrl || `${this.API}business/settings/tax-rates/?${param}`;
-    return this._http.getRequest<any>(url);
-  }
+  const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`;
+  const url = nextPageUrl || `${this.API}business/settings/tax-rates/?${param}`;
+  
+  return this._http.getRequest<any>(url).pipe(
+    map(res => {
+      res.results = res.results.map((tax: any) => ({
+        ...tax,
+        rate: (tax.rate && parseFloat(tax.rate) !== 0) ? tax.rate : tax.country_tax_rate
+      }));
+      return res;
+    })
+  );
+}
   getCountries(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
     const url = nextPageUrl || `${this.API}branch/countries/?${param}`;
@@ -32,7 +46,7 @@ export class DropdownsService {
   }
   getCountryCore(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
-    const url = nextPageUrl || `${this.API}core/country-tax/`;
+    const url = nextPageUrl || `${this.API}core/country-tax/?${param}`;
     return this._http.getRequest<any>(url);
   }
   getUsers(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
@@ -124,12 +138,14 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}core/time-zones/?${params}`;
     return this._http.getRequest<any>(url);
   }
-   getCurrencies(nextPageUrl: string | null = null, params?: string): Observable<any> {
-    const url = nextPageUrl || `${this.API}business/settings/currencies/?${params}`;
+   getCurrencies(minimal: boolean = true,params?:string,page:number = 1, pageSize: number = 100000000): Observable<any> {
+    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+    const url = `${this.API}business/settings/currencies/?${param}`;
     return this._http.getRequest<any>(url);
   }
-  getCurrenciesFromCore(nextPageUrl: string | null = null, params?: string): Observable<any> {
-    const url = nextPageUrl || `${this.API}core/currencies/?${params}`;
+  getCurrenciesFromCore(minimal: boolean = true,params?:string,page:number = 1, pageSize: number = 100000000): Observable<any> {
+    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+    const url = `${this.API}core/currencies/?${param}`;
     return this._http.getRequest<any>(url);
   }
    getPaymentMethods(params?:string): Observable<any>{

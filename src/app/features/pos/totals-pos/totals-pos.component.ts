@@ -214,10 +214,11 @@ salesDataOrders:any =[];
   componentRef!: ComponentRef<any>;
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 paymentsFromPopup:any[] =[]
-  openMultiPaymentMethods() {
+  openMultiPaymentMethods(type:string='') {
     this.container.clear();
     this.componentRef = this.container.createComponent(PaymentMethodsPopupComponent);
     this.componentRef.instance.visible = true;
+    this.componentRef.instance.typeOfPayment = type;
     this.componentRef.instance.baymentMethods = this.paymnetMethods;
  this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
   console.log('Received payments:', payments);

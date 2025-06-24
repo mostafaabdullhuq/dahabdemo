@@ -59,55 +59,46 @@ export class TransactionsComponent {
   ) { }
 
   ngOnInit(): void {
-    this.cols = [
-      { field: "reference_number", header: "Refrence Number" },
-      {
-        field: "created_at", header: "Date",
-        body: (row: any) => {
-          if (!row?.created_at) return '-';
-          const date = new Date(row.created_at);
-          const formatted = `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-          return formatted;
-        }
-      },
-      { field: "payment_method_name", header: "Payment Method" },
-      {
-        field: "order_status", header: "Payment Status",
-        body: (row: any) => {
-          const status = row?.order_status;
-          let className = '';
-          let label = '';
+this.cols = [
+  { field: "reference_number", header: "Reference Number" },
+  {
+    field: "created_at", header: "Date",
+    body: (row: any) => {
+      if (!row?.created_at || isNaN(Date.parse(row.created_at))) return '-';
+      const date = new Date(row.created_at);
+      return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
+  },
+  { field: "payment_method", header: "Payment Method" },
+  {
+    field: "payment_status", header: "Payment Status",
+    body: (row: any) => {
+      const status = row?.payment_status;
+      let className = 'badge text-secondary';
+      let label = status?.replace('_', ' ') ?? 'Unknown';
 
-          switch (status) {
-            case 'pending':
-              className = 'badge rounded-pill text-bg-warning';
-              label = 'Pending';
-              break;
-            case 'paid':
-              className = 'badge rounded-pill text-bg-success';
-              label = 'Paid';
-              break;
-            case 'partially_paid':
-              className = 'badge rounded-pill text-bg-danger';
-              label = 'Partially Paid';
-              break;
-            default:
-              className = 'badge text-secondary';
-              label = status || 'Unknown';
-          }
+      switch (status) {
+        case 'pending':
+          className = 'badge rounded-pill text-bg-warning'; break;
+        case 'paid':
+          className = 'badge rounded-pill text-bg-success'; break;
+        case 'partially_paid':
+          className = 'badge rounded-pill text-bg-danger'; break;
+      }
 
-          return `<span class="${className}">${label}</span>`;
-        },
-        escape: false // 👈 important to allow HTML rendering in PrimeNG
-
-      },
-      { field: "amount", header: "SubTotal" },
-      { field: "orderproduct_count", header: "Product Count" },
-      { field: "salesman_name", header: "Salesman" },
-      { field: "total_items", header: "Total Items" },
-      { field: "total_weight", header: "Total Weight" },
-      { field: "transaction_type", header: "Transaction Type" },
-    ];
+      return `<span class="${className}">${label}</span>`;
+    },
+    escape: false
+  },
+  { field: "amount", header: "Amount", body: (row: any) => +row.amount },
+  { field: "sub_total", header: "SubTotal", body: (row: any) => +row.sub_total },
+  { field: "total_paid", header: "Total Paid", body: (row: any) => +row.total_paid },
+  { field: "remaining_amount", header: "Remaining", body: (row: any) => +row.remaining_amount },
+  { field: "salesman_name", header: "Salesman" },
+  { field: "orderproduct_count", header: "Total Items" },
+  { field: "total_weight", header: "Total Weight" },
+  { field: "transaction_type", header: "Transaction Type" },
+];
     this.filterForm = this._formBuilder.group({
       search: '',
       transaction_type: '',
@@ -167,6 +158,9 @@ export class TransactionsComponent {
     this._accService.getTransactions(params).subscribe(res => {
       this.transactions = res?.results;
       this.totalRecords = res?.count;
+        this.updateRowsPerPageOptions(res?.count);
+        this.updateTotals();
+
     });
   }
   loadTransactions(event: any): void {
@@ -180,10 +174,32 @@ export class TransactionsComponent {
       .subscribe((res) => {
         this.transactions = res.results;
         this.totalRecords = res.count;
+          this.updateRowsPerPageOptions(res?.count);
+          this.updateTotals();
       });
   }
   selectedTransaction: any;
+footerValues: { [key: string]: any } = {};
 
+totals = {
+  amount: 0,
+  sub_total: 0,
+  total_paid: 0,
+  remaining_amount: 0,
+  total_weight: 0
+};
+
+updateTotals(): void {
+  const data = this.transactions || [];
+
+  this.totals = {
+    amount: data.reduce((acc: number, item: { amount: any; }) => acc + parseFloat(item.amount || 0), 0),
+    sub_total: data.reduce((acc: number, item: { sub_total: any; }) => acc + parseFloat(item.sub_total || 0), 0),
+    total_paid: data.reduce((acc: number, item: { total_paid: any; }) => acc + parseFloat(item.total_paid || 0), 0),
+    remaining_amount: data.reduce((acc: number, item: { remaining_amount: any; }) => acc + parseFloat(item.remaining_amount || 0), 0),
+    total_weight: data.reduce((acc: number, item: { total_weight: any; }) => acc + parseFloat(item.total_weight || 0), 0)
+  };
+}
   transactionsMenuItems: MenuItem[] = [
     {
       label: 'Edit',
@@ -259,4 +275,10 @@ export class TransactionsComponent {
     this.componentRef.instance.showDialog();
     this.componentRef.instance.transId=id
   }
+
+  rowsPerPageOptions: any[] = [10, 25, 50]; // initially
+
+updateRowsPerPageOptions(total: number): void {
+  this.rowsPerPageOptions = [10, 25, 50,total];
+}
 }

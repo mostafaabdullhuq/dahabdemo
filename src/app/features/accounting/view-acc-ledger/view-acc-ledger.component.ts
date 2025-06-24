@@ -20,7 +20,7 @@ export class ViewAccLedgerComponent {
   filterForm!: FormGroup;
   totalRecords: number = 0;
   pageSize: number = 10;
-  first: number = 0;
+  first: number = 1;
   accId:any;
   accounts:any;
   branches:any;
@@ -39,13 +39,38 @@ export class ViewAccLedgerComponent {
     if(accId)
       this.accId = accId;
       if (this.accId) {
-        this.loadLedgers(this.accId);
+       // this.loadLedgers(this.accId);
       }
     this.cols = [
-      { field: "created_at", header: "Created At" },
+      { field: "date", header: "date" },
+      { field: "voucher_number", header: "voucher number" },
+      { field: "source", header: "source" },
       { field: "description", header: "description" },
-      { field: "debit", header: "debit" },
-      { field: "credit", header: "credit" },
+    {
+    field: 'lines', header: 'Debits',
+    body: (row: any) => {
+      // map each line's debit, join with <br> for multiline display
+      return row.lines.map((line: any) => 
+        line.debit !== '0.00' ? `<span class="text-success">${line.debit}</span>` : '-'
+      ).join('<br/>');
+    }
+  },
+  {
+    field: 'lines', header: 'Credits',
+    body: (row: any) => {
+      return row.lines.map((line: any) => 
+        line.credit !== '0.00' ? `<span class="text-danger">${line.credit}</span>` : '-'
+      ).join('<br/>');
+    }
+  },
+   {
+    field: 'lines', header: 'Line Description',
+    body: (row: any) => {
+      return row.lines.map((line: any) => 
+        line.debit !== '0.00' ? `<span style="color:green">${line.description}</span>` : '-'
+      ).join('<br/>');
+    }
+  },
     ];
     this.filterForm = this._formBuilder.group({
       search: '',
@@ -54,7 +79,7 @@ export class ViewAccLedgerComponent {
       date_range:''
     });
     this.getAccLedgerById(accId);
- this._dropdownService.getMainAccounts().subscribe(data => {
+ this._dropdownService.getAccounts().subscribe(data => {
       this.accounts = data;
     });
     this._dropdownService.getBranches().subscribe(data => {
@@ -67,9 +92,9 @@ export class ViewAccLedgerComponent {
     //const searchParams = new URLSearchParams(this.filterForm.value).toString() || '';
     // Correct pagination parameters and make API call
     this._accService.getAccLedgerById(this.accId,search).subscribe(res => {
-      this.ledgers = res?.journal_entries?.lines;
+      this.ledgers = res?.journal_entries;
       this.localAccData = res;
-      //this.totalRecords = res?.count;  // Ensure the total count is updated
+        this.totalRecords = res?.journal_entries?.length;
     });
   }
   loadLedgers(event: any): void {
@@ -81,8 +106,8 @@ export class ViewAccLedgerComponent {
 
     this._accService.getAccLedgerById(this.filterForm?.value?.search || '', page)
       .subscribe((res) => {
-        this.ledgers = res?.journal_entries?.lines;
-        this.totalRecords = res.count;
+        this.ledgers = res?.journal_entries;
+        this.totalRecords = res?.journal_entries?.length;
       });
   }
   selectedProduct: any;

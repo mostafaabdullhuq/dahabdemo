@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ComponentRef, ElementRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { InventoryService } from '../@services/inventory.service';
 import { Router, RouterLink } from '@angular/router';
@@ -6,6 +6,7 @@ import { ConfirmationPopUpService } from '../../../shared/services/confirmation-
 import { MenuItem } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared.module';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
+import { ProductStockHistoryComponent } from '../product-stock-history/product-stock-history.component';
 
 @Component({
   selector: 'app-product-list',
@@ -118,7 +119,9 @@ export class ProductListComponent {
   
       this._inventoryService.getProducts(queryParams, page, pageSize).subscribe(res => {
         this.products = res?.results;
-        this.totalRecords = res?.count;  // Ensure the total count is updated
+        this.totalRecords = res?.count; 
+      this.updateRowsPerPageOptions(res?.count)
+         // Ensure the total count is updated
         console.log('Total records:', this.totalRecords);  // Debugging log
       });
     }
@@ -152,6 +155,7 @@ loadProducts(event: any): void {
     .subscribe((res) => {
       this.products = res.results;
       this.totalRecords = res.count;
+      this.updateRowsPerPageOptions(res?.count)
     });
 }
   selectedProduct: any;
@@ -164,8 +168,13 @@ loadProducts(event: any): void {
     },
     {
       label: 'Print Labels',
-      icon: 'pi pi-paintbrush',
+      icon: 'pi pi-barcode',
       command: () => this.openPrintLabel(this.selectedProduct)
+    },
+    {
+      label: 'Product Stock History',
+      icon: 'pi pi-history',
+      command: () => this.openStockHistory(this.selectedProduct)
     },
     {
       label: 'Delete',
@@ -198,7 +207,14 @@ this._router.navigate(['inventory/product/product-label'], { queryParams: { id: 
       target: user?.id
     });
   }
-
+  componentRef!: ComponentRef<any>;
+  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
+  openStockHistory(product: any) {
+    this.container.clear();
+    this.componentRef = this.container.createComponent(ProductStockHistoryComponent);
+    this.componentRef.instance.visible = true;
+    this.componentRef.instance.productId = product?.id;
+  }
    @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
 
@@ -228,4 +244,9 @@ this._router.navigate(['inventory/product/product-label'], { queryParams: { id: 
       },
     });
   }
+    rowsPerPageOptions: any[] = [10, 25, 50]; // initially
+
+updateRowsPerPageOptions(total: number): void {
+  this.rowsPerPageOptions = [10, 25, 50,total];
+}
   }

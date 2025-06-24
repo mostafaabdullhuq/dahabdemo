@@ -9,6 +9,7 @@ import { MenuItem } from 'primeng/api';
 })
 export class DataTableComponent implements OnInit {
   @Input() data!: any[];
+  @Input() rowsPerPageOptions: any[] = [10, 25, 50];
   @Input() cols!: any[];
   @Input() hasContext:boolean = true;
   @Input() totalRecords!: number;
@@ -57,5 +58,7 @@ onRowClick(row: any) {
     if (!data || !field) return null;
     return field.split('.').reduce((obj, key) => (obj ? obj[key] : null), data);
   }
+
+  
 }
 

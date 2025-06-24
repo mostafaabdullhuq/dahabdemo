@@ -31,11 +31,18 @@
                             <app-dropdowns label="supplier" formControlName="supplier" [options]="suppliers"
                                 optionLabel="name" optionValue="id" placeholder="Select a supplier"></app-dropdowns>
                         </div>
-                        <div class="col-md-3">
-                        <app-input-date formControlName="date__range" inputName=" date"
+                        <!-- <div class="col-md-3">
+                        <app-input-date formControlName="date__range" inputName="date Range"
                                 placeholder="Enter date">
                             </app-input-date>
-                    </div>
+                            <p-datepicker [size]="'small'" formControlName="date__range" selectionMode="range"
+                                        [readonlyInput]="false" />
+                    </div> -->
+                    <div class="col-md-3 d-flex w-100 flex-column">
+                                    <label for="">Date Range</label>
+                                    <p-datepicker [size]="'small'" formControlName="date__range" selectionMode="range"
+                                        [readonlyInput]="false" />
+                                </div>
                 </div>
                 <div class="btns-group">
                     <button class=" submit-btn" (click)="onSearch()">Search</button>

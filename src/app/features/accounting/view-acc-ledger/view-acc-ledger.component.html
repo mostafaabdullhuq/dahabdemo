@@ -43,6 +43,7 @@
                                     <p-datepicker [size]="'small'" formControlName="date_range" selectionMode="range"
                                         [readonlyInput]="false" />
                                 </div>
+                                
                                 <div class="col-md-6">
                                     <app-dropdowns label="Select Parent Account" id="parentAccount"
                                         formControlName="account" [options]="accounts" optionLabel="name"
@@ -67,8 +68,8 @@
         </div>
     </div>
     <div class="table-container">
-        <app-data-table (rowSelected)="selectedProduct = $event" [data]="ledgers" [cols]="cols"
-            [totalRecords]="totalRecords" [first]="first" [rows]="pageSize" (pageChange)="loadLedgers($event)">
+        <app-data-table [hasContext]="false" [paginator]="false" [data]="ledgers" [cols]="cols"
+             (pageChange)="loadLedgers($event)">
         </app-data-table>
     </div>
 </section>

@@ -137,7 +137,7 @@ colors:any[]=[]
       category_id: product.category_id,
       description: product.description,
       name: product.name,
-      image: product?.image
+      //image: product?.image
     });
 
     // Clear and add stones if any
