@@ -6,8 +6,11 @@
   <!-- Control buttons -->
   <div class="header-container">
     <div class="header-btns">
-      <button class="add-btn text-center px-4"><i class="pi pi-file-export pr-2"></i>Export</button>
-      <button class="add-btn text-center px-4"><i class="pi pi-print pr-2"></i>Print</button>
+      <p-splitButton label="Export" icon="pi pi-file-export" [model]="exportItems">
+      </p-splitButton>
+      <button class="add-btn text-center px-4 py-2" (click)="printReport()">
+        <i class="pi pi-print pr-2"></i>Print
+      </button>
     </div>
   </div>
 
@@ -15,6 +18,10 @@
   <div class="filter-container container">
     <app-filter-collapse>
       <form class="container" [formGroup]="filterForm">
+        <!-- Date range validation error -->
+        <div *ngIf="filterForm.errors?.['dateRangeInvalid'] && filterForm.touched" class="alert alert-danger mt-2">
+          <i class="pi pi-exclamation-triangle mr-2"></i> From Date cannot be later than To Date.
+        </div>
         <div class="row">
           <div class="col-md-12">
             <app-input-text formControlName="search" placeholder="Global Search" type="text"
@@ -24,10 +31,18 @@
           <div class="col-md-6">
             <app-input-text formControlName="created_from" placeholder="From Date" type="date" inputName="From Date">
             </app-input-text>
+            <div *ngIf="filterForm.get('created_from')?.invalid && filterForm.get('created_from')?.touched"
+              class="text-danger small mt-1">
+              From Date is required
+            </div>
           </div>
           <div class="col-md-6">
             <app-input-text formControlName="created_to" placeholder="To Date" type="date" inputName="To Date">
             </app-input-text>
+            <div *ngIf="filterForm.get('created_to')?.invalid && filterForm.get('created_to')?.touched"
+              class="text-danger small mt-1">
+              To Date is required
+            </div>
           </div>
           <div class="col-md-4">
             <app-input-text formControlName="order__customer__cpr__icontains" placeholder="Enter CPR Number" type="text"
@@ -46,7 +61,7 @@
           </div>
         </div>
         <div class="btns-group">
-          <button class=" submit-btn" (click)="onSearch()">Search</button>
+          <button class="btn submit-btn" [disabled]="filterForm.invalid" (click)="onSearch()">Search</button>
         </div>
       </form>
     </app-filter-collapse>
