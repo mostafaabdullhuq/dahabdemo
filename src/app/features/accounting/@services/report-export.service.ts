@@ -5,6 +5,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { ToasterMsgService } from '../../../core/services/toaster-msg.service';
+import { environment } from '../../../../environments/environment.development';
 
 export interface ReportColumn {
   field: string;
@@ -30,47 +31,25 @@ export class ReportExportService {
 
   constructor(private toaster: ToasterMsgService) { }
 
-  // Helper method to convert image URL to base64
-  private convertImageToBase64(imageUrl: string): Promise<string> {
-    return new Promise((resolve, reject) => {
+  // Helper method to check if image URL is accessible
+  private checkImageAccessibility(imageUrl: string): Promise<boolean> {
+    return new Promise((resolve) => {
       const img = new Image();
 
-      // Set crossOrigin to handle CORS
-      img.crossOrigin = 'anonymous';
-
       img.onload = () => {
-        try {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-
-          if (!ctx) {
-            reject(new Error('Could not get canvas context'));
-            return;
-          }
-
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-
-          const base64String = canvas.toDataURL('image/jpeg', 0.8);
-          resolve(base64String);
-        } catch (canvasError) {
-          console.error('Canvas conversion failed:', canvasError);
-          reject(new Error(`Canvas conversion failed: ${canvasError}`));
-        }
+        resolve(true);
       };
 
-      img.onerror = (imgError) => {
-        console.error('Image loading failed:', imgError);
-        reject(new Error(`Image loading failed: ${imgError}`));
+      img.onerror = () => {
+        resolve(false);
       };
 
-      // Add timestamp to prevent caching issues
-      const imageUrlWithTimestamp = imageUrl.includes('?')
-        ? `${imageUrl}&t=${Date.now()}`
-        : `${imageUrl}?t=${Date.now()}`;
+      // Set a timeout to avoid hanging
+      setTimeout(() => {
+        resolve(false);
+      }, 3000);
 
-      img.src = imageUrlWithTimestamp;
+      img.src = imageUrl;
     });
   }
 
@@ -115,16 +94,28 @@ export class ReportExportService {
     }
 
     const doc = new jsPDF();
+    const isS3Logo = config.businessLogoURL?.includes('amazonaws.com') || config.businessLogoURL?.includes('s3.');
+
+    if (!environment.production && isS3Logo) {
+      this.toaster.showWarn("PDF generated without logo due to development environment limitations");
+      this.createPDFWithFramedHeader(doc, config, null);
+      return;
+    }
 
     // Create framed header with logo on right and text on left
     if (config.businessLogoURL) {
-      this.convertImageToBase64(config.businessLogoURL)
-        .then((base64Image: string) => {
-          this.createPDFWithFramedHeader(doc, config, base64Image);
+      this.checkImageAccessibility(config.businessLogoURL)
+        .then((isAccessible: boolean) => {
+          if (isAccessible) {
+            this.createPDFWithFramedHeader(doc, config, config.businessLogoURL || null);
+          } else {
+            console.warn("Business logo not accessible, proceeding without logo");
+            this.createPDFWithFramedHeader(doc, config, null);
+          }
         })
         .catch((error: any) => {
-          console.error("Error converting image to base64:", error);
-          // Continue without logo if conversion fails
+          console.error("Error checking image accessibility:", error);
+          // Continue without logo if check fails
           this.createPDFWithFramedHeader(doc, config, null);
         });
     } else {
@@ -132,7 +123,7 @@ export class ReportExportService {
     }
   }
 
-  private createPDFWithFramedHeader(doc: jsPDF, config: ReportConfig, logoBase64: string | null): void {
+  private createPDFWithFramedHeader(doc: jsPDF, config: ReportConfig, logoUrl: string | null): void {
     const pageWidth = doc.internal.pageSize.width;
     const headerHeight = 35;
     const headerY = 15;
@@ -170,14 +161,15 @@ export class ReportExportService {
     }
 
     // Add logo on the right side of header if available
-    if (logoBase64) {
+    if (logoUrl) {
       try {
         const logoSize = 25;
         const logoX = pageWidth - 28 - logoSize + 5; // Right side within frame
         const logoY = headerY + padding;
-        doc.addImage(logoBase64, 'JPEG', logoX, logoY, logoSize, logoSize);
+        doc.addImage(logoUrl, 'JPEG', logoX, logoY, logoSize, logoSize);
       } catch (error) {
-        console.error("Error adding logo to PDF:", error);
+        console.warn("Could not add business logo to PDF (likely CORS issue):", error);
+        // Continue without logo if adding fails
       }
     }
 
