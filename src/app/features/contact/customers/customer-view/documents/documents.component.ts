@@ -7,7 +7,7 @@ import { AttachedDocsComponent } from './attached-docs/attached-docs.component';
 
 @Component({
   selector: 'app-documents',
-  imports: [SharedModule,AttachedDocsComponent],
+  imports: [SharedModule],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.scss'
 })

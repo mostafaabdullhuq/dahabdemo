@@ -7,7 +7,7 @@ import { SharedModule } from '../../../../../shared/shared.module';
 
 @Component({
   selector: 'app-documents',
-  imports: [SharedModule ,AttachedDocsComponent],
+  imports: [SharedModule],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.scss'
 })

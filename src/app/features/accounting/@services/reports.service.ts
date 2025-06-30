@@ -18,7 +18,7 @@ export class ReportsService {
   }
 
   getSalesReport(filter: SearchFilter = {}) {
-    return this._http.get<PaginatedResponse<SalesReportResponse>>(this.endpoints.salesReport);
+    return this._http.get<PaginatedResponse<SalesReportResponse>>(this.endpoints.salesReport, filter);
   }
 
   getMonthlyReport(filter: SearchFilter = {}) {
