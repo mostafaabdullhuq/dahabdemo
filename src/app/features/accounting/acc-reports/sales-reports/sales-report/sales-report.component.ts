@@ -4,11 +4,8 @@ import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
 import { SalesReportResponse } from '../sales-reports.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
+import { ReportExportService, ReportConfig, ReportColumn } from '../../report-export.service';
 
 
 @Component({
@@ -71,6 +68,7 @@ export class SalesReportComponent implements OnInit {
   ];
 
   private toaster = inject(ToasterMsgService);
+  private reportExportService = inject(ReportExportService);
 
   businessName!: string;
   businessLogoURL!: string;
@@ -219,528 +217,49 @@ export class SalesReportComponent implements OnInit {
     };
   }
 
-  // Helper method to convert image URL to base64
-  private convertImageToBase64(imageUrl: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
+  // Create report configuration for the export service
+  private getReportConfig(): ReportConfig {
+    const reportColumns: ReportColumn[] = [
+      { field: 'created_at', header: 'Date', body: (row: SalesReportResponse) => this.getRowCreateDate(row) },
+      { field: 'reference_number', header: 'Invoice Number' },
+      { field: 'customer_name', header: 'Customer Name' },
+      { field: 'phone', header: 'Phone' },
+      { field: 'customer_cpr', header: 'CPR' },
+      { field: 'subtotal', header: 'Subtotal', body: (row: SalesReportResponse) => this.getSubtotal(row) },
+      { field: 'tax_amount', header: 'Tax Amount', body: (row: SalesReportResponse) => this.getTaxAmount(row) },
+      { field: 'total_amount', header: 'Total Amount', body: (row: SalesReportResponse) => this.getRowTotalAmount(row) }
+    ];
 
-      // Set crossOrigin to handle CORS
-      img.crossOrigin = 'anonymous';
-
-      img.onload = () => {
-        try {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-
-          if (!ctx) {
-            reject(new Error('Could not get canvas context'));
-            return;
-          }
-
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-
-          const base64String = canvas.toDataURL('image/jpeg', 0.8);
-          resolve(base64String);
-        } catch (canvasError) {
-          console.error('Canvas conversion failed:', canvasError);
-          reject(new Error(`Canvas conversion failed: ${canvasError}`));
-        }
-      };
-
-      img.onerror = (imgError) => {
-        console.error('Image loading failed:', imgError);
-        reject(new Error(`Image loading failed: ${imgError}`));
-      };
-
-      // Add timestamp to prevent caching issues
-      const imageUrlWithTimestamp = imageUrl.includes('?')
-        ? `${imageUrl}&t=${Date.now()}`
-        : `${imageUrl}?t=${Date.now()}`;
-
-      img.src = imageUrlWithTimestamp;
-    });
+    return {
+      title: 'Sales Report',
+      data: this.searchResults.results,
+      columns: reportColumns,
+      totals: {
+        subtotal: this.reportTotals.subtotal,
+        tax_amount: this.reportTotals.tax_amount,
+        total_amount: this.reportTotals.total_amount
+      },
+      filterForm: this.filterForm,
+      businessName: this.businessName,
+      businessLogoURL: this.businessLogoURL,
+      filename: 'sales-report'
+    };
   }
 
-  // Export and Print Methods
+  // Export and Print Methods using the new service
   exportToPDF(): void {
-    if (!this.searchResults.results || this.searchResults.results.length === 0) {
-      this.toaster.showError("No data available to export")
-      return;
-    }
-
-    const doc = new jsPDF();
-
-    // Create framed header with logo on right and text on left
-    if (this.businessLogoURL) {
-      this.convertImageToBase64(this.businessLogoURL)
-        .then((base64Image: string) => {
-          this.createPDFWithFramedHeader(doc, base64Image);
-        })
-        .catch((error: any) => {
-          console.error("Error converting image to base64:", error);
-          // Continue without logo if conversion fails
-          this.createPDFWithFramedHeader(doc, null);
-        });
-    } else {
-      this.createPDFWithFramedHeader(doc, null);
-    }
-  }
-
-  private createPDFWithFramedHeader(doc: jsPDF, logoBase64: string | null): void {
-    const pageWidth = doc.internal.pageSize.width;
-    const headerHeight = 35;
-    const headerY = 15;
-    const padding = 5;
-
-    // Draw header frame
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.rect(14, headerY, pageWidth - 28, headerHeight);
-
-    // Position text on the left side of header
-    let textX = 14 + padding;
-    let textY = headerY + padding + 5;
-
-    // Add business name
-    if (this.businessName) {
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.text(this.businessName, textX, textY);
-      textY += 8;
-    }
-
-    // Add report title
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Sales Report', textX, textY);
-    textY += 6;
-
-    // Add date range if available
-    const fromDate = this.filterForm.get('created_from')?.value;
-    const toDate = this.filterForm.get('created_to')?.value;
-    if (fromDate && toDate) {
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Period: ${new Date(fromDate).toLocaleDateString()} - ${new Date(toDate).toLocaleDateString()}`, textX, textY);
-    }
-
-    // Add logo on the right side of header if available
-    if (logoBase64) {
-      try {
-        const logoSize = 25;
-        const logoX = pageWidth - 28 - logoSize + 5; // Right side within frame
-        const logoY = headerY + padding;
-        doc.addImage(logoBase64, 'JPEG', logoX, logoY, logoSize, logoSize);
-      } catch (error) {
-        console.error("Error adding logo to PDF:", error);
-      }
-    }
-
-    // Continue with table generation
-    this.completePDFGeneration(doc, headerY + headerHeight + 10);
-  }
-
-  private completePDFGeneration(doc: jsPDF, startY: number): void {
-    // Prepare table data
-    const tableColumns = ['Date', 'Invoice Number', 'Customer Name', 'Phone', 'CPR', 'Subtotal', 'Tax Amount', 'Total Amount'];
-    const tableRows = this.searchResults.results.map(item => [
-      this.getRowCreateDate(item),
-      item.reference_number || '-',
-      item.customer_name || '-',
-      item.phone || '-',
-      item.customer_cpr || '-',
-      this.getSubtotal(item),
-      this.getTaxAmount(item),
-      this.getRowTotalAmount(item)
-    ]);
-
-    // Add totals row
-    tableRows.push([
-      'TOTALS',
-      '-',
-      '-',
-      '-',
-      '-',
-      this.reportTotals.subtotal.toFixed(3),
-      this.reportTotals.tax_amount.toFixed(3),
-      this.reportTotals.total_amount.toFixed(3)
-    ]);
-
-    // Generate table with improved styling
-    autoTable(doc, {
-      head: [tableColumns],
-      body: tableRows,
-      startY: startY,
-      styles: {
-        fontSize: 8,
-        cellPadding: 3,
-        lineColor: [44, 62, 80],
-        lineWidth: 0.1
-      },
-      headStyles: {
-        fillColor: [52, 152, 219],
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-        fontSize: 9
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245]
-      },
-      // Style the totals row
-      didParseCell: function (data: any) {
-        if (data.row.index === tableRows.length - 1) {
-          data.cell.styles.fillColor = [231, 76, 60];
-          data.cell.styles.textColor = [255, 255, 255];
-          data.cell.styles.fontStyle = 'bold';
-        }
-      }
-    });
-
-    // Save the PDF
-    const businessPrefix = this.businessName ? this.businessName.replace(/\s+/g, '-').toLowerCase() : 'sales';
-    doc.save(`${businessPrefix}-sales-report-${new Date().toISOString().split('T')[0]}.pdf`);
+    this.reportExportService.exportToPDF(this.getReportConfig());
   }
 
   exportToExcel(): void {
-    if (!this.searchResults.results || this.searchResults.results.length === 0) {
-      this.toaster.showError("No data available to export")
-      return;
-    }
-
-    // Create workbook and empty worksheet
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    const ws: XLSX.WorkSheet = {};
-
-    let currentRow = 1;
-
-    // Add business name
-    if (this.businessName) {
-      XLSX.utils.sheet_add_aoa(ws, [[this.businessName]], { origin: `A${currentRow}` });
-      currentRow += 2; // Skip a row
-    }
-
-    // Add report title
-    XLSX.utils.sheet_add_aoa(ws, [['Sales Report']], { origin: `A${currentRow}` });
-    currentRow++;
-
-    // Add date range
-    const fromDate = this.filterForm.get('created_from')?.value;
-    const toDate = this.filterForm.get('created_to')?.value;
-    if (fromDate && toDate) {
-      XLSX.utils.sheet_add_aoa(ws, [[`Period: ${new Date(fromDate).toLocaleDateString()} - ${new Date(toDate).toLocaleDateString()}`]], { origin: `A${currentRow}` });
-      currentRow++;
-    }
-
-    currentRow++; // Empty row before data
-
-    // Prepare data for Excel
-    const exportData: any[] = this.searchResults.results.map(item => ({
-      'Date': this.getRowCreateDate(item),
-      'Invoice Number': item.reference_number || '-',
-      'Customer Name': item.customer_name || '-',
-      'Phone Number': item.phone || '-',
-      'CPR Number': item.customer_cpr || '-',
-      'Subtotal': parseFloat(item.subtotal || '0').toFixed(3),
-      'Tax Amount': parseFloat(item.tax_amount || '0').toFixed(3),
-      'Total Amount': parseFloat(item.total_amount || '0').toFixed(3),
-      'Currency': item.currency || '-'
-    }));
-
-    // Add totals row
-    exportData.push({
-      'Date': 'TOTALS',
-      'Invoice Number': '-',
-      'Customer Name': '-',
-      'Phone Number': '-',
-      'CPR Number': '-',
-      'Subtotal': this.reportTotals.subtotal.toFixed(3),
-      'Tax Amount': this.reportTotals.tax_amount.toFixed(3),
-      'Total Amount': this.reportTotals.total_amount.toFixed(3),
-      'Currency': '-'
-    });
-
-    // Add the data table starting from the current row
-    XLSX.utils.sheet_add_json(ws, exportData, { origin: `A${currentRow}` });
-
-    XLSX.utils.book_append_sheet(wb, ws, 'Sales Report');
-
-    // Save Excel file
-    const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const businessPrefix = this.businessName ? this.businessName.replace(/\s+/g, '-').toLowerCase() : 'sales';
-    this.saveAsExcelFile(excelBuffer, `${businessPrefix}-sales-report-${new Date().toISOString().split('T')[0]}`);
+    this.reportExportService.exportToExcel(this.getReportConfig());
   }
 
   exportToCSV(): void {
-    if (!this.searchResults.results || this.searchResults.results.length === 0) {
-      this.toaster.showError("No data available to export")
-      return;
-    }
-
-    // Create header information
-    let csvContent = '';
-
-    // Add business name
-    if (this.businessName) {
-      csvContent += `${this.businessName}\n\n`;
-    }
-
-    // Add report title
-    csvContent += 'Sales Report\n';
-
-    // Add date range
-    const fromDate = this.filterForm.get('created_from')?.value;
-    const toDate = this.filterForm.get('created_to')?.value;
-    if (fromDate && toDate) {
-      csvContent += `Period: ${new Date(fromDate).toLocaleDateString()} - ${new Date(toDate).toLocaleDateString()}\n`;
-    }
-
-    csvContent += '\n'; // Empty line before data
-
-    // Prepare CSV data
-    const csvData: any[] = this.searchResults.results.map(item => ({
-      'Date': this.getRowCreateDate(item),
-      'Invoice Number': item.reference_number || '-',
-      'Customer Name': item.customer_name || '-',
-      'Phone Number': item.phone || '-',
-      'CPR Number': item.customer_cpr || '-',
-      'Subtotal': parseFloat(item.subtotal || '0').toFixed(3),
-      'Tax Amount': parseFloat(item.tax_amount || '0').toFixed(3),
-      'Total Amount': parseFloat(item.total_amount || '0').toFixed(3),
-      'Currency': item.currency || '-'
-    }));
-
-    // Add totals row
-    csvData.push({
-      'Date': 'TOTALS',
-      'Invoice Number': '-',
-      'Customer Name': '-',
-      'Phone Number': '-',
-      'CPR Number': '-',
-      'Subtotal': this.reportTotals.subtotal.toFixed(3),
-      'Tax Amount': this.reportTotals.tax_amount.toFixed(3),
-      'Total Amount': this.reportTotals.total_amount.toFixed(3),
-      'Currency': '-'
-    });
-
-    // Create worksheet and convert to CSV
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(csvData);
-    const dataCSV = XLSX.utils.sheet_to_csv(ws);
-
-    // Combine header and data
-    const finalCSV = csvContent + dataCSV;
-
-    // Save CSV file
-    const blob = new Blob([finalCSV], { type: 'text/csv;charset=utf-8;' });
-    const businessPrefix = this.businessName ? this.businessName.replace(/\s+/g, '-').toLowerCase() : 'sales';
-    saveAs(blob, `${businessPrefix}-sales-report-${new Date().toISOString().split('T')[0]}.csv`);
+    this.reportExportService.exportToCSV(this.getReportConfig());
   }
 
   printReport(): void {
-    if (!this.searchResults.results || this.searchResults.results.length === 0) {
-      this.toaster.showError("No data available to print")
-      return;
-    }
-
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      this.toaster.showError("Please allow popups to print the report")
-      return;
-    }
-
-    // Get date range for header
-    const fromDate = this.filterForm.get('created_from')?.value;
-    const toDate = this.filterForm.get('created_to')?.value;
-    const dateRangeText = fromDate && toDate ?
-      `Period: ${new Date(fromDate).toLocaleDateString()} - ${new Date(toDate).toLocaleDateString()}` : '';
-
-    // Generate HTML for print with framed header
-    let printContent = `
-      <html>
-        <head>
-          <title>${this.businessName ? this.businessName + ' - ' : ''}Sales Report</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-
-            /* Framed Header Styles */
-            .header-frame {
-              border: 1px solid #000;
-              padding: 15px;
-              margin-bottom: 20px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              min-height: 60px;
-            }
-
-            .header-left {
-              flex: 1;
-            }
-
-            .header-right {
-              flex-shrink: 0;
-              margin-left: 20px;
-            }
-
-            .business-name {
-              font-size: 18px;
-              font-weight: bold;
-              color: #2c3e50;
-              margin-bottom: 5px;
-            }
-
-            .report-title {
-              font-size: 16px;
-              font-weight: bold;
-              color: #2c3e50;
-              margin-bottom: 3px;
-            }
-
-            .date-range {
-              font-size: 12px;
-              color: #7f8c8d;
-            }
-
-            .logo {
-              max-width: 80px;
-              max-height: 60px;
-              object-fit: contain;
-            }
-
-            /* Table Styles */
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-top: 10px;
-            }
-
-            th, td {
-              border: 1px solid #ddd;
-              padding: 8px;
-              text-align: left;
-              font-size: 11px;
-            }
-
-            th {
-              background-color: #3498db;
-              color: white;
-              font-weight: bold;
-            }
-
-            tr:nth-child(even) {
-              background-color: #f9f9f9;
-            }
-
-            .totals-row {
-              background-color: #e74c3c !important;
-              color: white !important;
-              font-weight: bold;
-            }
-
-            .totals-row td {
-              font-weight: bold;
-            }
-
-            @media print {
-              body { margin: 0; }
-              .header-frame { page-break-inside: avoid; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header-frame">
-            <div class="header-left">`;
-
-    // Add business name
-    if (this.businessName) {
-      printContent += `<div class="business-name">${this.businessName}</div>`;
-    }
-
-    // Add report title
-    printContent += `<div class="report-title">Sales Report</div>`;
-
-    // Add date range
-    if (dateRangeText) {
-      printContent += `<div class="date-range">${dateRangeText}</div>`;
-    }
-
-    printContent += `
-            </div>
-            <div class="header-right">`;
-
-    // Add business logo if available
-    if (this.businessLogoURL) {
-      printContent += `<img src="${this.businessLogoURL}" alt="Business Logo" class="logo" />`;
-    }
-
-    printContent += `
-            </div>
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Invoice Number</th>
-                <th>Customer Name</th>
-                <th>Phone</th>
-                <th>CPR</th>
-                <th>Subtotal</th>
-                <th>Tax Amount</th>
-                <th>Total Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-    `;
-
-    // Add data rows
-    this.searchResults.results.forEach(item => {
-      printContent += `
-        <tr>
-          <td>${this.getRowCreateDate(item)}</td>
-          <td>${item.reference_number || '-'}</td>
-          <td>${item.customer_name || '-'}</td>
-          <td>${item.phone || '-'}</td>
-          <td>${item.customer_cpr || '-'}</td>
-          <td>${this.getSubtotal(item)}</td>
-          <td>${this.getTaxAmount(item)}</td>
-          <td>${this.getRowTotalAmount(item)}</td>
-        </tr>
-      `;
-    });
-
-    // Add totals row
-    printContent += `
-              <tr class="totals-row">
-                <td><strong>TOTALS</strong></td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td><strong>${this.reportTotals.subtotal.toFixed(3)}</strong></td>
-                <td><strong>${this.reportTotals.tax_amount.toFixed(3)}</strong></td>
-                <td><strong>${this.reportTotals.total_amount.toFixed(3)}</strong></td>
-              </tr>
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
-
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.focus();
-
-    // Wait for content to load then print
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
-  }
-
-  private saveAsExcelFile(buffer: any, fileName: string): void {
-    const data: Blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-    saveAs(data, fileName + '.xlsx');
+    this.reportExportService.printReport(this.getReportConfig());
   }
 }
