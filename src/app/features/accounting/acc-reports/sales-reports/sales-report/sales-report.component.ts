@@ -5,7 +5,7 @@ import { ReportsService } from '../../../@services/reports.service';
 import { SalesReportResponse } from '../sales-reports.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
-import { ReportExportService, ReportConfig, ReportColumn } from '../../report-export.service';
+import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
 
 
 @Component({

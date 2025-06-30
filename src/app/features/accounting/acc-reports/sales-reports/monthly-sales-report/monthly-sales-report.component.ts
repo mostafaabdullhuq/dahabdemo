@@ -1,11 +1,238 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { SharedModule } from '../../../../../shared/shared.module';
+import { ReportsService } from '../../../@services/reports.service';
+import { MonthlyReportResponse } from '../sales-reports.models';
+import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
+import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
+import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
 
 @Component({
   selector: 'app-monthly-sales-report',
-  imports: [],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    SharedModule
+  ],
   templateUrl: './monthly-sales-report.component.html',
   styleUrl: './monthly-sales-report.component.scss'
 })
-export class MonthlySalesReportComponent {
+export class MonthlySalesReportComponent implements OnInit {
+  filterForm!: FormGroup;
+  selectedReportItem: any;
+  searchResults: PaginatedResponse<MonthlyReportResponse> = {
+    results: [],
+    count: 0,
+    next: null,
+    previous: null
+  };
+  tableOptions: DataTableOptions = new DataTableOptions();
+  columns: DataTableColumn[] = [
+    { field: "month", header: "Month", body: (row: any) => this.getFormattedMonth(row) },
+    { field: "quantity", header: "Quantity", body: (row: any) => this.getQuantity(row) },
+    { field: "total_amount", header: "Total Amount", body: (row: any) => this.getFormattedAmount(row) }
+  ];
 
+  reportTotals: {
+    total_amount: number,
+    quantity: number
+  } = {
+      total_amount: 0,
+      quantity: 0
+    }
+
+  exportItems = [
+    {
+      label: 'Export to PDF',
+      icon: 'pi pi-file-pdf',
+      command: () => this.exportToPDF()
+    },
+    {
+      label: 'Export to Excel',
+      icon: 'pi pi-file-excel',
+      command: () => this.exportToExcel()
+    },
+    {
+      label: 'Export to CSV',
+      icon: 'pi pi-file',
+      command: () => this.exportToCSV()
+    }
+  ];
+
+  private toaster = inject(ToasterMsgService);
+  private reportExportService = inject(ReportExportService);
+
+  businessName!: string;
+  businessLogoURL!: string;
+
+  constructor(private _formBuilder: FormBuilder, private reportsService: ReportsService) {
+  }
+
+  // Custom validator for date range
+  dateRangeValidator(formGroup: FormGroup) {
+    const fromDate = formGroup.get('created_from')?.value;
+    const toDate = formGroup.get('created_to')?.value;
+
+    if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
+      return { dateRangeInvalid: true };
+    }
+    return null;
+  }
+
+  ngOnInit(): void {
+    // Get current month's first and last day
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    // Format dates for input fields (YYYY-MM-DD)
+    const formatDate = (date: Date): string => {
+      return date.toISOString().split('T')[0];
+    };
+
+    this.filterForm = this._formBuilder.group({
+      created_from: [formatDate(firstDayOfMonth), Validators.required],
+      created_to: [formatDate(lastDayOfMonth), Validators.required],
+      search: null,
+    }, { validators: this.dateRangeValidator });
+
+    // Load data with default current month filter
+    this.getData(this.getFilterObject());
+    this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
+    this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
+  }
+
+  getFormattedAmount(row: MonthlyReportResponse) {
+    return parseFloat(row.total_amount || '0').toFixed(3);
+  }
+
+  getQuantity(row: MonthlyReportResponse) {
+    return row.quantity?.toString() || '0';
+  }
+
+  getFormattedMonth(row: MonthlyReportResponse) {
+    if (!row?.month) return '-';
+    const date = new Date(row.month);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+  }
+
+  getPaginatedRows(data: { first: number, rows: number }) {
+    this.tableOptions.firstIndex = data.first;
+    this.tableOptions.pageSize = data.rows;
+
+    // Calculate the current page based on first index and rows per page
+    this.tableOptions.currentPage = Math.floor(data.first / data.rows) + 1;
+    let created_at_range = this.getFilterObject().created_at__range;
+
+    this.getData({
+      created_at_range
+    });
+  }
+
+  private getData(filter: {} = {}) {
+    this.reportsService.getMonthlyReport({
+      ...filter,
+      page: this.tableOptions.currentPage,
+      page_size: this.tableOptions.pageSize,
+    }).subscribe(response => {
+      this.searchResults = response;
+      this.tableOptions.totalRecords = response.count;
+      this.updateReportTotals(response.results);
+    });
+  }
+
+  onSearch() {
+    // Mark all fields as touched to show validation errors
+    this.filterForm.markAllAsTouched();
+
+    if (this.filterForm.invalid) {
+      // Show alert if required date fields are missing
+      if (this.filterForm.get('created_from')?.invalid || this.filterForm.get('created_to')?.invalid) {
+        this.toaster.showError("Please select both From Date and To Date to filter the report.")
+      }
+      // Show alert if date range is invalid
+      else if (this.filterForm.errors?.['dateRangeInvalid']) {
+        this.toaster.showError("From Date cannot be later than To Date.")
+      }
+      return;
+    }
+
+    this.getData(this.getFilterObject());
+  }
+
+  private getFilterObject() {
+    const filterValues = this.filterForm.value;
+
+    // replace created_from and created_to with created_at__range (Multiple values may be separated by commas.)
+    let filter: any = {};
+
+    if (filterValues.created_from && filterValues.created_to) {
+      filter.created_at__range = `${new Date(filterValues.created_from).toISOString()},${new Date(filterValues.created_to).toISOString()}`;
+    }
+
+    // Remove created_from and created_to from filterValues
+    delete filterValues.created_from;
+    delete filterValues.created_to;
+
+    // remove empty values from filterValues
+    Object.keys(filterValues).forEach(key => {
+      if (filterValues[key] === null || filterValues[key] === '' || filterValues[key] === undefined) {
+        delete filterValues[key];
+      }
+    });
+
+    return {
+      ...filter,
+      ...filterValues
+    }
+  }
+
+  updateReportTotals(results: any = []): void {
+    const data = results ?? [];
+
+    this.reportTotals = {
+      total_amount: data.reduce((acc: number, item: { total_amount: any; }) => acc + parseFloat(item.total_amount || 0), 0),
+      quantity: data.reduce((acc: number, item: { quantity: any; }) => acc + parseFloat(item.quantity || 0), 0)
+    };
+  }
+
+  // Create report configuration for the export service
+  private getReportConfig(): ReportConfig {
+    const reportColumns: ReportColumn[] = [
+      { field: 'month', header: 'Month', body: (row: MonthlyReportResponse) => this.getFormattedMonth(row) },
+      { field: 'quantity', header: 'Quantity', body: (row: MonthlyReportResponse) => this.getQuantity(row) },
+      { field: 'total_amount', header: 'Total Amount', body: (row: MonthlyReportResponse) => this.getFormattedAmount(row) }
+    ];
+
+    return {
+      title: 'Monthly Sales Report',
+      data: this.searchResults.results,
+      columns: reportColumns,
+      totals: {
+        quantity: this.reportTotals.quantity,
+        total_amount: this.reportTotals.total_amount
+      },
+      filterForm: this.filterForm,
+      businessName: this.businessName,
+      businessLogoURL: this.businessLogoURL,
+      filename: 'monthly-sales-report'
+    };
+  }
+
+  // Export and Print Methods using the service
+  exportToPDF(): void {
+    this.reportExportService.exportToPDF(this.getReportConfig());
+  }
+
+  exportToExcel(): void {
+    this.reportExportService.exportToExcel(this.getReportConfig());
+  }
+
+  exportToCSV(): void {
+    this.reportExportService.exportToCSV(this.getReportConfig());
+  }
+
+  printReport(): void {
+    this.reportExportService.printReport(this.getReportConfig());
+  }
 }

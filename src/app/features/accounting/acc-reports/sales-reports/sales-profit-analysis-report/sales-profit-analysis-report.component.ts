@@ -1,11 +1,269 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { SharedModule } from '../../../../../shared/shared.module';
+import { ReportsService } from '../../../@services/reports.service';
+import { SalesProfitAnalysusReportResponse } from '../sales-reports.models';
+import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
+import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
+import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
 
 @Component({
   selector: 'app-sales-profit-analysis-report',
-  imports: [],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    SharedModule
+  ],
   templateUrl: './sales-profit-analysis-report.component.html',
   styleUrl: './sales-profit-analysis-report.component.scss'
 })
-export class SalesProfitAnalysisReportComponent {
+export class SalesProfitAnalysisReportComponent implements OnInit {
+  filterForm!: FormGroup;
+  selectedReportItem: any;
+  searchResults: PaginatedResponse<SalesProfitAnalysusReportResponse> = {
+    results: [],
+    count: 0,
+    next: null,
+    previous: null
+  };
+  tableOptions: DataTableOptions = new DataTableOptions();
+  columns: DataTableColumn[] = [
+    { field: "created_at", header: "Date", body: (row: any) => this.getRowCreateDate(row) },
+    { field: "reference_number", header: "Invoice Number" },
+    { field: "customer_name", header: "Customer Name" },
+    { field: "phone", header: "Phone Number" },
+    { field: "customer_cpr", header: "CPR Number" },
+    { field: "gold_value", header: "Gold Value", body: (row: any) => this.getGoldValue(row) },
+    { field: "selling_making_charge", header: "Selling Making Charge", body: (row: any) => this.getSellingMakingCharge(row) },
+    { field: "cost_making_charge", header: "Cost Making Charge", body: (row: any) => this.getCostMakingCharge(row) },
+    { field: "net_profit", header: "Net Profit", body: (row: any) => this.getNetProfit(row) }
+  ];
 
+  reportTotals: {
+    net_profit: number,
+    gold_value: number,
+    selling_making_charge: number,
+    cost_making_charge: number
+  } = {
+      net_profit: 0,
+      gold_value: 0,
+      selling_making_charge: 0,
+      cost_making_charge: 0
+    }
+
+  exportItems = [
+    {
+      label: 'Export to PDF',
+      icon: 'pi pi-file-pdf',
+      command: () => this.exportToPDF()
+    },
+    {
+      label: 'Export to Excel',
+      icon: 'pi pi-file-excel',
+      command: () => this.exportToExcel()
+    },
+    {
+      label: 'Export to CSV',
+      icon: 'pi pi-file',
+      command: () => this.exportToCSV()
+    }
+  ];
+
+  private toaster = inject(ToasterMsgService);
+  private reportExportService = inject(ReportExportService);
+
+  businessName!: string;
+  businessLogoURL!: string;
+
+  constructor(private _formBuilder: FormBuilder, private reportsService: ReportsService) {
+  }
+
+  // Custom validator for date range
+  dateRangeValidator(formGroup: FormGroup) {
+    const fromDate = formGroup.get('created_from')?.value;
+    const toDate = formGroup.get('created_to')?.value;
+
+    if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
+      return { dateRangeInvalid: true };
+    }
+    return null;
+  }
+
+  ngOnInit(): void {
+    // Get current month's first and last day
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    // Format dates for input fields (YYYY-MM-DD)
+    const formatDate = (date: Date): string => {
+      return date.toISOString().split('T')[0];
+    };
+
+    this.filterForm = this._formBuilder.group({
+      created_from: [formatDate(firstDayOfMonth), Validators.required],
+      created_to: [formatDate(lastDayOfMonth), Validators.required],
+      order__customer__cpr__icontains: null,
+      order__customer__name__icontains: null,
+      order__customer__phone__icontains: null,
+      search: null,
+    }, { validators: this.dateRangeValidator });
+
+    // Load data with default current month filter
+    this.getData(this.getFilterObject());
+    this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
+    this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
+  }
+
+  getGoldValue(row: SalesProfitAnalysusReportResponse) {
+    return parseFloat(row.gold_value || '0').toFixed(3) + ' ' + (row.currency || '');
+  }
+
+  getSellingMakingCharge(row: SalesProfitAnalysusReportResponse) {
+    return parseFloat(row.selling_making_charge || '0').toFixed(3) + ' ' + (row.currency || '');
+  }
+
+  getCostMakingCharge(row: SalesProfitAnalysusReportResponse) {
+    return parseFloat(row.cost_making_charge || '0').toFixed(3) + ' ' + (row.currency || '');
+  }
+
+  getNetProfit(row: SalesProfitAnalysusReportResponse) {
+    return row.net_profit?.toFixed(3) + ' ' + (row.currency || '');
+  }
+
+  private getRowCreateDate(row: SalesProfitAnalysusReportResponse) {
+    if (!row?.created_at || isNaN(Date.parse(row.created_at))) return '-';
+    const date = new Date(row.created_at);
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  }
+
+  getPaginatedRows(data: { first: number, rows: number }) {
+    this.tableOptions.firstIndex = data.first;
+    this.tableOptions.pageSize = data.rows;
+
+    // Calculate the current page based on first index and rows per page
+    this.tableOptions.currentPage = Math.floor(data.first / data.rows) + 1;
+    let created_at_range = this.getFilterObject().created_at__range;
+
+    this.getData({
+      created_at_range
+    });
+  }
+
+  private getData(filter: {} = {}) {
+    this.reportsService.getSalesProfitAnalysisReport({
+      ...filter,
+      page: this.tableOptions.currentPage,
+      page_size: this.tableOptions.pageSize,
+    }).subscribe(response => {
+      this.searchResults = response;
+      this.tableOptions.totalRecords = response.count;
+      this.updateReportTotals(response.results);
+    });
+  }
+
+  onSearch() {
+    // Mark all fields as touched to show validation errors
+    this.filterForm.markAllAsTouched();
+
+    if (this.filterForm.invalid) {
+      // Show alert if required date fields are missing
+      if (this.filterForm.get('created_from')?.invalid || this.filterForm.get('created_to')?.invalid) {
+        this.toaster.showError("Please select both From Date and To Date to filter the report.")
+      }
+      // Show alert if date range is invalid
+      else if (this.filterForm.errors?.['dateRangeInvalid']) {
+        this.toaster.showError("From Date cannot be later than To Date.")
+      }
+      return;
+    }
+
+    this.getData(this.getFilterObject());
+  }
+
+  private getFilterObject() {
+    const filterValues = this.filterForm.value;
+
+    // replace created_from and created_to with created_at__range (Multiple values may be separated by commas.)
+    let filter: any = {};
+
+    if (filterValues.created_from && filterValues.created_to) {
+      filter.created_at__range = `${new Date(filterValues.created_from).toISOString()},${new Date(filterValues.created_to).toISOString()}`;
+    }
+
+    // Remove created_from and created_to from filterValues
+    delete filterValues.created_from;
+    delete filterValues.created_to;
+
+    // remove empty values from filterValues
+    Object.keys(filterValues).forEach(key => {
+      if (filterValues[key] === null || filterValues[key] === '' || filterValues[key] === undefined) {
+        delete filterValues[key];
+      }
+    });
+
+    return {
+      ...filter,
+      ...filterValues
+    }
+  }
+
+  updateReportTotals(results: any = []): void {
+    const data = results ?? [];
+
+    this.reportTotals = {
+      net_profit: data.reduce((acc: number, item: { net_profit: any; }) => acc + parseFloat(item.net_profit || 0), 0),
+      gold_value: data.reduce((acc: number, item: { gold_value: any; }) => acc + parseFloat(item.gold_value || 0), 0),
+      selling_making_charge: data.reduce((acc: number, item: { selling_making_charge: any; }) => acc + parseFloat(item.selling_making_charge || 0), 0),
+      cost_making_charge: data.reduce((acc: number, item: { cost_making_charge: any; }) => acc + parseFloat(item.cost_making_charge || 0), 0)
+    };
+  }
+
+  // Create report configuration for the export service
+  private getReportConfig(): ReportConfig {
+    const reportColumns: ReportColumn[] = [
+      { field: 'created_at', header: 'Date', body: (row: SalesProfitAnalysusReportResponse) => this.getRowCreateDate(row) },
+      { field: 'reference_number', header: 'Invoice Number' },
+      { field: 'customer_name', header: 'Customer Name' },
+      { field: 'phone', header: 'Phone Number' },
+      { field: 'customer_cpr', header: 'CPR Number' },
+      { field: 'gold_value', header: 'Gold Value', body: (row: SalesProfitAnalysusReportResponse) => this.getGoldValue(row) },
+      { field: 'selling_making_charge', header: 'Selling Making Charge', body: (row: SalesProfitAnalysusReportResponse) => this.getSellingMakingCharge(row) },
+      { field: 'cost_making_charge', header: 'Cost Making Charge', body: (row: SalesProfitAnalysusReportResponse) => this.getCostMakingCharge(row) },
+      { field: 'net_profit', header: 'Net Profit', body: (row: SalesProfitAnalysusReportResponse) => this.getNetProfit(row) }
+    ];
+
+    return {
+      title: 'Sales Profit Analysis Report',
+      data: this.searchResults.results,
+      columns: reportColumns,
+      totals: {
+        net_profit: this.reportTotals.net_profit,
+        gold_value: this.reportTotals.gold_value,
+        selling_making_charge: this.reportTotals.selling_making_charge,
+        cost_making_charge: this.reportTotals.cost_making_charge
+      },
+      filterForm: this.filterForm,
+      businessName: this.businessName,
+      businessLogoURL: this.businessLogoURL,
+      filename: 'sales-profit-analysis-report'
+    };
+  }
+
+  // Export and Print Methods using the service
+  exportToPDF(): void {
+    this.reportExportService.exportToPDF(this.getReportConfig());
+  }
+
+  exportToExcel(): void {
+    this.reportExportService.exportToExcel(this.getReportConfig());
+  }
+
+  exportToCSV(): void {
+    this.reportExportService.exportToCSV(this.getReportConfig());
+  }
+
+  printReport(): void {
+    this.reportExportService.printReport(this.getReportConfig());
+  }
 }

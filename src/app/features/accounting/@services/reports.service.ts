@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
-import {SingletonService} from '../../../core/services/singleton.service';
-import {PaginatedResponse, SearchFilter} from '../../../shared/models/common.models';
-import {MonthlyReportResponse, SalesReportResponse} from '../acc-reports/sales-reports/sales-reports.models';
+import { Injectable } from '@angular/core';
+import { SingletonService } from '../../../core/services/singleton.service';
+import { PaginatedResponse, SearchFilter } from '../../../shared/models/common.models';
+import { MonthlyReportResponse, SalesReportResponse, SalesProfitAnalysusReportResponse } from '../acc-reports/sales-reports/sales-reports.models';
 
 
 @Injectable({
@@ -11,7 +11,8 @@ export class ReportsService {
 
   private readonly endpoints = {
     salesReport: 'reporting/sales/',
-    monthlyReport: 'reporting/monthly-sales/'
+    monthlyReport: 'reporting/monthly-sales/',
+    salesProfitAnalysusReport: "reporting/sales-profit-analysis/"
   }
 
   constructor(private _http: SingletonService) {
@@ -23,5 +24,9 @@ export class ReportsService {
 
   getMonthlyReport(filter: SearchFilter = {}) {
     return this._http.get<PaginatedResponse<MonthlyReportResponse>>(this.endpoints.monthlyReport, filter);
+  }
+
+  getSalesProfitAnalysisReport(filter: SearchFilter = {}) {
+    return this._http.get<PaginatedResponse<SalesProfitAnalysusReportResponse>>(this.endpoints.salesProfitAnalysusReport, filter);
   }
 }
