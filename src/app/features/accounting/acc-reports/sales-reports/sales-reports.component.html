@@ -1,0 +1,35 @@
+<div class="container-fluid">
+  <div class="row">
+    <p-tabs class="col-md-12" value="0">
+      <p-tablist>
+        <p-tab value="0">Sales</p-tab>
+        <p-tab value="1">Monthly Sales</p-tab>
+        <p-tab value="2">Sales Profit Analysis</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <div class="row">
+            <div class="col-md-12">
+              <app-sales-report></app-sales-report>
+            </div>
+          </div>
+        </p-tabpanel>
+        <p-tabpanel value="1">
+          <div class="row">
+            <div class="col-md-12">
+              <app-monthly-sales-report></app-monthly-sales-report>
+            </div>
+          </div>
+        </p-tabpanel>
+        <p-tabpanel value="2">
+          <div class="row">
+            <div class="col-md-12">
+              <app-sales-profit-analysis-report></app-sales-profit-analysis-report>
+            </div>
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</div>

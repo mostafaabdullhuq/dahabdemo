@@ -1,0 +1,83 @@
+<p-confirmdialog/>
+<ng-container #container></ng-container>
+
+<section>
+  <div class="header-container">
+    <div class="header-btns">
+      <button class="add-btn text-center px-4"><i class="pi pi-file-export pr-2"></i>Export</button>
+      <button class="add-btn text-center px-4"><i class="pi pi-print pr-2"></i>Print</button>
+    </div>
+  </div>
+
+  <!--  <div class="filter-container container">-->
+  <!--    <app-filter-collapse>-->
+  <!--      <form class="container" [formGroup]="filterForm">-->
+  <!--        <div class="row">-->
+  <!--          <div class="col-md-12">-->
+  <!--            <app-input-text formControlName="search" placeholder="Global Search" type="text"-->
+  <!--                            inputName="Search"></app-input-text>-->
+  <!--          </div>-->
+  <!--          <div class="col-md-6">-->
+  <!--            <app-dropdowns label="transaction" formControlName="transaction_type" [options]="transactionTypes"-->
+  <!--                           optionLabel="name" optionValue="id" placeholder="Select a type"></app-dropdowns>-->
+  <!--          </div>-->
+  <!--          <div class="col-md-6">-->
+  <!--            <app-dropdowns label="Customer" formControlName="order__customer" [options]="customers"-->
+  <!--                           optionLabel="name" optionValue="id" placeholder="Select a Customer"></app-dropdowns>-->
+  <!--          </div>-->
+  <!--          <div class="col-md-6">-->
+  <!--            <app-input-date formControlName="order__payment_date" inputName="payment date"-->
+  <!--                            placeholder="Enter payment date">-->
+  <!--            </app-input-date>-->
+  <!--          </div>-->
+  <!--          <div class="col-md-6">-->
+  <!--            <app-dropdowns label="payment methods" formControlName="order__payment_method"-->
+  <!--                           [options]="paymentMethods" optionLabel="name" optionValue="id"-->
+  <!--                           placeholder="Select a payment method"></app-dropdowns>-->
+  <!--          </div>-->
+  <!--          <div class="col-md-6">-->
+  <!--            <app-dropdowns label="Status" formControlName="order__status" [options]="paymentStatusOptions"-->
+  <!--                           optionLabel="name" optionValue="id" placeholder="Select a Status"></app-dropdowns>-->
+  <!--          </div>-->
+  <!--          <div class="col-md-6">-->
+  <!--            <app-dropdowns label="branch" formControlName="shift__branch" [options]="branches"-->
+  <!--                           optionLabel="name" optionValue="id" placeholder="Select a branch"></app-dropdowns>-->
+  <!--          </div>-->
+  <!--        </div>-->
+  <!--        <div class="btns-group">-->
+  <!--          <button class=" submit-btn" (click)="onSearch()">Search</button>-->
+  <!--        </div>-->
+  <!--      </form>-->
+  <!--    </app-filter-collapse>-->
+  <!--  </div>-->
+
+  <div class="table-container">
+    <app-data-table
+      (rowSelected)="selectedReportItem = $event" [rowsPerPageOptions]="tableOptions.rowsPerPageOptions"
+      [data]="searchResults.results" [cols]="[]" [totalRecords]="tableOptions.totalRecords"
+      [first]="tableOptions.firstIndex" [rows]="tableOptions.pageSize"
+      [hasContext]="false"
+      (pageChange)="getPaginatedRows($event)">
+      <!--      <ng-container table-footer>-->
+      <!--        <tr>-->
+      <!--          <td *ngFor="let col of cols">-->
+      <!--            <ng-container class="fw-bold" [ngSwitch]="col.field">-->
+      <!--              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'reference_number'">Totals</span>-->
+      <!--              <span class="fw-bold" style="font-size:14px"-->
+      <!--                    *ngSwitchCase="'amount'">{{ totals.amount.toFixed(3) }}</span>-->
+      <!--              <span class="fw-bold" style="font-size:14px"-->
+      <!--                    *ngSwitchCase="'sub_total'">{{ totals.sub_total.toFixed(3) }}</span>-->
+      <!--              <span class="fw-bold" style="font-size:14px"-->
+      <!--                    *ngSwitchCase="'total_paid'">{{ totals.total_paid.toFixed(3) }}</span>-->
+      <!--              <span class="fw-bold" style="font-size:14px"-->
+      <!--                    *ngSwitchCase="'remaining_amount'">{{ totals.remaining_amount.toFixed(3) }}</span>-->
+      <!--              <span class="fw-bold" style="font-size:14px"-->
+      <!--                    *ngSwitchCase="'total_weight'">{{ totals.total_weight.toFixed(3) }}</span>-->
+      <!--              <span class="fw-bold" style="font-size:14px" *ngSwitchDefault></span>-->
+      <!--            </ng-container>-->
+      <!--          </td>-->
+      <!--        </tr>-->
+      <!--      </ng-container>-->
+    </app-data-table>
+  </div>
+</section>
