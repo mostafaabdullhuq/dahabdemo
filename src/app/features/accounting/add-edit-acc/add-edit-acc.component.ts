@@ -23,20 +23,20 @@ export class AddEditAccComponent implements OnInit {
   addEditAccForm!: FormGroup;
   isEditMode = false;
   accId: string | number = '';
-accounts = [
-  { id: 'asset', name: 'Asset' },
-  { id: 'liability', name: 'Liability' },
-  { id: 'capital', name: 'Capital' },
-  { id: 'value_added_tax', name: 'Value Added Tax' },
-  { id: 'reserves', name: 'Reserves' },
-  { id: 'equity', name: 'Equity' },
-  { id: 'accumulated_profit', name: 'Accumulated Profit' },
-  { id: 'partners_current_account', name: 'Partners Current Account' },
-  { id: 'cost_of_gold_sold', name: 'Cost of Gold Sold' },
-  { id: 'other_income', name: 'Other Income' },
-  { id: 'revenue', name: 'Revenue' },
-  { id: 'expense', name: 'Expense' }
-];  subAcc: any[] = [];
+  accounts = [
+    { id: 'asset', name: 'Asset' },
+    { id: 'liability', name: 'Liability' },
+    { id: 'capital', name: 'Capital' },
+    { id: 'value_added_tax', name: 'Value Added Tax' },
+    { id: 'reserves', name: 'Reserves' },
+    { id: 'equity', name: 'Equity' },
+    { id: 'accumulated_profit', name: 'Accumulated Profit' },
+    { id: 'partners_current_account', name: 'Partners Current Account' },
+    { id: 'cost_of_gold_sold', name: 'Cost of Gold Sold' },
+    { id: 'other_income', name: 'Other Income' },
+    { id: 'revenue', name: 'Revenue' },
+    { id: 'expense', name: 'Expense' }
+  ]; subAcc: any[] = [];
   subSubAcc: any[] = [];
   nextPageUrl: string | null = null;
   isLoading = false;
@@ -50,7 +50,6 @@ accounts = [
   ) { }
 
   ngOnInit(): void {
-    console.log(this.accId);
     if (this.accId)
       this.accId = this.accId;
     this.initForm();
@@ -115,13 +114,13 @@ accounts = [
       this.addEditAccForm.markAllAsTouched();
       return;
     }
-const formatDate = (dateStr: string | Date): string => {
-  const date = new Date(dateStr);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-  const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
-};
+    const formatDate = (dateStr: string | Date): string => {
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    };
     const formValue = this.addEditAccForm.value;
     // Determine the correct parent account ID to send
     const parentAccountId = formValue.sub_acc || formValue.parent_type || formValue.account_type || '';
@@ -139,7 +138,7 @@ const formatDate = (dateStr: string | Date): string => {
       : this._accService.addAcc(payload, parentAccountId);
 
     request$.subscribe({
-      next: res =>this.visible = false ,
+      next: res => this.visible = false,
       error: err => console.error('Error', err)
     });
   }

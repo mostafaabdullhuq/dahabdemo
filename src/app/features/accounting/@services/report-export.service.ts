@@ -7,6 +7,15 @@ import { saveAs } from 'file-saver';
 import { ToasterMsgService } from '../../../core/services/toaster-msg.service';
 import { environment } from '../../../../environments/environment.development';
 
+// Define supported Arabic ranges
+const ARABIC_RANGES = [
+  [0x0600, 0x06FF], // Arabic
+  [0x0750, 0x077F], // Arabic Supplement
+  [0x08A0, 0x08FF], // Arabic Extended-A
+  [0xFB50, 0xFDFF], // Arabic Presentation Forms-A
+  [0xFE70, 0xFEFF], // Arabic Presentation Forms-B
+];
+
 export interface ReportColumn {
   field: string;
   header: string;
@@ -31,24 +40,160 @@ export class ReportExportService {
 
   constructor(private toaster: ToasterMsgService) { }
 
+  // Check if text contains Arabic characters
+  private containsArabic(text: string): boolean {
+    if (!text || typeof text !== 'string') return false;
+
+    for (let i = 0; i < text.length; i++) {
+      const charCode = text.charCodeAt(i);
+
+      for (const [start, end] of ARABIC_RANGES) {
+        if (charCode >= start && charCode <= end) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  // Configure PDF for Arabic text with proper font support
+  private async configurePDFForArabic(doc: jsPDF, config: ReportConfig): Promise<void> {
+    try {
+      // Set dynamic properties based on report data
+      const reportTitle = config.title || 'Report';
+      const businessName = config.businessName || 'System';
+      const dateRange = this.getDateRange(config.filterForm);
+
+      doc.setProperties({
+        title: `${businessName} - ${reportTitle}${dateRange ? ' - ' + dateRange : ''}`,
+        author: businessName,
+        creator: `${businessName} PDF Generator`,
+        subject: `${reportTitle} generated on ${new Date().toLocaleDateString()}`,
+        keywords: `${reportTitle}, ${businessName}, Report, ${new Date().getFullYear()}`
+      });
+
+      await this.loadNotoArabicFont(doc);
+    } catch (error) {
+      console.warn('Could not load Noto Sans Arabic font, falling back to built-in fonts:', error);
+      this.addArabicFontToDoc(doc);
+    }
+  }
+
+  // Load Noto Sans Arabic font for proper Arabic text support
+  private async loadNotoArabicFont(doc: jsPDF): Promise<void> {
+    const fontBasePaths = [
+      'fonts/Noto_Sans_Arabic/static/',
+      '/fonts/Noto_Sans_Arabic/static/',
+      './fonts/Noto_Sans_Arabic/static/'
+    ];
+
+    const fontVariations = [
+      { file: 'NotoSansArabic-Regular.ttf', style: 'normal' },
+      { file: 'NotoSansArabic-Bold.ttf', style: 'bold' },
+      { file: 'Noto_Sans_Arabic-Regular.ttf', style: 'normal' },
+      { file: 'Noto_Sans_Arabic-Bold.ttf', style: 'bold' }
+    ];
+
+    let fontsLoaded = 0;
+
+    for (const basePath of fontBasePaths) {
+      for (const variant of fontVariations) {
+        try {
+          const fontPath = `${basePath}${variant.file}`;
+          const response = await fetch(fontPath);
+
+          if (response.ok) {
+            const fontData = await response.arrayBuffer();
+            const base64Font = this.arrayBufferToBase64(fontData);
+
+            doc.addFileToVFS(variant.file, base64Font);
+            doc.addFont(variant.file, 'NotoArabic', variant.style);
+            fontsLoaded++;
+
+            if (fontsLoaded === 1) {
+              doc.setFont('NotoArabic', variant.style);
+            }
+          }
+        } catch (error) {
+          // Continue trying other font variations
+        }
+      }
+
+      if (fontsLoaded > 0) {
+        return;
+      }
+    }
+
+    if (fontsLoaded === 0) {
+      throw new Error('Could not load Noto Sans Arabic font from any path');
+    }
+  }
+
+  // Add Arabic font support to jsPDF document (fallback method)
+  private addArabicFontToDoc(doc: jsPDF): void {
+    const fonts = ['times', 'courier', 'helvetica'];
+
+    for (const font of fonts) {
+      try {
+        doc.setFont(font, 'normal');
+        return;
+      } catch (error) {
+        continue;
+      }
+    }
+  }
+
+  // Get the best available font for Arabic text
+  private getArabicFont(doc: jsPDF, style: string = 'normal'): string {
+    const fontOptions = [
+      { name: 'NotoArabic', style: style },
+      { name: 'times', style: style },
+      { name: 'courier', style: style },
+      { name: 'helvetica', style: style }
+    ];
+
+    for (const font of fontOptions) {
+      try {
+        doc.setFont(font.name, font.style);
+        return font.name;
+      } catch (error) {
+        // If bold style failed for NotoArabic, try normal style as fallback
+        if (font.name === 'NotoArabic' && font.style === 'bold') {
+          try {
+            doc.setFont('NotoArabic', 'normal');
+            return 'NotoArabic';
+          } catch (normalError) {
+            continue;
+          }
+        }
+        continue;
+      }
+    }
+
+    return 'helvetica';
+  }
+
+  // Convert ArrayBuffer to base64 string
+  private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
   // Helper method to check if image URL is accessible
   private checkImageAccessibility(imageUrl: string): Promise<boolean> {
     return new Promise((resolve) => {
       const img = new Image();
 
-      img.onload = () => {
-        resolve(true);
-      };
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
 
-      img.onerror = () => {
-        resolve(false);
-      };
-
-      // Set a timeout to avoid hanging
-      setTimeout(() => {
-        resolve(false);
-      }, 3000);
-
+      setTimeout(() => resolve(false), 3000);
       img.src = imageUrl;
     });
   }
@@ -80,20 +225,28 @@ export class ReportExportService {
 
   // Get cell value using column configuration
   private getCellValue(row: any, column: ReportColumn): string {
+    let value: string;
     if (column.body) {
-      return column.body(row);
+      value = column.body(row);
+    } else {
+      const cellValue = row[column.field];
+      value = (cellValue !== null && cellValue !== undefined && cellValue !== '') ? cellValue : '-';
     }
-    return row[column.field] || '-';
+
+    return typeof value === 'string' ? value : String(value);
   }
 
   // Export to PDF
-  exportToPDF(config: ReportConfig): void {
+  async exportToPDF(config: ReportConfig): Promise<void> {
     if (!config.data || config.data.length === 0) {
       this.toaster.showError("No data available to export");
       return;
     }
 
     const doc = new jsPDF();
+    await this.configurePDFForArabic(doc, config);
+
+    // Check if we should skip logo due to CORS issues in development
     const isS3Logo = config.businessLogoURL?.includes('amazonaws.com') || config.businessLogoURL?.includes('s3.');
 
     if (!environment.production && isS3Logo) {
@@ -102,22 +255,14 @@ export class ReportExportService {
       return;
     }
 
-    // Create framed header with logo on right and text on left
+    // Create framed header with logo
     if (config.businessLogoURL) {
-      this.checkImageAccessibility(config.businessLogoURL)
-        .then((isAccessible: boolean) => {
-          if (isAccessible) {
-            this.createPDFWithFramedHeader(doc, config, config.businessLogoURL || null);
-          } else {
-            console.warn("Business logo not accessible, proceeding without logo");
-            this.createPDFWithFramedHeader(doc, config, null);
-          }
-        })
-        .catch((error: any) => {
-          console.error("Error checking image accessibility:", error);
-          // Continue without logo if check fails
-          this.createPDFWithFramedHeader(doc, config, null);
-        });
+      try {
+        const isAccessible = await this.checkImageAccessibility(config.businessLogoURL);
+        this.createPDFWithFramedHeader(doc, config, isAccessible ? config.businessLogoURL : null);
+      } catch (error) {
+        this.createPDFWithFramedHeader(doc, config, null);
+      }
     } else {
       this.createPDFWithFramedHeader(doc, config, null);
     }
@@ -141,14 +286,16 @@ export class ReportExportService {
     // Add business name
     if (config.businessName) {
       doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
+      const businessNameFont = this.getArabicFont(doc, 'bold');
+      doc.setFont(businessNameFont, 'bold');
       doc.text(config.businessName, textX, textY);
       textY += 8;
     }
 
     // Add report title
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    const titleFont = this.getArabicFont(doc, 'bold');
+    doc.setFont(titleFont, 'bold');
     doc.text(config.title, textX, textY);
     textY += 6;
 
@@ -156,7 +303,8 @@ export class ReportExportService {
     const dateRange = this.getDateRange(config.filterForm);
     if (dateRange) {
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
+      const dateFont = this.getArabicFont(doc, 'normal');
+      doc.setFont(dateFont, 'normal');
       doc.text(dateRange, textX, textY);
     }
 
@@ -164,20 +312,21 @@ export class ReportExportService {
     if (logoUrl) {
       try {
         const logoSize = 25;
-        const logoX = pageWidth - 28 - logoSize + 5; // Right side within frame
+        const logoX = pageWidth - 28 - logoSize + 5;
         const logoY = headerY + padding;
         doc.addImage(logoUrl, 'JPEG', logoX, logoY, logoSize, logoSize);
       } catch (error) {
-        console.warn("Could not add business logo to PDF (likely CORS issue):", error);
-        // Continue without logo if adding fails
+        console.warn("Could not add business logo to PDF:", error);
       }
     }
 
-    // Continue with table generation
     this.completePDFGeneration(doc, config, headerY + headerHeight + 10);
   }
 
   private completePDFGeneration(doc: jsPDF, config: ReportConfig, startY: number): void {
+    const normalFont = this.getArabicFont(doc, 'normal');
+    const boldFont = this.getArabicFont(doc, 'bold');
+
     // Prepare table data
     const tableColumns = config.columns.map(col => col.header);
     const tableRows = config.data.map(item =>
@@ -198,37 +347,58 @@ export class ReportExportService {
       tableRows.push(totalsRow);
     }
 
-    // Generate table with improved styling
+    const self = this;
+
+    // Generate table with RTL support for Arabic cells
     autoTable(doc, {
       head: [tableColumns],
       body: tableRows,
       startY: startY,
       styles: {
-        fontSize: 8,
+        fontSize: 9,
         cellPadding: 3,
         lineColor: [44, 62, 80],
-        lineWidth: 0.1
+        lineWidth: 0.1,
+        font: normalFont,
+        fontStyle: 'normal'
       },
       headStyles: {
         fillColor: [52, 152, 219],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 9
+        fontSize: 10,
+        font: boldFont
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245]
       },
-      // Style the totals row
       didParseCell: function (data: any) {
+        // Style the totals row
         if (config.totals && data.row.index === tableRows.length - 1) {
           data.cell.styles.fillColor = [231, 76, 60];
           data.cell.styles.textColor = [255, 255, 255];
           data.cell.styles.fontStyle = 'bold';
         }
+
+        try {
+          data.cell.styles.font = normalFont;
+          data.cell.styles.cellPadding = 3;
+
+          const cellText = data.cell.text ? data.cell.text.join(' ') : '';
+          const hasArabicContent = self.containsArabic(cellText);
+
+          if (hasArabicContent) {
+            data.cell.styles.halign = 'right';
+          } else {
+            data.cell.styles.halign = 'left';
+          }
+        } catch (e) {
+          data.cell.styles.font = 'helvetica';
+          data.cell.styles.halign = 'left';
+        }
       }
     });
 
-    // Save the PDF
     doc.save(this.generateFilename(config, 'pdf'));
   }
 
@@ -239,16 +409,14 @@ export class ReportExportService {
       return;
     }
 
-    // Create workbook and empty worksheet
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     const ws: XLSX.WorkSheet = {};
-
     let currentRow = 1;
 
     // Add business name
     if (config.businessName) {
       XLSX.utils.sheet_add_aoa(ws, [[config.businessName]], { origin: `A${currentRow}` });
-      currentRow += 2; // Skip a row
+      currentRow += 2;
     }
 
     // Add report title
@@ -262,7 +430,7 @@ export class ReportExportService {
       currentRow++;
     }
 
-    currentRow++; // Empty row before data
+    currentRow++;
 
     // Prepare data for Excel
     const exportData: any[] = config.data.map(item => {
@@ -288,12 +456,9 @@ export class ReportExportService {
       exportData.push(totalsRow);
     }
 
-    // Add the data table starting from the current row
     XLSX.utils.sheet_add_json(ws, exportData, { origin: `A${currentRow}` });
-
     XLSX.utils.book_append_sheet(wb, ws, config.title);
 
-    // Save Excel file
     const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     this.saveAsExcelFile(excelBuffer, this.generateFilename(config, 'xlsx'));
   }
@@ -305,7 +470,6 @@ export class ReportExportService {
       return;
     }
 
-    // Create header information
     let csvContent = '';
 
     // Add business name
@@ -322,7 +486,7 @@ export class ReportExportService {
       csvContent += `${dateRange}\n`;
     }
 
-    csvContent += '\n'; // Empty line before data
+    csvContent += '\n';
 
     // Prepare CSV data
     const csvData: any[] = config.data.map(item => {
@@ -348,14 +512,10 @@ export class ReportExportService {
       csvData.push(totalsRow);
     }
 
-    // Create worksheet and convert to CSV
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(csvData);
     const dataCSV = XLSX.utils.sheet_to_csv(ws);
-
-    // Combine header and data
     const finalCSV = csvContent + dataCSV;
 
-    // Save CSV file
     const blob = new Blob([finalCSV], { type: 'text/csv;charset=utf-8;' });
     saveAs(blob, this.generateFilename(config, 'csv'));
   }
@@ -373,18 +533,14 @@ export class ReportExportService {
       return;
     }
 
-    // Get date range for header
     const dateRange = this.getDateRange(config.filterForm);
 
-    // Generate HTML for print with framed header
     let printContent = `
       <html>
         <head>
           <title>${config.businessName ? config.businessName + ' - ' : ''}${config.title}</title>
           <style>
             body { font-family: Arial, sans-serif; margin: 20px; }
-
-            /* Framed Header Styles */
             .header-frame {
               border: 1px solid #000;
               padding: 15px;
@@ -394,126 +550,49 @@ export class ReportExportService {
               align-items: center;
               min-height: 60px;
             }
-
-            .header-left {
-              flex: 1;
-            }
-
-            .header-right {
-              flex-shrink: 0;
-              margin-left: 20px;
-            }
-
-            .business-name {
-              font-size: 18px;
-              font-weight: bold;
-              color: #2c3e50;
-              margin-bottom: 5px;
-            }
-
-            .report-title {
-              font-size: 16px;
-              font-weight: bold;
-              color: #2c3e50;
-              margin-bottom: 3px;
-            }
-
-            .date-range {
-              font-size: 12px;
-              color: #7f8c8d;
-            }
-
-            .logo {
-              max-width: 80px;
-              max-height: 60px;
-              object-fit: contain;
-            }
-
-            /* Table Styles */
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-top: 10px;
-            }
-
-            th, td {
-              border: 1px solid #ddd;
-              padding: 8px;
-              text-align: left;
-              font-size: 11px;
-            }
-
-            th {
-              background-color: #3498db;
-              color: white;
-              font-weight: bold;
-            }
-
-            tr:nth-child(even) {
-              background-color: #f9f9f9;
-            }
-
-            .totals-row {
-              background-color: #e74c3c !important;
-              color: white !important;
-              font-weight: bold;
-            }
-
-            .totals-row td {
-              font-weight: bold;
-            }
-
-            @media print {
-              body { margin: 0; }
-              .header-frame { page-break-inside: avoid; }
-            }
+            .header-left { flex: 1; }
+            .header-right { flex-shrink: 0; margin-left: 20px; }
+            .business-name { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
+            .report-title { font-size: 16px; font-weight: bold; color: #2c3e50; margin-bottom: 3px; }
+            .date-range { font-size: 12px; color: #7f8c8d; }
+            .logo { max-width: 80px; max-height: 60px; object-fit: contain; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 11px; }
+            th { background-color: #3498db; color: white; font-weight: bold; }
+            tr:nth-child(even) { background-color: #f9f9f9; }
+            .totals-row { background-color: #e74c3c !important; color: white !important; font-weight: bold; }
+            .totals-row td { font-weight: bold; }
+            @media print { body { margin: 0; } .header-frame { page-break-inside: avoid; } }
           </style>
         </head>
         <body>
           <div class="header-frame">
             <div class="header-left">`;
 
-    // Add business name
     if (config.businessName) {
       printContent += `<div class="business-name">${config.businessName}</div>`;
     }
 
-    // Add report title
     printContent += `<div class="report-title">${config.title}</div>`;
 
-    // Add date range
     if (dateRange) {
       printContent += `<div class="date-range">${dateRange}</div>`;
     }
 
-    printContent += `
-            </div>
-            <div class="header-right">`;
+    printContent += `</div><div class="header-right">`;
 
-    // Add business logo if available
     if (config.businessLogoURL) {
       printContent += `<img src="${config.businessLogoURL}" alt="Business Logo" class="logo" />`;
     }
 
-    printContent += `
-            </div>
-          </div>
+    printContent += `</div></div><table><thead><tr>`;
 
-          <table>
-            <thead>
-              <tr>`;
-
-    // Add table headers
     config.columns.forEach(col => {
       printContent += `<th>${col.header}</th>`;
     });
 
-    printContent += `
-              </tr>
-            </thead>
-            <tbody>`;
+    printContent += `</tr></thead><tbody>`;
 
-    // Add data rows
     config.data.forEach(item => {
       printContent += `<tr>`;
       config.columns.forEach(col => {
@@ -522,7 +601,6 @@ export class ReportExportService {
       printContent += `</tr>`;
     });
 
-    // Add totals row if provided
     if (config.totals) {
       printContent += `<tr class="totals-row">`;
       config.columns.forEach(col => {
@@ -537,18 +615,12 @@ export class ReportExportService {
       printContent += `</tr>`;
     }
 
-    printContent += `
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
+    printContent += `</tbody></table></body></html>`;
 
     printWindow.document.write(printContent);
     printWindow.document.close();
     printWindow.focus();
 
-    // Wait for content to load then print
     setTimeout(() => {
       printWindow.print();
       printWindow.close();

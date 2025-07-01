@@ -1,0 +1,86 @@
+<p-confirmdialog />
+<ng-container #container></ng-container>
+
+<section>
+
+  <!-- Control buttons -->
+  <div class="header-container">
+    <div class="header-btns">
+      <p-splitButton label="Export" icon="pi pi-file-export" [model]="exportItems">
+      </p-splitButton>
+      <button class="add-btn text-center px-4 py-2" (click)="printReport()">
+        <i class="pi pi-print pr-2"></i>Print
+      </button>
+    </div>
+  </div>
+
+  <!-- filter collapse form -->
+  <div class="filter-container container">
+    <app-filter-collapse>
+      <form class="container" [formGroup]="filterForm">
+        <!-- Date range validation error -->
+        <div *ngIf="filterForm.errors?.['dateRangeInvalid'] && filterForm.touched" class="alert alert-danger mt-2">
+          <i class="pi pi-exclamation-triangle mr-2"></i> From Date cannot be later than To Date.
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <app-input-text formControlName="search" placeholder="Global Search" type="text"
+              inputName="Search"></app-input-text>
+          </div>
+
+          <div class="col-md-6">
+            <app-input-text formControlName="created_from" placeholder="YYYY-MM-DD" type="date" inputName="From Date">
+            </app-input-text>
+            <div *ngIf="filterForm.get('created_from')?.invalid && filterForm.get('created_from')?.touched"
+              class="text-danger small mt-1">
+              From Date is required
+            </div>
+          </div>
+          <div class="col-md-6">
+            <app-input-text formControlName="created_to" placeholder="YYYY-MM-DD" type="date" inputName="To Date">
+            </app-input-text>
+            <div *ngIf="filterForm.get('created_to')?.invalid && filterForm.get('created_to')?.touched"
+              class="text-danger small mt-1">
+              To Date is required
+            </div>
+          </div>
+        </div>
+        <div class="btns-group">
+          <button class="btn submit-btn" [disabled]="filterForm.invalid" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </app-filter-collapse>
+  </div>
+
+
+  <!-- report table -->
+  <div class="table-container">
+    <app-data-table (rowSelected)="selectedReportItem = $event" [rowsPerPageOptions]="tableOptions.rowsPerPageOptions"
+      [data]="searchResults.results" [cols]="columns" [totalRecords]="tableOptions.totalRecords"
+      [first]="tableOptions.firstIndex" [rows]="tableOptions.pageSize" [hasContext]="false"
+      (pageChange)="getPaginatedRows($event)">
+
+      <!-- table footer -->
+      <ng-container table-footer *ngIf="monthlyColumns.length > 0">
+        <tr>
+          <td *ngFor="let column of columns">
+            <ng-container class="fw-bold" [ngSwitch]="column.field">
+              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'name'">Totals</span>
+              <span class="fw-bold" style="font-size:14px" *ngSwitchDefault>
+                {{getMonthTotal(column.field)}}
+              </span>
+            </ng-container>
+          </td>
+        </tr>
+      </ng-container>
+
+      <ng-container table-empty-message *ngIf="searchResults.results.length === 0 && tableOptions.totalRecords === 0">
+        No monthly expenses data found for the selected date range. Try adjusting your filter criteria.
+      </ng-container>
+
+      <ng-container table-empty-message *ngIf="searchResults.results.length > 0 && monthlyColumns.length === 0">
+        Expense categories found, but no monthly breakdown data available for the selected period.
+      </ng-container>
+    </app-data-table>
+  </div>
+</section>

@@ -39,7 +39,6 @@ export class AddEditExpensesComponent {
 
   ngOnInit(): void {
     const productId = this._activeRoute.snapshot.paramMap.get('id');
-    console.log(productId);
     if (productId)
       this.productId = productId;
     this.initForm();
@@ -51,7 +50,7 @@ export class AddEditExpensesComponent {
     this._dropdownService.getBrands().subscribe(data => {
       this.brands = data?.results;
     });
-    this._accService.getExpenseCategories().subscribe(data=>{
+    this._accService.getExpenseCategories().subscribe(data => {
       this.expensesCat = data?.results;
     })
     this._dropdownService.getPurities().subscribe(data => {
@@ -113,92 +112,91 @@ export class AddEditExpensesComponent {
   }
 
   private loadExpenseData(expenseId: number | string): void {
-  this._accService.getExpenseById(expenseId).subscribe((expense: any) => {
-    this.addEditExpenseForm.patchValue({
-      total_amount: expense.total_amount,
-      date: expense.date,
-      attachment: expense.attachment,
-      reference_number: expense.reference_number,
-      notes: expense.notes,
-      is_recurring: expense.is_recurring,
-      is_refund: expense.is_refund,
-      expense_as_vat: expense.expense_as_vat,
-      recurring_interval: expense.recurring_interval,
-      recurring_interval_type: expense.recurring_interval_type,
-      recurring_start_date: expense.recurring_start_date,
-      recurring_end_date: expense.recurring_end_date,
-      number_of_recurring_payments: expense.number_of_recurring_payments,
-      branch: expense.branch,
-      business: expense.business,
-      invoice: expense.invoice,
-      purchase_order: expense.purchase_order,
-      user: expense.user,
-      customer: expense.customer,
-      applicable_tax: expense.applicable_tax,
-      category: expense.category,
-      sub_category: expense.sub_category,
-      payment: {
-        amount: expense.payment?.amount,
-        note: expense.payment?.note,
-        paid_date: expense.payment?.paid_date,
-        payment_account: expense.payment?.payment_account,
-        attachment: expense.payment?.attachment,
-        payment_method: expense.payment?.payment_method,
-      }
+    this._accService.getExpenseById(expenseId).subscribe((expense: any) => {
+      this.addEditExpenseForm.patchValue({
+        total_amount: expense.total_amount,
+        date: expense.date,
+        attachment: expense.attachment,
+        reference_number: expense.reference_number,
+        notes: expense.notes,
+        is_recurring: expense.is_recurring,
+        is_refund: expense.is_refund,
+        expense_as_vat: expense.expense_as_vat,
+        recurring_interval: expense.recurring_interval,
+        recurring_interval_type: expense.recurring_interval_type,
+        recurring_start_date: expense.recurring_start_date,
+        recurring_end_date: expense.recurring_end_date,
+        number_of_recurring_payments: expense.number_of_recurring_payments,
+        branch: expense.branch,
+        business: expense.business,
+        invoice: expense.invoice,
+        purchase_order: expense.purchase_order,
+        user: expense.user,
+        customer: expense.customer,
+        applicable_tax: expense.applicable_tax,
+        category: expense.category,
+        sub_category: expense.sub_category,
+        payment: {
+          amount: expense.payment?.amount,
+          note: expense.payment?.note,
+          paid_date: expense.payment?.paid_date,
+          payment_account: expense.payment?.payment_account,
+          attachment: expense.payment?.attachment,
+          payment_method: expense.payment?.payment_method,
+        }
+      });
     });
-  });
-}
+  }
 
   customFields = [
     { name: 'custom_field_1', label: 'Custom Field 1' },
     { name: 'custom_field_2', label: 'Custom Field 2' },
     { name: 'custom_field_3', label: 'Custom Field 3' }
   ];
- 
 
-onSubmit(): void {
-  if (this.addEditExpenseForm.invalid) return;
 
-  const formValue = this.addEditExpenseForm.value;
-  const formData = new FormData();
+  onSubmit(): void {
+    if (this.addEditExpenseForm.invalid) return;
 
-  // Append top-level fields (excluding nested 'payment')
-  Object.keys(formValue).forEach(key => {
-    const value = formValue[key];
+    const formValue = this.addEditExpenseForm.value;
+    const formData = new FormData();
 
-    if (key === 'payment') {
-      // Handle payment group separately below
-      return;
-    }
+    // Append top-level fields (excluding nested 'payment')
+    Object.keys(formValue).forEach(key => {
+      const value = formValue[key];
 
-    if (value !== null && value !== undefined) {
-      formData.append(key, value);
-    }
-  });
+      if (key === 'payment') {
+        // Handle payment group separately below
+        return;
+      }
 
-  // Append nested payment group
-  if (formValue.payment) {
-    Object.keys(formValue.payment).forEach(paymentKey => {
-      const value = formValue.payment[paymentKey];
       if (value !== null && value !== undefined) {
-        formData.append(`payment.${paymentKey}`, value);
+        formData.append(key, value);
+      }
+    });
+
+    // Append nested payment group
+    if (formValue.payment) {
+      Object.keys(formValue.payment).forEach(paymentKey => {
+        const value = formValue.payment[paymentKey];
+        if (value !== null && value !== undefined) {
+          formData.append(`payment.${paymentKey}`, value);
+        }
+      });
+    }
+
+    // Send formData to server
+    const request$ = this.isEditMode && this.productId
+      ? this._accService.updateExpense(this.productId, formData)
+      : this._accService.addExpense(formData);
+
+    request$.subscribe({
+      next: res => {
+        // You may add a redirect or form reset here
+      },
+      error: err => {
+        console.error('Submission error:', err);
       }
     });
   }
-
-  // Send formData to server
-  const request$ = this.isEditMode && this.productId
-    ? this._accService.updateExpense(this.productId, formData)
-    : this._accService.addExpense(formData);
-
-  request$.subscribe({
-    next: res => {
-      console.log(this.isEditMode ? 'Expense updated' : 'Expense created', res);
-      // You may add a redirect or form reset here
-    },
-    error: err => {
-      console.error('Submission error:', err);
-    }
-  });
-}
 }

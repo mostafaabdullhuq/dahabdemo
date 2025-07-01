@@ -29,26 +29,27 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
   tableOptions: DataTableOptions = new DataTableOptions();
   columns: DataTableColumn[] = [
     { field: "created_at", header: "Date", body: (row: any) => this.getRowCreateDate(row) },
-    { field: "reference_number", header: "Invoice Number" },
-    { field: "customer_name", header: "Customer Name" },
-    { field: "phone", header: "Phone Number" },
-    { field: "customer_cpr", header: "CPR Number" },
+    { field: "reference_number", header: "Invoice Number", body: (row: any) => row.reference_number || '-' },
+    { field: "customer_name", header: "Customer Name", body: (row: any) => row.customer_name || '-' },
+    { field: "phone", header: "Phone Number", body: (row: any) => row.phone || '-' },
+    { field: "customer_cpr", header: "CPR Number", body: (row: any) => row.customer_cpr || '-' },
     { field: "gold_value", header: "Gold Value", body: (row: any) => this.getGoldValue(row) },
     { field: "selling_making_charge", header: "Selling Making Charge", body: (row: any) => this.getSellingMakingCharge(row) },
     { field: "cost_making_charge", header: "Cost Making Charge", body: (row: any) => this.getCostMakingCharge(row) },
-    { field: "net_profit", header: "Net Profit", body: (row: any) => this.getNetProfit(row) }
+    { field: "net_profit", header: "Net Profit", body: (row: any) => this.getNetProfit(row) },
   ];
+  currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
   reportTotals: {
     net_profit: number,
     gold_value: number,
     selling_making_charge: number,
-    cost_making_charge: number
+    cost_making_charge: number,
   } = {
       net_profit: 0,
       gold_value: 0,
       selling_making_charge: 0,
-      cost_making_charge: 0
+      cost_making_charge: 0,
     }
 
   exportItems = [
@@ -109,26 +110,28 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
       search: null,
     }, { validators: this.dateRangeValidator });
 
-    // Load data with default current month filter
-    this.getData(this.getFilterObject());
     this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
     this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
+
+    // Load initial data with default current month filter
+    const initialFilter = this.getFilterObject();
+    this.getData(initialFilter);
   }
 
   getGoldValue(row: SalesProfitAnalysusReportResponse) {
-    return parseFloat(row.gold_value || '0').toFixed(3) + ' ' + (row.currency || '');
+    return row.gold_value ? parseFloat(row.gold_value).toFixed(3) + ' ' + (row.currency || '') : '-';
   }
 
   getSellingMakingCharge(row: SalesProfitAnalysusReportResponse) {
-    return parseFloat(row.selling_making_charge || '0').toFixed(3) + ' ' + (row.currency || '');
+    return row.selling_making_charge ? parseFloat(row.selling_making_charge).toFixed(3) + ' ' + (row.currency || '') : '-';
   }
 
   getCostMakingCharge(row: SalesProfitAnalysusReportResponse) {
-    return parseFloat(row.cost_making_charge || '0').toFixed(3) + ' ' + (row.currency || '');
+    return row.cost_making_charge ? parseFloat(row.cost_making_charge).toFixed(3) + ' ' + (row.currency || '') : '-';
   }
 
   getNetProfit(row: SalesProfitAnalysusReportResponse) {
-    return row.net_profit?.toFixed(3) + ' ' + (row.currency || '');
+    return row.net_profit ? row.net_profit.toFixed(3) + ' ' + (row.currency || '') : '-';
   }
 
   private getRowCreateDate(row: SalesProfitAnalysusReportResponse) {
@@ -143,22 +146,38 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
 
     // Calculate the current page based on first index and rows per page
     this.tableOptions.currentPage = Math.floor(data.first / data.rows) + 1;
-    let created_at_range = this.getFilterObject().created_at__range;
 
-    this.getData({
-      created_at_range
-    });
+    // Use stored filter to prevent undefined values during rapid pagination
+    // If no stored filter exists, use current form values as fallback
+    const filterToUse = (this.currentFilter && Object.keys(this.currentFilter).length > 0)
+      ? this.currentFilter
+      : this.getFilterObject();
+
+    this.getData(filterToUse);
   }
 
   private getData(filter: {} = {}) {
-    this.reportsService.getSalesProfitAnalysisReport({
+    // Store the filter for pagination use, but add page info
+    const filterWithPagination = {
       ...filter,
       page: this.tableOptions.currentPage,
       page_size: this.tableOptions.pageSize,
-    }).subscribe(response => {
-      this.searchResults = response;
-      this.tableOptions.totalRecords = response.count;
-      this.updateReportTotals(response.results);
+    };
+
+    // Store the base filter (without pagination) for future pagination calls
+    if (Object.keys(filter).length > 0) {
+      this.currentFilter = { ...filter };
+    }
+
+    this.reportsService.getSalesProfitAnalysisReport(filterWithPagination).subscribe({
+      next: (response) => {
+        this.searchResults = response;
+        this.tableOptions.totalRecords = response.count;
+        this.updateReportTotals(response.results);
+      },
+      error: (error) => {
+        this.toaster.showError('Failed to load sales profit analysis report data. Please try again.');
+      }
     });
   }
 
@@ -178,20 +197,36 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
       return;
     }
 
-    this.getData(this.getFilterObject());
+    // Get the filter object and ensure it's valid
+    const filterObject = this.getFilterObject();
+
+    // Only proceed if we have valid filter data
+    if (filterObject && Object.keys(filterObject).length > 0) {
+      // Reset to first page when searching
+      this.tableOptions.currentPage = 1;
+      this.tableOptions.firstIndex = 0;
+
+      this.getData(filterObject);
+    }
   }
 
   private getFilterObject() {
-    const filterValues = this.filterForm.value;
+    const filterValues = { ...this.filterForm.value }; // Create a copy to avoid mutating original
 
     // replace created_from and created_to with created_at__range (Multiple values may be separated by commas.)
     let filter: any = {};
 
     if (filterValues.created_from && filterValues.created_to) {
-      filter.created_at__range = `${new Date(filterValues.created_from).toISOString()},${new Date(filterValues.created_to).toISOString()}`;
+      // Format dates as YYYY-MM-DD for backend
+      const formatDateForBackend = (dateValue: string): string => {
+        const date = new Date(dateValue);
+        return date.toISOString().split('T')[0];
+      };
+
+      filter.created_at__range = `${formatDateForBackend(filterValues.created_from)},${formatDateForBackend(filterValues.created_to)}`;
     }
 
-    // Remove created_from and created_to from filterValues
+    // Remove created_from and created_to from filterValues copy
     delete filterValues.created_from;
     delete filterValues.created_to;
 
@@ -202,10 +237,12 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
       }
     });
 
-    return {
+    const finalFilter = {
       ...filter,
       ...filterValues
-    }
+    };
+
+    return finalFilter;
   }
 
   updateReportTotals(results: any = []): void {

@@ -30,14 +30,15 @@ export class SalesReportComponent implements OnInit {
   tableOptions: DataTableOptions = new DataTableOptions();
   columns: DataTableColumn[] = [
     { field: "created_at", header: "Date", body: this.getRowCreateDate },
-    { field: "reference_number", header: "Invoice Number" },
-    { field: "customer_name", header: "Customer Name" },
-    { field: "phone", header: "Phone Number" },
-    { field: "customer_cpr", header: "CPR Number" },
+    { field: "reference_number", header: "Invoice Number", body: (row: any) => row.reference_number || '-' },
+    { field: "customer_name", header: "Customer Name", body: (row: any) => row.customer_name || '-' },
+    { field: "phone", header: "Phone Number", body: (row: any) => row.phone || '-' },
+    { field: "customer_cpr", header: "CPR Number", body: (row: any) => row.customer_cpr || '-' },
     { field: "subtotal", header: "Subtotal", body: this.getSubtotal.bind(this) },
     { field: "tax_amount", header: "Tax Amount", body: this.getTaxAmount.bind(this) },
     { field: "total_amount", header: "Total Amount", body: this.getRowTotalAmount.bind(this) },
   ];
+  currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
   reportTotals: {
     total_amount: number,
@@ -108,14 +109,16 @@ export class SalesReportComponent implements OnInit {
       search: null,
     }, { validators: this.dateRangeValidator });
 
-    // Load data with default current month filter
-    this.getData(this.getFilterObject());
     this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
     this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
+
+    // Load initial data with default current month filter
+    const initialFilter = this.getFilterObject();
+    this.getData(initialFilter);
   }
 
   getAmount(amount: string, currency: string) {
-    return (+amount)?.toFixed(3) + ' ' + currency;
+    return amount ? (+amount).toFixed(3) + ' ' + (currency || '') : '-';
   }
 
   getSubtotal(row: SalesReportResponse) {
@@ -142,22 +145,38 @@ export class SalesReportComponent implements OnInit {
 
     // Calculate the current page based on first index and rows per page
     this.tableOptions.currentPage = Math.floor(data.first / data.rows) + 1;
-    let created_at_range = this.getFilterObject().created_at__range;
 
-    this.getData({
-      created_at_range
-    });
+    // Use stored filter to prevent undefined values during rapid pagination
+    // If no stored filter exists, use current form values as fallback
+    const filterToUse = (this.currentFilter && Object.keys(this.currentFilter).length > 0)
+      ? this.currentFilter
+      : this.getFilterObject();
+
+    this.getData(filterToUse);
   }
 
   private getData(filter: {} = {}) {
-    this.reportsService.getSalesReport({
+    // Store the filter for pagination use, but add page info
+    const filterWithPagination = {
       ...filter,
       page: this.tableOptions.currentPage,
       page_size: this.tableOptions.pageSize,
-    }).subscribe(response => {
-      this.searchResults = response;
-      this.tableOptions.totalRecords = response.count;
-      this.updateReportTotals(response.results);
+    };
+
+    // Store the base filter (without pagination) for future pagination calls
+    if (Object.keys(filter).length > 0) {
+      this.currentFilter = { ...filter };
+    }
+
+    this.reportsService.getSalesReport(filterWithPagination).subscribe({
+      next: (response) => {
+        this.searchResults = response;
+        this.tableOptions.totalRecords = response.count;
+        this.updateReportTotals(response.results);
+      },
+      error: (error) => {
+        this.toaster.showError('Failed to load sales report data. Please try again.');
+      }
     });
   }
 
@@ -177,20 +196,36 @@ export class SalesReportComponent implements OnInit {
       return;
     }
 
-    this.getData(this.getFilterObject());
+    // Get the filter object and ensure it's valid
+    const filterObject = this.getFilterObject();
+
+    // Only proceed if we have valid filter data
+    if (filterObject && Object.keys(filterObject).length > 0) {
+      // Reset to first page when searching
+      this.tableOptions.currentPage = 1;
+      this.tableOptions.firstIndex = 0;
+
+      this.getData(filterObject);
+    }
   }
 
   private getFilterObject() {
-    const filterValues = this.filterForm.value;
+    const filterValues = { ...this.filterForm.value }; // Create a copy to avoid mutating original
 
     // replace created_from and created_to with created_at__range (Multiple values may be separated by commas.)
     let filter: any = {};
 
     if (filterValues.created_from && filterValues.created_to) {
-      filter.created_at__range = `${new Date(filterValues.created_from).toISOString()},${new Date(filterValues.created_to).toISOString()}`;
+      // Format dates as YYYY-MM-DD for backend
+      const formatDateForBackend = (dateValue: string): string => {
+        const date = new Date(dateValue);
+        return date.toISOString().split('T')[0];
+      };
+
+      filter.created_at__range = `${formatDateForBackend(filterValues.created_from)},${formatDateForBackend(filterValues.created_to)}`;
     }
 
-    // Remove created_from and created_to from filterValues
+    // Remove created_from and created_to from filterValues copy
     delete filterValues.created_from;
     delete filterValues.created_to;
 
@@ -201,10 +236,12 @@ export class SalesReportComponent implements OnInit {
       }
     });
 
-    return {
+    const finalFilter = {
       ...filter,
       ...filterValues
-    }
+    };
+
+    return finalFilter;
   }
 
   updateReportTotals(results: any = []): void {

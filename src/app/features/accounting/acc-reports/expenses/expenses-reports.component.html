@@ -1,0 +1,27 @@
+<div class="container-fluid">
+  <div class="row">
+    <p-tabs class="col-md-12" value="0">
+      <p-tablist>
+        <p-tab value="0">Total Expenses</p-tab>
+        <p-tab value="1">Monthly Expenses</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <div class="row">
+            <div class="col-md-12">
+              <app-total-expenses></app-total-expenses>
+            </div>
+          </div>
+        </p-tabpanel>
+        <p-tabpanel value="1">
+          <div class="row">
+            <div class="col-md-12">
+              <app-monthly-expenses></app-monthly-expenses>
+            </div>
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</div>

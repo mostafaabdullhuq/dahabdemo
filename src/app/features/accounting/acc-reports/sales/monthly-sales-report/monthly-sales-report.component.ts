@@ -32,6 +32,7 @@ export class MonthlySalesReportComponent implements OnInit {
     { field: "quantity", header: "Quantity", body: (row: any) => this.getQuantity(row) },
     { field: "total_amount", header: "Total Amount", body: (row: any) => this.getFormattedAmount(row) }
   ];
+  currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
   reportTotals: {
     total_amount: number,
@@ -96,18 +97,20 @@ export class MonthlySalesReportComponent implements OnInit {
       search: null,
     }, { validators: this.dateRangeValidator });
 
-    // Load data with default current month filter
-    this.getData(this.getFilterObject());
     this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
     this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
+
+    // Load initial data with default current month filter
+    const initialFilter = this.getFilterObject();
+    this.getData(initialFilter);
   }
 
   getFormattedAmount(row: MonthlyReportResponse) {
-    return parseFloat(row.total_amount || '0').toFixed(3);
+    return row.total_amount ? parseFloat(row.total_amount).toFixed(3) : '-';
   }
 
   getQuantity(row: MonthlyReportResponse) {
-    return row.quantity?.toString() || '0';
+    return row.quantity ? row.quantity.toString() : '-';
   }
 
   getFormattedMonth(row: MonthlyReportResponse) {
@@ -122,22 +125,38 @@ export class MonthlySalesReportComponent implements OnInit {
 
     // Calculate the current page based on first index and rows per page
     this.tableOptions.currentPage = Math.floor(data.first / data.rows) + 1;
-    let created_at_range = this.getFilterObject().created_at__range;
 
-    this.getData({
-      created_at_range
-    });
+    // Use stored filter to prevent undefined values during rapid pagination
+    // If no stored filter exists, use current form values as fallback
+    const filterToUse = (this.currentFilter && Object.keys(this.currentFilter).length > 0)
+      ? this.currentFilter
+      : this.getFilterObject();
+
+    this.getData(filterToUse);
   }
 
   private getData(filter: {} = {}) {
-    this.reportsService.getMonthlyReport({
+    // Store the filter for pagination use, but add page info
+    const filterWithPagination = {
       ...filter,
       page: this.tableOptions.currentPage,
       page_size: this.tableOptions.pageSize,
-    }).subscribe(response => {
-      this.searchResults = response;
-      this.tableOptions.totalRecords = response.count;
-      this.updateReportTotals(response.results);
+    };
+
+    // Store the base filter (without pagination) for future pagination calls
+    if (Object.keys(filter).length > 0) {
+      this.currentFilter = { ...filter };
+    }
+
+    this.reportsService.getMonthlyReport(filterWithPagination).subscribe({
+      next: (response) => {
+        this.searchResults = response;
+        this.tableOptions.totalRecords = response.count;
+        this.updateReportTotals(response.results);
+      },
+      error: (error) => {
+        this.toaster.showError('Failed to load monthly sales report data. Please try again.');
+      }
     });
   }
 
@@ -157,20 +176,36 @@ export class MonthlySalesReportComponent implements OnInit {
       return;
     }
 
-    this.getData(this.getFilterObject());
+    // Get the filter object and ensure it's valid
+    const filterObject = this.getFilterObject();
+
+    // Only proceed if we have valid filter data
+    if (filterObject && Object.keys(filterObject).length > 0) {
+      // Reset to first page when searching
+      this.tableOptions.currentPage = 1;
+      this.tableOptions.firstIndex = 0;
+
+      this.getData(filterObject);
+    }
   }
 
   private getFilterObject() {
-    const filterValues = this.filterForm.value;
+    const filterValues = { ...this.filterForm.value }; // Create a copy to avoid mutating original
 
     // replace created_from and created_to with created_at__range (Multiple values may be separated by commas.)
     let filter: any = {};
 
     if (filterValues.created_from && filterValues.created_to) {
-      filter.created_at__range = `${new Date(filterValues.created_from).toISOString()},${new Date(filterValues.created_to).toISOString()}`;
+      // Format dates as YYYY-MM-DD for backend
+      const formatDateForBackend = (dateValue: string): string => {
+        const date = new Date(dateValue);
+        return date.toISOString().split('T')[0];
+      };
+
+      filter.created_at__range = `${formatDateForBackend(filterValues.created_from)},${formatDateForBackend(filterValues.created_to)}`;
     }
 
-    // Remove created_from and created_to from filterValues
+    // Remove created_from and created_to from filterValues copy
     delete filterValues.created_from;
     delete filterValues.created_to;
 
@@ -181,10 +216,12 @@ export class MonthlySalesReportComponent implements OnInit {
       }
     });
 
-    return {
+    const finalFilter = {
       ...filter,
       ...filterValues
-    }
+    };
+
+    return finalFilter;
   }
 
   updateReportTotals(results: any = []): void {

@@ -29,7 +29,7 @@
           </div>
 
           <div class="col-md-6">
-            <app-input-text formControlName="created_from" placeholder="From Date" type="date" inputName="From Date">
+            <app-input-text formControlName="created_from" placeholder="YYYY-MM-DD" type="date" inputName="From Date">
             </app-input-text>
             <div *ngIf="filterForm.get('created_from')?.invalid && filterForm.get('created_from')?.touched"
               class="text-danger small mt-1">
@@ -37,7 +37,7 @@
             </div>
           </div>
           <div class="col-md-6">
-            <app-input-text formControlName="created_to" placeholder="To Date" type="date" inputName="To Date">
+            <app-input-text formControlName="created_to" placeholder="YYYY-MM-DD" type="date" inputName="To Date">
             </app-input-text>
             <div *ngIf="filterForm.get('created_to')?.invalid && filterForm.get('created_to')?.touched"
               class="text-danger small mt-1">
@@ -74,7 +74,7 @@
       [first]="tableOptions.firstIndex" [rows]="tableOptions.pageSize" [hasContext]="false"
       (pageChange)="getPaginatedRows($event)">
 
-      <ng-container table-footer>
+      <ng-container table-footer *ngIf="tableOptions.totalRecords > 0 && searchResults.results.length > 0">
         <tr>
           <td *ngFor="let column of columns">
             <ng-container class="fw-bold" [ngSwitch]="column.field">

@@ -1,4 +1,4 @@
-import {SalesReportResponse} from '../../features/accounting/acc-reports/sales-reports/sales-reports.models';
+import {SalesReportResponse} from '../../features/accounting/acc-reports/sales/sales-reports.models';
 
 export interface PaginatedResponse<T> {
   count: number;

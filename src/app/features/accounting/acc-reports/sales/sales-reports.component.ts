@@ -7,7 +7,7 @@ import {
 } from './sales-profit-analysis-report/sales-profit-analysis-report.component';
 
 @Component({
-  selector: 'app-sales-reports',
+  selector: 'app-sales',
   imports: [
     Tab,
     TabList,

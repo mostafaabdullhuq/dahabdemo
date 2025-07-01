@@ -24,127 +24,124 @@ export class UserDashboardComponent implements OnInit {
   dataInventry: any;
   dataFinancial: any;
   dataPars: any;
-finacialData:any;
-inventoryData:any;
-transData:any;
-parChartFinancialData:any;
+  finacialData: any;
+  inventoryData: any;
+  transData: any;
+  parChartFinancialData: any;
   optionsInventory: any;
   optionsFinancial: any;
   optionsPar: any;
   platformId = inject(PLATFORM_ID);
-  
-  financialFilterForm!:FormGroup
+
+  financialFilterForm!: FormGroup
   branches: any;
 
 
-  constructor(private _dropdownService: DropdownsService,private _formBuilder: FormBuilder,private cd: ChangeDetectorRef,private _userDashboardServ:UserDashboardService, public permissionService:PermissionService) { }
+  constructor(private _dropdownService: DropdownsService, private _formBuilder: FormBuilder, private cd: ChangeDetectorRef, private _userDashboardServ: UserDashboardService, public permissionService: PermissionService) { }
 
   ngOnInit() {
     this.financialFilterForm = this._formBuilder.group({
-      branch:'',
-      start_date:'',
-      end_date:''
+      branch: '',
+      start_date: '',
+      end_date: ''
     })
-    if(this.permissionService.hasPermission(113)){
-      
-      this._userDashboardServ.getFinancialDashboardData().subscribe(res=>{
+    if (this.permissionService.hasPermission(113)) {
+
+      this._userDashboardServ.getFinancialDashboardData().subscribe(res => {
         this.finacialData = res;
         this.parChartFinancialData = res;
         this.initChartFinance();
         this.initChartPars();
-    });
-    this._userDashboardServ.getInventoryDashboardData().subscribe(res=>{
-      this.inventoryData = res;
-      this.initChartInventory();
-    });
-    this._userDashboardServ.getTransactionsDashboardData().subscribe(res=>{
-      this.transData = res;
-    });
+      });
+      this._userDashboardServ.getInventoryDashboardData().subscribe(res => {
+        this.inventoryData = res;
+        this.initChartInventory();
+      });
+      this._userDashboardServ.getTransactionsDashboardData().subscribe(res => {
+        this.transData = res;
+      });
 
-    this._dropdownService.getBranches().subscribe(res=>{
-      this.branches = res?.results;
-    })
+      this._dropdownService.getBranches().subscribe(res => {
+        this.branches = res?.results;
+      })
     }
-      // Subscribe to form changes
-  this.financialFilterForm.valueChanges.subscribe(() => {
-    this.fetchFinancialData();
-  });
+    // Subscribe to form changes
+    this.financialFilterForm.valueChanges.subscribe(() => {
+      this.fetchFinancialData();
+    });
 
 
   }
- fetchFinancialData() {
-  if (!this.permissionService.hasPermission(113)) return;
+  fetchFinancialData() {
+    if (!this.permissionService.hasPermission(113)) return;
 
-  const formValues = this.financialFilterForm.value;
-  const params = [];
+    const formValues = this.financialFilterForm.value;
+    const params = [];
 
-  if (formValues.branch) {
-    params.push(`branch=${formValues.branch}`);
+    if (formValues.branch) {
+      params.push(`branch=${formValues.branch}`);
+    }
+
+    if (formValues.start_date) {
+      const formattedStartDate = formatDate(formValues.start_date, 'yyyy-MM-dd', 'en-US');
+      params.push(`start_date=${formattedStartDate}`);
+    }
+
+    if (formValues.end_date) {
+      const formattedEndDate = formatDate(formValues.end_date, 'yyyy-MM-dd', 'en-US');
+      params.push(`end_date=${formattedEndDate}`);
+    }
+
+    const query = params.join('&');
+
+    this._userDashboardServ.getFinancialDashboardData(query).subscribe(res => {
+      this.finacialData = res;
+      this.parChartFinancialData = res;
+      this.initChartFinance();
+      this.initChartPars();
+    });
   }
-
-  if (formValues.start_date) {
-    const formattedStartDate = formatDate(formValues.start_date, 'yyyy-MM-dd', 'en-US');
-    params.push(`start_date=${formattedStartDate}`);
+  generateColors(count: number): string[] {
+    const colors: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const hue = (i * 360) / count;
+      colors.push(`hsl(${hue}, 65%, 55%)`);
+    }
+    return colors;
   }
+  initChartFinance() {
+    if (isPlatformBrowser(this.platformId)) {
+      const documentStyle = getComputedStyle(document.documentElement);
+      const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
 
-  if (formValues.end_date) {
-    const formattedEndDate = formatDate(formValues.end_date, 'yyyy-MM-dd', 'en-US');
-    params.push(`end_date=${formattedEndDate}`);
-  }
+      this.dataFinancial = {
+        labels: this.finacialData?.pie_chart_data?.labels,
+        datasets: [
+          {
+            data: this.finacialData?.pie_chart_data?.data,
+            backgroundColor: [
+              '#299D91',
+              '#F0F4F3',
+              '#D9E6E4',
+              '#B8D8D3',
+              '#E8E8E9',
+              '#C1C9C8',
+              '#A0B1B0'
+            ],
+            hoverBackgroundColor: [
+              '#237C77',
+              '#D9E6E4',
+              '#B8D8D3',
+              '#99BCB8',
+              '#D1D3D4',
+              '#A0B1B0',
+              '#7F8D8B'
+            ]
+          }
+        ]
+      };
 
-  const query = params.join('&');
-
-  this._userDashboardServ.getFinancialDashboardData(query).subscribe(res => {
-    this.finacialData = res;
-    this.parChartFinancialData = res;
-    this.initChartFinance();
-    this.initChartPars();
-  });
-}
-generateColors(count: number): string[] {
-  const colors: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const hue = (i * 360) / count;
-    colors.push(`hsl(${hue}, 65%, 55%)`);
-  }
-  return colors;
-}
-initChartFinance() {
-  if (isPlatformBrowser(this.platformId)) {
-    console.log('Labels:', this.finacialData?.pie_chart_data?.labels);
-    console.log('Data:', this.finacialData?.pie_chart_data?.data);
-
-    const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue('--text-color') || '#000';
-
-    this.dataFinancial = {
-      labels: this.finacialData?.pie_chart_data?.labels,
-      datasets: [
-        {
-          data: this.finacialData?.pie_chart_data?.data,
-          backgroundColor: [
-            '#299D91',
-            '#F0F4F3',
-            '#D9E6E4',
-            '#B8D8D3',
-            '#E8E8E9',
-            '#C1C9C8',
-            '#A0B1B0'
-          ],
-          hoverBackgroundColor: [
-            '#237C77',
-            '#D9E6E4',
-            '#B8D8D3',
-            '#99BCB8',
-            '#D1D3D4',
-            '#A0B1B0',
-            '#7F8D8B'
-          ]
-        }
-      ]
-    };
-
-    this.optionsFinancial ={
+      this.optionsFinancial = {
         plugins: {
           legend: {
             labels: {
@@ -155,11 +152,11 @@ initChartFinance() {
         }
       };
 
-    this.cd.markForCheck();
+      this.cd.markForCheck();
+    }
   }
-}
 
-initChartInventory() {
+  initChartInventory() {
     if (isPlatformBrowser(this.platformId)) {
       const documentStyle = getComputedStyle(document.documentElement);
       const textColor = documentStyle.getPropertyValue('--text-color') || '#000'; // fallback to black if undefined
@@ -170,12 +167,12 @@ initChartInventory() {
           {
             data: this.inventoryData?.chart_data?.data,
             backgroundColor: ['#299D91',
-            '#F0F4F3',
-            '#D9E6E4',
-            '#B8D8D3',
-            '#E8E8E9',
-            '#C1C9C8',
-            '#A0B1B0'], // black, white, black
+              '#F0F4F3',
+              '#D9E6E4',
+              '#B8D8D3',
+              '#E8E8E9',
+              '#C1C9C8',
+              '#A0B1B0'], // black, white, black
             hoverBackgroundColor: ['#299D91', '#E8E8E8'] // dark gray, light gray, dark gray
           }
         ]
@@ -195,89 +192,89 @@ initChartInventory() {
       this.cd.markForCheck();
     }
   }
-initChartPars() {
-  if (isPlatformBrowser(this.platformId)) {
-    const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue('--p-text-color');
-    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
-    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+  initChartPars() {
+    if (isPlatformBrowser(this.platformId)) {
+      const documentStyle = getComputedStyle(document.documentElement);
+      const textColor = documentStyle.getPropertyValue('--p-text-color');
+      const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+      const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
 
-    const barChartData = this.parChartFinancialData?.bar_chart_data;
+      const barChartData = this.parChartFinancialData?.bar_chart_data;
 
-    const barColors = [
-      '--p-gray-500',
-      '--p-bluegray-500',
-      '--p-cyan-500',
-      '--p-green-500',
-      '--p-indigo-500'
-    ];
+      const barColors = [
+        '--p-gray-500',
+        '--p-bluegray-500',
+        '--p-cyan-500',
+        '--p-green-500',
+        '--p-indigo-500'
+      ];
 
-    const barDatasets = (barChartData?.bar?.data || []).map((item: any, index: number) => ({
-      type: 'bar',
-      label: item.label,
-      data: item.data,
-      backgroundColor: documentStyle.getPropertyValue(barColors[index % barColors.length]),
-      borderColor: 'white',
-      borderWidth: 2
-    }));
+      const barDatasets = (barChartData?.bar?.data || []).map((item: any, index: number) => ({
+        type: 'bar',
+        label: item.label,
+        data: item.data,
+        backgroundColor: documentStyle.getPropertyValue(barColors[index % barColors.length]),
+        borderColor: 'white',
+        borderWidth: 2
+      }));
 
-    const lineDatasets = (barChartData?.line?.data || []).map((item: any) => ({
-      type: 'line',
-      label: item.label,
-      data: item.data,
-      borderColor: documentStyle.getPropertyValue('--p-orange-500'),
-      borderWidth: 2,
-      fill: false,
-      tension: 0.4,
-      pointRadius: 4,
-      pointBackgroundColor: documentStyle.getPropertyValue('--p-orange-500')
-    }));
+      const lineDatasets = (barChartData?.line?.data || []).map((item: any) => ({
+        type: 'line',
+        label: item.label,
+        data: item.data,
+        borderColor: documentStyle.getPropertyValue('--p-orange-500'),
+        borderWidth: 2,
+        fill: false,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: documentStyle.getPropertyValue('--p-orange-500')
+      }));
 
-    this.dataPars = {
-      labels: barChartData?.labels || [],
-      datasets: [...lineDatasets, ...barDatasets]
-    };
+      this.dataPars = {
+        labels: barChartData?.labels || [],
+        datasets: [...lineDatasets, ...barDatasets]
+      };
 
-    this.optionsPar = {
-      maintainAspectRatio: false,
-      aspectRatio: 0.6,
-      plugins: {
-        legend: {
-          labels: {
-            color: textColor
+      this.optionsPar = {
+        maintainAspectRatio: false,
+        aspectRatio: 0.6,
+        plugins: {
+          legend: {
+            labels: {
+              color: textColor
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
           }
         },
-        tooltip: {
-          mode: 'index',
-          intersect: false
-        }
-      },
-      responsive: true,
-      scales: {
-        x: {
-          stacked: false,
-          ticks: {
-            color: textColorSecondary
+        responsive: true,
+        scales: {
+          x: {
+            stacked: false,
+            ticks: {
+              color: textColorSecondary
+            },
+            grid: {
+              color: surfaceBorder
+            }
           },
-          grid: {
-            color: surfaceBorder
-          }
-        },
-        y: {
-          stacked: false,
-          ticks: {
-            color: textColorSecondary
-          },
-          grid: {
-            color: surfaceBorder
+          y: {
+            stacked: false,
+            ticks: {
+              color: textColorSecondary
+            },
+            grid: {
+              color: surfaceBorder
+            }
           }
         }
-      }
-    };
+      };
 
-    this.cd.markForCheck();
+      this.cd.markForCheck();
+    }
   }
-}
 
 
 }

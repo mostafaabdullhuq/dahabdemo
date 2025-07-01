@@ -26,14 +26,20 @@
           severity="secondary" (onDropdownClick)="onRowClick(rowData)">
         </p-splitButton>
       </td>
-      
+
     </tr>
   </ng-template>
 
   <ng-template pTemplate="emptymessage">
     <tr>
-      <td colspan="100%">No Data Found.</td>
+      <td class="text-center" colspan="100%">
+        <ng-content select="[table-empty-message]">
+          {{ emptyMessage }}
+        </ng-content>
+      </td>
     </tr>
+
+
   </ng-template>
   <!-- FOOTER SLOT (FIXED) -->
   <ng-template pTemplate="footer" let-columns>

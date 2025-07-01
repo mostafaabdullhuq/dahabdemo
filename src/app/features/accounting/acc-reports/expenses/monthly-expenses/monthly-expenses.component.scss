@@ -1,0 +1,60 @@
+::ng-deep .table-container {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  text-align: center;
+  vertical-align: middle;
+  min-width: 120px;
+  font-weight: 600;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  text-align: center;
+  vertical-align: middle;
+  min-width: 120px;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td:first-child {
+  text-align: left;
+  font-weight: 500;
+  min-width: 200px;
+  max-width: 250px;
+  position: sticky;
+  left: 0;
+  background-color: #fff;
+  z-index: 1;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+  text-align: left;
+  min-width: 200px;
+  max-width: 250px;
+  position: sticky;
+  left: 0;
+  background-color: #f8f9fa;
+  z-index: 2;
+}
+
+::ng-deep .p-datatable .p-datatable-tfoot > tr > td {
+  text-align: center;
+  font-weight: bold;
+  background-color: #f8f9fa;
+}
+
+::ng-deep .p-datatable .p-datatable-tfoot > tr > td:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background-color: #f8f9fa;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child,
+  ::ng-deep .p-datatable .p-datatable-tbody > tr > td:first-child,
+  ::ng-deep .p-datatable .p-datatable-tfoot > tr > td:first-child {
+    position: static;
+  }
+}

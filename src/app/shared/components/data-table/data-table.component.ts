@@ -3,7 +3,7 @@ import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-data-table',
-  standalone:false,
+  standalone: false,
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss'
 })
@@ -11,33 +11,34 @@ export class DataTableComponent implements OnInit {
   @Input() data!: any[];
   @Input() rowsPerPageOptions: any[] = [10, 25, 50];
   @Input() cols!: any[];
-  @Input() hasContext:boolean = true;
+  @Input() hasContext: boolean = true;
   @Input() totalRecords!: number;
   @Input() first!: number;
   @Input() rows!: number;
   @Output() pageChange: EventEmitter<any> = new EventEmitter();
   @Input() contextMenuItems: MenuItem[] = [];
-  @Input() paginator :boolean = true
+  @Input() paginator: boolean = true
+  @Input() emptyMessage: string = "No Data Found."
   selectedRow: any;
-@Output() rowSelected = new EventEmitter<any>();
+  @Output() rowSelected = new EventEmitter<any>();
 
-@Input() getRowData?: (row: any) => MenuItem[]; // Optional function if parent wants dynamic rows
+  @Input() getRowData?: (row: any) => MenuItem[]; // Optional function if parent wants dynamic rows
 
-getActions(rowData: any): MenuItem[] {
-  if (this.getRowData) {
-    return this.getRowData(rowData);
+  getActions(rowData: any): MenuItem[] {
+    if (this.getRowData) {
+      return this.getRowData(rowData);
+    }
+    return this.contextMenuItems;
   }
-  return this.contextMenuItems;
-}
-onContextMenuRowSelect(row: any) {
-  this.selectedRow = row;
-  this.rowSelected.emit(row);
-}
+  onContextMenuRowSelect(row: any) {
+    this.selectedRow = row;
+    this.rowSelected.emit(row);
+  }
 
-onRowClick(row: any) {
-  this.selectedRow = row;
-  this.rowSelected.emit(row);
-}
+  onRowClick(row: any) {
+    this.selectedRow = row;
+    this.rowSelected.emit(row);
+  }
   ngOnInit() {
   }
 
@@ -59,6 +60,6 @@ onRowClick(row: any) {
     return field.split('.').reduce((obj, key) => (obj ? obj[key] : null), data);
   }
 
-  
+
 }
 
