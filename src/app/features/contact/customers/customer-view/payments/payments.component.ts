@@ -10,7 +10,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.scss'
 })
-export class PaymentsComponent implements OnInit{
+export class PaymentsComponent implements OnInit {
   transData: any = [];
   @Input() customerId: any = '';
   cols: any[] = [];
@@ -23,13 +23,27 @@ export class PaymentsComponent implements OnInit{
     if (this.customerId) {
       this.getPayments(this.customerId)
     }
-    
+
     this.cols = [
       { field: "reference_number", header: "ID" },
       { field: "payment_date", header: "Date" },
-      { field: "payment_method", header: "Payment Method" },
+      { field: "payment_method_name", header: "Payment Method" },
       { field: "amount", header: "Amount" },
       { field: "transaction_type", header: "Transaction Type" },
+      {
+        field: "payment_status", header: "Payment Status", body: (row: any) => {
+          return `
+        <strong>Remaining:</strong>
+        <span>${row.remaining_balance}</span>
+        <br>
+        <strong>Paid:</strong>
+        <span>${row.total_paid_amount}</span>
+        <br>
+        <strong>Due:</strong>
+        <span>${row.total_due_amount}</span>
+        `
+        }
+      },
     ];
     this.filterForm = this._formBuilder.group({
       search: '',

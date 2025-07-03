@@ -32,13 +32,13 @@ export class GoldReceiptPosComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   defualtVat = 0;
   shiftData: any = [];
-      menuItem: MenuItem[] = [];
-  
+  menuItem: MenuItem[] = [];
+
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
     , private _posGoldReceiptService: PosGoldReceiptService
   ) { }
-  isShiftActive:boolean = false;
+  isShiftActive: boolean = false;
 
   ngOnInit(): void {
     const customerID = sessionStorage.getItem('customer')
@@ -51,32 +51,32 @@ export class GoldReceiptPosComponent implements OnInit, OnDestroy {
       amount_with_tax: [{ value: 0, disabled: true }],
       description: [''],
       attachment: [''],
-      tax: [{ value: 0, disabled: true } ],
+      tax: [{ value: 0, disabled: true }],
     })
 
     this._dropdownService.getPurities().subscribe((res) => {
       this.purities = res?.results;
     });
     this.getPurchaseOrders()
-this._posStatusService.shiftData$
-  .pipe(takeUntil(this.destroy$))
-  .subscribe(data => {
-    this.shiftData = data;
+    this._posStatusService.shiftData$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.shiftData = data;
 
-    if (this.shiftData?.is_active) {
-      this._posService.getGoldPrice(this.shiftData.branch).subscribe(res => {
-        this.manualGoldPrice = res?.manual_gold_price;
+        if (this.shiftData?.is_active) {
+          this._posService.getGoldPrice(this.shiftData.branch).subscribe(res => {
+            this.manualGoldPrice = res?.manual_gold_price;
+          });
+
+          this._posService.getBranchTax(this.shiftData.branch).subscribe(res => {
+            const taxRate = res?.tax_rate || 0;
+            this.productForm.get('tax')?.patchValue(taxRate);
+
+            // 🔁 Set up dynamic calculation
+            this.listenToAmountAndTax();
+          });
+        }
       });
-
-      this._posService.getBranchTax(this.shiftData.branch).subscribe(res => {
-        const taxRate = res?.tax_rate || 0;
-        this.productForm.get('tax')?.patchValue(taxRate);
-
-        // 🔁 Set up dynamic calculation
-        this.listenToAmountAndTax();
-      });
-    }
-  });
 
     this._posSharedService.selectedCurrency$
       .subscribe(currency => {
@@ -85,7 +85,7 @@ this._posStatusService.shiftData$
         } else {
           this.selectedCurrency = sessionStorage.getItem('currency') ?? null;
         }
-        
+
       });
 
     this.productForm.get('product_id')?.valueChanges
@@ -98,12 +98,12 @@ this._posStatusService.shiftData$
         this.onProductSelected(productId);
       });
     this._posGoldReceiptService.fetchGoldReceiptProducts();
- this._posStatusService.shiftActive$
+    this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
         this.isShiftActive = status;
       });
-        this.menuItem = [
+    this.menuItem = [
       {
         label: 'Delete',
         icon: 'pi pi-trash',
@@ -112,7 +112,7 @@ this._posStatusService.shiftData$
         }
       }
     ];
-      
+
   }
   getPurchaseOrders() {
     this._posGoldReceiptService.goldReceiptProducts$.subscribe(res => {
@@ -139,11 +139,11 @@ this._posStatusService.shiftData$
         }
       });
   }
-  selectedRowData:any
-      onRowClick(rowData: any): void {
+  selectedRowData: any
+  onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
   }
-        removeItem(id: any) {
+  removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
         this._posGoldReceiptService.fetchGoldReceiptProducts();
@@ -151,45 +151,42 @@ this._posStatusService.shiftData$
     })
   }
   private listenToAmountAndTax(): void {
-  combineLatest([
-    this.productForm.get('amount')!.valueChanges.pipe(startWith(this.productForm.get('amount')?.value || 0)),
-    this.productForm.get('tax')!.valueChanges.pipe(startWith(this.productForm.get('tax')?.value || 0)),
-  ])
-  .pipe(takeUntil(this.destroy$))
-  .subscribe(([amount, taxRate]) => {
-    const numericAmount = +amount || 0;
-    const numericTax = +taxRate || 0;
-    const amountWithTax = numericAmount + (numericAmount * numericTax / 100);
+    combineLatest([
+      this.productForm.get('amount')!.valueChanges.pipe(startWith(this.productForm.get('amount')?.value || 0)),
+      this.productForm.get('tax')!.valueChanges.pipe(startWith(this.productForm.get('tax')?.value || 0)),
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([amount, taxRate]) => {
+        const numericAmount = +amount || 0;
+        const numericTax = +taxRate || 0;
+        const amountWithTax = numericAmount + (numericAmount * numericTax / 100);
 
-    this.productForm.get('amount_with_tax')?.patchValue(amountWithTax.toFixed(2), { emitEvent: false });
-  });
-}
+        this.productForm.get('amount_with_tax')?.patchValue(amountWithTax.toFixed(2), { emitEvent: false });
+      });
+  }
   totalAmount(): number {
-  return this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
-    const amount = parseFloat(group.amount) || 0;
-    return sum + amount;
-  }, 0);
-}
-updateGoldReceiptTotals(): void {
-  const totalPrice = this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
-    const amount = parseFloat(group.amount) || 0;
-    return sum + amount;
-  }, 0);
+    return this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
+      const amount = parseFloat(group.amount) || 0;
+      return sum + amount;
+    }, 0);
+  }
+  updateGoldReceiptTotals(): void {
+    const totalPrice = this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
+      const amount = parseFloat(group.amount) || 0;
+      return sum + amount;
+    }, 0);
 
-  const totalGrand = this.purchaseTableData.reduce((sum: number, group: { amount: string, tax: string }) => {
-    const amount = parseFloat(group.amount) || 0;
-    const taxPercent = parseFloat(group.tax) || 0;
-    const taxAmount = (amount * taxPercent) / 100;
-    this._posSharedService.setGoldReceiptTotalTax(taxAmount)
-    return sum + amount + taxAmount;
-  }, 0);
+    const totalGrand = this.purchaseTableData.reduce((sum: number, group: { amount: string, tax: string }) => {
+      const amount = parseFloat(group.amount) || 0;
+      const taxPercent = parseFloat(group.tax) || 0;
+      const taxAmount = (amount * taxPercent) / 100;
+      this._posSharedService.setGoldReceiptTotalTax(taxAmount)
+      return sum + amount + taxAmount;
+    }, 0);
 
-  this._posSharedService.setGoldReceiptTotalPrice(totalPrice);
-  this._posSharedService.setGoldReceiptTotalGrand(totalGrand);
-
-  console.log('Gold Receipt Total Price:', totalPrice);
-  console.log('Gold Receipt Total Grand:', totalGrand);
-}
+    this._posSharedService.setGoldReceiptTotalPrice(totalPrice);
+    this._posSharedService.setGoldReceiptTotalGrand(totalGrand);
+  }
   onSubmit(): void {
     this.productForm.get('tax')?.enable();
     if (this.productForm.invalid) return;
@@ -219,7 +216,8 @@ updateGoldReceiptTotals(): void {
         this.getPurchaseOrders(); // Refresh data
         this.productForm.get('tax')?.disable();
       },
-      error: (err) => console.error('Error submitting', err)
+      error: (err) => console.log("error while adding gold receipt product: ", err)
+
     });
   }
 

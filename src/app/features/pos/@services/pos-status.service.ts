@@ -1,26 +1,27 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { PosService } from './pos.service';
+import { ShiftData } from '../interfaces/pos.interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PosStatusService {
+export class PosStatusService implements OnInit {
   private shiftActiveSubject = new BehaviorSubject<boolean>(false);
   shiftActive$: Observable<boolean> = this.shiftActiveSubject.asObservable();
-  private shiftDataSubject = new BehaviorSubject<any>(null);
-shiftData$ = this.shiftDataSubject.asObservable();
+  private shiftDataSubject = new BehaviorSubject<ShiftData | null>(null);
+  shiftData$ = this.shiftDataSubject.asObservable();
 
-get shiftData() {
-  return this.shiftDataSubject.value;
-}  constructor(private posService: PosService) {
-    this.checkShiftStatus(); // Initial load on service creation
+  constructor(private posService: PosService) { }
+
+  ngOnInit(): void {
+    this.updateShiftStatus(); // Initial load on service creation
   }
 
-  checkShiftStatus(): void {
+  updateShiftStatus(): void {
     this.posService.shiftStatus().subscribe({
       next: (res: any) => {
-        this.shiftActiveSubject.next(res.is_active);
+        this.shiftActiveSubject.next(res?.is_active ?? false);
         this.shiftDataSubject.next(res);
       },
       error: () => {
@@ -32,5 +33,13 @@ get shiftData() {
 
   setShiftStatus(status: boolean): void {
     this.shiftActiveSubject.next(status);
+  }
+
+  get shiftData() {
+    return this.shiftDataSubject.value;
+  }
+
+  setShiftData(shiftData: ShiftData | null) {
+    this.shiftDataSubject.next(shiftData);
   }
 }

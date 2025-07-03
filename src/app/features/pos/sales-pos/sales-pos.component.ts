@@ -8,6 +8,7 @@ import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { MenuItem } from 'primeng/api';
 import { SetDiscountComponent } from './set-discount/set-discount.component';
+import { Currency, Tax } from '../interfaces/pos.interfaces';
 
 @Component({
   selector: 'app-sales-pos',
@@ -16,21 +17,30 @@ import { SetDiscountComponent } from './set-discount/set-discount.component';
   styleUrl: './sales-pos.component.scss'
 })
 export class SalesPosComponent implements OnInit, OnDestroy {
+  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
+  private destroy$ = new Subject<void>();
+
   products: any = [];
   productForm!: FormGroup;
   salesDataOrders: any = [];
   cols: any = [];
   selectedVat: any = ''
-  taxes: any = [];
+  taxes: Tax[] = [];
   salesProduct: any = [];
   menuItem: MenuItem[] = [];
   manualGoldPrice = '';
-  selectedCurrency: any = ''
-  private destroy$ = new Subject<void>();
+  selectedCurrency: Currency | null = null
   defualtVat = 0;
   shiftData: any = [];
-  isSelectedCustomerAndCurrency:boolean = true; 
+  isSelectedCustomerAndCurrency: boolean = true;
   selectedVatId: any = null;
+  priceOfProductToPatch: any = 0;
+  isShiftActive: boolean = false;
+  selectedRowData: any = [];
+  componentRef!: ComponentRef<SetDiscountComponent>;
+
+
+
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
   ) { }
@@ -40,13 +50,15 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     this.productForm = this._formBuilder.group({
       product_id: ['', Validators.required]
     })
+
     this.getProductList()
+
     // this._posService.getProductSalesList().subscribe((res) => {
     //   this.products = res?.results;
     // });
     this._dropdownService.getTaxes().subscribe((res) => {
-      this.taxes = res?.results;
-      this.selectedVatId = this.taxes[0].id; // Set first VAT as default
+      this.taxes = res?.results || [];
+      this.selectedVatId = this.taxes[0]?.id; // Set first VAT as default
     });
     this.getSalesOrder()
     this._posStatusService.shiftData$
@@ -61,12 +73,9 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       });
 
     this._posSharedService.selectedCurrency$
+      .pipe(takeUntil(this.destroy$))
       .subscribe(currency => {
-        if (currency) {
-          this.selectedCurrency = currency;
-        } else {
-          this.selectedCurrency = null;
-        }
+        this.selectedCurrency = currency;
       });
 
     this.productForm.get('product_id')?.valueChanges
@@ -82,8 +91,10 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
-        if (!status)
-          this.selectedCurrency = ''
+        this.isShiftActive = status;
+        if (!status) {
+          this.selectedCurrency = null;
+        }
       });
 
     this.menuItem = [
@@ -102,36 +113,34 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         }
       }
     ];
-this._posStatusService.shiftActive$
+    this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
         this.isShiftActive = status;
       });
 
-      this._posSharedService.orderPlaced$.subscribe(() => {
-    this.getProductList();
-  });
+    this._posSharedService.orderPlaced$.subscribe(() => {
+      this.getProductList();
+    });
   }
-  isShiftActive:boolean = false;
-  selectedRowData: any = [];
-    componentRef!: ComponentRef<SetDiscountComponent>;
-  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
   setDiscount(id: any) {
-     this.container.clear();
-        this.componentRef = this.container.createComponent(SetDiscountComponent);
-        this.componentRef.instance.selectedRowId= id;
-        this.componentRef.instance.visible = true;
+    this.container.clear();
+    this.componentRef = this.container.createComponent(SetDiscountComponent);
+    this.componentRef.instance.selectedRowId = id;
+    this.componentRef.instance.visible = true;
   }
+
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
   }
+
   getSalesOrder() {
     this._posSalesService._salesReciepts$
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         this.salesDataOrders = res;
-        if(this.salesDataOrders.length == 0){
+        if (this.salesDataOrders.length == 0) {
           this._posSharedService.setTotalPrice(0)
           this._posSharedService.setVat(0)
           this._posSharedService.setGrandTotalWithVat(0)
@@ -145,15 +154,16 @@ this._posStatusService.shiftActive$
     // initial load
     this._posSalesService.getSalesOrdersFromServer();
   }
+
   getProductList() {
     this._posService.getProductSalesList().subscribe((res) => {
-      //this.products = res?.results;
       this.products = res?.results.map((product: { name: any; tag_number: any; }) => ({
         ...product,
         displayLabel: ` ${product.tag_number} | ${product.name}`
       }));
     });
   }
+
   removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
@@ -162,10 +172,11 @@ this._posStatusService.shiftActive$
       error: () => { },
       complete: () => {
         this.getProductList();
-        
+
       }
     })
   }
+
   calcGoldPriceAccordingToPurity(group: any): number {
     if (
       !this.manualGoldPrice ||
@@ -176,7 +187,7 @@ this._posStatusService.shiftActive$
       return 0;
     }
 
-    const baseValue = (+this.manualGoldPrice / 31.10348) * 0.378;
+    const baseValue = (+this.manualGoldPrice);
     let purityFactor = 1;
 
     switch (group.purity) {
@@ -199,18 +210,18 @@ this._posStatusService.shiftActive$
     const goldPrice = baseValue * purityFactor * group.purity_value;
 
     // Format based on selected currency decimal point
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
     return +goldPrice.toFixed(decimalPlaces);
   }
 
   calcMetalValueAccordingToPurity(group: any) {
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     const metalValue = this.calcGoldPriceAccordingToPurity(group) * group?.weight;
     this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
     return +metalValue.toFixed(decimalPlaces);
   }
-priceOfProductToPatch:any = 0;
+
 
   calcTotalPrice(group: any): number {
     this.priceOfProductToPatch = 0;
@@ -235,42 +246,46 @@ priceOfProductToPatch:any = 0;
 
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
 
-this.priceOfProductToPatch = +total.toFixed(decimalPlaces);
+    this.priceOfProductToPatch = +total.toFixed(decimalPlaces);
 
     return +total.toFixed(decimalPlaces);
   }
-onVatChange(vatId: number, group: any): void {
-  group.selectedVat = vatId;
 
-  const vat = this.taxes.find((t: { id: number }) => t.id === vatId);
-  const vatRate = vat?.rate || 0;
+  onVatChange(vatId: number, group: any): void {
+    group.selectedVat = vatId;
 
-  // Patch VAT rate into the form
-  this.productForm.get('vat')?.patchValue(vatRate);
+    const vat = this.taxes.find((t: { id: number }) => t.id === vatId);
+    const vatRate = vat?.rate || 0;
 
-  // Recalculate grand total with VAT
-  this.calcGrandTotalWithVat();
+    // Patch VAT rate into the form
+    this.productForm.get('vat')?.patchValue(vatRate);
 
-  // Track if it's the first or second+ selection
-  if (!group._vatSelectedOnce) {
-    group._vatSelectedOnce = true; // first time, don't send
-  } else {
-    // second time or more, send to backend
-    const pId = group?.id;
-    const form = this._formBuilder.group({
-      vat_amount: [vatRate]
-    });
-    this._posService.setDiscountProductSale(pId, form.value).subscribe();
+    // Recalculate grand total with VAT
+    this.calcGrandTotalWithVat();
+
+    // Track if it's the first or second+ selection
+    if (!group._vatSelectedOnce) {
+      group._vatSelectedOnce = true; // first time, don't send
+    } else {
+      // second time or more, send to backend
+      const pId = group?.id;
+      const form = this._formBuilder.group({
+        vat_amount: [vatRate]
+      });
+      this._posService.setDiscountProductSale(pId, form.value).subscribe();
+    }
   }
-}
+
   calcTotalPriceWithVat(group: any): number {
     this.priceOfProductToPatch = 0
     const baseTotal = this.calcTotalPrice(group);
-    const vatRate = +this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat)?.rate || 0;
+    const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat);
+    const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
     const vatAmount = (vatRate / 100) * baseTotal;
     const totalVat = this.salesDataOrders.reduce((acc: number, group: any) => {
       const baseTotal = this.calcTotalPrice(group); // your existing method
-      const vatRate = +this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat)?.rate || 0;
+      const selectedTax = this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat);
+      const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
       const vatAmount = (vatRate / 100) * baseTotal;
       return acc + vatAmount;
     }, 0);
@@ -281,6 +296,7 @@ onVatChange(vatId: number, group: any): void {
     const totalWithVat = baseTotal + vatAmount;
     return +totalWithVat.toFixed(decimalPlaces);
   }
+
   calcGrandTotalWithVat(): number {
     if (!this.salesDataOrders || this.salesDataOrders.length === 0) return 0;
 
@@ -293,73 +309,49 @@ onVatChange(vatId: number, group: any): void {
 
     return +total.toFixed(decimalPlaces);
   }
-  // onProductSelected(productId: number): void {
-  //   const selectedProduct = this.products.find((p: any) => p.id === productId);
-  //   if (!selectedProduct) return;    
-  //   const payload = {
-  //     product: selectedProduct.id,
-  //     amount: this.priceOfProductToPatch //selectedProduct.retail_making_charge
-  //   };
 
-  //   this._posService.addProductSale(payload)
-  //     .subscribe({
-  //       next: res => {
-  //         this._posSalesService.getSalesOrdersFromServer();
-  //       },
-  //       error: err => {
-  //         console.error('Error posting product', err);
-  //       }
-  //     });
-  // }
+  onProductSelected(productId: number): void {
+    const selectedProduct = this.products.find((p: any) => p.id === productId);
+    if (!selectedProduct) return;
+    this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
+      const branchTaxNo = res?.tax_rate || 0;
+      const tempGroup = {
+        purity: selectedProduct.purity_name,
+        price: selectedProduct.price,
+        purity_value: selectedProduct.purity_value,
+        weight: selectedProduct.weight,
+        stones: selectedProduct.stones || [],
+        retail_making_charge: selectedProduct.retail_making_charge,
+        discount: selectedProduct.discount || 0,
+        max_discount: selectedProduct.max_discount,
+        selectedVat: this.selectedVatId
+      };
 
- onProductSelected(productId: number): void {
- const selectedProduct = this.products.find((p: any) => p.id === productId);
-  if (!selectedProduct) return;
-this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
-        const branchTaxNo = res?.tax_rate || 0;
-          const tempGroup = {
-    purity: selectedProduct.purity_name,
-    price: selectedProduct.price,
-    purity_value: selectedProduct.purity_value,
-    weight: selectedProduct.weight,
-    stones: selectedProduct.stones || [],
-    retail_making_charge: selectedProduct.retail_making_charge,
-    discount: selectedProduct.discount || 0,
-    max_discount: selectedProduct.max_discount,
-    selectedVat: this.selectedVatId
-  };
+      const goldPrice = this.calcGoldPriceAccordingToPurity(tempGroup);
+      const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
+      const totalPrice = this.calcTotalPrice(tempGroup);
+      const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
 
-  const goldPrice = this.calcGoldPriceAccordingToPurity(tempGroup);
-  const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
-  const totalPrice = this.calcTotalPrice(tempGroup);
-  const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
+      const payload = {
+        product: selectedProduct.id,
+        amount: totalPrice,
+        vat_amount: branchTaxNo,
+        metal_value: metalValue
+      };
 
-  console.log('[DEBUG] Calculated Prices:', {
-    goldPrice,
-    totalPrice,
-    totalWithVat
-  });
-
-  const payload = {
-    product: selectedProduct.id,
-    amount: totalPrice,
-    vat_amount:branchTaxNo
-  };
-
-  console.log('[DEBUG] Payload to send:', payload);
-  this._posService.addProductSale(payload).subscribe({
-    next: res => {
-      this._posSalesService.getSalesOrdersFromServer(); // Refresh after post
-    },
-    error: err => {
-      console.error('Error posting product', err);
-    },
-    complete:() =>{
-      this.getProductList()
-    }
-  });
+      this._posService.addProductSale(payload).subscribe({
+        next: res => {
+          this._posSalesService.getSalesOrdersFromServer(); // Refresh after post
+        },
+        error: err => {
+          console.error('Error posting product', err);
+        },
+        complete: () => {
+          this.getProductList()
+        }
       });
-}
+    });
+  }
 
   get totalPrice(): number {
     const total = this.salesDataOrders.reduce((sum: number, group: any) => {
@@ -373,6 +365,7 @@ this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
 
     return formattedTotal;
   }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

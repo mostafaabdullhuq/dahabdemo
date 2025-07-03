@@ -1,33 +1,78 @@
-@use 'variables' as *; 
+@use "variables" as *;
 
-.btns-group{
-    width: 100%;
-    display: flex;
-    justify-content: end;
-    align-items: center;
-    margin-top: 10px;
-    .submit-btn{
-        background-color: $btn-primary-bg !important;
-        border-color: $btn-primary-bg !important;
-        color: $text-inverse !important;
-        transition: $transition-base;
-        padding: 5px 15px;
-        border-radius: 15px;
-        &:hover {
-          background-color: $btn-primary-hover !important;
-          border-color: $btn-primary-hover !important;
-        }
+.btns-group {
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  margin-top: 10px;
+  .submit-btn {
+    background-color: $btn-primary-bg !important;
+    border-color: $btn-primary-bg !important;
+    color: $text-inverse !important;
+    transition: $transition-base;
+    padding: 5px 15px;
+    border-radius: 15px;
+    &:hover {
+      background-color: $btn-primary-hover !important;
+      border-color: $btn-primary-hover !important;
     }
-    .delete-btn{
-        background-color: #dc2626 !important;
-        border-color: #dc2626 !important;
-        color: $text-inverse !important;
-        transition: $transition-base;
-        padding: 5px 15px;
-        border-radius: 15px;
-        &:hover {
-          background-color: #dc2626ca !important;
-          border-color: #dc2626ca !important;
-        }
+  }
+
+  .submit-btn:disabled {
+    background-color: $btn-disabled-bg !important;
+    border-color: $btn-primary-bg !important;
+    color: $text-inverse !important;
+    transition: $transition-base;
+    padding: 5px 15px;
+    border-radius: 15px;
+  }
+
+  .delete-btn {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: $text-inverse !important;
+    transition: $transition-base;
+    padding: 5px 15px;
+    border-radius: 15px;
+    &:hover {
+      background-color: #dc2626ca !important;
+      border-color: #dc2626ca !important;
     }
+  }
+}
+
+.submit-btn {
+  background-color: $btn-primary-bg !important;
+  border-color: $btn-primary-bg !important;
+  color: $text-inverse !important;
+  transition: $transition-base;
+  padding: 5px 15px;
+  border-radius: 15px;
+  &:hover {
+    background-color: $btn-primary-hover !important;
+    border-color: $btn-primary-hover !important;
+  }
+}
+
+.submit-btn:disabled {
+  background-color: $btn-disabled-bg !important;
+  border-color: $btn-primary-bg !important;
+  color: $text-inverse !important;
+  transition: $transition-base;
+  padding: 5px 15px;
+  border-radius: 15px;
+}
+
+.delete-btn {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: $text-inverse !important;
+  transition: $transition-base;
+  padding: 5px 15px;
+  border-radius: 15px;
+  &:hover {
+    background-color: #dc2626ca !important;
+    border-color: #dc2626ca !important;
+  }
 }

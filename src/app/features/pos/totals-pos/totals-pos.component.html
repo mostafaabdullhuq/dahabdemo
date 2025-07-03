@@ -1,97 +1,105 @@
 <ng-container #container></ng-container>
 <div class="container border border-1 rounded-4 vh-100 py-3">
-    @if (isShiftActive) {
-        <form [formGroup]="totalForm" (ngSubmit)="onPlaceOrder()">
-    
-            <!-- Customer & Currency Selection -->
-            <div class="row mb-4">
-                <div class="col-md-11 mb-3 me-0 pe-0">
-                    <app-dropdowns [required]="true" label="Customers" formControlName="customer" [options]="customers"
-                        optionLabel="name" optionValue="id" placeholder="Select a customer">
-                    </app-dropdowns>
-                </div>
-                <div class="col-md-1 m-0 p-0">
-                <label class="opacity-0">btn </label>
-                <p-button (onClick)="openAddCustomerPopup()" size="small" class="add-btn white-icon-btn"
-                    [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
-                <ng-template #tooltipContent>
-                    <button [disabled]="selectedCurrency && isShiftActive" class="flex items-center">
-                        Add Customer
-                    </button>
-                </ng-template>
-            </div>
-                <div class="col-md-12">
-                    <app-dropdowns (selectionChange)="onChangeCurrency()" [disabled]="totalVat !=0 || totalWithVat !=0|| totalPrice!=0 || discountAmount!=0" [required]="true" label="Currencies" formControlName="currency" [options]="currencies"
-                        optionLabel="currency_name" optionValue="pk" placeholder="Select a currency">
-                    </app-dropdowns>
-                </div>
-            </div>
-            <hr>
-    
-            <!-- Summary Section -->
-            <div class="row section-form">
-                <div class="col-12">
-                    <ul class="list-unstyled px-3">
-                        <li class="d-flex justify-content-between mb-2">
-                            <span>Sub Total</span>
-                            <span>{{ totalPrice }} {{ selectedCurrency?.currency_code }}</span>
-                        </li>
-                        <li class="d-flex justify-content-between mb-2">
-                            <span>Discount</span>
-                            <span>{{ discountAmount }} {{ selectedCurrency?.currency_code }}</span>
-                        </li>
-                        <li class="d-flex justify-content-between mb-2">
-                            <span>Tax (10%)</span>
-                            <span>{{ totalVat }} {{ selectedCurrency?.currency_code }}</span>
-                        </li>
-                        <hr>
-                        <li class="d-flex justify-content-between fw-bold">
-                            <span>Total</span>
-                            <span>{{ totalWithVat }} {{ selectedCurrency?.currency_code }}</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-    
-            <hr>
-    
-            <!-- Payment Method & Submit -->
-            <div class="row">
-                <div formArrayName="payments">
-                        <div *ngFor="let payment of paymentsControls; let i = index" [formGroupName]="i">
-                            <div class="col-md-12 mb-3">
-                                <app-dropdowns [required]="true" label="Payment Methods" formControlName="payment_method"
-                                    [options]="paymnetMethods" optionLabel="name" optionValue="id"
-                                    placeholder="Select a method">
-                                </app-dropdowns>
-                            </div>
-                        </div>
-                </div>
-    
-                <div class="col-md-12 mb-3 header-btns">
-                    <button type="button" class="submit-btn w-100 add-btn" (click)="openMultiPaymentMethods()">
-                        Multiple Payments
-                    </button>
-                </div>
+  @if (isShiftActive) {
+  <form [formGroup]="totalForm" (ngSubmit)="onPlaceOrder()">
+
+    <!-- Customer & Currency Selection -->
+    <div class="row mb-4">
+      <div class="col-md-11 mb-3 me-0 pe-1">
+        <app-dropdowns [required]="true" label="Customers" formControlName="customer" [options]="customers"
+          (valueCleared)="onCustomerClear()" [showClear]="true" optionLabel="name" optionValue="id"
+          placeholder="Select a customer">
+        </app-dropdowns>
+      </div>
+      <div class="col-md-1 m-0 p-0">
+        <label class="opacity-0">btn </label>
+        <p-button (onClick)="openAddCustomerPopup()" size="small" class="add-btn white-icon-btn"
+          [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
+        <ng-template #tooltipContent>
+          <button [disabled]="selectedCurrency && isShiftActive" class="flex items-center">
+            Add Customer
+          </button>
+        </ng-template>
+      </div>
+
+      <div class="col-md-12">
+        <app-dropdowns [disabled]="totalVat !=0 || totalWithVat !=0|| totalPrice!=0 || discountAmount!=0"
+          [showClear]="true" [required]="true" label="Currencies" formControlName="currency" [options]="currencies"
+          (valueCleared)="onCurrencyClear()" optionLabel="currency_name" optionValue="pk"
+          placeholder="Select a currency">
+        </app-dropdowns>
+      </div>
+    </div>
     <hr>
-    <div class="col-md-12 mb-3 header-btns">
-                    <button type="button" class="submit-btn w-100 add-btn" (click)="openMultiPaymentMethods('credit')">
-                        Credit
-                    </button>
-                </div>
-                <hr>
-                <div class="col-md-12 btns-group">
-                    <button type="submit" class="submit-btn w-100 add-btn">
-                        Place Order
-                    </button>
-                </div>
-            </div>
-    
-        </form>
-    }
-    @else {
-        <div class="text-danger">
-            You Need To Open Your Shift First
+
+    <!-- Summary Section -->
+    <div class="row section-form">
+      <div class="col-12">
+        <ul class="list-unstyled px-3">
+          <li class="d-flex justify-content-between mb-2">
+            <span>Sub Total</span>
+            <span>{{ totalPrice }} {{ selectedCurrency?.currency_code }}</span>
+          </li>
+          <li class="d-flex justify-content-between mb-2">
+            <span>Discount</span>
+            <span>{{ discountAmount }} {{ selectedCurrency?.currency_code }}</span>
+          </li>
+          <li class="d-flex justify-content-between mb-2">
+            @if (branchTax) {
+            <span>Tax ({{ branchTax.tax_rate }}%)</span>
+            } @else {
+            <span>Tax</span>
+            }
+            <span>{{ totalVat }} {{ selectedCurrency?.currency_code }}</span>
+          </li>
+          <hr>
+          <li class="d-flex justify-content-between fw-bold">
+            <span>Total</span>
+            <span>{{ totalWithVat }} {{ selectedCurrency?.currency_code }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <hr>
+
+    <!-- Payment Method & Submit -->
+    <div class="row">
+      <div formArrayName="payments">
+        <div *ngFor="let payment of paymentsControls; let i = index" [formGroupName]="i">
+          <div class="col-md-12 mb-3">
+            <app-dropdowns [required]="true" label="Payment Methods" formControlName="payment_method"
+              [options]="paymnetMethods" optionLabel="name" optionValue="id" placeholder="Select a method">
+            </app-dropdowns>
+          </div>
         </div>
-    }
+      </div>
+
+      <div class="col-md-12 mb-3 header-btns">
+        <button type="button" class="submit-btn w-100 add-btn" (click)="openMultiPaymentMethods()">
+          Multiple Payments
+        </button>
+      </div>
+      <hr>
+      <div class="col-md-12 mb-3 header-btns">
+        <button type="button" class="submit-btn w-100 add-btn" (click)="openMultiPaymentMethods('credit')">
+          Credit
+        </button>
+      </div>
+      <hr>
+      <div class="col-md-12 btns-group">
+        <button type="submit" class="submit-btn w-100 add-btn" [disabled]="totalForm.invalid">
+          Place Order
+        </button>
+      </div>
+    </div>
+
+  </form>
+  }
+  @else {
+
+  <div class="text-danger text-center mt-5">
+    You Need To Open Your Shift First
+  </div>
+
+  }
 </div>

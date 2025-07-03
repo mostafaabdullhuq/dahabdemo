@@ -1,13 +1,10 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ComponentRef, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { ChangeDetectorRef, Component, ComponentRef, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PosService } from '../@services/pos.service';
 import { PosStatusService } from '../@services/pos-status.service';
-import { combineLatest, debounceTime, EMPTY, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PosSharedService } from '../@services/pos-shared.service';
-import { HttpParams } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { SalesPosComponent } from '../sales-pos/sales-pos.component';
 import { PaymentMethodsPopupComponent } from './payment-methods-popup/payment-methods-popup.component';
 import { PosSalesService } from '../@services/pos-sales.service';
 import { PlaceOrderInvoiceComponent } from '../place-order-invoice/place-order-invoice.component';
@@ -18,6 +15,7 @@ import { PosDiamondService } from '../@services/pos-diamond.service';
 import { PosGoldReceiptService } from '../@services/pos-gold-receipt.service';
 import { PosReturnsService } from '../@services/pos-returns.service';
 import { AddCustomerPopupComponent } from '../../../shared/components/add-customer-popup/add-customer-popup.component';
+import { Customer, Currency, PaymentMethod, BranchTax, ShiftData } from '../interfaces/pos.interfaces';
 
 @Component({
   selector: 'app-totals-pos',
@@ -25,15 +23,25 @@ import { AddCustomerPopupComponent } from '../../../shared/components/add-custom
   templateUrl: './totals-pos.component.html',
   styleUrl: './totals-pos.component.scss'
 })
-export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewInit {
+export class TotalsPosComponent implements OnInit, OnDestroy {
+  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
+
   private destroy$ = new Subject<void>();
+
+  componentRef!: ComponentRef<any>;
+  paymentsFromPopup: any[] = []
+
   totalForm!: FormGroup;
-  customers: any = [];
-  currencies: any = [];
-  shiftData: any = [];
-  selectedCurrency: any = null;
-  isShiftActive:boolean =false;
-  paymnetMethods: any = []
+  customers: Customer[] = [];
+  currencies: Currency[] = [];
+  shiftData: ShiftData | null = null;
+
+  selectedCurrency: Currency | null = null;
+  selectedCustomer: Customer | null = null;
+
+  isShiftActive: boolean = false;
+  paymnetMethods: PaymentMethod[] = [];
+
   //Prices
   goldPrice: number = 0;
   metalValue: number = 0;
@@ -41,7 +49,9 @@ export class TotalsPosComponent implements OnInit, OnDestroy, AfterViewInit {
   discountAmount: number = 0;
   totalWithVat: number = 0;
   totalVat: number = 0;
-salesDataOrders:any =[];
+  salesDataOrders: any = [];
+  branchTax: BranchTax | null = null;
+
   constructor(private _formBuilder: FormBuilder,
     private _dropDownsService: DropdownsService,
     private _posService: PosService,
@@ -53,18 +63,17 @@ salesDataOrders:any =[];
     private _posSilverService: PosSilverService,
     private _posDiamondService: PosDiamondService,
     private _posGoldService: PosGoldReceiptService,
-    private _posSharedService: PosSharedService) {
+    private _posSharedService: PosSharedService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
-  }
-
-  ngAfterViewInit(): void {
-  }
   ngOnInit(): void {
-    
+    this._posStatusService.updateShiftStatus();
+
     this.totalForm = this._formBuilder.group({
-      customer: ['', Validators.required],
-      currency: ['', Validators.required],
-      amount: [0 , Validators.required],
+      customer: [null, Validators.required],
+      currency: [null, Validators.required],
+      amount: [0, Validators.required],
       discount: [this.discountAmount],
       tax: [this.totalVat],
       payments: this._formBuilder.array([
@@ -74,73 +83,106 @@ salesDataOrders:any =[];
         })
       ])
     });
-    const savedCustomer = sessionStorage.getItem('customer') ;
-    const savedCurrency = sessionStorage.getItem('currency');
 
-    if (savedCustomer || savedCurrency) {
-      this.totalForm.patchValue({
-        customer: savedCustomer ? Number(savedCustomer) : '',
-        currency: savedCurrency ? Number(savedCurrency) : ''
-      });
-      this.onChangeCurrency();    
-    }
-    this._posStatusService.checkShiftStatus(); // Trigger refresh
+    this.setupFormSubscriptions();
+    this.setupServiceSubscriptions();
+  }
 
-  this._posStatusService.shiftData$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(data => {
-      this.shiftData = data;
-      if (this.shiftData?.is_active) {
-        this.getCurrencies();
-      }
-    });
-    this._posService.getPaymentMethods().subscribe(res => {
-      this.paymnetMethods = res
-    })
-
-    this._dropDownsService.getCustomers().subscribe(res => {
-      this.customers = res?.results
-    });
-
+  private setupFormSubscriptions(): void {
     this.totalForm.get('customer')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(value => {
-        sessionStorage.setItem('customer', value);
+      .pipe(
+        takeUntil(this.destroy$),
+      )
+      .subscribe(customerId => {
+        this.handleCustomerChange(customerId);
       });
 
+    this.totalForm.get('currency')?.valueChanges
+      .pipe(
+        takeUntil(this.destroy$),
+      )
+      .subscribe(currencyId => {
+        this.handleCurrencyChange(currencyId);
+      });
+  }
 
-    // 4. Listen for changes and update sessionStorage
+  private getBranchTax(branchId: number) {
+
+    this._posService.getBranchTax(branchId).subscribe(result => {
+
+      this.branchTax = result;
+    })
+  }
+
+  private setupServiceSubscriptions(): void {
+    // this.restoreSessionData();
+
+    this._posStatusService.shiftData$
+      .pipe(
+        takeUntil(this.destroy$),
+      )
+      .subscribe(data => {
+        this.shiftData = data;
+
+        this.isShiftActive = data?.is_active ?? false;
+
+        if (this.shiftData?.is_active) {
+          if (this.shiftData.branch) {
+            this.getBranchTax(this.shiftData.branch);
+          }
+
+          this.getCustomers(() => {
+            this.getCurrencies(() => {
+              this.restoreSessionData();
+            });
+          });
+        } else {
+          this.currencies = [];
+          this.customers = [];
+          this.selectedCustomer = null;
+          this.selectedCurrency = null;
+          this.totalForm.reset();
+        }
+      });
+
+    this._posSharedService.refreshCurrency$
+      .pipe(
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        if (this.shiftData?.is_active) {
+          this.getCurrencies();
+        }
+      });
+
+    this._posService.getPaymentMethods().subscribe(res => {
+      this.paymnetMethods = res || [];
+    });
+
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+
     this._posSharedService.goldPrice$.subscribe(price => {
       this.goldPrice = +price;
     });
 
-    // Subscribe to the metal value
     this._posSharedService.metalValue$.subscribe(value => {
       this.metalValue = +value.toFixed(decimalPlaces);
     });
 
-    // Subscribe to the total price
     this._posSharedService.totalPrice$.subscribe(price => {
-      this.totalPrice = +price;      
-      this.totalForm.get('amount')?.patchValue(this.totalPrice)      
+      this.totalPrice = +price;
+      this.totalForm.get('amount')?.patchValue(this.totalPrice)
     });
 
-    // Subscribe to the discount
     this._posSharedService.discountAmount$.subscribe(disc => {
       this.discountAmount = +disc;
       this.totalForm.get('discount')?.patchValue(this.discountAmount)
     });
 
-    // Subscribe to the total with vat
     this._posSharedService.grandTotalWithVat$.subscribe(vat => {
       this.totalWithVat = +vat;
-      // (this.totalForm.get('payments') as FormArray).at(0).patchValue({
-      //   amount: this.totalWithVat
-      // });
     });
 
-    // Subscribe to the vat
     this._posSharedService.vat$.subscribe(vat => {
       this.totalVat = +vat;
       this.totalForm.get('tax')?.patchValue(this.totalVat)
@@ -152,187 +194,254 @@ salesDataOrders:any =[];
         this.isShiftActive = status;
       });
 
-      this._posSalesService._salesReciepts$
+    this._posSalesService._salesReciepts$
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         this.salesDataOrders = res;
       });
-
-       this.totalForm.get('customer')?.valueChanges.subscribe(customerId => {
-      if (customerId) {
-        sessionStorage.setItem('customer', customerId);
-        this._posReturnService.refetchReceiptsProducts(customerId);
-      }
-    });
-  this._posSharedService.refreshCurrency$.subscribe((res) => {
-    this.getCurrencies(res);
-  });
   }
-  onChangeCurrency() {
-    const currencyControl = this.totalForm.get('currency');
 
-    currencyControl?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(currencyValue => {
-        sessionStorage.setItem('currency', currencyValue);
-        this.selectedCurrency = this.currencies.find(
-          (currency: any) => currency.pk == (currencyValue ?? sessionStorage.getItem('currency'))
-        );        
-        this._posSharedService.setSelectedCurrency(this.selectedCurrency);
-        this._posSharedService.selectedCurrency$.subscribe(res=>{
-          
-        });
-        
+  private restoreSessionData(): void {
+    const savedCustomer = sessionStorage.getItem('customer');
+    const savedCurrency = sessionStorage.getItem('currency');
+
+    if (savedCustomer || savedCurrency) {
+
+      if (savedCustomer) {
+        if (this.customers?.length) {
+          this.selectedCustomer = this.customers.find((customer: Customer) => customer.id == Number(savedCustomer)) ?? null;
+        }
+      }
+
+      if (savedCurrency) {
+        this.selectedCurrency = this.currencies.find((currency: Currency) => currency.pk == Number(savedCurrency)) ?? null;
+      }
+
+      this.totalForm.patchValue({
+        customer: savedCustomer ? Number(savedCustomer) : '',
+        currency: savedCurrency ? Number(savedCurrency) : ''
       });
 
-    // Manually trigger once on init or after patch
-    const initialValue = currencyControl?.value;
-    if (initialValue) {
-      sessionStorage.setItem('currency', initialValue);
-      this.selectedCurrency = this.currencies.find(
-        (currency: any) => currency.pk == initialValue
-      );
-      this._posSharedService.setSelectedCurrency(this.selectedCurrency);
+    } else {
+      // No saved data, ensure form is clean
+      this.selectedCustomer = null;
+      this.selectedCurrency = null;
+
+      this.totalForm.patchValue({
+        customer: '',
+        currency: ''
+      });
     }
   }
-  getCurrencies(curr?:any) {
-    this._posService.getCurrenciesByBranchId(curr ?? this.shiftData?.branch).subscribe((res: any) => {
-      this.currencies = res?.results;
-      const savedCustomer = sessionStorage.getItem('customer');
-      const savedCurrency = sessionStorage.getItem('currency');
-      if (savedCustomer || savedCurrency) {
-        this.totalForm.patchValue({
-          customer: savedCustomer ? Number(savedCustomer) : '',
-          currency: savedCurrency ? Number(savedCurrency) : ''
-        });
+
+  private updateSharedServices(): void {
+    // Always update both subjects to keep other components in sync
+    this._posSharedService.setSelectedCustomer(this.selectedCustomer);
+    this._posSharedService.setSelectedCurrency(this.selectedCurrency);
+    this.cdr.detectChanges();
+  }
+
+  private handleCustomerChange(customerId: number | string): void {
+    if (customerId) {
+      sessionStorage.setItem('customer', customerId.toString());
+      this._posReturnService.refetchReceiptsProducts(customerId);
+      this._posService.getCustomerById(+customerId).subscribe(customer => {
+        this.selectedCustomer = customer;
+        this._posSharedService.setSelectedCustomer(this.selectedCustomer);
+      });
+    } else {
+      // sessionStorage.removeItem("customer");
+      this.selectedCustomer = null;
+      this._posSharedService.setSelectedCustomer(this.selectedCustomer);
+    }
+  }
+
+  private handleCurrencyChange(currencyValue: number | string): void {
+
+    if (currencyValue) {
+      sessionStorage.setItem('currency', currencyValue.toString());
+      if (this.currencies?.length) {
+        this.selectedCurrency = this.currencies.find((currency: Currency) => currency.pk == currencyValue) ?? null;
+        this._posSharedService.setSelectedCurrency(this.selectedCurrency);
+      } else {
+        this.getCurrencies(() => {
+          this.selectedCurrency = this.currencies.find((currency: Currency) => currency.pk == currencyValue) ?? null;
+          this._posSharedService.setSelectedCurrency(this.selectedCurrency);
+        })
+      }
+    } else {
+      // sessionStorage.removeItem("currency");
+      this.selectedCurrency = null;
+      this._posSharedService.setSelectedCurrency(this.selectedCurrency);
+    }
+
+  }
+
+  onCurrencyClear() {
+    sessionStorage.removeItem("currency")
+  }
+
+  onCustomerClear() {
+    sessionStorage.removeItem("customer")
+  }
+
+  getCurrencies(callbackOrCurr?: number | string | (() => void)) {
+    let branchId: number | null;
+    let callback: (() => void) | undefined;
+
+    // Handle overloaded parameters
+    if (typeof callbackOrCurr === 'function') {
+      callback = callbackOrCurr;
+    }
+
+    branchId = this.shiftData?.branch ?? null;
+
+    if (!branchId) return;
+
+    this._posService.getCurrenciesByBranchId(branchId).subscribe((res) => {
+      this.currencies = res?.results || [];
+
+      if (callback) {
+        callback();
       }
     })
   }
+
+  getCustomers(callback: Function | null = null) {
+
+    this._dropDownsService.getCustomers().subscribe(res => {
+      this.customers = res?.results || [];
+
+      if (callback) {
+        callback();
+      }
+    });
+  }
+
+
   get paymentsControls() {
     return (this.totalForm.get('payments') as FormArray).controls;
   }
-  componentRef!: ComponentRef<any>;
-  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
-paymentsFromPopup:any[] =[]
-  openMultiPaymentMethods(type:string='') {
+
+  openMultiPaymentMethods(type: string = '') {
     this.container.clear();
     this.componentRef = this.container.createComponent(PaymentMethodsPopupComponent);
     this.componentRef.instance.visible = true;
     this.componentRef.instance.typeOfPayment = type;
     this.componentRef.instance.baymentMethods = this.paymnetMethods;
- this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
-  console.log('Received payments:', payments);
-  this.paymentsFromPopup = payments;
+    this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
+      this.paymentsFromPopup = payments;
 
-  const paymentFormArray = this.totalForm.get('payments') as FormArray;
-  paymentFormArray.clear(); // Clear the existing one
+      const paymentFormArray = this.totalForm.get('payments') as FormArray;
+      paymentFormArray.clear();
 
-  payments.forEach(payment => {
-    paymentFormArray.push(this._formBuilder.group({
-      payment_method: [payment.payment_method, Validators.required],
-      amount: [payment.amount, Validators.required]
-    }));
-  });
+      payments.forEach(payment => {
+        paymentFormArray.push(this._formBuilder.group({
+          payment_method: [payment.payment_method, Validators.required],
+          amount: [payment.amount, Validators.required]
+        }));
+      });
 
-  console.log(this.totalForm.value);
 
-  this.onPlaceOrder(this.totalForm.value, true);
-});
+      this.onPlaceOrder(this.totalForm.value, true);
+    });
   }
 
-  openOrderInvoice(){
-        this.container.clear();
+  openOrderInvoice() {
+    this.container.clear();
     this.componentRef = this.container.createComponent(PlaceOrderInvoiceComponent);
     this.componentRef.instance.showDialog();
   }
-onPlaceOrder(form?:any,isPopup:boolean= false) {
-    console.log(form);
 
-  if (this.totalForm.invalid) {
-    this.totalForm.markAllAsTouched();
-    return;
-  }
+  onPlaceOrder(form?: any, isPopup: boolean = false) {
 
-  this.totalForm.get('currency')?.patchValue(parseInt(this.selectedCurrency?.pk));
-  console.log(form);
-  console.log(this.totalForm.value);
-  
-  if (isPopup === false) {
-  const paymentMethodId = form?.payment_method || this.totalForm?.value.payments[0].payment_method;
-    const fallbackPayment = [{
-      payment_method: paymentMethodId,
-      amount: this.totalWithVat
-    }];
+    if (this.totalForm?.invalid) {
+      this.totalForm.markAllAsTouched();
+      return;
+    }
 
-    // Clear and rebuild payments FormArray
-    const paymentFormArray = this.totalForm.get('payments') as FormArray;
-    paymentFormArray.clear();
-    fallbackPayment.forEach(payment => {
-      paymentFormArray.push(this._formBuilder.group({
-        payment_method: [payment.payment_method, Validators.required],
-        amount: [payment.amount, Validators.required]
-      }));
-    });
-  }
-  this._posService.getOrderId().subscribe(res => {
-    if (res?.order_id) {
-      this._posService.addOrder(res.order_id, form ?? this.totalForm.value).subscribe({
-        next: res => {
-          this.totalPrice = 0;
-          this.discountAmount = 0;
-          this.totalWithVat = 0;
-          this.totalVat = 0;
-          sessionStorage.removeItem('customer');
-          this.totalForm.get('customer')?.patchValue(null)
-          this.totalForm.get('payments')?.reset();
-          this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
-          this.openOrderInvoice();
-          this._posSharedService.notifyOrderPlaced();
-          this._posSharedService.notifyReturnsOrderPlaced();
-          this._posSalesService.getSalesOrdersFromServer();
-          this._posDiamondService.fetchDiamondOrders();
-          this._posSilverService.fetchSilverOrders();
-          this._posPurchaseService.fetchPurchaseProducts();
-          this._posGoldService.fetchGoldReceiptProducts();
-          this._posRepairService.fetchRepairProducts();
-          this._posReturnService.fetchReturnOrders();
-          this._posSharedService.setTotalPrice(0);
-          this._posSharedService.setGrandTotalWithVat(0);
-          this._posSharedService.setVat(0);
-          this._posSharedService.setDiscountAmount(0);
+    this.totalForm.get('currency')?.patchValue(this.selectedCurrency?.pk ? parseInt(this.selectedCurrency.pk.toString()) : null);
 
-        },
-        error: () => {
-          
-          // this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
-        },
-        complete:()=>{
+    if (isPopup === false) {
+      const paymentMethodId = form?.payment_method || this.totalForm?.value.payments[0].payment_method;
+      const fallbackPayment = [{
+        payment_method: paymentMethodId,
+        amount: this.totalWithVat
+      }];
 
-          // this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
-        }
+      const paymentFormArray = this.totalForm.get('payments') as FormArray;
+      paymentFormArray.clear();
+      fallbackPayment.forEach(payment => {
+        paymentFormArray.push(this._formBuilder.group({
+          payment_method: [payment.payment_method, Validators.required],
+          amount: [payment.amount, Validators.required]
+        }));
       });
     }
-  });
-}
-openAddCustomerPopup() {
-  this.container.clear();
-  this.componentRef = this.container.createComponent(AddCustomerPopupComponent);
-  this.componentRef.instance.visible = true;
+    this._posService.getOrderId().subscribe(res => {
+      if (res?.order_id) {
+        this._posService.addOrder(res.order_id, form ?? this.totalForm.value).subscribe({
+          next: res => {
+            this.totalPrice = 0;
+            this.discountAmount = 0;
+            this.totalWithVat = 0;
+            this.totalVat = 0;
 
-  // 👇 Subscribe to the event to refresh customers
-  this.componentRef.instance.customerAdded.subscribe((res:any) => {
-    this.reloadCustomers(res);
-  });
-}
+            // Reset customer selection and update subjects
+            sessionStorage.removeItem('customer');
+            this.selectedCustomer = null;
+            this.totalForm.get('customer')?.patchValue(null, { emitEvent: false });
 
-reloadCustomers(data:any) {
-  this._dropDownsService.getCustomers().subscribe(res => {
-    this.customers = res?.results;
-    if(data && data?.id){
-      this.totalForm.get('customer')?.patchValue(data?.id)
-    }
-  });
-}
+            // Update shared services to notify other components
+            this.updateSharedServices();
+
+            this.totalForm.get('payments')?.reset();
+            this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
+            this.openOrderInvoice();
+            this._posSharedService.notifyOrderPlaced();
+            this._posSharedService.notifyReturnsOrderPlaced();
+            this._posSalesService.getSalesOrdersFromServer();
+            this._posDiamondService.fetchDiamondOrders();
+            this._posSilverService.fetchSilverOrders();
+            this._posPurchaseService.fetchPurchaseProducts();
+            this._posGoldService.fetchGoldReceiptProducts();
+            this._posRepairService.fetchRepairProducts();
+            this._posReturnService.fetchReturnOrders();
+            this._posSharedService.setTotalPrice(0);
+            this._posSharedService.setGrandTotalWithVat(0);
+            this._posSharedService.setVat(0);
+            this._posSharedService.setDiscountAmount(0);
+
+          },
+          error: () => {
+
+          },
+          complete: () => {
+
+          }
+        });
+      }
+    });
+  }
+
+  openAddCustomerPopup() {
+    this.container.clear();
+    this.componentRef = this.container.createComponent(AddCustomerPopupComponent);
+    this.componentRef.instance.visible = true;
+
+    this.componentRef.instance.customerAdded.subscribe((res: any) => {
+      this.reloadCustomers(res);
+    });
+  }
+
+  reloadCustomers(data: any) {
+    this.getCustomers(() => {
+      if (data && data?.id) {
+        this.totalForm.get('customer')?.patchValue(data?.id)
+      }
+    })
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

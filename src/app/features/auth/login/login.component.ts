@@ -14,6 +14,7 @@ export class LoginComponent {
   loginForm!: FormGroup;
 
   ngOnInit(): void {
+    this._authService.resetState();
     this.loginForm = this._formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required],

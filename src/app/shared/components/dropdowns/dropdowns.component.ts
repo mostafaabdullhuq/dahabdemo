@@ -25,15 +25,16 @@ export class DropdownsComponent implements ControlValueAccessor {
   @Input() placeholder: string = '';
   @Input() label: string = '';
   @Output() selectionChange = new EventEmitter<any>();
-  @Input() required:boolean = false;
+  @Input() required: boolean = false;
   @Output() valueChange = new EventEmitter<any>();
   @Input() value: any;
+  @Output() valueCleared = new EventEmitter<void>();
 
   selectedValue: any = '';
 
   // ControlValueAccessor hooks
-  onChange: (value: any) => void = () => {};
-  onTouched: () => void = () => {};
+  onChange: (value: any) => void = () => { };
+  onTouched: () => void = () => { };
 
   // Called when value is written from outside (form model or programmatically)
   writeValue(value: any): void {
@@ -63,5 +64,9 @@ export class DropdownsComponent implements ControlValueAccessor {
 
   onBlur(): void {
     this.onTouched();
+  }
+
+  onClear() {
+    this.valueCleared.emit();
   }
 }

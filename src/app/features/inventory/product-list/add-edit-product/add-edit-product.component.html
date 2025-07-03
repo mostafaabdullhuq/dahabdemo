@@ -1,233 +1,223 @@
 <section class="form-container">
-    <div class="header-container">
-        <h3>{{isEditMode ? 'Edit' : 'Add'}} Product</h3>
-        <hr />
-    </div>
+  <div class="header-container">
+    <h3>{{isEditMode ? 'Edit' : 'Add'}} Product</h3>
+    <hr />
+  </div>
 
-    <div class="add-form">
-        <form [formGroup]="addEditProductForm" class="container" (ngSubmit)="onSubmit()">
-            <section class="form-section">
-                <!-- 🔹 Product Info -->
-                <h6 class="section-form-header">Product Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <app-input-text formControlName="name" inputName="Product Name" [required]="true"
-                                placeholder="Enter product name">
-                                @if (addEditProductForm.get('name')?.hasError('required') &&
-                                addEditProductForm.get('name')?.touched) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>Name is required</small>
-                                </div>
-                                }
-                            </app-input-text>
-                        </div>
+  <div class="add-form">
+    <form [formGroup]="addEditProductForm" class="container" (ngSubmit)="onSubmit()">
+      <section class="form-section">
+        <!-- 🔹 Product Info -->
+        <h6 class="section-form-header">Product Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-4">
+              <app-input-text formControlName="name" inputName="Product Name" [required]="true"
+                placeholder="Enter product name">
+                @if (addEditProductForm.get('name')?.hasError('required') &&
+                addEditProductForm.get('name')?.touched) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>Name is
+                    required</small>
+                </div>
+                }
+              </app-input-text>
+            </div>
 
-                        <div class="col-md-4">
-                            <app-input-text formControlName="tag_number" inputName="Tag Number"
-                                placeholder="Enter tag number">
-                            </app-input-text>
-                        </div>
-                        <!-- <div class="col-md-4">
+            <div class="col-md-4">
+              <app-input-text formControlName="tag_number" inputName="Tag Number" placeholder="Enter tag number">
+              </app-input-text>
+            </div>
+            <!-- <div class="col-md-4">
                             <app-input-text formControlName="color" inputName="Color" placeholder="Enter color">
                             </app-input-text>
                         </div> -->
-<div class="col-md-4">
-                            <app-dropdowns label="color" formControlName="color" [options]="colors"
-                                optionLabel="name" optionValue="id" placeholder="Select a color"></app-dropdowns>
-                        </div>
-                        <div class="col-md-12">
-                            <app-input-text formControlName="description" inputName="Description"
-                                placeholder="Product description">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Product Image <sup class="text-danger">*</sup> </label>
-                            <app-upload-input  formControlName="image" label="Upload Image"></app-upload-input>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-md-4">
+              <app-dropdowns label="color" formControlName="color_id" [options]="colors" optionLabel="name"
+                optionValue="id" placeholder="Select a color"></app-dropdowns>
+            </div>
+            <div class="col-md-8">
+              <app-input-text formControlName="description" inputName="Description" placeholder="Product description">
+              </app-input-text>
+            </div>
+            <div class="col-md-4">
+              <app-dropdowns label="country" formControlName="country" [options]="counties" optionLabel="name"
+                optionValue="name" placeholder="Select a country"></app-dropdowns>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Product Image <sup class="text-danger">*</sup> </label>
+              <app-upload-input formControlName="image" label="Upload Image"></app-upload-input>
+            </div>
+          </div>
+        </div>
 
-                <!-- 🔹 Pricing Info -->
-                <h6 class="section-form-header mt-4">Pricing Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <app-input-text formControlName="price" inputName="Price" type="number"
-                                placeholder="Enter Price" [required]="true"></app-input-text>
-                        </div>
-                        <!-- <div class="col-md-4">
+        <!-- 🔹 Pricing Info -->
+        <h6 class="section-form-header mt-4">Pricing Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-4">
+              <app-input-text formControlName="price" inputName="Price" type="number" placeholder="Enter Price"
+                [required]="true"></app-input-text>
+            </div>
+            <!-- <div class="col-md-4">
                       <app-input-text formControlName="discount" inputName="Discount" type="number"
                         placeholder="Enter discount (%)"></app-input-text>
                     </div> -->
 
-                        <div class="col-md-4">
-                            <app-input-text formControlName="max_discount" inputName="Max Discount" type="number"
-                                placeholder="Enter max discount (%)" [required]="true"></app-input-text>
-                        </div>
-<div class="col-md-4">
-    <app-input-text formControlName="making_charge" inputName="Making Charge" type="number"
-        placeholder="Enter making charge" [required]="true"></app-input-text>
-</div>
-<div class="col-md-4">
-    <app-input-text formControlName="retail_making_charge" inputName="retail Making Charge" type="number"
-        placeholder="Enter retail making charge" [required]="true"></app-input-text>
-</div>
-                        <div class="col-md-4">
-                            <app-input-text formControlName="weight" inputName="Weight" type="number" [required]="true"
-                                placeholder="Enter weight in grams"></app-input-text>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 🔹 Categorization -->
-                <h6 class="section-form-header mt-4">Categorization</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <app-dropdowns label="Brand" formControlName="brand_id" [options]="brands"
-                                optionLabel="name" optionValue="id" placeholder="Select a brand"></app-dropdowns>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-dropdowns label="Category" formControlName="category_id" [options]="categories"
-                                optionLabel="name" optionValue="id" placeholder="Select a category"></app-dropdowns>
-                        </div>
-
-                        <div class="col-md-3">
-                            <app-dropdowns label="Purity" formControlName="purity_id" [options]="purities"
-                                optionLabel="name" optionValue="id" placeholder="Select purity"></app-dropdowns>
-                        </div>
-                        <div class="col-md-1 mt-5 pt-3 fw-bold">
-                            <span>{{selectedPurityValue}}</span>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-dropdowns label="Size" formControlName="size_id" [options]="sizes" optionLabel="name"
-                                optionValue="id" placeholder="Select size"></app-dropdowns>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-dropdowns label="Designer" formControlName="designer_id" [options]="designers"
-                                optionLabel="name" optionValue="id" placeholder="Select designer"></app-dropdowns>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-dropdowns label="Unit" formControlName="unit_id" [options]="units" optionLabel="name"
-                                optionValue="id" placeholder="Select unit"></app-dropdowns>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 🔹 Stone Info -->
-                <div class="header-btns d-flex justify-content-between">
-                    <h6 class="section-form-header mt-4">Stone Info</h6>
-                    <button type="button" class="add-btn btn-sm mt-2" (click)="addStone()"><i
-                            class="pi pi-plus"></i></button>
-                </div>
-                <div class="container section-form">
-                    <div formArrayName="stones">
-                        <div class="row" *ngFor="let stone of stonesArray.controls; let i = index" [formGroupName]="i">
-                            <div class="col-md-4">
-                                    <app-dropdowns label="Stone" formControlName="stone_id" [options]="stones" optionLabel="name"
-                                optionValue="id" placeholder="Select Stone"></app-dropdowns>
-                            </div>
-                            <div class="col-md-3">
-                                <app-input-text formControlName="value" inputName="Value"
-                                    placeholder="Enter Value"></app-input-text>
-                            </div>
-                            <div class="col-md-3">
-                                <app-input-text formControlName="weight" inputName="Weight"
-                                    placeholder="Enter Weight"></app-input-text>
-                            </div>
-                            <div class="col-md-3">
-                                <app-input-text formControlName="retail_value" inputName="retail value"
-                                    placeholder="Enter retail value"></app-input-text>
-                            </div>
-                            <div class="col-md-2 d-flex align-items-center mt-3 justify-content-center">
-                            <button type="button" class="btn btn-danger text-end mt-5 delete-btn btn-sm"
-                                (click)="removeStone(i)">
-                                <i class="pi pi-trash"></i>
-                            </button>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 🔹 Meta Info -->
-                <h6 class="section-form-header mt-4">Meta Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-3 mt-2">
-                            <app-check-box formControlName="is_active" inputId="is_active"
-                                label="is active product ?"></app-check-box>
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <!-- 🔹 Meta Info -->
-                <div class="header-btns d-flex justify-content-between">
-                    <h6 class="section-form-header mt-4">Stock Info</h6>
-                    <button type="button" class="add-btn btn-sm mt-2" (click)="addStockItem()"><i
-                            class="pi pi-plus"></i></button>
-                </div>
-                <div formArrayName="branches">
-                    <div *ngFor="let stock of stockInfoArray.controls; let i = index" [formGroupName]="i"
-                        class="row mb-3">
-                        <div class="col-md-4">
-                            <app-dropdowns label="Branch" [options]="branches" optionLabel="name" optionValue="id"
-                                formControlName="branch_id" placeholder="Select Branch">
-                            </app-dropdowns>
-                        </div>
-                        <div class="col-md-3">
-                            <app-input-text formControlName="stock_quantity" inputName="Stock Quantity"
-                                placeholder="Enter quantity">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-4">
-                            <app-dropdowns label="Stock Point" formControlName="stock_point" [options]="stockPoints"
-                                optionLabel="name" optionValue="id" placeholder="Select stock point"></app-dropdowns>
-                        </div>
-                        <div class="col-md-3 mt-2">
-                            <app-check-box formControlName="is_active" [inputId]="'isActive'+i"
-                                label="is active?"></app-check-box>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-center mt-3 justify-content-center">
-                            <button type="button" class="btn btn-danger text-end mt-5 delete-btn btn-sm"
-                                (click)="removeStockItem(i)">
-                                <i class="pi pi-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <!-- 🔹 Custom Fields Info -->
-                <h6 class="section-form-header mt-4">Custom Fields Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <!-- Dynamic custom fields -->
-                       <div class="row">
-  <ng-container *ngFor="let field of customFields">
-    <div class="col-md-4 mt-2">
-      <app-input-text
-        [formControlName]="field.field_name"
-        [inputName]="field.field_name"
-        [placeholder]="'Enter ' + field.field_name"
-        [inputName]="field.field_name">
-      </app-input-text>
-    </div>
-  </ng-container>
-</div>
-                    </div>
-                </div>
-            </section>
-
-
-            <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn">{{isEditMode?
-                    'Update' : 'Submit'}}</button>
+            <div class="col-md-4">
+              <app-input-text formControlName="max_discount" inputName="Max Discount" type="number"
+                placeholder="Enter max discount (%)" [required]="true"></app-input-text>
             </div>
-        </form>
-    </div>
+            <div class="col-md-4">
+              <app-input-text formControlName="making_charge" inputName="Making Charge" type="number"
+                placeholder="Enter making charge" [required]="true"></app-input-text>
+            </div>
+            <div class="col-md-4">
+              <app-input-text formControlName="retail_making_charge" inputName="retail Making Charge" type="number"
+                placeholder="Enter retail making charge" [required]="true"></app-input-text>
+            </div>
+            <div class="col-md-4">
+              <app-input-text formControlName="weight" inputName="Weight" type="number" [required]="true"
+                placeholder="Enter weight in grams"></app-input-text>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🔹 Categorization -->
+        <h6 class="section-form-header mt-4">Categorization</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-4">
+              <app-dropdowns label="Brand" formControlName="brand_id" [options]="brands" optionLabel="name"
+                optionValue="id" placeholder="Select a brand"></app-dropdowns>
+            </div>
+
+            <div class="col-md-4">
+              <app-dropdowns label="Category" formControlName="category_id" [options]="categories" optionLabel="name"
+                optionValue="id" placeholder="Select a category"></app-dropdowns>
+            </div>
+
+            <div class="col-md-3">
+              <app-dropdowns label="Purity" formControlName="purity_id" [options]="purities" optionLabel="name"
+                optionValue="id" placeholder="Select purity"></app-dropdowns>
+            </div>
+            <div class="col-md-1 mt-5 pt-3 fw-bold">
+              <span>{{selectedPurityValue}}</span>
+            </div>
+
+            <div class="col-md-4">
+              <app-dropdowns label="Size" formControlName="size_id" [options]="sizes" optionLabel="name"
+                optionValue="id" placeholder="Select size"></app-dropdowns>
+            </div>
+
+            <div class="col-md-4">
+              <app-dropdowns label="Designer" formControlName="designer_id" [options]="designers" optionLabel="name"
+                optionValue="id" placeholder="Select designer"></app-dropdowns>
+            </div>
+
+            <div class="col-md-4">
+              <app-dropdowns label="Unit" formControlName="unit_id" [options]="units" optionLabel="name"
+                optionValue="id" placeholder="Select unit"></app-dropdowns>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🔹 Stone Info -->
+        <div class="header-btns d-flex justify-content-between">
+          <h6 class="section-form-header mt-4">Stone Info</h6>
+          <button type="button" class="add-btn btn-sm mt-2" (click)="addStone()"><i class="pi pi-plus"></i></button>
+        </div>
+        <div class="container section-form">
+          <div formArrayName="stones">
+            <div class="row" *ngFor="let stone of stonesArray.controls; let i = index" [formGroupName]="i">
+              <div class="col-md-4">
+                <app-dropdowns label="Stone" formControlName="stone_id" [options]="stones" optionLabel="name"
+                  optionValue="id" placeholder="Select Stone"></app-dropdowns>
+              </div>
+              <div class="col-md-3">
+                <app-input-text formControlName="value" inputName="Value" placeholder="Enter Value"></app-input-text>
+              </div>
+              <div class="col-md-3">
+                <app-input-text formControlName="weight" inputName="Weight" placeholder="Enter Weight"></app-input-text>
+              </div>
+              <div class="col-md-3">
+                <app-input-text formControlName="retail_value" inputName="retail value"
+                  placeholder="Enter retail value"></app-input-text>
+              </div>
+              <div class="col-md-2 d-flex align-items-center mt-3 justify-content-center">
+                <button type="button" class="btn btn-danger text-end mt-5 delete-btn btn-sm" (click)="removeStone(i)">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🔹 Meta Info -->
+        <h6 class="section-form-header mt-4">Meta Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-3 mt-2">
+              <app-check-box formControlName="is_active" inputId="is_active"
+                label="is active product ?"></app-check-box>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <!-- 🔹 Meta Info -->
+        <div class="header-btns d-flex justify-content-between">
+          <h6 class="section-form-header mt-4">Stock Info</h6>
+          <button type="button" class="add-btn btn-sm mt-2" (click)="addStockItem()"><i class="pi pi-plus"></i></button>
+        </div>
+        <div formArrayName="branches">
+          <div *ngFor="let stock of stockInfoArray.controls; let i = index" [formGroupName]="i" class="row mb-3">
+            <div class="col-md-4">
+              <app-dropdowns label="Branch" [options]="branches" optionLabel="name" optionValue="id"
+                formControlName="branch_id" placeholder="Select Branch">
+              </app-dropdowns>
+            </div>
+            <div class="col-md-3">
+              <app-input-text formControlName="stock_quantity" inputName="Stock Quantity" placeholder="Enter quantity">
+              </app-input-text>
+            </div>
+            <div class="col-md-4">
+              <app-dropdowns label="Stock Point" formControlName="stock_point" [options]="stockPoints"
+                optionLabel="name" optionValue="id" placeholder="Select stock point"></app-dropdowns>
+            </div>
+            <div class="col-md-3 mt-2">
+              <app-check-box formControlName="is_active" [inputId]="'isActive'+i" label="is active?"></app-check-box>
+            </div>
+            <div class="col-md-2 d-flex align-items-center mt-3 justify-content-center">
+              <button type="button" class="btn btn-danger text-end mt-5 delete-btn btn-sm" (click)="removeStockItem(i)">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <!-- 🔹 Custom Fields Info -->
+        <h6 class="section-form-header mt-4">Custom Fields Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <!-- Dynamic custom fields -->
+            <div class="row">
+              <ng-container *ngFor="let field of customFields">
+                <div class="col-md-4 mt-2">
+                  <app-input-text [formControlName]="field.field_name" [inputName]="field.field_name"
+                    [placeholder]="'Enter ' + field.field_name" [inputName]="field.field_name">
+                  </app-input-text>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <div class="btns-group">
+        <button type="submit" class="my-4 submit-btn">{{isEditMode?
+          'Update' : 'Submit'}}</button>
+      </div>
+    </form>
+  </div>
 </section>

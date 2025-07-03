@@ -16,7 +16,13 @@ export class PosRegisterPopupComponent implements OnInit {
   registerPosForm!: FormGroup;
   branches: any = [];
 
-  constructor(private _posStatusService:PosStatusService,private _posSharedService:PosSharedService, private _formBuilder: FormBuilder, private _dropdownsService: DropdownsService, private _posService: PosService) { }
+  constructor(
+    private _posStatusService: PosStatusService,
+    private _posSharedService: PosSharedService,
+    private _formBuilder: FormBuilder,
+    private _dropdownsService: DropdownsService,
+    private _posService: PosService,
+  ) { }
 
   ngOnInit(): void {
     this.registerPosForm = this._formBuilder.group({
@@ -26,20 +32,22 @@ export class PosRegisterPopupComponent implements OnInit {
     this._dropdownsService.getBranches().subscribe(res => {
       this.branches = res.results
     });
-
-    this.registerPosForm.get('branch_id')?.valueChanges.subscribe(res=>{
-      this._posSharedService.triggerRefreshCurrency(res);
-    })
   }
   showDialog() {
     this.visible = true;
   }
 
   submitForm(form: FormGroup) {
+    if (form.invalid) {
+      return;
+    }
+
     this._posService.addShift(form.value).subscribe(res => {
-      this.visible = false;
-      if (res) {
+      if (res && res?.branch_id) {
         this._posStatusService.setShiftStatus(true);
+        this._posStatusService.updateShiftStatus();
+        this._posSharedService.triggerRefreshCurrency();
+        this.visible = false;
       }
     })
   }

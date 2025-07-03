@@ -8,6 +8,7 @@ import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { PosReturnsService } from '../@services/pos-returns.service';
 import { MenuItem } from 'primeng/api';
+import { Currency, Tax } from '../interfaces/pos.interfaces';
 
 @Component({
   selector: 'app-retun-pos',
@@ -15,23 +16,23 @@ import { MenuItem } from 'primeng/api';
   templateUrl: './retun-pos.component.html',
   styleUrl: './retun-pos.component.scss'
 })
-export class RetunPosComponent implements OnInit, OnDestroy  {
+export class RetunPosComponent implements OnInit, OnDestroy {
   products: any = [];
   receipts: any = [];
   productForm!: FormGroup;
   returnDataOrders: any = [];
   cols: any = [];
   selectedVat: any = ''
-  taxes: any = [];
+  taxes: Tax[] = [];
   salesProduct: any = [];
   manualGoldPrice = '';
-  selectedCurrency: any = ''
+  selectedCurrency: Currency | null = null
   private destroy$ = new Subject<void>();
   defualtVat = 0;
-  shiftData:any = [];
+  shiftData: any = [];
   menuItem: MenuItem[] = [];
   constructor(private _formBuilder: FormBuilder, private _posReturnService: PosReturnsService, private _posService: PosService,
-    private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
+    private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
   ) { }
 
   ngOnInit(): void {
@@ -39,71 +40,74 @@ export class RetunPosComponent implements OnInit, OnDestroy  {
       product_id: ['', Validators.required],
       reciept_id: ['', Validators.required],
     })
-    
-    const params = `customer_id=${sessionStorage?.getItem('customer')}`
+
+    let customer = sessionStorage?.getItem('customer');
+    let params = ""
+    if (customer) {
+      params = `customer_id=${customer}`
+    }
+
     this._posReturnService.getReturnReciepts(params).subscribe((res) => {
       this.receipts = res?.results;
     });
     this._posReturnService.receipts$.subscribe(receipts => {
       this.receipts = receipts;
     });
-    this.productForm.get('reciept_id')?.valueChanges.subscribe(res=>{
-      if(res){
+    this.productForm.get('reciept_id')?.valueChanges.subscribe(res => {
+      if (res) {
         const params = `orderproduct__order_id=${res}
         &orderproduct__order__customer_id=${sessionStorage.getItem('customer')}`
         this._posReturnService.getReturnProducts(params).subscribe((res) => {
-        this.products = res?.results;
-      });
+          this.products = res?.results;
+        });
       }
     })
     this._dropdownService.getTaxes().subscribe((res) => {
-      this.taxes = res?.results;
+      this.taxes = res?.results || [];
     });
     this.getReturnsOrder()
     this._posStatusService.shiftData$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(data => {
-      this.shiftData = data;
-      if(this.shiftData && this.shiftData?.is_active){
-        this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
-          this.manualGoldPrice = res?.manual_gold_price;
-        });
-      }
-    });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.shiftData = data;
 
-    this._posSharedService.selectedCurrency$
-      .subscribe(currency => {
-        if (currency) {
-          this.selectedCurrency = currency;          
-        } else {
-          this.selectedCurrency = null;
+        if (this.shiftData && this.shiftData?.is_active) {
+          this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
+            this.manualGoldPrice = res?.manual_gold_price;
+          });
         }
       });
 
-      this.productForm.get('product_id')?.valueChanges
-  .pipe(
-    takeUntil(this.destroy$),
-    distinctUntilChanged(), // prevent firing if same value is set again
-    filter(value => !!value) // avoid null/undefined triggers
-  )
-  .subscribe((productId: number) => {
-    this.onProductSelected(productId);
-  });
+    this._posSharedService.selectedCurrency$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(currency => {
+        this.selectedCurrency = currency;
+      });
 
-      this._posReturnService.returnOrders$.subscribe(data => {
+    this.productForm.get('product_id')?.valueChanges
+      .pipe(
+        takeUntil(this.destroy$),
+        distinctUntilChanged(), // prevent firing if same value is set again
+        filter(value => !!value) // avoid null/undefined triggers
+      )
+      .subscribe((productId: number) => {
+        this.onProductSelected(productId);
+      });
+
+    this._posReturnService.returnOrders$.subscribe(data => {
       this.returnDataOrders = data;
       const totalVatAmount = data.reduce((acc, item) => acc + (item.vat_amount || 0), 0);
-          this._posSharedService.setReturnTotalTax(totalVatAmount)
+      this._posSharedService.setReturnTotalTax(totalVatAmount)
     });
 
     // If needed, manually trigger a refresh
     this._posReturnService.fetchReturnOrders();
-this._posStatusService.shiftActive$
+    this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
         this.isShiftActive = status;
       });
-       this.menuItem = [
+    this.menuItem = [
       {
         label: 'Delete',
         icon: 'pi pi-trash',
@@ -113,45 +117,45 @@ this._posStatusService.shiftActive$
       }
     ];
 
-     this._posSharedService.returnORrderPlaced$.subscribe(() => {
-    this.getReturnsOrder();
-  });
-  
+    this._posSharedService.returnORrderPlaced$.subscribe(() => {
+      this.getReturnsOrder();
+    });
+
   }
-    removeItem(id: any) {
+  removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
         this._posReturnService.fetchReturnOrders();
       },
-      error:()=>{},
-      complete:()=>{this.getProductList()}
+      error: () => { },
+      complete: () => { this.getProductList() }
     })
   }
-  getProductList(){
+  getProductList() {
     const params = `orderproduct__order_id=${this.productForm.get('reciept_id')?.value}
         &orderproduct__order__customer_id=${sessionStorage.getItem('customer')}`
-        this._posReturnService.getReturnProducts(params).subscribe((res) => {
-        this.products = res?.results;
-      });
+    this._posReturnService.getReturnProducts(params).subscribe((res) => {
+      this.products = res?.results;
+    });
   }
 
-  isShiftActive:boolean = false;
+  isShiftActive: boolean = false;
   getReturnsOrder() {
-      this._posReturnService.fetchReturnOrders();
-      
+    this._posReturnService.fetchReturnOrders();
+
   }
-  refetchReceiptsProducts(selectedCustomer:any){
+  refetchReceiptsProducts(selectedCustomer: any) {
     const params = `customer_id=${sessionStorage?.getItem('customer')}`
     this._posReturnService.getReturnReciepts(params).subscribe((res) => {
       this.receipts = res?.results;
     });
-    this.productForm.get('reciept_id')?.valueChanges.subscribe(res=>{
-      if(res){
+    this.productForm.get('reciept_id')?.valueChanges.subscribe(res => {
+      if (res) {
         const params = `orderproduct__order_id=${res}
         &orderproduct__order__customer_id=${sessionStorage.getItem('customer')}`
         this._posReturnService.getReturnProducts(params).subscribe((res) => {
-        this.products = res?.results;
-      });
+          this.products = res?.results;
+        });
       }
     })
   }
@@ -188,74 +192,76 @@ this._posStatusService.shiftActive$
     const goldPrice = baseValue * purityFactor * group.purity_value;
 
     // Format based on selected currency decimal point
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
     return +goldPrice.toFixed(decimalPlaces);
   }
 
   calcMetalValueAccordingToPurity(group: any) {
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     const metalValue = this.calcGoldPriceAccordingToPurity(group) * group?.weight;
     this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
     return +metalValue.toFixed(decimalPlaces);
   }
 
   calcTotalPrice(group: any): number {
-  const metalValue = this.calcMetalValueAccordingToPurity(group);
+    const metalValue = this.calcMetalValueAccordingToPurity(group);
 
-  const makingCharge = +group?.retail_making_charge || 0;
-  const discountPercentage = +group?.discount || 0;
+    const makingCharge = +group?.retail_making_charge || 0;
+    const discountPercentage = +group?.discount || 0;
 
-  // Calculate discount amount
-  const discountAmount = (discountPercentage / 100) * makingCharge;
+    // Calculate discount amount
+    const discountAmount = (discountPercentage / 100) * makingCharge;
 
-  // Share the discount amount with the service
-  this._posSharedService.setDiscountAmount(discountAmount);
+    // Share the discount amount with the service
+    this._posSharedService.setDiscountAmount(discountAmount);
 
-  const discountedMakingCharge = makingCharge - discountAmount;
+    const discountedMakingCharge = makingCharge - discountAmount;
 
-  const stoneValues = (group?.stones || [])
-    .slice(0, 3)
-    .reduce((sum: number, stone: any) => sum + (+stone?.retail_value || 0), 0);
+    const stoneValues = (group?.stones || [])
+      .slice(0, 3)
+      .reduce((sum: number, stone: any) => sum + (+stone?.retail_value || 0), 0);
 
-  const total = metalValue + discountedMakingCharge + stoneValues;
+    const total = metalValue + discountedMakingCharge + stoneValues;
 
-  const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-  return +total.toFixed(decimalPlaces);
-}
-onVatChange(vatId: number, group: any): void {
-  group.selectedVat = vatId;
-  this.calcGrandTotalWithVat()
-}
-calcTotalPriceWithVat(group: any): number {
-  const baseTotal = this.calcTotalPrice(group);
-  const vatRate = +this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat)?.rate || 0;
-  const vatAmount = (vatRate / 100) * baseTotal;
-const totalVat = this.returnDataOrders.reduce((acc: number, group: any) => {
-  const baseTotal = this.calcTotalPrice(group); // your existing method
-  const vatRate = +this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat)?.rate || 0;
-  const vatAmount = (vatRate / 100) * baseTotal;
-  return acc + vatAmount;
-}, 0);
-  // Update shared VAT immediately
-  const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-  //this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    return +total.toFixed(decimalPlaces);
+  }
+  onVatChange(vatId: number, group: any): void {
+    group.selectedVat = vatId;
+    this.calcGrandTotalWithVat()
+  }
+  calcTotalPriceWithVat(group: any): number {
+    const baseTotal = this.calcTotalPrice(group);
+    const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat);
+    const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
+    const vatAmount = (vatRate / 100) * baseTotal;
+    const totalVat = this.returnDataOrders.reduce((acc: number, group: any) => {
+      const baseTotal = this.calcTotalPrice(group); // your existing method
+      const selectedTax = this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat);
+      const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
+      const vatAmount = (vatRate / 100) * baseTotal;
+      return acc + vatAmount;
+    }, 0);
+    // Update shared VAT immediately
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    //this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
 
-  const totalWithVat = baseTotal + vatAmount;
-  return +totalWithVat.toFixed(decimalPlaces);
-}
-calcGrandTotalWithVat(): number {
-  if (!this.returnDataOrders || this.returnDataOrders.length === 0) return 0;
+    const totalWithVat = baseTotal + vatAmount;
+    return +totalWithVat.toFixed(decimalPlaces);
+  }
+  calcGrandTotalWithVat(): number {
+    if (!this.returnDataOrders || this.returnDataOrders.length === 0) return 0;
 
-  const total = this.returnDataOrders.reduce((sum: number, group: any) => {
-   // return sum + this.calcTotalPriceWithVat(group);
-  }, 0);
+    const total = this.returnDataOrders.reduce((sum: number, group: any) => {
+      // return sum + this.calcTotalPriceWithVat(group);
+    }, 0);
 
-  const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-  //  this._posSharedService.setGrandTotalWithVat(+total.toFixed(decimalPlaces));
-  
-  return +total.toFixed(decimalPlaces);
-}
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    //  this._posSharedService.setGrandTotalWithVat(+total.toFixed(decimalPlaces));
+
+    return +total.toFixed(decimalPlaces);
+  }
   onProductSelected(productId: number): void {
     const selectedProduct = this.products.find((p: any) => p.id === productId);
     if (!selectedProduct) return;
@@ -274,7 +280,7 @@ calcGrandTotalWithVat(): number {
         error: err => {
           console.error('Error posting product', err);
         },
-      complete:()=>{this.getProductList()}
+        complete: () => { this.getProductList() }
       });
   }
   // get totalPrice(): number {
@@ -287,29 +293,29 @@ calcGrandTotalWithVat(): number {
   //   return total
   // }
   get totalPrice(): number {
-  const totalWithVat = this.returnDataOrders?.reduce(
-    (sum: any, item: { amount: any; }) => sum + (item.amount || 0),
-    0
-  ) || 0;
+    const totalWithVat = this.returnDataOrders?.reduce(
+      (sum: any, item: { amount: any; }) => sum + (item.amount || 0),
+      0
+    ) || 0;
 
-  const totalWithoutVat = this.returnDataOrders?.reduce(
-    (sum: number, item: { amount: number; vat_amount: number; }) => {
-      const amount = item.amount || 0;
-      const vat = item.vat_amount || 0;
-      return sum + (amount - vat);
-    },
-    0
-  ) || 0;
-//  const decimalPlaces:number = this.selectedCurrency?.currency_decimal_point ?? 3;
-  // Set grand total (includes VAT)
-  this._posSharedService.setReturnTotalGrand(+totalWithVat);
+    const totalWithoutVat = this.returnDataOrders?.reduce(
+      (sum: number, item: { amount: number; vat_amount: number; }) => {
+        const amount = item.amount || 0;
+        const vat = item.vat_amount || 0;
+        return sum + (amount - vat);
+      },
+      0
+    ) || 0;
+    //  const decimalPlaces:number = this.selectedCurrency?.currency_decimal_point ?? 3;
+    // Set grand total (includes VAT)
+    this._posSharedService.setReturnTotalGrand(+totalWithVat);
 
-  // Set net total (excludes VAT)
-  this._posSharedService.setReturnTotalPrice(+totalWithoutVat);
+    // Set net total (excludes VAT)
+    this._posSharedService.setReturnTotalPrice(+totalWithoutVat);
 
-  return totalWithoutVat;
-}
-    selectedRowData: any = [];
+    return totalWithoutVat;
+  }
+  selectedRowData: any = [];
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
   }

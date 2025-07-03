@@ -26,11 +26,11 @@ export class PaymentsComponent {
     this.cols = [
       { field: "payment_date", header: "Payment Date" },
       { field: "total_amount", header: "Total Amount" },
-      { field: "salesman_name", header: "salesman name" },
-      { field: "branch_name", header: "branch name" },
-      { field: "payment_method_name", header: "payment method" },
-      { field: "total_weight", header: "total weight" },
-      { field: "reference_number", header: "reference number" },
+      { field: "salesman_name", header: "Salesman Name" },
+      { field: "branch_name", header: "Branch Name" },
+      { field: "payment_method_name", header: "Payment Method" },
+      { field: "total_weight", header: "Total Weight" },
+      { field: "reference_number", header: "Reference Number" },
     ];
     this.filterForm = this._formBuilder.group({
       search: '',

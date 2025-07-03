@@ -149,17 +149,30 @@ export class AddEditBranchComponent implements OnInit {
   removeCurrency(index: number): void {
     this.currencies.removeAt(index);
   }
+
   loadCustomFields(): void {
     const fields = this.customFields || [];
     const formArray = this.addEditBranchForm.get('custom_fields') as FormArray;
     formArray.clear();
 
-    fields.forEach((field: { field_name: any; }) => {
+    for (let i = 0; i < 3; i++) {
+      console.log("custom field: ", i);
+
       formArray.push(this._formBuilder.group({
-        field_key: [field.field_name],
+        field_key: [`custom_field_${i + 1}`],
         value: ['']
       }));
-    });
+    }
+
+    console.log("formArray: ", formArray);
+
+
+    // fields.forEach((field: { field_name: any; }) => {
+    //   formArray.push(this._formBuilder.group({
+    //     field_key: [field.field_name],
+    //     value: ['']
+    //   }));
+    // });
   }
   onSubmit(): void {
     if (this.addEditBranchForm.invalid) return;
@@ -181,7 +194,7 @@ export class AddEditBranchComponent implements OnInit {
     }));
 
     const paymentMethods = rawValue.payment_methods?.map((pm: any) => ({
-      payment_method: pm
+      payment_method: pm.payment_method
     })) || [];
 
     const formattedData = {

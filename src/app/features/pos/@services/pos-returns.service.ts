@@ -7,24 +7,24 @@ import { environment } from '../../../../environments/environment.development';
   providedIn: 'root'
 })
 export class PosReturnsService {
-  constructor(private _http: SingletonService) { 
+  constructor(private _http: SingletonService) {
     this.fetchReturnOrders()
   }
-    private returnOrdersSubject = new BehaviorSubject<any[]>([]);
+  private returnOrdersSubject = new BehaviorSubject<any[]>([]);
   returnOrders$ = this.returnOrdersSubject.asObservable();
 
   getTableReturnOrder(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/order-product-receipt/return/`);
 
   }
-  getReturnReciepts(params?:string): Observable<any> {
+  getReturnReciepts(params?: string): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/customer-orders/?${params}`);
   }
 
-  getReturnProducts(params?:string): Observable<any> {
+  getReturnProducts(params?: string): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/product-return/?${params}`);
   }
-  addProductReturn(form:any): Observable<any>{
+  addProductReturn(form: any): Observable<any> {
     return this._http.postRequest(`${environment.api_url}pos/order-product/return/`, form);
   }
   fetchReturnOrders(): void {
@@ -37,10 +37,14 @@ export class PosReturnsService {
       }
     });
   }
-   private receiptsSubject = new BehaviorSubject<any[]>([]);
+  private receiptsSubject = new BehaviorSubject<any[]>([]);
   receipts$ = this.receiptsSubject.asObservable();
   refetchReceiptsProducts(customerId: any): void {
-    const params = `customer_id=${customerId}`;
+    let params = "";
+    if (customerId) {
+      params = `customer_id=${customerId}`;
+    }
+
     this.getReturnReciepts(params).subscribe((res) => {
       this.receiptsSubject.next(res?.results || []);
     });

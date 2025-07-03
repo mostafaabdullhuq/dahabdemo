@@ -142,7 +142,7 @@ export const routes: Routes = [
       { path: 'stock-transfer', component: StockTransferComponent },
       { path: 'stock-transfer/edit/:id', component: StockTransferComponent },
 
-      { path: 'count-down', component: CountDownComponent },
+      { path: 'stock-taking', component: CountDownComponent },
     ]
   },
   // Contacts

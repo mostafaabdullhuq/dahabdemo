@@ -1,28 +1,28 @@
 <form [formGroup]="registerPosForm">
-    <p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '30rem' }">
-        <ng-template pTemplate="header">
-            <div class="d-flex justify-content-center align-items-center">
-                <h4><i class="pi pi-dollar me-2" style="font-size: 2rem"></i>Open your shift</h4>
-            </div>
-        </ng-template>
-        <div class="content d-flex flex-column justify-content-between h-100">
-            <div class="form-content">
-            <div class="items-center">
-                <app-input-text formControlName="opening_balance" placeholder="Cash on hand" type="number"
-                    inputName="Cash on hand"></app-input-text>
+  <p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '30rem' }">
+    <ng-template pTemplate="header">
+      <div class="d-flex justify-content-center align-items-center">
+        <h4><i class="pi pi-dollar me-2" style="font-size: 2rem"></i>Open your shift</h4>
+      </div>
+    </ng-template>
+    <div class="content d-flex flex-column justify-content-between h-100">
+      <div class="form-content">
+        <div class="items-center">
+          <app-input-text formControlName="opening_balance" placeholder="Cash on hand" type="number"
+            inputName="Cash on hand"></app-input-text>
 
-            </div>
-            <div class="items-center mb-4">
-                <app-dropdowns label="branches" formControlName="branch_id" [options]="branches" optionLabel="name"
-                    optionValue="id" placeholder="Select a branch"></app-dropdowns>
-            </div>
         </div>
-        <div class="btns">
-            <div class="d-flex justify-content-end gap-2">
-                <p-button label="Cancel" severity="secondary" (click)="visible = false" />
-                <p-button label="Save" (click)="submitForm(registerPosForm)" />
-            </div>
+        <div class="items-center mb-4">
+          <app-dropdowns label="branches" formControlName="branch_id" [options]="branches" optionLabel="name"
+            optionValue="id" placeholder="Select a branch"></app-dropdowns>
         </div>
+      </div>
+      <div class="btns">
+        <div class="d-flex justify-content-end gap-2">
+          <p-button label="Cancel" severity="secondary" (click)="visible = false" />
+          <p-button label="Save" [disabled]="registerPosForm.invalid" (click)="submitForm(registerPosForm)" />
         </div>
-    </p-dialog>
+      </div>
+    </div>
+  </p-dialog>
 </form>

@@ -2,71 +2,74 @@
 <ng-container #container></ng-container>
 
 <section>
-    <div class="header-container">
-        <h3>Products</h3>
-        <hr>
-        <div class="header-btns">
-            <button class="add-btn text-center" (click)="fileInput.click()">
-                <i class="pi pi-file-import px-2"></i>Import products
-            </button>
-            <input #fileInput type="file" accept=".csv" (change)="onFileSelected($event)" hidden />
-            <button [routerLink]="['/inventory/product/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add product</button>
-       
+  <div class="header-container">
+    <h3>Products</h3>
+    <hr>
+    <div class="header-btns">
+      <button class="add-btn text-center" (click)="fileInput.click()">
+        <i class="pi pi-file-import px-2"></i>Import products
+      </button>
+      <input #fileInput type="file" accept=".csv" (change)="onFileSelected($event)" hidden />
+      <button [routerLink]="['/inventory/product/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add
+        product</button>
+
+    </div>
+
+  </div>
+  <div class="filter-container container">
+    <app-filter-collapse>
+      <form class="container" [formGroup]="filterForm">
+        <div class="row">
+          <div class="col-md-12">
+            <app-input-text formControlName="search" placeholder="Global Search" type="text"
+              inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-input-text formControlName="name__icontains" placeholder="Enter product name" type="name"
+              inputName="name"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Branch" [options]="branches" optionLabel="name" optionValue="id" [showClear]="true"
+              formControlName="branch" placeholder="Select Branch">
+            </app-dropdowns>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Brand" formControlName="brand" [options]="brands" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a brand"></app-dropdowns>
+          </div>
+
+          <div class="col-md-4">
+            <app-dropdowns label="Category" formControlName="category" [options]="categories" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a category"></app-dropdowns>
+          </div>
+
+          <div class="col-md-4">
+            <app-dropdowns label="Purity Rate" formControlName="purity" [options]="purities" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select purity"></app-dropdowns>
+          </div>
+
+          <div class="col-md-4">
+            <app-dropdowns label="Size" formControlName="size" [options]="sizes" optionLabel="name" [showClear]="true"
+              optionValue="id" placeholder="Select size"></app-dropdowns>
+          </div>
+
+          <div class="col-md-4">
+            <app-dropdowns label="Designer" formControlName="designer" [options]="designers" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select designer"></app-dropdowns>
+          </div>
+
         </div>
-        
-    </div>
-    <div class="filter-container container">
-        <app-filter-collapse>
-            <form class="container"  [formGroup]="filterForm">
-                <div class="row">
-                        <div class="col-md-12">
-                            <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
-                        </div>
-                    <div class="col-md-4">
-                        <app-input-text formControlName="name__icontains" placeholder="Enter product name" type="name" inputName="name"></app-input-text>
-                    </div>
-                    <div class="col-md-4">
-                        <app-dropdowns label="Branch" [options]="branches" optionLabel="name" optionValue="id"
-                            formControlName="branch" placeholder="Select Branch">
-                        </app-dropdowns>
-                    </div>
-                    <div class="col-md-4">
-                        <app-dropdowns label="Brand" formControlName="brand" [options]="brands"
-                            optionLabel="name" optionValue="id" placeholder="Select a brand"></app-dropdowns>
-                    </div>
+        <div class="btns-group">
+          <button class=" submit-btn" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </app-filter-collapse>
+  </div>
 
-                    <div class="col-md-4">
-                        <app-dropdowns label="Category" formControlName="category" [options]="categories"
-                            optionLabel="name" optionValue="id" placeholder="Select a category"></app-dropdowns>
-                    </div>
-
-                    <div class="col-md-4">
-                        <app-dropdowns label="Purity Rate" formControlName="purity" [options]="purities"
-                            optionLabel="name" optionValue="id" placeholder="Select purity"></app-dropdowns>
-                    </div>
-
-                    <div class="col-md-4">
-                        <app-dropdowns label="Size" formControlName="size" [options]="sizes" optionLabel="name"
-                            optionValue="id" placeholder="Select size"></app-dropdowns>
-                    </div>
-
-                    <div class="col-md-4">
-                        <app-dropdowns label="Designer" formControlName="designer" [options]="designers"
-                            optionLabel="name" optionValue="id" placeholder="Select designer"></app-dropdowns>
-                    </div>
-
-                </div>
-                <div class="btns-group">
-                    <button class=" submit-btn" (click)="onSearch()">Search</button>
-                </div>
-            </form>
-        </app-filter-collapse>
-    </div>
-
-    <div class="table-container">
-        <app-data-table [contextMenuItems]="productMenuItems" [rowsPerPageOptions]="rowsPerPageOptions"
-        (rowSelected)="selectedProduct = $event" [data]="products" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
-            (pageChange)="loadProducts($event)">
-        </app-data-table>
-    </div>
+  <div class="table-container">
+    <app-data-table [contextMenuItems]="productMenuItems" [rowsPerPageOptions]="rowsPerPageOptions"
+      (rowSelected)="selectedProduct = $event" [data]="products" [cols]="cols" [totalRecords]="totalRecords"
+      [first]="first" [rows]="pageSize" (pageChange)="loadProducts($event)">
+    </app-data-table>
+  </div>
 </section>

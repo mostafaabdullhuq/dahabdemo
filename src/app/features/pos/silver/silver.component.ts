@@ -9,10 +9,11 @@ import { PosService } from '../@services/pos.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { SetDiscountComponent } from '../sales-pos/set-discount/set-discount.component';
 import { PosSilverService } from '../@services/pos-silver.service';
+import { Currency, Tax } from '../interfaces/pos.interfaces';
 
 @Component({
   selector: 'app-silver',
-  standalone:false,
+  standalone: false,
   templateUrl: './silver.component.html',
   styleUrl: './silver.component.scss'
 })
@@ -22,15 +23,15 @@ export class SilverComponent implements OnInit, OnDestroy {
   silverDataOrders: any = [];
   cols: any = [];
   selectedVat: any = ''
-  taxes: any = [];
+  taxes: Tax[] = [];
   salesProduct: any = [];
   menuItem: MenuItem[] = [];
   manualGoldPrice = '';
-  selectedCurrency: any = ''
+  selectedCurrency: Currency | null = null
   private destroy$ = new Subject<void>();
   defualtVat = 0;
   shiftData: any = [];
-  isSelectedCustomerAndCurrency:boolean = true; 
+  isSelectedCustomerAndCurrency: boolean = true;
   selectedVatId: any = null;
   constructor(private _formBuilder: FormBuilder, private _posSilverService: PosSilverService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
@@ -40,8 +41,8 @@ export class SilverComponent implements OnInit, OnDestroy {
     this.productForm = this._formBuilder.group({
       product_id: ['', Validators.required]
     })
-    
-    this._posService.getProductSalesList().subscribe((res) => {
+
+    this._posService.getProductSilverList().subscribe((res) => {
       this.products = res?.results;
     });
     this._dropdownService.getTaxes().subscribe((res) => {
@@ -83,7 +84,7 @@ export class SilverComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
         if (!status)
-          this.selectedCurrency = ''
+          this.selectedCurrency = null
       });
 
     this.menuItem = [
@@ -102,22 +103,22 @@ export class SilverComponent implements OnInit, OnDestroy {
         }
       }
     ];
-this._posStatusService.shiftActive$
+    this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
         this.isShiftActive = status;
       });
   }
-  isShiftActive:boolean = false;
+  isShiftActive: boolean = false;
   selectedRowData: any = [];
-    componentRef!: ComponentRef<SetDiscountComponent>;
+  componentRef!: ComponentRef<SetDiscountComponent>;
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
   setDiscount(id: any) {
-     this.container.clear();
-        this.componentRef = this.container.createComponent(SetDiscountComponent);
-        this.componentRef.instance.selectedRowId= id;
-        this.componentRef.instance.visible = true;
+    this.container.clear();
+    this.componentRef = this.container.createComponent(SetDiscountComponent);
+    this.componentRef.instance.selectedRowId = id;
+    this.componentRef.instance.visible = true;
   }
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
@@ -135,20 +136,20 @@ this._posStatusService.shiftActive$
     const total = this.silverDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (group.amount || 0), 0) || 0;
     this._posSharedService.setSilverTotalPrice(total)
     this._posSharedService.setSilverTotalGrand(total)
-  return total
-}
-getProductList(){
-  this._posService.getProductSalesList().subscribe((res) => {
+    return total
+  }
+  getProductList() {
+    this._posService.getProductSilverList().subscribe((res) => {
       this.products = res?.results;
     });
-}
+  }
   removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
         this._posSilverService.fetchSilverOrders();
       },
-      error:()=>{},
-      complete:()=>{
+      error: () => { },
+      complete: () => {
         this.getProductList()
       }
     })
@@ -190,7 +191,7 @@ getProductList(){
     return +goldPrice.toFixed(decimalPlaces);
   }
 
-priceOfProductToPatch:any = 0;
+  priceOfProductToPatch: any = 0;
 
   calcMetalValueAccordingToPurity(group: any) {
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
@@ -198,7 +199,7 @@ priceOfProductToPatch:any = 0;
     this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
     return +metalValue.toFixed(decimalPlaces);
   }
-    calcTotalPrice(group: any): number {
+  calcTotalPrice(group: any): number {
     this.priceOfProductToPatch = 0;
     const metalValue = this.calcMetalValueAccordingToPurity(group);
 
@@ -221,42 +222,45 @@ priceOfProductToPatch:any = 0;
 
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
 
-this.priceOfProductToPatch = +total.toFixed(decimalPlaces);
+    this.priceOfProductToPatch = +total.toFixed(decimalPlaces);
 
     return +total.toFixed(decimalPlaces);
   }
-onVatChange(vatId: number, group: any): void {
-  group.selectedVat = vatId;
+  onVatChange(vatId: number, group: any): void {
+    group.selectedVat = vatId;
 
-  const vat = this.taxes.find((t: { id: number }) => t.id === vatId);
-  const vatRate = vat?.rate || 0;
+    const vat = this.taxes.find((t: { id: number }) => t.id === vatId);
+    const vatRate = vat?.rate ? +vat.rate : 0;
 
-  // Patch VAT rate into the form
-  this.productForm.get('vat')?.patchValue(vatRate);
+    // Patch VAT rate into the form
+    this.productForm.get('vat')?.patchValue(vatRate);
 
-  // Recalculate grand total with VAT
-  this.calcGrandTotalWithVat();
+    // Recalculate grand total with VAT
+    this.calcGrandTotalWithVat();
 
-  // Track if it's the first or second+ selection
-  if (!group._vatSelectedOnce) {
-    group._vatSelectedOnce = true; // first time, don't send
-  } else {
-    // second time or more, send to backend
-    const pId = group?.id;
-    const form = this._formBuilder.group({
-      vat_amount: [vatRate]
-    });
-    this._posService.setDiscountProductSale(pId, form.value).subscribe();
+    // Track if it's the first or second+ selection
+    if (!group._vatSelectedOnce) {
+      group._vatSelectedOnce = true; // first time, don't send
+    } else {
+      // second time or more, send to backend
+      const pId = group?.id;
+      const form = this._formBuilder.group({
+        vat_amount: [vatRate]
+      });
+      this._posService.setDiscountProductSale(pId, form.value).subscribe();
+    }
   }
-}
+
   calcTotalPriceWithVat(group: any): number {
     this.priceOfProductToPatch = 0
     const baseTotal = this.calcTotalPrice(group);
-    const vatRate = +this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat)?.rate || 0;
+    const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat);
+    const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
     const vatAmount = (vatRate / 100) * baseTotal;
     const totalVat = this.silverDataOrders.reduce((acc: number, group: any) => {
       const baseTotal = this.calcTotalPrice(group); // your existing method
-      const vatRate = +this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat)?.rate || 0;
+      const selectedTax = this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat);
+      const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
       const vatAmount = (vatRate / 100) * baseTotal;
       return acc + vatAmount;
     }, 0);
@@ -281,7 +285,7 @@ onVatChange(vatId: number, group: any): void {
   }
   // onProductSelected(productId: number): void {
   //   const selectedProduct = this.products.find((p: any) => p.id === productId);
-  //   if (!selectedProduct) return;    
+  //   if (!selectedProduct) return;
   //   const payload = {
   //     product: selectedProduct.id,
   //     amount: selectedProduct.amount //selectedProduct.retail_making_charge
@@ -297,55 +301,49 @@ onVatChange(vatId: number, group: any): void {
   //       }
   //     });
   // }
-   onProductSelected(productId: number): void {
- const selectedProduct = this.products.find((p: any) => p.id === productId);
-  if (!selectedProduct) return;
-this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
-        const branchTaxNo = res?.tax_rate || 0;
-          const tempGroup = {
-    purity: selectedProduct.purity_name,
-    price: selectedProduct.price,
-    purity_value: selectedProduct.purity_value,
-    weight: selectedProduct.weight,
-    stones: selectedProduct.stones || [],
-    retail_making_charge: selectedProduct.retail_making_charge,
-    discount: selectedProduct.discount || 0,
-    max_discount: selectedProduct.max_discount,
-    selectedVat: this.selectedVatId
-  };
+  onProductSelected(productId: number): void {
+    const selectedProduct = this.products.find((p: any) => p.id === productId);
+    if (!selectedProduct) return;
+    this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
+      const branchTaxNo = res?.tax_rate || 0;
+      const tempGroup = {
+        purity: selectedProduct.purity_name,
+        price: selectedProduct.price,
+        purity_value: selectedProduct.purity_value,
+        weight: selectedProduct.weight,
+        stones: selectedProduct.stones || [],
+        retail_making_charge: selectedProduct.retail_making_charge,
+        discount: selectedProduct.discount || 0,
+        max_discount: selectedProduct.max_discount,
+        selectedVat: this.selectedVatId
+      };
 
-  const goldPrice = this.calcGoldPriceAccordingToPurity(tempGroup);
-  const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
-  const totalPrice = this.calcTotalPrice(tempGroup);
-  const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
+      const goldPrice = this.calcGoldPriceAccordingToPurity(tempGroup);
+      const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
+      const totalPrice = this.calcTotalPrice(tempGroup);
+      const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
 
-  console.log('[DEBUG] Calculated Prices:', {
-    goldPrice,
-    totalPrice,
-    totalWithVat
-  });
 
-  const payload = {
-    product: selectedProduct.id,
-    amount: totalPrice,
-    vat_amount:branchTaxNo
-  };
+      const payload = {
+        product: selectedProduct.id,
+        amount: totalPrice,
+        vat_amount: branchTaxNo
+      };
 
-  console.log('[DEBUG] Payload to send:', payload);
-  this._posSilverService.addProductSilver(payload).subscribe({
-    next: res => {
-      this._posSilverService.fetchSilverOrders(); // Refresh after post
-    },
-    error: err => {
-      console.error('Error posting product', err);
-    },
-    complete:() =>{
-      this.getSalesOrder()
-        this.getProductList()
-    }
-  });
+      this._posSilverService.addProductSilver(payload).subscribe({
+        next: res => {
+          this._posSilverService.fetchSilverOrders(); // Refresh after post
+        },
+        error: err => {
+          console.error('Error posting product', err);
+        },
+        complete: () => {
+          this.getSalesOrder()
+          this.getProductList()
+        }
       });
-}
+    });
+  }
   // get totalPrice(): number {
   //   const total = this.silverDataOrders.reduce((sum: number, group: any) => {
   //     return sum + group?.amount;

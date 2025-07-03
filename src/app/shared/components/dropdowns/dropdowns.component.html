@@ -1,29 +1,17 @@
 <div class="input-group border-0 d-flex flex-column">
-    <!-- Conditional label -->
-    <label *ngIf="label" [for]="id">{{ label }}
-        @if (required) {
-            <sup class="text-danger">*</sup>
-        }
-    </label>
-  
-    <!-- Select Dropdown -->
-    <!-- [ngModel]="value"  -->
-    <p-select
-    appendTo="body"
-    size="small"
-    [filter]="true"
-    [showClear]="showClear"
-    (ngModelChange)="onChange($event)"
-    [options]="options"
-    [loading]="loading"
-    [disabled]="disabled"
-    [(ngModel)]="selectedValue"
-    [optionLabel]="optionLabel"
-    [ngModel]="selectedValue"
-    [optionValue]="optionValue ?? optionLabel"
-    [required]="required"
-    [placeholder]="placeholder"
-    (onChange)="onSelectionChange($event)"
+  <!-- Conditional label -->
+  <label *ngIf="label" [for]="id">{{ label }}
+    @if (required) {
+    <sup class="text-danger">*</sup>
+    }
+  </label>
+
+  <!-- Select Dropdown -->
+  <!-- [ngModel]="value"  -->
+  <p-select appendTo="body" size="small" [filter]="true" [showClear]="showClear" (ngModelChange)="onChange($event)"
+    [options]="options" [loading]="loading" [disabled]="disabled" [(ngModel)]="selectedValue"
+    [optionLabel]="optionLabel" [ngModel]="selectedValue" [optionValue]="optionValue ?? optionLabel"
+    [required]="required" [placeholder]="placeholder" (onChange)="onSelectionChange($event)" (onClear)="onClear()"
     (blur)="onBlur()"></p-select>
   <ng-content></ng-content>
-  </div>
+</div>
