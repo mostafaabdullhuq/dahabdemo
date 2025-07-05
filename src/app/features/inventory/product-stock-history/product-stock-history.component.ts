@@ -29,18 +29,20 @@ export class ProductStockHistoryComponent implements OnInit {
   ) { }
   ngOnInit(): void {
     this.getProductStockHistory();
-     this.cols = [
-        { field: "id", header: "ID" },
-        { field: "reference_number", header: "reference number" },
-        { field: "product", header: "product" },
-        { field: "type", header: "type" },
-        { field: "add_weight", header: "weight" },
-        { field: "customer", header: "customer" },
-        { field: "branch", header: "branch" },
-        { field: "created_at", header: "created at" },
-      ];
+    this.cols = [
+      { field: "id", header: "ID" },
+      { field: "reference_number", header: "reference number" },
+      { field: "product", header: "product" },
+      { field: "type", header: "type" },
+      { field: "add_weight", header: "weight" },
+      { field: "customer", header: "customer" },
+      { field: "branch", header: "branch" },
+      { field: "created_at", header: "created at" },
+    ];
   }
+
   searchQuery: any = '';
+
   loadProductHistory(event: any): void {
     const page = event.first / event.rows + 1;
     const pageSize = event.rows;
@@ -50,17 +52,33 @@ export class ProductStockHistoryComponent implements OnInit {
 
     this._inventoryService.getProductStockHistory(this.productId, this.searchQuery, page, pageSize)
       .subscribe((res) => {
-        this.historyList = res.results;
-        this.totalRecords = res.count;
-        this.productHistoryCardData = res;
+        const historyResult = res?.product_stock_history ?? {};
+        this.historyList = historyResult?.results;
+        this.totalRecords = historyResult?.count;  // Ensure the total count is updated
+        this.productHistoryCardData = {
+          current_stock: res.current_stock,
+          total_purchase: res.total_purchase,
+          total_purchase_old_gold: res.total_purchase_old_gold,
+          transfer_in: res.transfer_in,
+          transfer_out: res.transfer_out,
+        };
       });
   }
+
   getProductStockHistory(queryParams?: any, page: number = 1, pageSize: number = 10): void {
     //const searchParams = new URLSearchParams(this.filterForm.value).toString() || '';
-
     this._inventoryService.getProductStockHistory(this.productId, queryParams, page, pageSize).subscribe(res => {
-      this.historyList = res?.results;
-      this.totalRecords = res?.count;  // Ensure the total count is updated
+      const historyResult = res?.product_stock_history ?? {};
+      this.historyList = historyResult?.results;
+      this.totalRecords = historyResult?.count;  // Ensure the total count is updated
+      this.productHistoryCardData = {
+        current_stock: res.current_stock,
+        total_purchase: res.total_purchase,
+        total_purchase_old_gold: res.total_purchase_old_gold,
+        transfer_in: res.transfer_in,
+        transfer_out: res.transfer_out,
+
+      };
     });
   }
   onClose() {

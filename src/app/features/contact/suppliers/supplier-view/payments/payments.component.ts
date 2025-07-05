@@ -42,17 +42,18 @@ export class PaymentsComponent {
   }
   getPayments(id: any, search: string = '', page: number = 1, pageSize: number = 10) {
     this._contactService.getsupplierPayments(id, search, page, pageSize)?.subscribe((res: any) => {
-      this.transData = res.results || [];;
+      this.transData = res.results || [];
+      this.totalRecords = res.count;
     })
   }
 
   loadCustomersTrans(event: any): void {
-    const page = event.first / event.rows + 1;
+    const page = Math.floor(event.first / event.rows) + 1;
     const pageSize = event.rows;
 
     this.first = event.first;
     this.pageSize = pageSize;
-    this._contactService.getsupplierPayments(this.customerId)?.subscribe((res: any) => {
+    this._contactService.getsupplierPayments(this.customerId, this.getQueryParams(), page, pageSize)?.subscribe((res: any) => {
       this.transData = res.results || [];;
       this.totalRecords = res.count;
     })
@@ -79,6 +80,10 @@ export class PaymentsComponent {
   ];
 
   onSearch(): void {
+    this.getPayments(this.customerId, this.getQueryParams(), 1, this.pageSize);
+  }
+
+  getQueryParams() {
     const formValues = this.filterForm.value;
 
     const queryParts: string[] = [];
@@ -100,8 +105,7 @@ export class PaymentsComponent {
       }
     });
 
-    const queryParams = queryParts.join('&');
+    return queryParts.join('&');
 
-    this.getPayments(this.customerId, queryParams, 1, 10);
   }
 }

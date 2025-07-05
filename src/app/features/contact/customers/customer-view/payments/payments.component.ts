@@ -16,9 +16,36 @@ export class PaymentsComponent implements OnInit {
   cols: any[] = [];
   totalRecords: number = 0;
   pageSize: number = 10;
+  pageSizeOptions: number[] = [
+    10, 25, 50, 100
+  ]
   first: number = 0;
   filterForm!: FormGroup;
+
+  selectedProduct: any;
+
+  customersMenuItems: MenuItem[] = [
+    {
+      label: 'Edit',
+      icon: 'pi pi-fw pi-pen-to-square',
+      command: () => console.log('gdfg')
+
+    },
+    {
+      label: 'View',
+      icon: 'pi pi-fw pi-eye',
+      command: () => console.log('gdfg')
+    },
+    {
+      label: 'Delete',
+      icon: 'pi pi-fw pi-trash',
+      command: () => console.log('gdfg')
+    }
+  ];
+
+
   constructor(private _contactService: ContactService, private _formBuilder: FormBuilder) { }
+
   ngOnInit(): void {
     if (this.customerId) {
       this.getPayments(this.customerId)
@@ -45,53 +72,41 @@ export class PaymentsComponent implements OnInit {
         }
       },
     ];
+
     this.filterForm = this._formBuilder.group({
       search: '',
       created_at__gte: '',
       created_at__lte: '',
     });
-    this.getPayments(this.customerId);
 
+    this.getPayments(this.customerId);
   }
+
   getPayments(id: any, search: string = '', page: number = 1, pageSize: number = 10) {
     this._contactService.getCustomerPayments(id, search, page, pageSize)?.subscribe((res: any) => {
-      this.transData = res.results || [];;
+      this.transData = res.results || [];
+      this.totalRecords = res.count;
     })
   }
 
   loadCustomersTrans(event: any): void {
-    const page = event.first / event.rows + 1;
+    const page = Math.floor(event.first / event.rows) + 1;
     const pageSize = event.rows;
 
     this.first = event.first;
     this.pageSize = pageSize;
-    this._contactService.getCustomerPayments(this.customerId)?.subscribe((res: any) => {
+    this._contactService.getCustomerPayments(this.customerId, this.getQueryParams(), page, pageSize)?.subscribe((res: any) => {
       this.transData = res.results || [];;
       this.totalRecords = res.count;
     })
   }
-  selectedProduct: any;
-
-  customersMenuItems: MenuItem[] = [
-    {
-      label: 'Edit',
-      icon: 'pi pi-fw pi-pen-to-square',
-      command: () => console.log('gdfg')
-
-    },
-    {
-      label: 'View',
-      icon: 'pi pi-fw pi-eye',
-      command: () => console.log('gdfg')
-    },
-    {
-      label: 'Delete',
-      icon: 'pi pi-fw pi-trash',
-      command: () => console.log('gdfg')
-    }
-  ];
 
   onSearch(): void {
+    this.getPayments(this.customerId, this.getQueryParams(), 1, this.pageSize);
+  }
+
+
+  getQueryParams() {
     const formValues = this.filterForm.value;
 
     const queryParts: string[] = [];
@@ -113,8 +128,7 @@ export class PaymentsComponent implements OnInit {
       }
     });
 
-    const queryParams = queryParts.join('&');
-
-    this.getPayments(this.customerId, queryParams, 1, 10);
+    return queryParts.join('&');
   }
+
 }

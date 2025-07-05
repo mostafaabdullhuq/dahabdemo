@@ -1,13 +1,12 @@
 <div class="image-uploader">
-    <label class="upload-label">
-      <input type="file" accept="image/*" (change)="handleFileInput($event)" />
-      <span class="upload-button">
-        <i class="pi pi-upload"></i> {{ label }}
-      </span>
-    </label>
-  
-    <div class="preview" *ngIf="previewUrl">
-      <img [src]="previewUrl" alt="Preview" />
-    </div>
+  <label class="upload-label">
+    <input type="file" accept="image/*" (change)="handleFileInput($event)" />
+    <span class="upload-button">
+      <i class="pi pi-upload"></i> {{ label }}
+    </span>
+  </label>
+
+  <div class="preview" *ngIf="previewUrl">
+    <img [src]="previewUrl" alt="Preview" />
   </div>
-  
+</div>

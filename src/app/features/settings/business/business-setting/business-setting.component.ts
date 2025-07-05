@@ -111,9 +111,6 @@ export class BusinessSettingComponent {
           website: unit.website || '',
           logo: unit.logo || '',
         });
-
-        console.log("form: ", this.addEditBusinessForm.value);
-
       }
     });
   }
@@ -136,15 +133,20 @@ export class BusinessSettingComponent {
       formData.append('branches', JSON.stringify(this.selectedBranches));
     }
 
+    // if the logo not changed and still an aws url, omit it because backend accepts File only
+    if (typeof formData.get("logo") === "string") {
+      formData.delete("logo")
+    }
+
     if (this.busnissId) {
       this._settingsService.updateBusiness(this.busnissId, formData).subscribe({
         next: res => this._toasterService.showSuccess("Business has been updated successfully."),
-        error: err => console.error('Error updating user', err)
+        error: err => this._toasterService.showError(err.error?.message ?? 'Unexpected error happend.', "Failed to update business settings")
       });
     } else {
       this._settingsService.addBusiness(formData).subscribe({
         next: res => this._toasterService.showSuccess("Business has been added successfully."),
-        error: err => console.error('Error creating user', err)
+        error: err => this._toasterService.showError(err.error?.message ?? 'Unexpected error happend.', "Failed to add business settings")
       });
     }
   }

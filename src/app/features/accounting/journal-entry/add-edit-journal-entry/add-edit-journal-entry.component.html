@@ -1,109 +1,117 @@
 <section class="form-container">
-    <div class="header-container">
-        <h3>{{isEditMode ? 'Edit' : 'Add'}} Journal Entry</h3>
-        <hr />
-    </div>
+  <div class="header-container">
+    <h3>{{isEditMode ? 'Edit' : 'Add'}} Journal Entry</h3>
+    <hr />
+  </div>
 
-    <div class="add-form">
-        <form [formGroup]="addEditJournalForm" class="container" (ngSubmit)="onSubmit()">
-            <section class="form-section">
-                <div class="row">
-                    <div class="col-md-6">
-                        <app-input-text formControlName="reference_number" inputName="reference number"
-                            placeholder="reference number">
-                        </app-input-text>
-                    </div>
-                    <div class="col-md-6">
-                        <app-input-date formControlName="date" inputName="journal date"
-                                placeholder="Enter date">
-                            </app-input-date>
-                    </div>
-                    <div class="col-md-12">
-                        <app-input-text formControlName="description" inputName="description"
-                                placeholder="Enter description">
-                            </app-input-text>
-                    </div>
-                </div>
-                <hr>
-            <table class="table" formArrayName="lines">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Account</th>
-                    <th>debit</th>
-                    <th>credit</th>
-                    <th>users</th>
-                    <th>customers</th>
-                    <th>suppliers Rate</th>
-                    <th>describtion</th>
-                    <th>actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of lines.controls; let i = index" [formGroupName]="i">
-                    <td>
-                        {{i+1}}
-                    </td>
-                    <td>
-                        <app-dropdowns formControlName="account" [options]="accounts" optionLabel="name"
-                                optionValue="id" placeholder="Select account"></app-dropdowns>
-                    </td>
-                    <td>
-                      <app-input-text formControlName="debit" placeholder="debit">
-                        </app-input-text>
-                    </td>
-                    <td>
-                        <app-input-text formControlName="credit" placeholder="credit">
-                        </app-input-text>
-                    </td>
-                    <td>
-                        <app-dropdowns  formControlName="user" [options]="users" optionLabel="username"
-                                optionValue="id" placeholder="Select user"></app-dropdowns>
-                    </td>
-                    <td>
-                        <app-dropdowns  formControlName="customer" [options]="customers" optionLabel="name"
-                                optionValue="id" placeholder="Select customer"></app-dropdowns>
-                    </td>
-                    <td>
-                        <app-dropdowns formControlName="supplier" [options]="suppliers" optionLabel="name"
-                                optionValue="id" placeholder="Select supplier"></app-dropdowns>
-                    </td>
-                    <td>
-                        <app-input-text formControlName="description" placeholder="description">
-                        </app-input-text>
-                    </td>
-                    <td>
+  <div class="add-form">
+    <form [formGroup]="addEditJournalForm" class="container" (ngSubmit)="onSubmit()">
+      <section class="form-section">
+        <div class="row">
+          <div class="col-md-6">
+            <app-input-text formControlName="reference_number" inputName="reference number"
+              placeholder="reference number">
+            </app-input-text>
+          </div>
+          <div class="col-md-6">
+            <app-input-date formControlName="date" inputName="journal date" placeholder="Enter date">
+            </app-input-date>
+          </div>
+          <div class="col-md-6">
+            <app-input-text formControlName="description" inputName="description" placeholder="Enter description">
+            </app-input-text>
+          </div>
+          <div class="col-md-6">
+            <app-dropdowns label="branch" formControlName="branch" [options]="branches" optionLabel="name"
+              optionValue="id" placeholder="Select a branch"></app-dropdowns>
+          </div>
+        </div>
+        <hr>
+        <table class="table" formArrayName="lines">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Account</th>
+              <th>debit</th>
+              <th>credit</th>
+              <th>users</th>
+              <th>customers</th>
+              <th>suppliers Rate</th>
+              <th>describtion</th>
+              <th>actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of lines.controls; let i = index" [formGroupName]="i">
+              <td>
+                {{i+1}}
+              </td>
+              <td>
+                <app-dropdowns formControlName="account" [options]="accounts" optionLabel="name" optionValue="id"
+                  [showClear]="true" placeholder="Select account"></app-dropdowns>
+              </td>
+              <td>
+                <app-input-text formControlName="debit" placeholder="debit">
+                </app-input-text>
+              </td>
+              <td>
+                <app-input-text formControlName="credit" placeholder="credit">
+                </app-input-text>
+              </td>
+              <td>
+                <app-dropdowns formControlName="user" [options]="users" optionLabel="username" optionValue="id"
+                  [showClear]="true"
+                  [disabled]="lines.controls[i].get('customer')?.value || lines.controls[i].get('supplier')?.value"
+                  placeholder="Select user"></app-dropdowns>
+              </td>
+              <td>
+                <app-dropdowns formControlName="customer" [options]="customers" optionLabel="name" optionValue="id"
+                  [showClear]="true"
+                  [disabled]="lines.controls[i].get('user')?.value || lines.controls[i].get('supplier')?.value"
+                  placeholder="Select customer"></app-dropdowns>
+              </td>
+              <td>
+                <app-dropdowns formControlName="supplier" [options]="suppliers" optionLabel="name" optionValue="id"
+                  [showClear]="true"
+                  [disabled]="lines.controls[i].get('user')?.value || lines.controls[i].get('customer')?.value"
+                  placeholder="Select supplier"></app-dropdowns>
+              </td>
+              <td>
+                <app-input-text formControlName="description" placeholder="description">
+                </app-input-text>
+              </td>
+              <td>
                 <button type="button" class="delete-btn" (click)="removeLine(i)">
-                            <i class="pi pi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-                <tr class="total-row">
-                    <td></td>
-                    <td colspan="2"><strong>Totals</strong></td>
-                    <td><strong>{{ totalDebit | number: '1.2-2' }}</strong></td>
-                    <td><strong>{{ totalCredit | number: '1.3-3' }}</strong></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="total-row">
+              <td></td>
+              <td colspan="2"><strong>Totals</strong></td>
+              <td><strong>{{ totalDebit | number: '1.2-2' }}</strong></td>
+              <td><strong>{{ totalCredit | number: '1.3-3' }}</strong></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
         </table>
         <div class="fw-bold text-danger" *ngIf="totalCredit != totalDebit">
-Total debit must equal total credit.
-</div>
-        <div class="btns-group">
-            <button type="button" class="add-btn" (click)="addLine()"> <i class="pi pi-plus"></i></button>
+          Total debit must equal total credit.
         </div>
-            </section>
+        <div class="btns-group">
+          <button type="button" class="add-btn" (click)="addLine()"> <i class="pi pi-plus"></i></button>
+        </div>
+      </section>
 
 
-            <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn">{{isEditMode?
-                    'Update' : 'Submit'}}</button>
-            </div>
-        </form>
-    </div>
+      <div class="btns-group">
+        <button type="submit" class="my-4 submit-btn">{{isEditMode?
+          'Update' : 'Submit'}}</button>
+      </div>
+    </form>
+  </div>
 </section>

@@ -11,7 +11,7 @@ import { AttachedDocsComponent } from './attached-docs/attached-docs.component';
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.scss'
 })
-export class DocumentsComponent implements OnInit{
+export class DocumentsComponent implements OnInit {
   transData: any = [];
   @Input() customerId: any = '';
   cols: any[] = [];
@@ -19,7 +19,7 @@ export class DocumentsComponent implements OnInit{
   pageSize: number = 10;
   first: number = 0;
   filterForm!: FormGroup;
-  attachedDocs:any = []
+  attachedDocs: any = []
   constructor(private _contactService: ContactService, private _formBuilder: FormBuilder) { }
   ngOnInit(): void {
     if (this.customerId) {
@@ -27,8 +27,8 @@ export class DocumentsComponent implements OnInit{
     }
     this.cols = [
       { field: "id", header: "ID" },
-    { field: "created_at", header: "Date" },
-    { field: "order_type", header: "Order Type" },
+      { field: "created_at", header: "Date" },
+      { field: "order_type", header: "Order Type" },
     ];
     this.filterForm = this._formBuilder.group({
       search: '',
@@ -38,23 +38,25 @@ export class DocumentsComponent implements OnInit{
     this.getDocs(this.customerId);
 
   }
+
   getDocs(id: any, search: string = '', page: number = 1, pageSize: number = 10) {
     this._contactService.getCustomerDocuments(id, search, page, pageSize)?.subscribe((res: any) => {
       this.transData = res?.order_docs?.results || [];
       this.attachedDocs = res?.customer_attachments || [];
+      this.totalRecords = res?.order_docs?.count;
     })
   }
 
   loadCustomersTrans(event: any): void {
-    const page = event.first / event.rows + 1;
+    const page = Math.floor(event.first / event.rows) + 1;
     const pageSize = event.rows;
 
     this.first = event.first;
     this.pageSize = pageSize;
-    this._contactService.getCustomerDocuments(this.customerId)?.subscribe((res: any) => {
+    this._contactService.getCustomerDocuments(this.customerId, this.getQueryParams(), page, pageSize)?.subscribe((res: any) => {
       this.transData = res?.order_docs?.results || [];
       this.attachedDocs = res?.customer_attachments || [];
-      this.totalRecords = res.count;
+      this.totalRecords = res?.order_docs?.count;
     })
   }
   selectedProduct: any;
@@ -85,7 +87,14 @@ export class DocumentsComponent implements OnInit{
     ref.instance.customerId = this.customerId;
     ref.instance.attachmentList = this.attachedDocs;
   }
+
+
   onSearch(): void {
+
+    this.getDocs(this.customerId, this.getQueryParams(), 1, this.pageSize);
+  }
+
+  getQueryParams() {
     const formValues = this.filterForm.value;
 
     const queryParts: string[] = [];
@@ -107,9 +116,8 @@ export class DocumentsComponent implements OnInit{
       }
     });
 
-    const queryParams = queryParts.join('&');
+    return queryParts.join('&');
 
-    this.getDocs(this.customerId, queryParams, 1, 10);
   }
 
 }

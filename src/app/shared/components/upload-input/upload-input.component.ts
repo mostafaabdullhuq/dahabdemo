@@ -4,7 +4,7 @@ import { UploadEvent } from 'primeng/fileupload';
 
 @Component({
   selector: 'app-upload-input',
-  standalone:false,
+  standalone: false,
   templateUrl: './upload-input.component.html',
   styleUrl: './upload-input.component.scss',
   providers: [
@@ -23,17 +23,23 @@ export class UploadInputComponent {
   file: File | null = null;
   previewUrl: string | ArrayBuffer | null = null;
 
-  private onChange = (value: File | null) => {};
-  private onTouched = () => {};
+  private onChange = (value: File | null) => { };
+  private onTouched = () => { };
 
-  writeValue(value: File | null): void {
-    this.file = value;
-    if (value) {
+  writeValue(value: File | string | null): void {
+    if (value instanceof File) {
+      this.file = value;
       const reader = new FileReader();
       reader.onload = () => {
         this.previewUrl = reader.result;
       };
       reader.readAsDataURL(value);
+    } else if (typeof value === 'string' && value) {
+      this.file = null;
+      this.previewUrl = value;
+    } else {
+      this.file = null;
+      this.previewUrl = null;
     }
   }
 

@@ -1,36 +1,37 @@
 <section>
-    <div class="filter-container container">
-        <app-filter-collapse>
-            <form class="container" [formGroup]="filterForm">
-                <div class="row">
-                    <div class="col-md-12">
-                        <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
-                    </div>
-                    <div class="col-md-4">
-                        <app-dropdowns label="Transactions" id="order__orderproduct__order_type" formControlName="order__orderproduct__order_type"
-                        [options]="transactionTypes" optionLabel="name" optionValue="id" placeholder="Select a transaction">
-                    </app-dropdowns>                    </div>
-                    <div class="col-md-4">
-                        <app-input-date formControlName="created_at__gte" inputName="start date"
-                                placeholder="Enter date">
-                            </app-input-date>
-                    </div>
-                    <div class="col-md-4">
-                        <app-input-date formControlName="created_at__lte" inputName="end date"
-                                placeholder="Enter date">
-                            </app-input-date>
-                    </div>
-                </div>
-                <div class="btns-group">
-                    <button class=" submit-btn" (click)="onSearch()">Search</button>
-                </div>
-                </form >
-        </app-filter-collapse>
-    </div>
-    <div class="table-container">
-        <app-data-table [contextMenuItems]="customersMenuItems"
-        (rowSelected)="selectedProduct = $event" [data]="transData" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
-            (pageChange)="loadCustomersTrans($event)">
-        </app-data-table>
-    </div>
+  <div class="filter-container container">
+    <app-filter-collapse>
+      <form class="container" [formGroup]="filterForm">
+        <div class="row">
+          <div class="col-md-12">
+            <app-input-text formControlName="search" placeholder="Global Search" type="text"
+              inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Transactions" id="order__orderproduct__order_type"
+              formControlName="order__orderproduct__order_type" [options]="transactionTypes" optionLabel="name"
+              optionValue="id" placeholder="Select a transaction">
+            </app-dropdowns>
+          </div>
+          <div class="col-md-4">
+            <app-input-date formControlName="created_at__gte" inputName="start date" placeholder="Enter date">
+            </app-input-date>
+          </div>
+          <div class="col-md-4">
+            <app-input-date formControlName="created_at__lte" inputName="end date" placeholder="Enter date">
+            </app-input-date>
+          </div>
+        </div>
+        <div class="btns-group">
+          <button class=" submit-btn" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </app-filter-collapse>
+  </div>
+  <div class="table-container">
+    <app-data-table [contextMenuItems]="customersMenuItems" (rowSelected)="selectedProduct = $event" [data]="transData"
+      [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+      [rowsPerPageOptions]="pageSizeOptions" (pageChange)="loadCustomersTrans($event)">
+    </app-data-table>
+  </div>
 </section>

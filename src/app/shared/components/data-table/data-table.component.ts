@@ -47,12 +47,10 @@ export class DataTableComponent implements OnInit {
   }
 
   viewRow(row: any): void {
-    console.log('Viewing:', row);
     // Trigger a custom output or action
   }
 
   deleteRow(row: any): void {
-    console.log('Deleting:', row);
     this.data = this.data.filter(r => r.id !== row.id); // Or emit to parent to handle
   }
   resolveFieldData(data: any, field: string): any {

@@ -1,4 +1,4 @@
-/* From Uiverse.io by Prince4fff */ 
+/* From Uiverse.io by Prince4fff */
 .card-body p {
   font-size: 17px;
   font-weight: 400;
@@ -45,7 +45,21 @@
   overflow: hidden;
 }
 
-.card1:before {
+.card-full {
+  display: block;
+  position: relative;
+  background-color: #f2f8f9;
+  border-radius: 4px;
+  // min-height: 15rem;
+  padding: 32px 24px;
+  margin: 12px;
+  text-decoration: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.card1:before,
+.card-full:before {
   content: "";
   position: absolute;
   z-index: -1;
@@ -60,16 +74,19 @@
   transition: transform 0.25s ease-out;
 }
 
-.card1:hover:before {
+.card1:hover:before,
+.card-full:hover:before {
   transform: scale(21);
 }
 
-.card1:hover p {
+.card1:hover p,
+.card-full:hover p {
   transition: all 0.3s ease-out;
   color: rgba(255, 255, 255, 0.8);
 }
 
-.card1:hover h3 {
+.card1:hover h3,
+.card-full:hover h3 {
   transition: all 0.3s ease-out;
   color: #fff;
 }
