@@ -48,24 +48,27 @@ export class CountDownComponent implements OnInit, OnDestroy {
     private websocketService: StockTakingWebsocketService,
     private _confirmPopUp: ConfirmationPopUpService,
     // private modalService: NgbModal,
-  private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
     this.initForms();
     this.loadDropdowns();
     this.setupWebSocket();
-    this.setupScanning();    
+    this.setupScanning();
   }
-selectProduct(productId: string): void {
-  const selected = this.multipleProducts.find(p => p.id === productId);
-  if (selected) {
-    console.log(selected);
-    this.scanningProductForm.get('product')?.patchValue(selected?.tag_number)
-    //this.handleScanSuccess({ item: selected }); // Reuse the existing logic
-    this.statusMessage = { type: 'success', text: 'Product selected from multiple matches' };
+
+  selectProduct(productId: string): void {
+    const selected = this.multipleProducts.find(p => p.id === productId);
+    if (selected) {
+      console.log(selected);
+      this.scanningProductForm.get('product')?.patchValue(selected?.tag_number)
+      //this.handleScanSuccess({ item: selected }); // Reuse the existing logic
+      this.statusMessage = { type: 'success', text: 'Product selected from multiple matches' };
+    }
   }
-}
+
+
   ngOnDestroy(): void {
     this.websocketSubscription?.unsubscribe();
     this.connectionSubscription?.unsubscribe();
@@ -85,15 +88,15 @@ selectProduct(productId: string): void {
     });
 
     this.branchChangeSubscription = this.filterForm.get('branch')?.valueChanges.subscribe(branchId => {
-       if (branchId) {
-    this.checkActiveStockTaking();
-    this.loadCategories(branchId);
-    this.loadStockPoints(branchId);
-    this.tagInput.nativeElement.disabled = false;
-    setTimeout(() => this.tagInput.nativeElement.focus(), 0);
+      if (branchId) {
+        this.checkActiveStockTaking();
+        this.loadCategories(branchId);
+        this.loadStockPoints(branchId);
+        this.tagInput.nativeElement.disabled = false;
+        setTimeout(() => this.tagInput.nativeElement.focus(), 0);
 
-    // Add this
-    this.requestActiveItems(); // ✅ trigger WebSocket call after branch selection
+        // Add this
+        this.requestActiveItems(); // ✅ trigger WebSocket call after branch selection
       } else {
         this.categories = [];
         this.stockPoints = [];
@@ -166,53 +169,54 @@ selectProduct(productId: string): void {
   //   }
 
   //   console.log(message);
-    
+
   // }
-private lastHandledMessageId: string | null = null;
+  private lastHandledMessageId: string | null = null;
 
-private handleWebSocketMessage(message: any): void {
-  // Avoid duplicates by message id
-  if (message.id && message.id === this.lastHandledMessageId) {
-    return;
-  }
-  this.lastHandledMessageId = message.id || null;
-
-  if (message.status === 'success') {
-    if (message.action === 'scan') {
-      this.statusMessage = { type: 'success', text: 'Item scanned successfully' };
-      this.handleScanSuccess(message.data);
-    } else if (message.action === 'get_active_items') {
-      this.handleActiveItems(message.data);
-    } else if (message.action === 'update_quantity') {
-      this.statusMessage = { type: 'success', text: 'Quantity updated successfully' };
-      this.handleQuantityUpdate(message.data);
+  private handleWebSocketMessage(message: any): void {
+    // Avoid duplicates by message id
+    if (message.id && message.id === this.lastHandledMessageId) {
+      return;
     }
-  } else if (message.status === 'multiple_products') {
-    this.showMultipleProducts(message.products);
-  } else {
-    this.statusMessage = { type: 'danger', text: message.message || 'WebSocket error occurred' };
+    this.lastHandledMessageId = message.id || null;
+
+    if (message.status === 'success') {
+      if (message.action === 'scan') {
+        this.statusMessage = { type: 'success', text: 'Item scanned successfully' };
+        this.handleScanSuccess(message.data);
+      } else if (message.action === 'get_active_items') {
+        this.handleActiveItems(message.data);
+      } else if (message.action === 'update_quantity') {
+        this.statusMessage = { type: 'success', text: 'Quantity updated successfully' };
+        this.handleQuantityUpdate(message.data);
+      }
+    } else if (message.status === 'multiple_products') {
+      this.showMultipleProducts(message.products);
+    } else {
+      this.statusMessage = { type: 'danger', text: message.message || 'WebSocket error occurred' };
+    }
+
+    console.log('[WebSocket Received]:', message);
   }
 
-  console.log('[WebSocket Received]:', message);
-}
   private handleScanSuccess(data: any): void {
     const item = data.item;
     const existingIndex = this.products.findIndex(p => p.id === item.id);
-    
+
     if (existingIndex >= 0) {
       this.products[existingIndex] = item;
     } else {
       this.products.unshift(item);
     }
-    
+
     this.updateStatistics();
     this.scanningProductForm.get('product')?.reset();
   }
 
-private handleActiveItems(items: any[]): void {
-  this.products = items.map(entry => entry.item); // Extract only the item objects
-  this.updateStatistics();
-}
+  private handleActiveItems(items: any[]): void {
+    this.products = items.map(entry => entry.item); // Extract only the item objects
+    this.updateStatistics();
+  }
 
   private handleQuantityUpdate(item: any): void {
     const index = this.products.findIndex(p => p.id === item.id);
@@ -222,24 +226,24 @@ private handleActiveItems(items: any[]): void {
     }
   }
 
-private showMultipleProducts(products: any[]): void {
-  if (products.length === 0) return;
+  private showMultipleProducts(products: any[]): void {
+    if (products.length === 0) return;
 
-  this.multipleProducts = products;
+    this.multipleProducts = products;
 
-  // Optional: disable scan temporarily if needed
-  this.scanningProductForm.get('product')?.disable();
+    // Optional: disable scan temporarily if needed
+    this.scanningProductForm.get('product')?.disable();
 
-  // Optional: re-enable scan after a delay (to prevent race conditions)
-  setTimeout(() => {
-    this.scanningProductForm.get('product')?.enable();
-  }, 1000);
+    // Optional: re-enable scan after a delay (to prevent race conditions)
+    setTimeout(() => {
+      this.scanningProductForm.get('product')?.enable();
+    }, 1000);
 
-  // Optional: force update
-  this.cdRef.detectChanges(); // Inject ChangeDetectorRef if needed
+    // Optional: force update
+    this.cdRef.detectChanges(); // Inject ChangeDetectorRef if needed
 
-  console.log('Multiple products found:', products);
-}
+    console.log('Multiple products found:', products);
+  }
 
   private updateStatistics(): void {
     this.totalItems = this.products.length;
@@ -247,54 +251,54 @@ private showMultipleProducts(products: any[]): void {
     this.totalDifference = this.products.reduce((sum, p) => sum + p.difference, 0);
   }
 
-// private requestActiveItems(): void {
-//   const branchId = this.filterForm.get('branch')?.value;
-//   const categoryId = this.filterForm.get('category')?.value;
-//   const stockPointId = this.filterForm.get('stockpoint')?.value;
+  // private requestActiveItems(): void {
+  //   const branchId = this.filterForm.get('branch')?.value;
+  //   const categoryId = this.filterForm.get('category')?.value;
+  //   const stockPointId = this.filterForm.get('stockpoint')?.value;
 
-//   if (branchId) {
-//     const message: any = {
-//       action: 'get_active_items',
-//       branch_id: branchId
-//     };
+  //   if (branchId) {
+  //     const message: any = {
+  //       action: 'get_active_items',
+  //       branch_id: branchId
+  //     };
 
-//     if (categoryId) message.category = categoryId;
-//     if (stockPointId) message.stock_point = stockPointId;
-//     this.websocketService.sendMessage(message);
+  //     if (categoryId) message.category = categoryId;
+  //     if (stockPointId) message.stock_point = stockPointId;
+  //     this.websocketService.sendMessage(message);
 
-//     console.log(message);
-    
-//   }
-// }
-private requestTimer: any = null;
-private requestInProgress = false;
+  //     console.log(message);
 
-private requestActiveItems(): void {
-  if (this.requestInProgress) return;
+  //   }
+  // }
+  private requestTimer: any = null;
+  private requestInProgress = false;
 
-  this.requestInProgress = true;
+  private requestActiveItems(): void {
+    if (this.requestInProgress) return;
 
-  clearTimeout(this.requestTimer);
-  this.requestTimer = setTimeout(() => {
-    const branchId = this.filterForm.get('branch')?.value;
-    const categoryId = this.filterForm.get('category')?.value;
-    const stockPointId = this.filterForm.get('stockpoint')?.value;
+    this.requestInProgress = true;
 
-    if (branchId) {
-      const message: any = {
-        action: 'get_active_items',
-        branch_id: branchId
-      };
+    clearTimeout(this.requestTimer);
+    this.requestTimer = setTimeout(() => {
+      const branchId = this.filterForm.get('branch')?.value;
+      const categoryId = this.filterForm.get('category')?.value;
+      const stockPointId = this.filterForm.get('stockpoint')?.value;
 
-      if (categoryId) message.category = categoryId;
-      if (stockPointId) message.stock_point = stockPointId;
+      if (branchId) {
+        const message: any = {
+          action: 'get_active_items',
+          branch_id: branchId
+        };
 
-      this.websocketService.sendMessage(message);
-    }
+        if (categoryId) message.category = categoryId;
+        if (stockPointId) message.stock_point = stockPointId;
 
-    this.requestInProgress = false;
-  }, 800); // Delay sending by 700ms
-}
+        this.websocketService.sendMessage(message);
+      }
+
+      this.requestInProgress = false;
+    }, 800); // Delay sending by 700ms
+  }
   private scanProduct(tagNumber: string): void {
     const branchId = this.filterForm.get('branch')?.value;
     const categoryId = this.filterForm.get('category')?.value;
@@ -312,7 +316,7 @@ private requestActiveItems(): void {
 
       this.websocketService.sendMessage(message);
       console.log(message);
-      
+
     } else {
       this.statusMessage = { type: 'warning', text: 'Please select a branch first' };
     }
@@ -357,7 +361,7 @@ private requestActiveItems(): void {
         this.currentStockTakingId = res.id;
         this.statusMessage = { type: 'success', text: 'Stock taking session initialized' };
         this.requestActiveItems();
-        
+
       } else {
         this.statusMessage = { type: 'danger', text: res?.message || 'Failed to initialize stock taking' };
       }
@@ -382,7 +386,7 @@ private requestActiveItems(): void {
       }
     });
   }
- showConfirmDelete(color: any) {
+  showConfirmDelete(color: any) {
     this._confirmPopUp.confirm({
       message: 'Do you want to delete this item?',
       header: 'Confirm Delete',
@@ -413,25 +417,25 @@ private requestActiveItems(): void {
 
   visible: boolean = false;
   openQuantityModal(item: any): void {
-  this.currentItemId = item?.id;
-  this.selectedQuantity = item?.actual_quantity;
-  this.visible = true;
-}
-
-handleQuantitySave(quantity: number): void {
-  if (!this.currentItemId) {
-    this.statusMessage = { type: 'danger', text: 'No item selected for update' };
-    return;
+    this.currentItemId = item?.id;
+    this.selectedQuantity = item?.actual_quantity;
+    this.visible = true;
   }
 
-  this.websocketService.sendMessage({
-    action: 'update_quantity',
-    item_id: this.currentItemId,
-    quantity: quantity
-  });
+  handleQuantitySave(quantity: number): void {
+    if (!this.currentItemId) {
+      this.statusMessage = { type: 'danger', text: 'No item selected for update' };
+      return;
+    }
 
-  this.checkActiveStockTaking();
-}
+    this.websocketService.sendMessage({
+      action: 'update_quantity',
+      item_id: this.currentItemId,
+      quantity: quantity
+    });
+
+    this.checkActiveStockTaking();
+  }
 
   updateQuantity(): void {
     if (!this.currentItemId || this.selectedQuantity === null) {
@@ -444,11 +448,11 @@ handleQuantitySave(quantity: number): void {
       item_id: this.currentItemId,
       quantity: this.selectedQuantity
     });
-    this.visible =false;
-        this.checkActiveStockTaking();
+    this.visible = false;
+    this.checkActiveStockTaking();
   }
 
-    showDialog() {
+  showDialog() {
     this.visible = true;
   }
 

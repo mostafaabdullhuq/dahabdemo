@@ -1,15 +1,14 @@
-// stock-taking-websocket.service.ts
+// websocket.service.ts
 import { Injectable } from '@angular/core';
+import { catchError, delayWhen, EMPTY, Observable, retryWhen, Subject, tap, timer } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { Observable, Subject, timer, EMPTY } from 'rxjs';
-import { catchError, tap, retryWhen, delayWhen, switchMap } from 'rxjs/operators';
-import { AuthService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment.development';
+import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
-export class StockTakingWebsocketService {
+export class WebsocketService {
   private socket$!: WebSocketSubject<any>;
   private messagesSubject = new Subject<any>();
   public messages$ = this.messagesSubject.asObservable();
@@ -19,14 +18,14 @@ export class StockTakingWebsocketService {
   private readonly maxReconnectAttempts = 5;
   private readonly reconnectDelay = 3000;
 
-  constructor(private authService: AuthService) {
+  constructor(private _authService: AuthService) {
     this.connect();
   }
 
   private getWebSocketUrl(): string {
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const token = this.authService.getAccessToken(); // Get token from your auth service
-    return `${protocol}://${environment.api_web_socket}ws/stock-taking/?token=${token}`;
+    const token = this._authService.getAccessToken(); // Get token from your auth service
+    return `${protocol}://${environment.api_web_socket}ws/gold-rate/?token=${token}`;
   }
 
   private connect(): void {
