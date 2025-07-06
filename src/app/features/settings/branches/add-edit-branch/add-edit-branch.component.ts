@@ -143,11 +143,12 @@ export class AddEditBranchComponent implements OnInit {
       // 3. Patch custom_fields (if your backend returns an object like { key: value })
       const customFieldsArray = this.addEditBranchForm.get('custom_fields') as FormArray;
       customFieldsArray.clear();
+
       const fieldObj = unit?.custom_fields || []; // should be an object like { key: value }
 
-      fieldObj.forEach((field: { field_name: string | number; value: string | number }) => {
+      fieldObj.forEach((field: { field_key: string | number; value: string | number }) => {
         customFieldsArray.push(this._formBuilder.group({
-          field_key: [field?.field_name],
+          field_key: [field?.field_key],
           value: [field?.value || '']
         }));
       });
@@ -180,6 +181,7 @@ export class AddEditBranchComponent implements OnInit {
   }
 
   loadCustomFields(): void {
+
     const fields = this.branchData?.custom_fields || [];
 
     if (!fields.length) {
@@ -214,8 +216,9 @@ export class AddEditBranchComponent implements OnInit {
       default: item?.default ?? false
     }));
 
+
     const paymentMethods = rawValue.payment_methods?.map((pm: any) => ({
-      payment_method: pm
+      payment_method: pm.payment_method
     })) || [];
 
     const formattedData = {
@@ -245,6 +248,7 @@ export class AddEditBranchComponent implements OnInit {
     // delete formattedData.logo
 
     if (this.isEditMode && this.brandId) {
+      [{ "payment_method": { "payment_method": 3 } }, { "payment_method": { "payment_method": 2 } }, { "payment_method": { "payment_method": 1 } }]
       this._sttingService.updateBranch(this.brandId, formData).subscribe({
         next: res => this._router.navigate([`setting/branch`]),
         error: err => this._toasterService.showError(err.error?.message ?? 'Unexpected error happend.', "Failed to update branch settings")
