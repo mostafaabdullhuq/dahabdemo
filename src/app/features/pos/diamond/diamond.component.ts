@@ -25,7 +25,6 @@ export class DiamondComponent implements OnInit, OnDestroy {
   taxes: Tax[] = [];
   salesProduct: any = [];
   menuItem: MenuItem[] = [];
-  manualGoldPrice = '';
   selectedCurrency: Currency | null = null;
   private destroy$ = new Subject<void>();
   defualtVat = 0;
@@ -45,18 +44,21 @@ export class DiamondComponent implements OnInit, OnDestroy {
     this._posService.getProductDiamondList().subscribe((res) => {
       this.products = res?.results;
     });
+
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results;
       this.selectedVatId = this.taxes[0].id; // Set first VAT as default
     });
+
     this.getSalesOrder()
+
     this._posStatusService.shiftData$
       .pipe(takeUntil(this.destroy$))
       .subscribe(data => {
         this.shiftData = data;
         if (this.shiftData && this.shiftData?.is_active) {
-          this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
-            this.manualGoldPrice = res?.manual_gold_price;
+          this._posService.getProductDiamondList().subscribe((res) => {
+            this.products = res?.results;
           });
         }
       });
@@ -83,6 +85,8 @@ export class DiamondComponent implements OnInit, OnDestroy {
     this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
+        this.isShiftActive = status;
+
         if (!status)
           this.selectedCurrency = null
       });
@@ -103,12 +107,8 @@ export class DiamondComponent implements OnInit, OnDestroy {
         }
       }
     ];
-    this._posStatusService.shiftActive$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(status => {
-        this.isShiftActive = status;
-      });
   }
+
   isShiftActive: boolean = false;
   selectedRowData: any = [];
   componentRef!: ComponentRef<SetDiscountComponent>;
@@ -120,9 +120,11 @@ export class DiamondComponent implements OnInit, OnDestroy {
     this.componentRef.instance.selectedRowId = id;
     this.componentRef.instance.visible = true;
   }
+
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
   }
+
   getProductList() {
     this._posService.getProductDiamondList().subscribe((res) => {
       this.products = res?.results;
@@ -151,57 +153,27 @@ export class DiamondComponent implements OnInit, OnDestroy {
 
     })
   }
+
   get totalPrice(): number {
-    const total = this.silverDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (group.amount || 0), 0) || 0;
-    this._posSharedService.setDiamondTotalPrice(total)
-    this._posSharedService.setDiamondTotalGrand(total)
+    console.log("calculating diamond total price!");
+
+    const total = this.silverDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (+group.amount || 0), 0) || 0;
+    this._posSharedService.setDiamondTotalPrice(+total)
+
+    this._posSharedService.setDiamondTotalGrand(+total)
+
     return total
-  }
-  calcGoldPriceAccordingToPurity(group: any): number {
-    if (
-      !this.manualGoldPrice ||
-      !group?.purity ||
-      !group?.purity_value ||
-      !this.selectedCurrency?.currency_decimal_point
-    ) {
-      return 0;
-    }
-
-    const baseValue = (+this.manualGoldPrice / 31.10348) * 0.378;
-    let purityFactor = 1;
-
-    switch (group.purity) {
-      case 24:
-        purityFactor = 1;
-        break;
-      case 22:
-        purityFactor = 0.916;
-        break;
-      case 21:
-        purityFactor = 0.88;
-        break;
-      case 18:
-        purityFactor = 0.75;
-        break;
-      default:
-        purityFactor = 1;
-    }
-
-    const goldPrice = baseValue * purityFactor * group.purity_value;
-
-    // Format based on selected currency decimal point
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
-    return +goldPrice.toFixed(decimalPlaces);
   }
 
   priceOfProductToPatch: any = 0;
 
   calcMetalValueAccordingToPurity(group: any) {
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
-    const metalValue = this.calcGoldPriceAccordingToPurity(group) * group?.weight;
+    const metalValue = +(group.price);
     this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
     return +metalValue.toFixed(decimalPlaces);
   }
+
   calcTotalPrice(group: any): number {
     this.priceOfProductToPatch = 0;
     const metalValue = this.calcMetalValueAccordingToPurity(group);
@@ -253,6 +225,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
       this._posService.setDiscountProductSale(pId, form.value).subscribe();
     }
   }
+
   calcTotalPriceWithVat(group: any): number {
     this.priceOfProductToPatch = 0
     const baseTotal = this.calcTotalPrice(group);
@@ -273,6 +246,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
     const totalWithVat = baseTotal + vatAmount;
     return +totalWithVat.toFixed(decimalPlaces);
   }
+
   calcGrandTotalWithVat(): number {
     if (!this.silverDataOrders || this.silverDataOrders.length === 0) return 0;
 
@@ -303,24 +277,15 @@ export class DiamondComponent implements OnInit, OnDestroy {
         selectedVat: this.selectedVatId
       };
 
-      const goldPrice = this.calcGoldPriceAccordingToPurity(tempGroup);
       const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
       const totalPrice = this.calcTotalPrice(tempGroup);
-      const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
-
-      console.log('[DEBUG] Calculated Prices:', {
-        goldPrice,
-        totalPrice,
-        totalWithVat
-      });
 
       const payload = {
         product: selectedProduct.id,
         amount: totalPrice,
-        vat_amount: branchTaxNo
+        vat_amount: branchTaxNo,
       };
 
-      console.log('[DEBUG] Payload to send:', payload);
       this._posDiamondService.addProductDiamond(payload).subscribe({
         next: res => {
           this._posDiamondService.fetchDiamondOrders(); // Refresh after post
@@ -335,6 +300,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
       });
     });
   }
+
   // onProductSelected(productId: number): void {
   //   const selectedProduct = this.products.find((p: any) => p.id === productId);
   //   if (!selectedProduct) return;
@@ -362,6 +328,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
   //   const formattedTotal = +total.toFixed(decimalPlaces);
   //   return formattedTotal;
   // }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

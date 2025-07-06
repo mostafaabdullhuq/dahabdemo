@@ -60,6 +60,7 @@ export class PosComponent implements OnInit, OnDestroy {
     if (this.isShiftActive) {
       this._posService.closeShift(this.shiftId).subscribe(() => {
         this._posStatusService.setShiftStatus(false);
+        this._posSharedService.resetAllValues();
         this.openShiftReport();
         // because if selected other branch customer and currency can not be matched
         sessionStorage.removeItem("customer");

@@ -62,7 +62,10 @@
                       [(ngModel)]="selectedVatId" (selectionChange)="onVatChange($event, group)">
                     </app-dropdowns>
                   </td>
-                  <td>{{ calcGoldPriceAccordingToPurity(group) }}</td>
+                  <td>
+                    <input style="font-size: 14px;" type="number" class="form-control" [(ngModel)]="group.gold_price"
+                      (ngModelChange)="onGoldPriceChange(group)" />
+                  </td>
                   <td>{{ group.retail_making_charge }}</td>
                   <td>{{ group.discount }}</td>
                   <td>{{ group.max_discount }}</td>

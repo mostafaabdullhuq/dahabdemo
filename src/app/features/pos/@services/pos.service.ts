@@ -31,9 +31,15 @@ export class PosService {
   deleteProductPos(id: any): Observable<any> {
     return this._http.deleteRequest(`${environment.api_url}pos/order-product/${id}/`);
   }
+
   setDiscountProductSale(id: any, form: any): Observable<any> {
-    return this._http.patchRequest(`${environment.api_url}pos/order-product-discount/${id}/`, form);
+    return this._http.patchRequest(`${environment.api_url}pos/order-product-update/${id}/`, form);
   }
+
+  updateOrderValues(id: any, form: any): Observable<any> {
+    return this._http.patchRequest(`${environment.api_url}pos/order-product-update/${id}/`, form);
+  }
+
   getProductSaleOrdersRecipts(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/order-product-receipt/sale/`);
   }

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PosService } from '../@services/pos.service';
 import { PosSalesService } from '../@services/pos-sales.service';
-import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
+import { distinctUntilChanged, filter, Subject, take, takeUntil } from 'rxjs';
 import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { MenuItem } from 'primeng/api';
@@ -60,23 +60,28 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       this.taxes = res?.results || [];
       this.selectedVatId = this.taxes[0]?.id; // Set first VAT as default
     });
-    this.getSalesOrder()
+
     this._posStatusService.shiftData$
       .pipe(takeUntil(this.destroy$))
       .subscribe(data => {
         this.shiftData = data;
         if (this.shiftData && this.shiftData?.is_active) {
+          this.getProductList()
           this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
             this.manualGoldPrice = res?.manual_gold_price;
+
+            this._posSharedService.selectedCurrency$
+              .pipe(takeUntil(this.destroy$))
+              .subscribe(currency => {
+                this.selectedCurrency = currency;
+                this.getSalesOrder()
+              });
+
           });
         }
       });
 
-    this._posSharedService.selectedCurrency$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(currency => {
-        this.selectedCurrency = currency;
-      });
+
 
     this.productForm.get('product_id')?.valueChanges
       .pipe(
@@ -140,6 +145,18 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         this.salesDataOrders = res;
+
+        this.salesDataOrders = this.salesDataOrders.map((order: any) => {
+
+          // if the default manual gold price value, calculate it based on purity, otherwise it's already calculated before
+          if ((+order.gold_price)?.toFixed(2) === (+this.manualGoldPrice)?.toFixed(2)) {
+            order.gold_price = this.calculateOrderGoldPriceBasedOnPurity(order);
+            this.onGoldPriceChange(order)
+          }
+
+          return order;
+        })
+
         if (this.salesDataOrders.length == 0) {
           this._posSharedService.setTotalPrice(0)
           this._posSharedService.setVat(0)
@@ -177,7 +194,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     })
   }
 
-  calcGoldPriceAccordingToPurity(group: any): number {
+  calculateInitialGoldPriceBasedOnPurity(group: any): number {
     if (
       !this.manualGoldPrice ||
       !group?.purity ||
@@ -215,13 +232,66 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     return +goldPrice.toFixed(decimalPlaces);
   }
 
+  onGoldPriceChange(order: any) {
+
+    const newPrice = order.gold_price
+
+    if (!newPrice || isNaN(newPrice)) {
+      return;
+
+    }
+
+    this.calcGrandTotalWithVat();
+
+    this._posService.updateOrderValues(order.id, {
+      gold_price: newPrice
+    }).subscribe(res => {
+    });
+  }
+
+  calculateOrderGoldPriceBasedOnPurity(group: any): number {
+    if (
+      !group?.gold_price ||
+      !group?.purity ||
+      !group?.purity_value ||
+      !this.selectedCurrency?.currency_decimal_point
+    ) {
+      return 0;
+    }
+
+    let purityFactor = 1;
+
+    switch (group.purity) {
+      case 24:
+        purityFactor = 1;
+        break;
+      case 22:
+        purityFactor = 0.916;
+        break;
+      case 21:
+        purityFactor = 0.88;
+        break;
+      case 18:
+        purityFactor = 0.75;
+        break;
+      default:
+        purityFactor = 1;
+    }
+
+    const goldPrice = group.gold_price * purityFactor * group.purity_value;
+
+    // Format based on selected currency decimal point
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
+    return +goldPrice.toFixed(decimalPlaces);
+  }
+
   calcMetalValueAccordingToPurity(group: any) {
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    const metalValue = this.calcGoldPriceAccordingToPurity(group) * group?.weight;
+    const metalValue = this.calculateOrderGoldPriceBasedOnPurity(group) * group?.weight;
     this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
     return +metalValue.toFixed(decimalPlaces);
   }
-
 
   calcTotalPrice(group: any): number {
     this.priceOfProductToPatch = 0;
@@ -289,6 +359,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       const vatAmount = (vatRate / 100) * baseTotal;
       return acc + vatAmount;
     }, 0);
+
     // Update shared VAT immediately
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     this._posSharedService.setSalesTax(+totalVat.toFixed(decimalPlaces));
@@ -327,7 +398,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         selectedVat: this.selectedVatId
       };
 
-      const goldPrice = this.calcGoldPriceAccordingToPurity(tempGroup);
+      const goldPrice = this.calculateOrderGoldPriceBasedOnPurity(tempGroup);
       const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
       const totalPrice = this.calcTotalPrice(tempGroup);
       const totalWithVat = this.calcTotalPriceWithVat(tempGroup);

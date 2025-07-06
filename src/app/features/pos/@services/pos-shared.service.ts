@@ -142,6 +142,7 @@ export class PosSharedService {
 
       this.totalPriceSubject.next(+totalPrice.toFixed(3));
     });
+
     // Total price (including repair)
     combineLatest([
       this.salesTotalTax$,
@@ -273,5 +274,35 @@ export class PosSharedService {
 
   triggerRefreshCurrency() {
     this.refreshCurrencySource.next();
+  }
+
+  resetAllValues() {
+    // Reset all price-related values to 0
+    this.goldPriceSubject.next(0);
+    this.metalValueSubject.next(0);
+    this.totalPriceSubject.next(0);
+    this.discountAmountSubject.next(0);
+    this.grandTotalWithVatSubject.next(0);
+    this.vatValue.next(0);
+    this.salesTotalGrandSubject.next(0);
+    this.purchaseTotalGrandSubject.next(0);
+    this.salesTotalPriceSubject.next(0);
+    this.purchaseTotalPriceSubject.next(0);
+    this.repairTotalPriceSubject.next(0);
+    this.repairTotalGrandSubject.next(0);
+    this.goldReceiptTotalPriceSubject.next(0);
+    this.goldReceiptTotalGrandSubject.next(0);
+    this.returnTotalPriceSubject.next(0);
+    this.returnTotalGrandSubject.next(0);
+    this.silverTotalPriceSubject.next(0);
+    this.silverTotalGrandSubject.next(0);
+    this.diamondTotalPriceSubject.next(0);
+    this.diamondTotalGrandSubject.next(0);
+    this.goldReceiptTotalTaxSubject.next(0);
+    this.repairTotalTaxSubject.next(0);
+    this.returnTotalTaxSubject.next(0);
+    this.salesTotalTaxSubject.next(0);
+    this.silverTotalTaxSubject.next(0);
+    this.diamondTotalTaxSubject.next(0);
   }
 }

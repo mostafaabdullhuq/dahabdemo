@@ -26,7 +26,7 @@ export class SilverComponent implements OnInit, OnDestroy {
   taxes: Tax[] = [];
   salesProduct: any = [];
   menuItem: MenuItem[] = [];
-  manualGoldPrice = '';
+
   selectedCurrency: Currency | null = null
   private destroy$ = new Subject<void>();
   defualtVat = 0;
@@ -45,18 +45,22 @@ export class SilverComponent implements OnInit, OnDestroy {
     this._posService.getProductSilverList().subscribe((res) => {
       this.products = res?.results;
     });
+
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results;
       this.selectedVatId = this.taxes[0].id; // Set first VAT as default
     });
+
     this.getSalesOrder()
+
     this._posStatusService.shiftData$
       .pipe(takeUntil(this.destroy$))
       .subscribe(data => {
         this.shiftData = data;
         if (this.shiftData && this.shiftData?.is_active) {
-          this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
-            this.manualGoldPrice = res?.manual_gold_price;
+
+          this._posService.getProductSilverList().subscribe((res) => {
+            this.products = res?.results;
           });
         }
       });
@@ -154,51 +158,16 @@ export class SilverComponent implements OnInit, OnDestroy {
       }
     })
   }
-  calcGoldPriceAccordingToPurity(group: any): number {
-    if (
-      !this.manualGoldPrice ||
-      !group?.purity ||
-      !group?.purity_value ||
-      !this.selectedCurrency?.currency_decimal_point
-    ) {
-      return 0;
-    }
-
-    const baseValue = (+this.manualGoldPrice / 31.10348) * 0.378;
-    let purityFactor = 1;
-
-    switch (group.purity) {
-      case 24:
-        purityFactor = 1;
-        break;
-      case 22:
-        purityFactor = 0.916;
-        break;
-      case 21:
-        purityFactor = 0.88;
-        break;
-      case 18:
-        purityFactor = 0.75;
-        break;
-      default:
-        purityFactor = 1;
-    }
-
-    const goldPrice = baseValue * purityFactor * group.purity_value;
-
-    // Format based on selected currency decimal point
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
-    return +goldPrice.toFixed(decimalPlaces);
-  }
 
   priceOfProductToPatch: any = 0;
 
   calcMetalValueAccordingToPurity(group: any) {
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point;
-    const metalValue = this.calcGoldPriceAccordingToPurity(group) * group?.weight;
+    const metalValue = +group.price;
     this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
     return +metalValue.toFixed(decimalPlaces);
   }
+
   calcTotalPrice(group: any): number {
     this.priceOfProductToPatch = 0;
     const metalValue = this.calcMetalValueAccordingToPurity(group);
@@ -318,7 +287,6 @@ export class SilverComponent implements OnInit, OnDestroy {
         selectedVat: this.selectedVatId
       };
 
-      const goldPrice = this.calcGoldPriceAccordingToPurity(tempGroup);
       const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
       const totalPrice = this.calcTotalPrice(tempGroup);
       const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
@@ -327,7 +295,8 @@ export class SilverComponent implements OnInit, OnDestroy {
       const payload = {
         product: selectedProduct.id,
         amount: totalPrice,
-        vat_amount: branchTaxNo
+        vat_amount: branchTaxNo,
+        metal_value: metalValue
       };
 
       this._posSilverService.addProductSilver(payload).subscribe({

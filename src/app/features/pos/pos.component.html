@@ -6,13 +6,13 @@
         <span><a href="#"><i class="pi pi-arrow-circle-left mx-4 h-100 text-center align-content-center"
               style="font-size: 1.5rem"></i></a></span>
         <p-tab value="0">Sales</p-tab>
-        <p-tab value="1">Return</p-tab>
+        <p-tab value="1" [disabled]="!(selectedCurrency$ | async) || !(selectedCustomer$ | async)">Return</p-tab>
         <p-tab value="2" [disabled]="!(selectedCurrency$ | async) || !(selectedCustomer$ | async)">Purchase Old
           Gold</p-tab>
         <p-tab value="3" [disabled]="!(selectedCurrency$ | async) || !(selectedCustomer$ | async)">Repair</p-tab>
         <p-tab value="4" [disabled]="!(selectedCurrency$ | async) || !(selectedCustomer$ | async)">Gold Receipt</p-tab>
-        <p-tab value="5">Silver</p-tab>
-        <p-tab value="6">Diamond</p-tab>
+        <p-tab value="5" [disabled]="!(selectedCurrency$ | async)">Silver</p-tab>
+        <p-tab value="6" [disabled]="!(selectedCurrency$ | async)">Diamond</p-tab>
         <div class="d-flex align-items-center gap-2" [ngClass]="{'ms-3': !isShiftActive}">
           @if (isShiftActive) {
           <button (click)="openShiftReport()" class="btn align-items-center" title="Shift Report">
