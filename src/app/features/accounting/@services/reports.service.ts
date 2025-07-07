@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { SingletonService } from '../../../core/services/singleton.service';
 import { PaginatedResponse, SearchFilter } from '../../../shared/models/common.models';
 import {
-  MonthlyReportResponse,
-  SalesProfitAnalysusReportResponse,
+  MonthlySalesReportResponse,
+  SalesProfitAnalysisReportResponse,
   SalesReportResponse
 } from '../acc-reports/sales/sales-reports.models';
 import {
@@ -34,15 +34,15 @@ export class ReportsService {
   }
 
   getSalesReport(filter: SearchFilter = {}) {
-    return this._http.get<PaginatedResponse<SalesReportResponse>>(this.endpoints.salesReport, filter);
+    return this._http.get<SalesReportResponse>(this.endpoints.salesReport, filter);
   }
 
   getMonthlyReport(filter: SearchFilter = {}) {
-    return this._http.get<PaginatedResponse<MonthlyReportResponse>>(this.endpoints.monthlyReport, filter);
+    return this._http.get<MonthlySalesReportResponse>(this.endpoints.monthlyReport, filter);
   }
 
   getSalesProfitAnalysisReport(filter: SearchFilter = {}) {
-    return this._http.get<PaginatedResponse<SalesProfitAnalysusReportResponse>>(this.endpoints.salesProfitAnalysusReport, filter);
+    return this._http.get<SalesProfitAnalysisReportResponse>(this.endpoints.salesProfitAnalysusReport, filter);
   }
 
   getTotalExpensesReport(filter: SearchFilter = {}) {

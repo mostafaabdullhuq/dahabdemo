@@ -16,10 +16,10 @@ const ARABIC_RANGES = [
   [0xFE70, 0xFEFF], // Arabic Presentation Forms-B
 ];
 
-export interface ReportColumn {
+export interface ReportColumn<T = any> {
   field: string;
   header: string;
-  body?: (row: any) => string;
+  body?: (row: T) => string;
 }
 
 export interface ReportConfig {

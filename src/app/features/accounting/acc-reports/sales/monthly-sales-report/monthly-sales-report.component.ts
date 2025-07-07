@@ -2,10 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
-import { MonthlyReportResponse } from '../sales-reports.models';
+import { MonthlySalesReportResponse, MonthlySalesReportItem } from '../sales-reports.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
+import { DropdownsService } from '../../../../../core/services/dropdowns.service';
 
 @Component({
   selector: 'app-monthly-sales-report',
@@ -19,18 +20,20 @@ import { ReportExportService, ReportConfig, ReportColumn } from '../../../@servi
 })
 export class MonthlySalesReportComponent implements OnInit {
   filterForm!: FormGroup;
-  selectedReportItem: any;
-  searchResults: PaginatedResponse<MonthlyReportResponse> = {
+  branches: any[] = [];
+  selectedReportItem!: MonthlySalesReportItem;
+  searchResults!: MonthlySalesReportResponse
+  salesData: PaginatedResponse<MonthlySalesReportItem> = {
     results: [],
     count: 0,
     next: null,
     previous: null
   };
   tableOptions: DataTableOptions = new DataTableOptions();
-  columns: DataTableColumn[] = [
-    { field: "month", header: "Month", body: (row: any) => this.getFormattedMonth(row) },
-    { field: "quantity", header: "Quantity", body: (row: any) => this.getQuantity(row) },
-    { field: "total_amount", header: "Total Amount", body: (row: any) => this.getFormattedAmount(row) }
+  columns: DataTableColumn<MonthlySalesReportItem>[] = [
+    { field: "month", header: "Month", body: (row) => this.getFormattedMonth(row) },
+    { field: "quantity", header: "Quantity", body: (row) => this.getQuantity(row) },
+    { field: "total_amount", header: "Total Amount", body: (row) => this.getFormattedAmount(row) }
   ];
   currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
@@ -63,10 +66,10 @@ export class MonthlySalesReportComponent implements OnInit {
   private toaster = inject(ToasterMsgService);
   private reportExportService = inject(ReportExportService);
 
-  businessName!: string;
-  businessLogoURL!: string;
+  shopName!: string;
+  shopLogoURL!: string;
 
-  constructor(private _formBuilder: FormBuilder, private reportsService: ReportsService) {
+  constructor(private _formBuilder: FormBuilder, private reportsService: ReportsService, private _dropdownService: DropdownsService) {
   }
 
   // Custom validator for date range
@@ -81,39 +84,45 @@ export class MonthlySalesReportComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Get current month's first and last day
-    const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    this.prepareFilterForm();
 
-    // Format dates for input fields (YYYY-MM-DD)
-    const formatDate = (date: Date): string => {
-      return date.toISOString().split('T')[0];
-    };
+    this._dropdownService.getBranches().subscribe(res => {
+      this.branches = res.results;
+    })
 
-    this.filterForm = this._formBuilder.group({
-      created_from: [formatDate(firstDayOfMonth), Validators.required],
-      created_to: [formatDate(lastDayOfMonth), Validators.required],
-      search: null,
-    }, { validators: this.dateRangeValidator });
-
-    this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
-    this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
 
     // Load initial data with default current month filter
     const initialFilter = this.getFilterObject();
     this.getData(initialFilter);
   }
 
-  getFormattedAmount(row: MonthlyReportResponse) {
+  prepareFilterForm() {
+    // Get current month's first and last day
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    this.filterForm = this._formBuilder.group({
+      created_from: [this.formatDate(firstDayOfMonth), Validators.required],
+      created_to: [this.formatDate(lastDayOfMonth), Validators.required],
+      search: null,
+      branch: null
+    }, { validators: this.dateRangeValidator });
+  }
+
+  formatDate(date: Date) {
+    return date.toISOString().split('T')[0];
+  }
+
+  getFormattedAmount(row: MonthlySalesReportItem) {
     return row.total_amount ? parseFloat(row.total_amount).toFixed(3) : '-';
   }
 
-  getQuantity(row: MonthlyReportResponse) {
+  getQuantity(row: MonthlySalesReportItem) {
     return row.quantity ? row.quantity.toString() : '-';
   }
 
-  getFormattedMonth(row: MonthlyReportResponse) {
+  getFormattedMonth(row: MonthlySalesReportItem) {
     if (!row?.month) return '-';
     const date = new Date(row.month);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
@@ -151,8 +160,12 @@ export class MonthlySalesReportComponent implements OnInit {
     this.reportsService.getMonthlyReport(filterWithPagination).subscribe({
       next: (response) => {
         this.searchResults = response;
-        this.tableOptions.totalRecords = response.count;
-        this.updateReportTotals(response.results);
+        this.salesData = response.sales;
+        this.tableOptions.totalRecords = response.sales.count;
+        this.shopName = response.name ?? '-';
+        this.shopLogoURL = response.logo ?? null;
+        this.updateReportTotals(response.sales.results);
+
       },
       error: (error) => {
         this.toaster.showError('Failed to load monthly sales report data. Please try again.');
@@ -224,7 +237,7 @@ export class MonthlySalesReportComponent implements OnInit {
     return finalFilter;
   }
 
-  updateReportTotals(results: any = []): void {
+  updateReportTotals(results: MonthlySalesReportItem[]): void {
     const data = results ?? [];
 
     this.reportTotals = {
@@ -235,23 +248,23 @@ export class MonthlySalesReportComponent implements OnInit {
 
   // Create report configuration for the export service
   private getReportConfig(): ReportConfig {
-    const reportColumns: ReportColumn[] = [
-      { field: 'month', header: 'Month', body: (row: MonthlyReportResponse) => this.getFormattedMonth(row) },
-      { field: 'quantity', header: 'Quantity', body: (row: MonthlyReportResponse) => this.getQuantity(row) },
-      { field: 'total_amount', header: 'Total Amount', body: (row: MonthlyReportResponse) => this.getFormattedAmount(row) }
+    const reportColumns: ReportColumn<MonthlySalesReportItem>[] = [
+      { field: 'month', header: 'Month', body: (row) => this.getFormattedMonth(row) },
+      { field: 'quantity', header: 'Quantity', body: (row) => this.getQuantity(row) },
+      { field: 'total_amount', header: 'Total Amount', body: (row) => this.getFormattedAmount(row) }
     ];
 
     return {
       title: 'Monthly Sales Report',
-      data: this.searchResults.results,
+      data: this.salesData.results,
       columns: reportColumns,
       totals: {
         quantity: this.reportTotals.quantity,
         total_amount: this.reportTotals.total_amount
       },
       filterForm: this.filterForm,
-      businessName: this.businessName,
-      businessLogoURL: this.businessLogoURL,
+      businessName: this.shopName,
+      businessLogoURL: this.shopLogoURL,
       filename: 'monthly-sales-report'
     };
   }

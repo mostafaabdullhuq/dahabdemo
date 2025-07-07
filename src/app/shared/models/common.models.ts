@@ -1,5 +1,3 @@
-import {SalesReportResponse} from '../../features/accounting/acc-reports/sales/sales-reports.models';
-
 export interface PaginatedResponse<T> {
   count: number;
   next: string | null;
@@ -23,8 +21,8 @@ export class DataTableOptions {
   pageSize: number = this.rowsPerPageOptions ? this.rowsPerPageOptions[0] : 10;
 }
 
-export type DataTableColumn = {
+export type DataTableColumn<T = any> = {
   field: string;
   header: string;
-  body?: (row: SalesReportResponse) => string | number;
+  body?: (row: T) => string | number;
 }

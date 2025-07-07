@@ -1,8 +1,21 @@
-export interface SalesReportResponse {
+import { PaginatedResponse } from "../../../pos/interfaces/pos.interfaces";
+
+export interface BaseReportResponse {
+  id: number;
+  name: string;
+  logo: string;
+  currency: string;
+  date: string;
+}
+
+export interface SalesReportResponse extends BaseReportResponse {
+  sales: PaginatedResponse<SalesReportItem>
+}
+
+export interface SalesReportItem {
   id: number;
   reference_number: string;
   total_amount: string;
-  currency: string;
   customer_name?: string;
   customer_cpr?: string;
   phone?: string;
@@ -11,16 +24,23 @@ export interface SalesReportResponse {
   tax_amount: string;
 }
 
-export interface MonthlyReportResponse {
+export interface MonthlySalesReportResponse extends BaseReportResponse {
+  sales: PaginatedResponse<MonthlySalesReportItem>;
+}
+
+export interface MonthlySalesReportItem {
   month: Date;
   total_amount: string;
   quantity: number;
 }
 
-export interface SalesProfitAnalysusReportResponse {
+export interface SalesProfitAnalysisReportResponse extends BaseReportResponse {
+  sales: PaginatedResponse<SalesProfitAnalysisReportItem>;
+}
+
+export interface SalesProfitAnalysisReportItem {
   id: number;
   reference_number: string;
-  currency: string;
   customer_name: string;
   customer_cpr: string;
   phone: string;

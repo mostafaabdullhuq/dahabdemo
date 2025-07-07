@@ -2,10 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
-import { SalesProfitAnalysusReportResponse } from '../sales-reports.models';
+import { SalesProfitAnalysisReportItem, SalesProfitAnalysisReportResponse } from '../sales-reports.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
+import { DropdownsService } from '../../../../../core/services/dropdowns.service';
 
 @Component({
   selector: 'app-sales-profit-analysis-report',
@@ -19,25 +20,30 @@ import { ReportExportService, ReportConfig, ReportColumn } from '../../../@servi
 })
 export class SalesProfitAnalysisReportComponent implements OnInit {
   filterForm!: FormGroup;
-  selectedReportItem: any;
-  searchResults: PaginatedResponse<SalesProfitAnalysusReportResponse> = {
+  selectedReportItem!: SalesProfitAnalysisReportItem;
+  branches: any[] = [];
+  searchResults!: SalesProfitAnalysisReportResponse;
+  salesData: PaginatedResponse<SalesProfitAnalysisReportItem> = {
     results: [],
     count: 0,
     next: null,
     previous: null
   };
+
   tableOptions: DataTableOptions = new DataTableOptions();
-  columns: DataTableColumn[] = [
-    { field: "created_at", header: "Date", body: (row: any) => this.getRowCreateDate(row) },
-    { field: "reference_number", header: "Invoice Number", body: (row: any) => row.reference_number || '-' },
-    { field: "customer_name", header: "Customer Name", body: (row: any) => row.customer_name || '-' },
-    { field: "phone", header: "Phone Number", body: (row: any) => row.phone || '-' },
-    { field: "customer_cpr", header: "CPR Number", body: (row: any) => row.customer_cpr || '-' },
-    { field: "gold_value", header: "Gold Value", body: (row: any) => this.getGoldValue(row) },
-    { field: "selling_making_charge", header: "Selling Making Charge", body: (row: any) => this.getSellingMakingCharge(row) },
-    { field: "cost_making_charge", header: "Cost Making Charge", body: (row: any) => this.getCostMakingCharge(row) },
-    { field: "net_profit", header: "Net Profit", body: (row: any) => this.getNetProfit(row) },
+
+  columns: DataTableColumn<SalesProfitAnalysisReportItem>[] = [
+    { field: "created_at", header: "Date", body: (row) => this.getRowCreateDate(row) },
+    { field: "reference_number", header: "Invoice Number", body: (row) => row.reference_number || '-' },
+    { field: "customer_name", header: "Customer Name", body: (row) => row.customer_name || '-' },
+    { field: "phone", header: "Phone Number", body: (row) => row.phone || '-' },
+    { field: "customer_cpr", header: "CPR Number", body: (row) => row.customer_cpr || '-' },
+    { field: "gold_value", header: "Gold Value", body: (row) => this.getGoldValue(row) },
+    { field: "selling_making_charge", header: "Selling Making Charge", body: (row) => this.getSellingMakingCharge(row) },
+    { field: "cost_making_charge", header: "Cost Making Charge", body: (row) => this.getCostMakingCharge(row) },
+    { field: "net_profit", header: "Net Profit", body: (row) => this.getNetProfit(row) },
   ];
+
   currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
   reportTotals: {
@@ -73,11 +79,49 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
   private toaster = inject(ToasterMsgService);
   private reportExportService = inject(ReportExportService);
 
-  businessName!: string;
-  businessLogoURL!: string;
+  shopName!: string;
+  shopLogoURL!: string;
 
-  constructor(private _formBuilder: FormBuilder, private reportsService: ReportsService) {
+  constructor(private _formBuilder: FormBuilder, private _reportsService: ReportsService, private _dropdownService: DropdownsService) {
   }
+
+
+  ngOnInit(): void {
+
+    this.prepareFilterForm();
+
+    this._dropdownService.getBranches().subscribe(res => {
+      this.branches = res.results;
+    })
+
+    // Load initial data with default current month filter
+    const initialFilter = this.getFilterObject();
+    this.getData(initialFilter);
+  }
+
+  prepareFilterForm() {
+
+    // Get current month's first and last day
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+
+    this.filterForm = this._formBuilder.group({
+      created_from: [this.formatDate(firstDayOfMonth), Validators.required],
+      created_to: [this.formatDate(lastDayOfMonth), Validators.required],
+      order__customer__cpr__icontains: null,
+      order__customer__name__icontains: null,
+      order__customer__phone__icontains: null,
+      search: null,
+      branch: null
+    }, { validators: this.dateRangeValidator });
+  }
+
+  formatDate(date: Date) {
+    return date.toISOString().split('T')[0];
+  }
+
 
   // Custom validator for date range
   dateRangeValidator(formGroup: FormGroup) {
@@ -90,51 +134,23 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
     return null;
   }
 
-  ngOnInit(): void {
-    // Get current month's first and last day
-    const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    // Format dates for input fields (YYYY-MM-DD)
-    const formatDate = (date: Date): string => {
-      return date.toISOString().split('T')[0];
-    };
-
-    this.filterForm = this._formBuilder.group({
-      created_from: [formatDate(firstDayOfMonth), Validators.required],
-      created_to: [formatDate(lastDayOfMonth), Validators.required],
-      order__customer__cpr__icontains: null,
-      order__customer__name__icontains: null,
-      order__customer__phone__icontains: null,
-      search: null,
-    }, { validators: this.dateRangeValidator });
-
-    this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
-    this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
-
-    // Load initial data with default current month filter
-    const initialFilter = this.getFilterObject();
-    this.getData(initialFilter);
+  getGoldValue(row: SalesProfitAnalysisReportItem) {
+    return row.gold_value ? parseFloat(row.gold_value).toFixed(3) + ' ' + (this.searchResults?.currency || '') : '-';
   }
 
-  getGoldValue(row: SalesProfitAnalysusReportResponse) {
-    return row.gold_value ? parseFloat(row.gold_value).toFixed(3) + ' ' + (row.currency || '') : '-';
+  getSellingMakingCharge(row: SalesProfitAnalysisReportItem) {
+    return row.selling_making_charge ? parseFloat(row.selling_making_charge).toFixed(3) + ' ' + (this.searchResults?.currency || '') : '-';
   }
 
-  getSellingMakingCharge(row: SalesProfitAnalysusReportResponse) {
-    return row.selling_making_charge ? parseFloat(row.selling_making_charge).toFixed(3) + ' ' + (row.currency || '') : '-';
+  getCostMakingCharge(row: SalesProfitAnalysisReportItem) {
+    return row.cost_making_charge ? parseFloat(row.cost_making_charge).toFixed(3) + ' ' + (this.searchResults?.currency || '') : '-';
   }
 
-  getCostMakingCharge(row: SalesProfitAnalysusReportResponse) {
-    return row.cost_making_charge ? parseFloat(row.cost_making_charge).toFixed(3) + ' ' + (row.currency || '') : '-';
+  getNetProfit(row: SalesProfitAnalysisReportItem) {
+    return row.net_profit ? row.net_profit.toFixed(3) + ' ' + (this.searchResults?.currency || '') : '-';
   }
 
-  getNetProfit(row: SalesProfitAnalysusReportResponse) {
-    return row.net_profit ? row.net_profit.toFixed(3) + ' ' + (row.currency || '') : '-';
-  }
-
-  private getRowCreateDate(row: SalesProfitAnalysusReportResponse) {
+  private getRowCreateDate(row: SalesProfitAnalysisReportItem) {
     if (!row?.created_at || isNaN(Date.parse(row.created_at))) return '-';
     const date = new Date(row.created_at);
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
@@ -169,11 +185,16 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
       this.currentFilter = { ...filter };
     }
 
-    this.reportsService.getSalesProfitAnalysisReport(filterWithPagination).subscribe({
+    this._reportsService.getSalesProfitAnalysisReport(filterWithPagination).subscribe({
       next: (response) => {
+        console.log("sales profit response: ", response);
+
         this.searchResults = response;
-        this.tableOptions.totalRecords = response.count;
-        this.updateReportTotals(response.results);
+        this.salesData = response.sales;
+        this.tableOptions.totalRecords = response.sales.count;
+        this.shopName = response.name ?? '-';
+        this.shopLogoURL = response.logo ?? null;
+        this.updateReportTotals(response.sales.results);
       },
       error: (error) => {
         this.toaster.showError('Failed to load sales profit analysis report data. Please try again.');
@@ -249,30 +270,30 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
     const data = results ?? [];
 
     this.reportTotals = {
-      net_profit: data.reduce((acc: number, item: { net_profit: any; }) => acc + parseFloat(item.net_profit || 0), 0),
-      gold_value: data.reduce((acc: number, item: { gold_value: any; }) => acc + parseFloat(item.gold_value || 0), 0),
-      selling_making_charge: data.reduce((acc: number, item: { selling_making_charge: any; }) => acc + parseFloat(item.selling_making_charge || 0), 0),
-      cost_making_charge: data.reduce((acc: number, item: { cost_making_charge: any; }) => acc + parseFloat(item.cost_making_charge || 0), 0)
+      net_profit: data.reduce((acc: number, item: SalesProfitAnalysisReportItem) => acc + (item.net_profit || 0), 0),
+      gold_value: data.reduce((acc: number, item: SalesProfitAnalysisReportItem) => acc + parseFloat(item.gold_value || '0'), 0),
+      selling_making_charge: data.reduce((acc: number, item: SalesProfitAnalysisReportItem) => acc + parseFloat(item.selling_making_charge || '0'), 0),
+      cost_making_charge: data.reduce((acc: number, item: SalesProfitAnalysisReportItem) => acc + parseFloat(item.cost_making_charge || '0'), 0)
     };
   }
 
   // Create report configuration for the export service
   private getReportConfig(): ReportConfig {
-    const reportColumns: ReportColumn[] = [
-      { field: 'created_at', header: 'Date', body: (row: SalesProfitAnalysusReportResponse) => this.getRowCreateDate(row) },
+    const reportColumns: ReportColumn<SalesProfitAnalysisReportItem>[] = [
+      { field: 'created_at', header: 'Date', body: (row) => this.getRowCreateDate(row) },
       { field: 'reference_number', header: 'Invoice Number' },
       { field: 'customer_name', header: 'Customer Name' },
       { field: 'phone', header: 'Phone Number' },
       { field: 'customer_cpr', header: 'CPR Number' },
-      { field: 'gold_value', header: 'Gold Value', body: (row: SalesProfitAnalysusReportResponse) => this.getGoldValue(row) },
-      { field: 'selling_making_charge', header: 'Selling Making Charge', body: (row: SalesProfitAnalysusReportResponse) => this.getSellingMakingCharge(row) },
-      { field: 'cost_making_charge', header: 'Cost Making Charge', body: (row: SalesProfitAnalysusReportResponse) => this.getCostMakingCharge(row) },
-      { field: 'net_profit', header: 'Net Profit', body: (row: SalesProfitAnalysusReportResponse) => this.getNetProfit(row) }
+      { field: 'gold_value', header: 'Gold Value', body: (row) => this.getGoldValue(row) },
+      { field: 'selling_making_charge', header: 'Selling Making Charge', body: (row) => this.getSellingMakingCharge(row) },
+      { field: 'cost_making_charge', header: 'Cost Making Charge', body: (row) => this.getCostMakingCharge(row) },
+      { field: 'net_profit', header: 'Net Profit', body: (row) => this.getNetProfit(row) }
     ];
 
     return {
       title: 'Sales Profit Analysis Report',
-      data: this.searchResults.results,
+      data: this.salesData.results,
       columns: reportColumns,
       totals: {
         net_profit: this.reportTotals.net_profit,
@@ -281,8 +302,8 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
         cost_making_charge: this.reportTotals.cost_making_charge
       },
       filterForm: this.filterForm,
-      businessName: this.businessName,
-      businessLogoURL: this.businessLogoURL,
+      businessName: this.shopName,
+      businessLogoURL: this.shopLogoURL,
       filename: 'sales-profit-analysis-report'
     };
   }
