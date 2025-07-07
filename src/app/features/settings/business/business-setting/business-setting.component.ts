@@ -97,8 +97,6 @@ export class BusinessSettingComponent {
   private loadBrandsData(businessId: number | string): void {
     this._settingsService.getBusinessById(businessId).subscribe((unit: any) => {
       if (unit) {
-        console.log("Business: ", unit);
-
         this.addEditBusinessForm.patchValue({
           name: unit.name || '',
           financial_year_start: +unit.financial_year_start || '',
