@@ -144,11 +144,24 @@ export class DropdownsService {
     const url = nextPageUrl || `${this.API}core/time-zones/?${params}`;
     return this._http.getRequest<any>(url);
   }
+
   getCurrencies(minimal: boolean = true, params?: string, page: number = 1, pageSize: number = 100000000): Observable<any> {
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
     const url = `${this.API}business/settings/currencies/?${param}`;
     return this._http.getRequest<any>(url);
   }
+
+  getBusinessCurrency(businessId: number): Observable<{
+    id: number,
+    code: string,
+    symbol: string,
+    name: string,
+    decimal_point: string
+  }> {
+    const url = `${this.API}business/settings/currencies/${businessId}`;
+    return this._http.getRequest<any>(url);
+  }
+
   getCurrenciesFromCore(minimal: boolean = true, params?: string, page: number = 1, pageSize: number = 100000000): Observable<any> {
     const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
     const url = `${this.API}core/currencies/?${param}`;

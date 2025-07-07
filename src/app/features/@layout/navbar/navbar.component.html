@@ -1,60 +1,60 @@
 <div class="menubar">
-    <p-menubar [model]="items">
-        <ng-template #start>
-            <h5 class="logo mt-1 me-5"><a>{{businessName}}</a></h5>
-        </ng-template>
-        <ng-template #item let-item let-root="root" class="d-flex justify-content-center">
-            <a pRipple [routerLink]="[item.link]" class="flex items-center p-menubar-item-link">
-                <i [ngClass]="[item?.icon]"></i>
-                <span>{{ item.label }}</span>
-                <span *ngIf="item.shortcut"
-                    class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{
-                    item.shortcut }}</span>
-                <i *ngIf="item.items" [ngClass]="['ml-auto pi', root ? 'pi-angle-down' : 'pi-angle-right']"></i>
-                <div class="underline-link"></div>
-            </a>
-        </ng-template>
-        <ng-template #end>
-            <div class="flex items-center">
-                <div class="d-flex">
-                    <div class="rate-content d-flex p-0 justify-content-center align-items-center">
-                        <div class="col-md-3 text-center rates-header">
-                            <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
-                            <strong class="rates-header px-1">24K</strong>
-                        </div>
-                        <div class="ps-2">
-                            41.11 BHD
-                        </div>
-                    </div>
-                    <div class="rate-content d-flex p-0 justify-content-center align-items-center">
-                        <div class="col-md-3 text-center rates-header">
-                            <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
-                            <strong class="rates-header px-1">22K</strong>
-                        </div>
-                        <div class="ps-2">
-                            37.65 BHD
-                        </div>
-                    </div>
-                    <div class="rate-content d-flex p-0 justify-content-center align-items-center">
-                        <div class="col-md-3 text-center rates-header">
-                            <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
-                            <strong class="rates-header px-1">21K</strong>
-                        </div>
-                        <div class="ps-2">
-                            35.97 BHD
-                        </div>
-                    </div>
-                    <div class="rate-content d-flex p-0 justify-content-center align-items-center">
-                        <div class="col-md-3 text-center rates-header">
-                            <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
-                            <strong class="rates-header px-1">18K</strong>
-                        </div>
-                        <div class="ps-2">
-                            30.83 BHD
-                        </div>
-                    </div>
-                </div>
+  <p-menubar [model]="items">
+    <ng-template #start>
+      <h5 class="logo mt-1 me-5"><a>{{businessName}}</a></h5>
+    </ng-template>
+    <ng-template #item let-item let-root="root" class="d-flex justify-content-center">
+      <a pRipple [routerLink]="[item.link]" class="flex items-center p-menubar-item-link">
+        <i [ngClass]="[item?.icon]"></i>
+        <span>{{ item.label }}</span>
+        <span *ngIf="item.shortcut"
+          class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{
+          item.shortcut }}</span>
+        <i *ngIf="item.items" [ngClass]="['ml-auto pi', root ? 'pi-angle-down' : 'pi-angle-right']"></i>
+        <div class="underline-link"></div>
+      </a>
+    </ng-template>
+    <ng-template #end>
+      <div class="flex items-center">
+        <div class="d-flex">
+          <div class="rate-content d-flex p-0 justify-content-center align-items-center">
+            <div class="col-md-3 text-center rates-header">
+              <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
+              <strong class="rates-header px-1">24K</strong>
             </div>
-        </ng-template>
-    </p-menubar>
+            <div class="ps-2">
+              {{(currentGoldRates.price_gram_24k | number:'1.2-2') ?? 'N/A'}} BHD
+            </div>
+          </div>
+          <div class="rate-content d-flex p-0 justify-content-center align-items-center">
+            <div class="col-md-3 text-center rates-header">
+              <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
+              <strong class="rates-header px-1">22K</strong>
+            </div>
+            <div class="ps-2">
+              {{(currentGoldRates.price_gram_22k | number:'1.2-2') ?? 'N/A'}} BHD
+            </div>
+          </div>
+          <div class="rate-content d-flex p-0 justify-content-center align-items-center">
+            <div class="col-md-3 text-center rates-header">
+              <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
+              <strong class="rates-header px-1">21K</strong>
+            </div>
+            <div class="ps-2">
+              {{(currentGoldRates.price_gram_21k | number:'1.2-2') ?? 'N/A'}} BHD
+            </div>
+          </div>
+          <div class="rate-content d-flex p-0 justify-content-center align-items-center">
+            <div class="col-md-3 text-center rates-header">
+              <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
+              <strong class="rates-header px-1">18K</strong>
+            </div>
+            <div class="ps-2">
+              {{(currentGoldRates.price_gram_18k | number:'1.2-2') ?? 'N/A'}} BHD
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </p-menubar>
 </div>
