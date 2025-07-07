@@ -150,12 +150,14 @@ export class AddEditPurchaseComponent implements OnInit {
       this.watchStoneControls(); // Keep updating as stones are added
     });
   }
+
   updateMetalRate() {
     const goldPrice = this.manualGoldPrice || 0;
     const purity = this.selectedPurityValue || 1;
-    const rate = ((+goldPrice / 31.10348) * 0.378 * +purity).toFixed(this.decimalInputs);
+    const rate = (+goldPrice * +purity).toFixed(this.decimalInputs);
     this.addEditExpenseForm.patchValue({ metal_rate: rate });
   }
+
   calculateMetalValue() {
     const rate = this.addEditExpenseForm.get('metal_rate')?.value || 0;
     const weight = this.addEditExpenseForm.get('metal_weight')?.value || 0;
@@ -182,6 +184,7 @@ export class AddEditPurchaseComponent implements OnInit {
       tax_amount: +taxAmount.toFixed(this.decimalInputs)
     });
   }
+
   private subscribedStones = new WeakSet<AbstractControl>();
 
   private watchStoneControls() {
@@ -203,6 +206,7 @@ export class AddEditPurchaseComponent implements OnInit {
       });
     });
   }
+
   calculateGrossWeight() {
     const metalWeight = +this.addEditExpenseForm.get('metal_weight')?.value || 0;
     const stones = this.addEditExpenseForm.get('stones') as FormArray;
@@ -612,6 +616,19 @@ export class AddEditPurchaseComponent implements OnInit {
 
   //   return +goldPrice.toFixed(this.decimalPlaces);
   // }
+
+  getTotalLineAmount(): number {
+    return this.purchases.reduce((total, item) => {
+      return total + (Number(item.line_total_amount) || 0);
+    }, 0);
+  }
+
+  getTotalGrossWeight(): number {
+    return this.purchases.reduce((total, item) => {
+      return total + (Number(item.gross_weight) || 0);
+    }, 0);
+  }
+
   toFormData(payload: any): FormData {
     const formData = new FormData();
 
