@@ -30,18 +30,27 @@
                 optionValue="id" placeholder="Select branch"></app-dropdowns>
             </div>
             <div class="col-md-4">
-              <app-dropdowns label="purchase type" formControlName="payment_type"
-                [options]="[{id:'fixed'},{id:'unfixed'}]" optionLabel="id" optionValue="id"
-                placeholder="Select sub Category"></app-dropdowns>
+              <app-dropdowns label="purchase type" formControlName="type"
+                [options]="[{id:'fixed',name:'Fixed'},{id:'unfixed',name:'Unfixed'}]" optionLabel="name"
+                optionValue="id" placeholder="Select purchase type"></app-dropdowns>
             </div>
             <div class="col-md-4">
-              <app-input-date formControlName="expected_delivery_date" inputName="date"
+              <app-input-date formControlName="order_date" inputName="order date" placeholder="Enter order date">
+              </app-input-date>
+            </div>
+            <div class="col-md-4">
+              <app-input-date formControlName="expected_delivery_date" inputName="expected delivery date"
                 placeholder="Enter expected delivery date">
               </app-input-date>
             </div>
             <div class="col-md-4">
               <app-dropdowns label="status" formControlName="status" [options]="status" optionLabel="name"
                 optionValue="id" placeholder="Select status"></app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              <app-input-text formControlName="reference_number" inputName="reference number"
+                placeholder="Enter reference number">
+              </app-input-text>
             </div>
             <div class="col-md-12">
               <label class="form-label">Attachment <sup class="text-danger">*</sup> </label>
@@ -216,7 +225,7 @@
           <div formArrayName="stones">
             <div class="row mb-3" *ngFor="let stone of stonesArray.controls; let i = index" [formGroupName]="i">
               <div class="col-md-3">
-                <app-dropdowns label="stone" formControlName="stone" [options]="stones" optionLabel="name"
+                <app-dropdowns label="stone" formControlName="stone_id" [options]="stones" optionLabel="name"
                   optionValue="id" placeholder="Select stone"></app-dropdowns>
               </div>
               <div class="col-md-3">
@@ -251,24 +260,21 @@
                 <app-input-text formControlName="amount" inputName="Amount" placeholder="Enter Amount">
                 </app-input-text>
               </div>
-              <div class="col-md-8 d-flex justify-content-between align-items-end">
+              <div class="col-md-4">
                 <app-dropdowns label="Payment Method" formControlName="payment_method" [options]="paymentMethods"
                   optionLabel="name" optionValue="id" placeholder="Select method">
                 </app-dropdowns>
-                <button class="delete-btn mx-3" type="button" (click)="removePayment(i)"><i
+              </div>
+              <div class="col-md-3">
+                <app-input-date formControlName="payment_date" inputName="payment date"
+                  placeholder="Enter payment date">
+                </app-input-date>
+              </div>
+              <div class="col-md-1 d-flex justify-content-end align-items-end">
+                <div class="col-md-6"></div>
+                <button class=" delete-btn mx-3" type="button" (click)="removePayment(i)"><i
                     class="pi pi-trash  px-2"></i></button>
               </div>
-
-            </div>
-          </div>
-        </div>
-        <!-- 🔹 payment summary  -->
-        <h6 class="section-form-header mt-4">Payment summary</h6>
-        <div class="container section-form">
-          <div class="row">
-            <div class="col-md-4">
-              <app-input-date formControlName="payment_date" inputName="payment date" placeholder="Enter payment date">
-              </app-input-date>
             </div>
           </div>
         </div>
