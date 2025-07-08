@@ -113,6 +113,7 @@ export class RepairPosComponent implements OnInit, OnDestroy {
       }
     ];
   }
+
   private listenToAmountOrTaxChange() {
     // Clean up previous subscriptions if necessary
 
@@ -130,6 +131,7 @@ export class RepairPosComponent implements OnInit, OnDestroy {
 
       });
   }
+
   removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
@@ -137,6 +139,7 @@ export class RepairPosComponent implements OnInit, OnDestroy {
       },
     })
   }
+
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
   }
@@ -147,6 +150,7 @@ export class RepairPosComponent implements OnInit, OnDestroy {
       this.updateRepairTotals()
     });
   }
+
   calcGoldPriceAccordingToPurity(group: any): number {
     if (
       !this.manualGoldPrice ||
@@ -157,7 +161,7 @@ export class RepairPosComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    const baseValue = (+this.manualGoldPrice / 31.10348) * 0.378;
+    const baseValue = +this.manualGoldPrice;
     let purityFactor = 1;
 
     switch (group.purity) {

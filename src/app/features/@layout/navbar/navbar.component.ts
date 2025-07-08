@@ -1,9 +1,7 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { PermissionService } from '../../../core/services/permission.service';
-import { AuthService } from '../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
-import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { WebsocketTimerService, GoldPrices } from '../../../core/services/websocket-timer.service';
 
 @Component({

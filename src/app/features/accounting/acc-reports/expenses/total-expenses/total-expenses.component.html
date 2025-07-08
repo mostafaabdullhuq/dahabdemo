@@ -23,9 +23,14 @@
           <i class="pi pi-exclamation-triangle mr-2"></i> From Date cannot be later than To Date.
         </div>
         <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-8">
             <app-input-text formControlName="search" placeholder="Global Search" type="text"
               inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label=" Branch" id="Branch" formControlName="branch" [options]="branches" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a Branch">
+            </app-dropdowns>
           </div>
 
           <div class="col-md-6">
@@ -55,11 +60,11 @@
   <!-- report table -->
   <div class="table-container">
     <app-data-table (rowSelected)="selectedReportItem = $event" [rowsPerPageOptions]="tableOptions.rowsPerPageOptions"
-      [data]="searchResults.results" [cols]="columns" [totalRecords]="tableOptions.totalRecords"
+      [data]="expensesData.results" [cols]="columns" [totalRecords]="tableOptions.totalRecords"
       [first]="tableOptions.firstIndex" [rows]="tableOptions.pageSize" [hasContext]="false"
       (pageChange)="getPaginatedRows($event)">
 
-      <ng-container table-footer *ngIf="tableOptions.totalRecords > 0 && searchResults.results.length > 0">
+      <ng-container table-footer *ngIf="tableOptions.totalRecords > 0 && expensesData.results.length > 0">
         <tr>
           <td *ngFor="let column of columns">
             <ng-container class="fw-bold" [ngSwitch]="column.field">

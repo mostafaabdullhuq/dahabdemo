@@ -46,14 +46,14 @@ export class ReportsService {
   }
 
   getTotalExpensesReport(filter: SearchFilter = {}) {
-    return this._http.get<PaginatedResponse<TotalExpensesReportResponse>>(this.endpoints.totalExpenses, filter);
+    return this._http.get<TotalExpensesReportResponse>(this.endpoints.totalExpenses, filter);
   }
 
   getMonthlyExpensesReport(filter: SearchFilter = {}) {
-    return this._http.get<PaginatedResponse<MonthlyExpensesReportResponse>>(this.endpoints.monthlyExpenses, filter);
+    return this._http.get<MonthlyExpensesReportResponse>(this.endpoints.monthlyExpenses, filter);
   }
 
   getStockReport(filter: SearchFilter = {}) {
-    return this._http.get<PaginatedResponse<StockReportResponse>>(this.endpoints.stockDetails, filter);
+    return this._http.get<StockReportResponse>(this.endpoints.stockDetails, filter);
   }
 }

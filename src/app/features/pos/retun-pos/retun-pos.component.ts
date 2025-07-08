@@ -159,6 +159,7 @@ export class RetunPosComponent implements OnInit, OnDestroy {
       }
     })
   }
+
   calcGoldPriceAccordingToPurity(group: any): number {
     if (
       !this.manualGoldPrice ||
@@ -169,7 +170,7 @@ export class RetunPosComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    const baseValue = (+this.manualGoldPrice / 31.10348) * 0.378;
+    const baseValue = +this.manualGoldPrice;
     let purityFactor = 1;
 
     switch (group.purity) {

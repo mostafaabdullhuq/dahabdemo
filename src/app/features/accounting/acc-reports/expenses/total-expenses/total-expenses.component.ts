@@ -2,10 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
-import { TotalExpensesReportResponse } from '../expenses-reports.models';
+import { TotalExpensesReportResponse, TotalExpensesReportItem } from '../expenses-reports.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
+import { DropdownsService } from '../../../../../core/services/dropdowns.service';
 
 @Component({
   selector: 'app-total-expenses',
@@ -19,17 +20,19 @@ import { ReportExportService, ReportConfig, ReportColumn } from '../../../@servi
 })
 export class TotalExpensesComponent implements OnInit {
   filterForm!: FormGroup;
-  selectedReportItem: any;
-  searchResults: PaginatedResponse<TotalExpensesReportResponse> = {
+  branches: any[] = [];
+  selectedReportItem!: TotalExpensesReportItem;
+  searchResults!: TotalExpensesReportResponse;
+  expensesData: PaginatedResponse<TotalExpensesReportItem> = {
     results: [],
     count: 0,
     next: null,
     previous: null
   };
   tableOptions: DataTableOptions = new DataTableOptions();
-  columns: DataTableColumn[] = [
-    { field: "name", header: "Expense Name", body: (row: any) => row.name || '-' },
-    { field: "amount", header: "Amount", body: (row: any) => this.getRowAmount(row) }
+  columns: DataTableColumn<TotalExpensesReportItem>[] = [
+    { field: "name", header: "Expense Name", body: (row: TotalExpensesReportItem) => row.name || '-' },
+    { field: "amount", header: "Amount", body: (row: TotalExpensesReportItem) => this.getRowAmount(row) }
   ];
   currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
@@ -60,10 +63,35 @@ export class TotalExpensesComponent implements OnInit {
   private toaster = inject(ToasterMsgService);
   private reportExportService = inject(ReportExportService);
 
-  businessName!: string;
-  businessLogoURL!: string;
+  shopName!: string;
+  shopLogoURL!: string;
 
-  constructor(private _formBuilder: FormBuilder, private reportsService: ReportsService) {
+  constructor(private _formBuilder: FormBuilder, private _reportsService: ReportsService, private _dropdownService: DropdownsService) { }
+
+  ngOnInit(): void {
+    this.prepareFilterForm();
+
+    this._dropdownService.getBranches().subscribe(res => {
+      this.branches = res.results;
+    })
+
+    // Load initial data with default current month filter
+    const initialFilter = this.getFilterObject();
+    this.getData(initialFilter);
+  }
+
+  prepareFilterForm() {
+    // Get current month's first and last day
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    this.filterForm = this._formBuilder.group({
+      created_from: [this.formatDate(firstDayOfMonth), Validators.required],
+      created_to: [this.formatDate(lastDayOfMonth), Validators.required],
+      search: null,
+      branch: null
+    }, { validators: this.dateRangeValidator });
   }
 
   // Custom validator for date range
@@ -77,32 +105,11 @@ export class TotalExpensesComponent implements OnInit {
     return null;
   }
 
-  ngOnInit(): void {
-    // Get current month's first and last day
-    const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    // Format dates for input fields (YYYY-MM-DD)
-    const formatDate = (date: Date): string => {
-      return date.toISOString().split('T')[0];
-    };
-
-    this.filterForm = this._formBuilder.group({
-      created_from: [formatDate(firstDayOfMonth), Validators.required],
-      created_to: [formatDate(lastDayOfMonth), Validators.required],
-      search: null,
-    }, { validators: this.dateRangeValidator });
-
-    this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
-    this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
-
-    // Load initial data with default current month filter
-    const initialFilter = this.getFilterObject();
-    this.getData(initialFilter);
+  formatDate(date: Date) {
+    return date.toISOString().split('T')[0];
   }
 
-  private getRowAmount(row: TotalExpensesReportResponse) {
+  private getRowAmount(row: TotalExpensesReportItem) {
     return row.amount ? row.amount.toFixed(3) : '-';
   }
 
@@ -135,11 +142,14 @@ export class TotalExpensesComponent implements OnInit {
       this.currentFilter = { ...filter };
     }
 
-    this.reportsService.getTotalExpensesReport(filterWithPagination).subscribe({
+    this._reportsService.getTotalExpensesReport(filterWithPagination).subscribe({
       next: (response) => {
         this.searchResults = response;
-        this.tableOptions.totalRecords = response.count;
-        this.updateReportTotals(response.results);
+        this.expensesData = response.expenses;
+        this.tableOptions.totalRecords = response.expenses.count;
+        this.shopName = response.name ?? '-';
+        this.shopLogoURL = response.logo ?? null;
+        this.updateReportTotals(response.expenses.results);
       },
       error: (error) => {
         this.toaster.showError('Failed to load total expenses report data. Please try again.');
@@ -211,11 +221,11 @@ export class TotalExpensesComponent implements OnInit {
     return finalFilter;
   }
 
-  updateReportTotals(results: any = []): void {
+  updateReportTotals(results: TotalExpensesReportItem[] = []): void {
     const data = results ?? [];
 
     this.reportTotals = {
-      amount: data.reduce((acc: number, item: { amount: any; }) => acc + parseFloat(item.amount || 0), 0)
+      amount: data.reduce((acc: number, item: TotalExpensesReportItem) => acc + (item.amount || 0), 0)
     };
   }
 
@@ -223,19 +233,19 @@ export class TotalExpensesComponent implements OnInit {
   private getReportConfig(): ReportConfig {
     const reportColumns: ReportColumn[] = [
       { field: 'name', header: 'Expense Name' },
-      { field: 'amount', header: 'Amount', body: (row: TotalExpensesReportResponse) => this.getRowAmount(row) }
+      { field: 'amount', header: 'Amount', body: (row: TotalExpensesReportItem) => this.getRowAmount(row) }
     ];
 
     return {
       title: 'Total Expenses Report',
-      data: this.searchResults.results,
+      data: this.expensesData.results,
       columns: reportColumns,
       totals: {
         amount: this.reportTotals.amount
       },
       filterForm: this.filterForm,
-      businessName: this.businessName,
-      businessLogoURL: this.businessLogoURL,
+      businessName: this.shopName,
+      businessLogoURL: this.shopLogoURL,
       filename: 'total-expenses-report'
     };
   }

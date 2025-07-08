@@ -1,12 +1,5 @@
 import { PaginatedResponse } from "../../../pos/interfaces/pos.interfaces";
-
-export interface BaseReportResponse {
-  id: number;
-  name: string;
-  logo: string;
-  currency: string;
-  date: string;
-}
+import { BaseReportResponse } from "../reports.models";
 
 export interface SalesReportResponse extends BaseReportResponse {
   sales: PaginatedResponse<SalesReportItem>

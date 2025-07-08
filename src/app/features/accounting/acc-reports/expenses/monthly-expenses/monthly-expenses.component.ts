@@ -2,10 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
-import { MonthlyExpensesReportResponse } from '../expenses-reports.models';
+import { MonthlyExpensesReportResponse, MonthlyExpensesReportItem } from '../expenses-reports.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
+import { DropdownsService } from '../../../../../core/services/dropdowns.service';
 
 @Component({
   selector: 'app-monthly-expenses',
@@ -19,15 +20,17 @@ import { ReportExportService, ReportConfig, ReportColumn } from '../../../@servi
 })
 export class MonthlyExpensesComponent implements OnInit {
   filterForm!: FormGroup;
-  selectedReportItem: any;
-  searchResults: PaginatedResponse<MonthlyExpensesReportResponse> = {
+  branches: any[] = [];
+  selectedReportItem!: MonthlyExpensesReportItem;
+  searchResults!: MonthlyExpensesReportResponse;
+  expensesData: PaginatedResponse<MonthlyExpensesReportItem> = {
     results: [],
     count: 0,
     next: null,
     previous: null
   };
   tableOptions: DataTableOptions = new DataTableOptions();
-  columns: DataTableColumn[] = [];
+  columns: DataTableColumn<MonthlyExpensesReportItem>[] = [];
   monthlyColumns: string[] = []; // Store month keys for dynamic columns
   monthTotals: { [key: string]: number } = {}; // Store totals for each month
   currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
@@ -59,10 +62,37 @@ export class MonthlyExpensesComponent implements OnInit {
   private toaster = inject(ToasterMsgService);
   private reportExportService = inject(ReportExportService);
 
-  businessName!: string;
-  businessLogoURL!: string;
+  shopName!: string;
+  shopLogoURL!: string;
 
-  constructor(private _formBuilder: FormBuilder, private reportsService: ReportsService) {
+  constructor(private _formBuilder: FormBuilder, private _reportsService: ReportsService, private _dropdownService: DropdownsService) { }
+
+  ngOnInit(): void {
+    this.prepareFilterForm();
+
+    this._dropdownService.getBranches().subscribe(res => {
+      this.branches = res.results;
+    })
+
+    this.initializeColumns();
+
+    // Load initial data with default current year filter
+    const initialFilter = this.getFilterObject();
+    this.getData(initialFilter);
+  }
+
+  prepareFilterForm() {
+    // Get current whole year range (January 1st to December 31st)
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1); // January 1st
+    const endOfYear = new Date(now.getFullYear(), 11, 31); // December 31st
+
+    this.filterForm = this._formBuilder.group({
+      created_from: [this.formatDate(startOfYear), Validators.required],
+      created_to: [this.formatDate(endOfYear), Validators.required],
+      search: null,
+      branch: null
+    }, { validators: this.dateRangeValidator });
   }
 
   // Custom validator for date range
@@ -76,55 +106,8 @@ export class MonthlyExpensesComponent implements OnInit {
     return null;
   }
 
-  ngOnInit(): void {
-    this.initializeFilter();
-    this.initializeColumns();
-
-    this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
-    this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
-
-    // Automatically load data with default year range
-    this.loadInitialData();
-  }
-
-  private loadInitialData(): void {
-    // Get the default filter and load data immediately
-    const defaultFilter = this.getFilterObject();
-
-    if (defaultFilter && Object.keys(defaultFilter).length > 0) {
-      // Reset pagination for initial load
-      this.tableOptions.currentPage = 1;
-      this.tableOptions.firstIndex = 0;
-
-      this.getData(defaultFilter);
-    }
-  }
-
-  initializeFilter() {
-    // Initialize base columns immediately
-    this.initializeBaseColumns();
-
-    // Get current whole year range (January 1st to December 31st)
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1); // January 1st
-    const endOfYear = new Date(now.getFullYear(), 11, 31); // December 31st
-
-    // Format dates for input fields (YYYY-MM-DD)
-    const formatDate = (date: Date): string => {
-      return date.toISOString().split('T')[0];
-    };
-
-    const startDateFormatted = formatDate(startOfYear);
-    const endDateFormatted = formatDate(endOfYear);
-
-
-    // Initialize form with current year range
-    this.filterForm = this._formBuilder.group({
-      created_from: [startDateFormatted, Validators.required],
-      created_to: [endDateFormatted, Validators.required],
-      search: null,
-    }, { validators: this.dateRangeValidator });
-
+  formatDate(date: Date) {
+    return date.toISOString().split('T')[0];
   }
 
   initializeColumns() {
@@ -135,7 +118,7 @@ export class MonthlyExpensesComponent implements OnInit {
   // Initialize base columns to ensure table always has structure
   initializeBaseColumns() {
     this.columns = [
-      { field: "name", header: "Expense Name" }
+      { field: "name", header: "Expense Name", body: (row: MonthlyExpensesReportItem) => row.name || '-' }
     ];
     this.monthlyColumns = [];
     this.monthTotals = {};
@@ -149,8 +132,8 @@ export class MonthlyExpensesComponent implements OnInit {
     // Extract unique months from actual data
     const uniqueMonths = new Set<string>();
 
-    if (this.searchResults && this.searchResults.results && this.searchResults.results.length > 0) {
-      this.searchResults.results.forEach(item => {
+    if (this.expensesData && this.expensesData.results && this.expensesData.results.length > 0) {
+      this.expensesData.results.forEach(item => {
         if (item.values && item.values.length > 0) {
           item.values.forEach(value => {
             const monthKey = value.month.substr(0, 7); // YYYY-MM format
@@ -171,7 +154,7 @@ export class MonthlyExpensesComponent implements OnInit {
         this.columns.push({
           field: monthKey,
           header: monthDisplay,
-          body: (row: any) => this.getMonthValue(row, monthKey)
+          body: (row: MonthlyExpensesReportItem) => this.getMonthValue(row, monthKey)
         });
       });
 
@@ -180,14 +163,14 @@ export class MonthlyExpensesComponent implements OnInit {
         this.columns.push({
           field: "total",
           header: "Total",
-          body: (row: any) => this.getRowTotal(row)
+          body: (row: MonthlyExpensesReportItem) => this.getRowTotal(row)
         });
       }
     }
   }
 
   // Get value for specific month from row data
-  getMonthValue(row: MonthlyExpensesReportResponse, monthKey: string): string {
+  getMonthValue(row: MonthlyExpensesReportItem, monthKey: string): string {
     if (!row.values || row.values.length === 0) return '-';
 
     const monthData = row.values.find(item => item.month.startsWith(monthKey));
@@ -195,13 +178,14 @@ export class MonthlyExpensesComponent implements OnInit {
   }
 
   // Calculate total for a specific expense category across all months
-  getRowTotal(row: MonthlyExpensesReportResponse): string {
+  getRowTotal(row: MonthlyExpensesReportItem): string {
     if (!row.values || row.values.length === 0) return '-';
 
     const total = row.values.reduce((sum, value) => {
       return sum + parseFloat(value.amount?.toString() || '0');
     }, 0);
-    return total > 0 ? total.toFixed(3) : '-';
+
+    return total.toFixed(3);
   }
 
   getPaginatedRows(data: { first: number, rows: number }) {
@@ -221,7 +205,6 @@ export class MonthlyExpensesComponent implements OnInit {
   }
 
   private getData(filter: {} = {}) {
-
     // Store the filter for pagination use, but add page info
     const filterWithPagination = {
       ...filter,
@@ -229,21 +212,23 @@ export class MonthlyExpensesComponent implements OnInit {
       page_size: this.tableOptions.pageSize,
     };
 
-
     // Store the base filter (without pagination) for future pagination calls
     if (Object.keys(filter).length > 0) {
       this.currentFilter = { ...filter };
     }
 
-    this.reportsService.getMonthlyExpensesReport(filterWithPagination).subscribe({
+    this._reportsService.getMonthlyExpensesReport(filterWithPagination).subscribe({
       next: (response) => {
         this.searchResults = response;
-        this.tableOptions.totalRecords = response.count;
-        this.generateColumns(); // Generate columns after getting data
-        this.updateReportTotals(response.results);
+        this.expensesData = response.expenses;
+        this.tableOptions.totalRecords = response.expenses.count;
+        this.shopName = response.name ?? '-';
+        this.shopLogoURL = response.logo ?? null;
+        this.generateColumns();
+        this.updateReportTotals(response.expenses.results);
       },
       error: (error) => {
-        this.toaster.showError('Failed to load monthly expenses data. Please try again.');
+        this.toaster.showError('Failed to load monthly expenses report data. Please try again.');
       }
     });
   }
@@ -290,9 +275,7 @@ export class MonthlyExpensesComponent implements OnInit {
         return date.toISOString().split('T')[0];
       };
 
-      const fromDate = formatDateForBackend(filterValues.created_from);
-      const toDate = formatDateForBackend(filterValues.created_to);
-      filter.created_at__range = `${fromDate},${toDate}`;
+      filter.created_at__range = `${formatDateForBackend(filterValues.created_from)},${formatDateForBackend(filterValues.created_to)}`;
     }
 
     // Remove created_from and created_to from filterValues copy
@@ -314,41 +297,33 @@ export class MonthlyExpensesComponent implements OnInit {
     return finalFilter;
   }
 
-  updateReportTotals(results: any = []): void {
+  updateReportTotals(results: MonthlyExpensesReportItem[] = []): void {
     const data = results ?? [];
 
     // Reset month totals
     this.monthTotals = {};
-    this.monthlyColumns.forEach(monthKey => {
-      this.monthTotals[monthKey] = 0;
-    });
 
     // Calculate totals for each month
-    data.forEach((item: any) => {
+    data.forEach(item => {
       if (item.values && item.values.length > 0) {
-        item.values.forEach((value: any) => {
+        item.values.forEach(value => {
           const monthKey = value.month.substr(0, 7); // YYYY-MM format
-          if (this.monthTotals.hasOwnProperty(monthKey)) {
-            this.monthTotals[monthKey] += parseFloat(value.amount || 0);
+          if (!this.monthTotals[monthKey]) {
+            this.monthTotals[monthKey] = 0;
           }
+          this.monthTotals[monthKey] += value.amount || 0;
         });
       }
     });
 
-    // Calculate overall total (sum of all monthly totals)
+    // Calculate overall total
     this.reportTotals = {
-      total_amount: Object.values(this.monthTotals).reduce((acc: number, val: number) => acc + val, 0)
+      total_amount: Object.values(this.monthTotals).reduce((sum, amount) => sum + amount, 0)
     };
   }
 
-  // Get total for specific month or grand total
   getMonthTotal(monthKey: string): string {
-    if (monthKey === 'total') {
-      const total = this.reportTotals.total_amount || 0;
-      return total > 0 ? total.toFixed(3) : '-';
-    }
-    const monthTotal = this.monthTotals[monthKey] || 0;
-    return monthTotal > 0 ? monthTotal.toFixed(3) : '-';
+    return this.monthTotals[monthKey] ? this.monthTotals[monthKey].toFixed(3) : '-';
   }
 
   // Create report configuration for the export service
@@ -363,31 +338,29 @@ export class MonthlyExpensesComponent implements OnInit {
       reportColumns.push({
         field: monthKey,
         header: monthDisplay,
-        body: (row: MonthlyExpensesReportResponse) => this.getMonthValue(row, monthKey)
+        body: (row: MonthlyExpensesReportItem) => this.getMonthValue(row, monthKey)
       });
     });
 
-    // Add Total column
+    // Add total column
     if (this.monthlyColumns.length > 0) {
       reportColumns.push({
         field: 'total',
         header: 'Total',
-        body: (row: MonthlyExpensesReportResponse) => this.getRowTotal(row)
+        body: (row: MonthlyExpensesReportItem) => this.getRowTotal(row)
       });
     }
 
     return {
       title: 'Monthly Expenses Report',
-      data: this.searchResults.results,
+      data: this.expensesData.results,
       columns: reportColumns,
       totals: {
-        ...this.monthTotals,
-        total: this.reportTotals.total_amount,
         total_amount: this.reportTotals.total_amount
       },
       filterForm: this.filterForm,
-      businessName: this.businessName,
-      businessLogoURL: this.businessLogoURL,
+      businessName: this.shopName,
+      businessLogoURL: this.shopLogoURL,
       filename: 'monthly-expenses-report'
     };
   }

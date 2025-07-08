@@ -2,10 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
-import { StockReportResponse } from '../stock-details-reports.models';
+import { StockReportResponse, StockReportItem } from '../stock-details-reports.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
+import { DropdownsService } from '../../../../../core/services/dropdowns.service';
 
 @Component({
   selector: 'app-stock-report',
@@ -19,22 +20,24 @@ import { ReportExportService, ReportConfig, ReportColumn } from '../../../@servi
 })
 export class StockReportComponent implements OnInit {
   filterForm!: FormGroup;
-  selectedReportItem: any;
-  searchResults: PaginatedResponse<StockReportResponse> = {
+  branches: any[] = [];
+  selectedReportItem!: StockReportItem;
+  searchResults!: StockReportResponse;
+  stockData: PaginatedResponse<StockReportItem> = {
     results: [],
     count: 0,
     next: null,
     previous: null
   };
   tableOptions: DataTableOptions = new DataTableOptions();
-  columns: DataTableColumn[] = [
-    { field: "tag_number", header: "Tag Number", body: (row: any) => row.tag_number || '-' },
-    { field: "description", header: "Description", body: (row: any) => row.description || '-' },
-    { field: "category", header: "Category", body: (row: any) => row.category || '-' },
-    { field: "stone_weight", header: "Stone Weight", body: (row: any) => this.getStoneWeight(row) },
-    { field: "gross_weight", header: "Gross Weight", body: (row: any) => this.getGrossWeight(row) },
-    { field: "pure_weight", header: "Pure Weight", body: (row: any) => row.pure_weight || '-' },
-    { field: "price", header: "Price", body: (row: any) => this.getPrice(row) }
+  columns: DataTableColumn<StockReportItem>[] = [
+    { field: "tag_number", header: "Tag Number", body: (row: StockReportItem) => row.tag_number || '-' },
+    { field: "description", header: "Description", body: (row: StockReportItem) => row.description || '-' },
+    { field: "category", header: "Category", body: (row: StockReportItem) => row.category || '-' },
+    { field: "stone_weight", header: "Stone Weight", body: (row: StockReportItem) => this.getStoneWeight(row) },
+    { field: "gross_weight", header: "Gross Weight", body: (row: StockReportItem) => this.getGrossWeight(row) },
+    { field: "pure_weight", header: "Pure Weight", body: (row: StockReportItem) => row.pure_weight || '-' },
+    { field: "price", header: "Price", body: (row: StockReportItem) => this.getPrice(row) }
   ];
   currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
@@ -69,10 +72,38 @@ export class StockReportComponent implements OnInit {
   private toaster = inject(ToasterMsgService);
   private reportExportService = inject(ReportExportService);
 
-  businessName!: string;
-  businessLogoURL!: string;
+  shopName!: string;
+  shopLogoURL!: string;
 
-  constructor(private _formBuilder: FormBuilder, private reportsService: ReportsService) {
+  constructor(private _formBuilder: FormBuilder, private _reportsService: ReportsService, private _dropdownService: DropdownsService) { }
+
+  ngOnInit(): void {
+    this.prepareFilterForm();
+
+    this._dropdownService.getBranches().subscribe(res => {
+      this.branches = res.results;
+    })
+
+    // Load initial data with default current month filter
+    const initialFilter = this.getFilterObject();
+    this.getData(initialFilter);
+  }
+
+  prepareFilterForm() {
+    // Get current month's first and last day
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    this.filterForm = this._formBuilder.group({
+      created_from: [this.formatDate(firstDayOfMonth), Validators.required],
+      created_to: [this.formatDate(lastDayOfMonth), Validators.required],
+      category__icontains: null,
+      description__icontains: null,
+      tag_number__icontains: null,
+      search: null,
+      branch: null
+    }, { validators: this.dateRangeValidator });
   }
 
   // Custom validator for date range
@@ -86,43 +117,19 @@ export class StockReportComponent implements OnInit {
     return null;
   }
 
-  ngOnInit(): void {
-    // Get current month's first and last day
-    const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    // Format dates for input fields (YYYY-MM-DD)
-    const formatDate = (date: Date): string => {
-      return date.toISOString().split('T')[0];
-    };
-
-    this.filterForm = this._formBuilder.group({
-      created_from: [formatDate(firstDayOfMonth), Validators.required],
-      created_to: [formatDate(lastDayOfMonth), Validators.required],
-      category__icontains: null,
-      description__icontains: null,
-      tag_number__icontains: null,
-      search: null,
-    }, { validators: this.dateRangeValidator });
-
-    this.businessName = JSON.parse(localStorage.getItem('user') || '{}')?.business_name;
-    this.businessLogoURL = JSON.parse(localStorage.getItem('user') || '{}')?.image;
-
-    // Load initial data with default current month filter
-    const initialFilter = this.getFilterObject();
-    this.getData(initialFilter);
+  formatDate(date: Date) {
+    return date.toISOString().split('T')[0];
   }
 
-  private getStoneWeight(row: StockReportResponse) {
+  private getStoneWeight(row: StockReportItem) {
     return row.stone_weight ? row.stone_weight.toFixed(3) : '-';
   }
 
-  private getGrossWeight(row: StockReportResponse) {
+  private getGrossWeight(row: StockReportItem) {
     return row.gross_weight ? row.gross_weight.toFixed(3) : '-';
   }
 
-  private getPrice(row: StockReportResponse) {
+  private getPrice(row: StockReportItem) {
     return row.price || '-';
   }
 
@@ -155,11 +162,14 @@ export class StockReportComponent implements OnInit {
       this.currentFilter = { ...filter };
     }
 
-    this.reportsService.getStockReport(filterWithPagination).subscribe({
+    this._reportsService.getStockReport(filterWithPagination).subscribe({
       next: (response) => {
         this.searchResults = response;
-        this.tableOptions.totalRecords = response.count;
-        this.updateReportTotals(response.results);
+        this.stockData = response.products;
+        this.tableOptions.totalRecords = response.products.count;
+        this.shopName = response.name ?? '-';
+        this.shopLogoURL = response.logo ?? null;
+        this.updateReportTotals(response.products.results);
       },
       error: (error) => {
         this.toaster.showError('Failed to load stock report data. Please try again.');
@@ -231,13 +241,13 @@ export class StockReportComponent implements OnInit {
     return finalFilter;
   }
 
-  updateReportTotals(results: any = []): void {
+  updateReportTotals(results: StockReportItem[] = []): void {
     const data = results ?? [];
 
     this.reportTotals = {
-      total_stone_weight: data.reduce((acc: number, item: { stone_weight: any; }) => acc + parseFloat(item.stone_weight || 0), 0),
-      total_gross_weight: data.reduce((acc: number, item: { gross_weight: any; }) => acc + parseFloat(item.gross_weight || 0), 0),
-      total_price: data.reduce((acc: number, item: { price: any; }) => acc + parseFloat(item.price || 0), 0)
+      total_stone_weight: data.reduce((acc: number, item: StockReportItem) => acc + (item.stone_weight || 0), 0),
+      total_gross_weight: data.reduce((acc: number, item: StockReportItem) => acc + (item.gross_weight || 0), 0),
+      total_price: data.reduce((acc: number, item: StockReportItem) => acc + parseFloat(item.price || '0'), 0)
     };
   }
 
@@ -247,15 +257,15 @@ export class StockReportComponent implements OnInit {
       { field: 'tag_number', header: 'Tag Number' },
       { field: 'description', header: 'Description' },
       { field: 'category', header: 'Category' },
-      { field: 'stone_weight', header: 'Stone Weight', body: (row: StockReportResponse) => this.getStoneWeight(row) },
-      { field: 'gross_weight', header: 'Gross Weight', body: (row: StockReportResponse) => this.getGrossWeight(row) },
+      { field: 'stone_weight', header: 'Stone Weight', body: (row: StockReportItem) => this.getStoneWeight(row) },
+      { field: 'gross_weight', header: 'Gross Weight', body: (row: StockReportItem) => this.getGrossWeight(row) },
       { field: 'pure_weight', header: 'Pure Weight' },
-      { field: 'price', header: 'Price', body: (row: StockReportResponse) => this.getPrice(row) }
+      { field: 'price', header: 'Price', body: (row: StockReportItem) => this.getPrice(row) }
     ];
 
     return {
       title: 'Stock Report',
-      data: this.searchResults.results,
+      data: this.stockData.results,
       columns: reportColumns,
       totals: {
         stone_weight: this.reportTotals.total_stone_weight,
@@ -263,8 +273,8 @@ export class StockReportComponent implements OnInit {
         price: this.reportTotals.total_price
       },
       filterForm: this.filterForm,
-      businessName: this.businessName,
-      businessLogoURL: this.businessLogoURL,
+      businessName: this.shopName,
+      businessLogoURL: this.shopLogoURL,
       filename: 'stock-report'
     };
   }

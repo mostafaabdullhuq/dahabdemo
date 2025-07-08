@@ -23,9 +23,14 @@
           <i class="pi pi-exclamation-triangle mr-2"></i> From Date cannot be later than To Date.
         </div>
         <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-8">
             <app-input-text formControlName="search" placeholder="Global Search" type="text"
               inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label=" Baranch" id="Baranch" formControlName="branch" [options]="branches"
+              [showClear]="true" optionLabel="name" optionValue="id" placeholder="Select a Baranch">
+            </app-dropdowns>
           </div>
 
           <div class="col-md-6">
@@ -56,7 +61,7 @@
   <!-- report table -->
   <div class="table-container">
     <app-data-table (rowSelected)="selectedReportItem = $event" [rowsPerPageOptions]="tableOptions.rowsPerPageOptions"
-      [data]="searchResults.results" [cols]="columns" [totalRecords]="tableOptions.totalRecords"
+      [data]="expensesData.results" [cols]="columns" [totalRecords]="tableOptions.totalRecords"
       [first]="tableOptions.firstIndex" [rows]="tableOptions.pageSize" [hasContext]="false"
       (pageChange)="getPaginatedRows($event)">
 
@@ -74,11 +79,11 @@
         </tr>
       </ng-container>
 
-      <ng-container table-empty-message *ngIf="searchResults.results.length === 0 && tableOptions.totalRecords === 0">
+      <ng-container table-empty-message *ngIf="expensesData.results.length === 0 && tableOptions.totalRecords === 0">
         No monthly expenses data found for the selected date range. Try adjusting your filter criteria.
       </ng-container>
 
-      <ng-container table-empty-message *ngIf="searchResults.results.length > 0 && monthlyColumns.length === 0">
+      <ng-container table-empty-message *ngIf="expensesData.results.length > 0 && monthlyColumns.length === 0">
         Expense categories found, but no monthly breakdown data available for the selected period.
       </ng-container>
     </app-data-table>

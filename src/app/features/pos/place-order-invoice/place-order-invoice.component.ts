@@ -11,41 +11,43 @@ import { PosService } from '../@services/pos.service';
 })
 export class PlaceOrderInvoiceComponent {
   visible: boolean = false;
-  orgImg:any = JSON.parse(localStorage.getItem('user')|| '')?.image;
-  invoiceData:any = {};
+  orgImg: any = JSON.parse(localStorage.getItem('user') || '')?.image;
+  invoiceData: any = {};
   @Output() onSubmitPayments = new EventEmitter<any[]>();
 
-  constructor( private _formBuilder: FormBuilder, private _posService: PosService) { }
+  constructor(private _formBuilder: FormBuilder, private _posService: PosService) { }
 
   ngOnInit(): void {
-   this.getInvoiceData()
+    this.getInvoiceData()
   }
- 
+
   showDialog() {
     this.visible = true;
   }
 
 
- 
 
-getInvoiceData(){
-  this._posService.getOrderInvoice().subscribe(res=>{
-this.invoiceData = res
-  })
-}
-getTotalPrice(products: any[]): number {
-  if (!products || products.length === 0) return 0;
-  return products.reduce((sum, item) => sum + (item.price || 0), 0);
-}
-printInvoice() {
-  const printContents = document.getElementById('invoice-section')?.innerHTML;
-  const originalContents = document.body.innerHTML;
 
-  if (printContents) {
-    document.body.innerHTML = printContents;
-    window.print();
-    document.body.innerHTML = originalContents;
-    // window.location.reload(); // reload to restore Angular bindings
+  getInvoiceData() {
+    this._posService.getOrderInvoice().subscribe(res => {
+      console.log("invoice: ", res);
+
+      this.invoiceData = res
+    })
   }
-}
+  getTotalPrice(products: any[]): number {
+    if (!products || products.length === 0) return 0;
+    return products.reduce((sum, item) => sum + (item.price || 0), 0);
+  }
+  printInvoice() {
+    const printContents = document.getElementById('invoice-section')?.innerHTML;
+    const originalContents = document.body.innerHTML;
+
+    if (printContents) {
+      document.body.innerHTML = printContents;
+      window.print();
+      document.body.innerHTML = originalContents;
+      // window.location.reload(); // reload to restore Angular bindings
+    }
+  }
 }

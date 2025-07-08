@@ -1,4 +1,11 @@
-export interface StockReportResponse {
+import { PaginatedResponse } from "../../../../shared/models/common.models";
+import { BaseReportResponse } from "../reports.models";
+
+export interface StockReportResponse extends BaseReportResponse {
+  products: PaginatedResponse<StockReportItem>
+}
+
+export interface StockReportItem {
   id: number;
   description: string;
   category: string;
