@@ -197,7 +197,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   calculateInitialGoldPriceBasedOnPurity(group: any): number {
     if (
       !this.manualGoldPrice ||
-      !group?.purity ||
+      !(group?.purity || group?.purity_value) ||
       !group?.purity_value ||
       !this.selectedCurrency?.currency_decimal_point
     ) {
@@ -207,22 +207,27 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const baseValue = (+this.manualGoldPrice);
     let purityFactor = 1;
 
-    switch (group.purity) {
-      case 24:
-        purityFactor = 1;
-        break;
-      case 22:
-        purityFactor = 0.916;
-        break;
-      case 21:
-        purityFactor = 0.88;
-        break;
-      case 18:
-        purityFactor = 0.75;
-        break;
-      default:
-        purityFactor = 1;
+    if (group?.purity) {
+      switch (group.purity) {
+        case 24:
+          purityFactor = 1;
+          break;
+        case 22:
+          purityFactor = 0.916;
+          break;
+        case 21:
+          purityFactor = 0.88;
+          break;
+        case 18:
+          purityFactor = 0.75;
+          break;
+        default:
+          purityFactor = 1;
+      }
+    } else {
+      purityFactor = +group.purity_value
     }
+
 
     const goldPrice = baseValue * purityFactor * group.purity_value;
 
@@ -383,6 +388,10 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
   onProductSelected(productId: number): void {
     const selectedProduct = this.products.find((p: any) => p.id === productId);
+    if (!selectedProduct.gold_price) {
+      selectedProduct.gold_price = this.calculateInitialGoldPriceBasedOnPurity(selectedProduct);
+    }
+
     if (!selectedProduct) return;
     this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
       const branchTaxNo = res?.tax_rate || 0;
@@ -395,7 +404,8 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         retail_making_charge: selectedProduct.retail_making_charge,
         discount: selectedProduct.discount || 0,
         max_discount: selectedProduct.max_discount,
-        selectedVat: this.selectedVatId
+        selectedVat: this.selectedVatId,
+        gold_price: selectedProduct.gold_price
       };
 
       const goldPrice = this.calculateOrderGoldPriceBasedOnPurity(tempGroup);
