@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
-import { TotalExpensesReportResponse, TotalExpensesReportItem } from '../expenses-reports.models';
+import { LiabilitiesReportResponse, LiabilitiesReportItem } from '../liabilities.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
@@ -10,30 +10,30 @@ import { DropdownsService } from '../../../../../core/services/dropdowns.service
 import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-total-expenses',
+  selector: 'app-liabilities-report',
   imports: [
     FormsModule,
     ReactiveFormsModule,
     SharedModule
   ],
-  templateUrl: './total-expenses.component.html',
-  styleUrl: './total-expenses.component.scss'
+  templateUrl: './liabilities-report.component.html',
+  styleUrl: './liabilities-report.component.scss'
 })
-export class TotalExpensesComponent implements OnInit {
+export class LiabilitiesReportComponent implements OnInit {
   filterForm!: FormGroup;
   branches: any[] = [];
-  selectedReportItem!: TotalExpensesReportItem;
-  searchResults!: TotalExpensesReportResponse;
-  expensesData: PaginatedResponse<TotalExpensesReportItem> = {
+  selectedReportItem!: LiabilitiesReportItem;
+  searchResults!: LiabilitiesReportResponse;
+  liabilitiesData: PaginatedResponse<LiabilitiesReportItem> = {
     results: [],
     count: 0,
     next: null,
     previous: null
   };
   tableOptions: DataTableOptions = new DataTableOptions();
-  columns: DataTableColumn<TotalExpensesReportItem>[] = [
-    { field: "name", header: "Expense Name", body: (row: TotalExpensesReportItem) => row.name || '-' },
-    { field: "amount", header: "Amount", body: (row: TotalExpensesReportItem) => this.getRowAmount(row) }
+  columns: DataTableColumn<LiabilitiesReportItem>[] = [
+    { field: "name", header: "Liability Name", body: (row: LiabilitiesReportItem) => row.name || '-' },
+    { field: "amount", header: "Amount", body: (row: LiabilitiesReportItem) => this.getRowAmount(row) }
   ];
   currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
@@ -115,7 +115,7 @@ export class TotalExpensesComponent implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
-  private getRowAmount(row: TotalExpensesReportItem) {
+  private getRowAmount(row: LiabilitiesReportItem) {
     return row.amount ? row.amount.toFixed(3) : '-';
   }
 
@@ -148,17 +148,17 @@ export class TotalExpensesComponent implements OnInit {
       this.currentFilter = { ...filter };
     }
 
-    this._reportsService.getTotalExpensesReport(filterWithPagination).subscribe({
+    this._reportsService.getLiabilitiesReport(filterWithPagination).subscribe({
       next: (response) => {
         this.searchResults = response;
-        this.expensesData = response.expenses;
-        this.tableOptions.totalRecords = response.expenses.count;
+        this.liabilitiesData = response.liabilities;
+        this.tableOptions.totalRecords = response.liabilities.count;
         this.shopName = response.name ?? this._authService.getUser()?.business_name ?? '-';
         this.shopLogoURL = response.logo ?? this._authService.getUser()?.image ?? '';
-        this.updateReportTotals(response.expenses.results);
+        this.updateReportTotals(response.liabilities.results);
       },
       error: (error) => {
-        this.toaster.showError('Failed to load total expenses report data. Please try again.');
+        this.toaster.showError('Failed to load liabilities report data. Please try again.');
       }
     });
   }
@@ -227,24 +227,24 @@ export class TotalExpensesComponent implements OnInit {
     return finalFilter;
   }
 
-  updateReportTotals(results: TotalExpensesReportItem[] = []): void {
+  updateReportTotals(results: LiabilitiesReportItem[] = []): void {
     const data = results ?? [];
 
     this.reportTotals = {
-      amount: data.reduce((acc: number, item: TotalExpensesReportItem) => acc + (item.amount || 0), 0)
+      amount: data.reduce((acc: number, item: LiabilitiesReportItem) => acc + (item.amount || 0), 0)
     };
   }
 
   // Create report configuration for the export service
   private getReportConfig(): ReportConfig {
     const reportColumns: ReportColumn[] = [
-      { field: 'name', header: 'Expense Name' },
-      { field: 'amount', header: 'Amount', body: (row: TotalExpensesReportItem) => this.getRowAmount(row) }
+      { field: 'name', header: 'Liability Name' },
+      { field: 'amount', header: 'Amount', body: (row: LiabilitiesReportItem) => this.getRowAmount(row) }
     ];
 
     return {
-      title: 'Total Expenses Report',
-      data: this.expensesData.results,
+      title: 'Liabilities Report',
+      data: this.liabilitiesData.results,
       columns: reportColumns,
       totals: {
         amount: this.reportTotals.amount
@@ -252,7 +252,7 @@ export class TotalExpensesComponent implements OnInit {
       filterForm: this.filterForm,
       businessName: this.shopName,
       businessLogoURL: this.shopLogoURL,
-      filename: 'total-expenses-report'
+      filename: 'liabilities-report'
     };
   }
 

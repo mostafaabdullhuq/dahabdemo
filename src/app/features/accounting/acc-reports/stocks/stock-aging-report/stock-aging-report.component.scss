@@ -1,0 +1,51 @@
+// Stock aging report component styles
+
+.aging-matrix-table {
+  width: 100%;
+  margin-top: 20px;
+
+  th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    text-align: center;
+    padding: 12px 8px;
+    border: 1px solid #dee2e6;
+    min-width: 250px;
+  }
+
+  .aging-cell {
+    vertical-align: top;
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    min-height: 130px;
+    width: 250px;
+
+    .product-item {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 13px;
+
+      .product-detail {
+        margin-bottom: 6px;
+        line-height: 1.4;
+
+        strong {
+          color: #495057;
+          font-weight: 600;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+.table-responsive {
+  overflow-x: auto;
+  margin-top: 20px;
+}

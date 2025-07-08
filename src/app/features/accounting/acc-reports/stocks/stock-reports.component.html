@@ -3,13 +3,21 @@
     <p-tabs class="col-md-12" value="0">
       <p-tablist>
         <p-tab value="0">Stock Details</p-tab>
+        <p-tab value="1">Stock Aging</p-tab>
       </p-tablist>
 
       <p-tabpanels>
         <p-tabpanel value="0">
           <div class="row">
             <div class="col-md-12">
-              <app-stock-report></app-stock-report>
+              <app-stock-details-report></app-stock-details-report>
+            </div>
+          </div>
+        </p-tabpanel>
+        <p-tabpanel value="1">
+          <div class="row">
+            <div class="col-md-12">
+              <app-stock-aging-report></app-stock-aging-report>
             </div>
           </div>
         </p-tabpanel>

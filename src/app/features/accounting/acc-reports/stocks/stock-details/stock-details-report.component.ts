@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
-import { TotalExpensesReportResponse, TotalExpensesReportItem } from '../expenses-reports.models';
+import { StockDetailsReportResponse, StockDetailsReportItem } from '../stock-reports.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
@@ -10,37 +10,46 @@ import { DropdownsService } from '../../../../../core/services/dropdowns.service
 import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-total-expenses',
+  selector: 'app-stock-details-report',
   imports: [
     FormsModule,
     ReactiveFormsModule,
     SharedModule
   ],
-  templateUrl: './total-expenses.component.html',
-  styleUrl: './total-expenses.component.scss'
+  templateUrl: './stock-details-report.component.html',
+  styleUrl: './stock-details-report.component.scss'
 })
-export class TotalExpensesComponent implements OnInit {
+export class StockDetailsReportComponent implements OnInit {
   filterForm!: FormGroup;
   branches: any[] = [];
-  selectedReportItem!: TotalExpensesReportItem;
-  searchResults!: TotalExpensesReportResponse;
-  expensesData: PaginatedResponse<TotalExpensesReportItem> = {
+  selectedReportItem!: StockDetailsReportItem;
+  searchResults!: StockDetailsReportResponse;
+  stockData: PaginatedResponse<StockDetailsReportItem> = {
     results: [],
     count: 0,
     next: null,
     previous: null
   };
   tableOptions: DataTableOptions = new DataTableOptions();
-  columns: DataTableColumn<TotalExpensesReportItem>[] = [
-    { field: "name", header: "Expense Name", body: (row: TotalExpensesReportItem) => row.name || '-' },
-    { field: "amount", header: "Amount", body: (row: TotalExpensesReportItem) => this.getRowAmount(row) }
+  columns: DataTableColumn<StockDetailsReportItem>[] = [
+    { field: "tag_number", header: "Tag Number", body: (row: StockDetailsReportItem) => row.tag_number || '-' },
+    { field: "description", header: "Description", body: (row: StockDetailsReportItem) => row.description || '-' },
+    { field: "category", header: "Category", body: (row: StockDetailsReportItem) => row.category || '-' },
+    { field: "stone_weight", header: "Stone Weight", body: (row: StockDetailsReportItem) => this.getStoneWeight(row) },
+    { field: "gross_weight", header: "Gross Weight", body: (row: StockDetailsReportItem) => this.getGrossWeight(row) },
+    { field: "pure_weight", header: "Pure Weight", body: (row: StockDetailsReportItem) => row.pure_weight || '-' },
+    { field: "price", header: "Price", body: (row: StockDetailsReportItem) => this.getPrice(row) }
   ];
   currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
   reportTotals: {
-    amount: number
+    total_stone_weight: number,
+    total_gross_weight: number,
+    total_price: number
   } = {
-      amount: 0
+      total_stone_weight: 0,
+      total_gross_weight: 0,
+      total_price: 0
     }
 
   exportItems = [
@@ -95,6 +104,9 @@ export class TotalExpensesComponent implements OnInit {
     this.filterForm = this._formBuilder.group({
       created_from: [this.formatDate(firstDayOfMonth), Validators.required],
       created_to: [this.formatDate(lastDayOfMonth), Validators.required],
+      category__icontains: null,
+      description__icontains: null,
+      tag_number__icontains: null,
       search: null,
       branch: null
     }, { validators: this.dateRangeValidator });
@@ -115,8 +127,16 @@ export class TotalExpensesComponent implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
-  private getRowAmount(row: TotalExpensesReportItem) {
-    return row.amount ? row.amount.toFixed(3) : '-';
+  private getStoneWeight(row: StockDetailsReportItem) {
+    return row.stone_weight ? row.stone_weight.toFixed(3) : '-';
+  }
+
+  private getGrossWeight(row: StockDetailsReportItem) {
+    return row.gross_weight ? row.gross_weight.toFixed(3) : '-';
+  }
+
+  private getPrice(row: StockDetailsReportItem) {
+    return row.price || '-';
   }
 
   getPaginatedRows(data: { first: number, rows: number }) {
@@ -148,17 +168,17 @@ export class TotalExpensesComponent implements OnInit {
       this.currentFilter = { ...filter };
     }
 
-    this._reportsService.getTotalExpensesReport(filterWithPagination).subscribe({
+    this._reportsService.getStockReport(filterWithPagination).subscribe({
       next: (response) => {
         this.searchResults = response;
-        this.expensesData = response.expenses;
-        this.tableOptions.totalRecords = response.expenses.count;
+        this.stockData = response.products;
+        this.tableOptions.totalRecords = response.products.count;
         this.shopName = response.name ?? this._authService.getUser()?.business_name ?? '-';
         this.shopLogoURL = response.logo ?? this._authService.getUser()?.image ?? '';
-        this.updateReportTotals(response.expenses.results);
+        this.updateReportTotals(response.products.results);
       },
       error: (error) => {
-        this.toaster.showError('Failed to load total expenses report data. Please try again.');
+        this.toaster.showError('Failed to load stock report data. Please try again.');
       }
     });
   }
@@ -227,32 +247,41 @@ export class TotalExpensesComponent implements OnInit {
     return finalFilter;
   }
 
-  updateReportTotals(results: TotalExpensesReportItem[] = []): void {
+  updateReportTotals(results: StockDetailsReportItem[] = []): void {
     const data = results ?? [];
 
     this.reportTotals = {
-      amount: data.reduce((acc: number, item: TotalExpensesReportItem) => acc + (item.amount || 0), 0)
+      total_stone_weight: data.reduce((acc: number, item: StockDetailsReportItem) => acc + (item.stone_weight || 0), 0),
+      total_gross_weight: data.reduce((acc: number, item: StockDetailsReportItem) => acc + (item.gross_weight || 0), 0),
+      total_price: data.reduce((acc: number, item: StockDetailsReportItem) => acc + parseFloat(item.price || '0'), 0)
     };
   }
 
   // Create report configuration for the export service
   private getReportConfig(): ReportConfig {
     const reportColumns: ReportColumn[] = [
-      { field: 'name', header: 'Expense Name' },
-      { field: 'amount', header: 'Amount', body: (row: TotalExpensesReportItem) => this.getRowAmount(row) }
+      { field: 'tag_number', header: 'Tag Number' },
+      { field: 'description', header: 'Description' },
+      { field: 'category', header: 'Category' },
+      { field: 'stone_weight', header: 'Stone Weight', body: (row: StockDetailsReportItem) => this.getStoneWeight(row) },
+      { field: 'gross_weight', header: 'Gross Weight', body: (row: StockDetailsReportItem) => this.getGrossWeight(row) },
+      { field: 'pure_weight', header: 'Pure Weight' },
+      { field: 'price', header: 'Price', body: (row: StockDetailsReportItem) => this.getPrice(row) }
     ];
 
     return {
-      title: 'Total Expenses Report',
-      data: this.expensesData.results,
+      title: 'Stock Report',
+      data: this.stockData.results,
       columns: reportColumns,
       totals: {
-        amount: this.reportTotals.amount
+        stone_weight: this.reportTotals.total_stone_weight,
+        gross_weight: this.reportTotals.total_gross_weight,
+        price: this.reportTotals.total_price
       },
       filterForm: this.filterForm,
       businessName: this.shopName,
       businessLogoURL: this.shopLogoURL,
-      filename: 'total-expenses-report'
+      filename: 'stock-report'
     };
   }
 

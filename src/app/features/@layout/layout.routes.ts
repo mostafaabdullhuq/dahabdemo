@@ -76,7 +76,9 @@ import { AccReportsComponent } from '../accounting/acc-reports/acc-reports.compo
 import { CountDownComponent } from '../inventory/count-down/count-down.component';
 import { SalesReportsComponent } from '../accounting/acc-reports/sales/sales-reports.component';
 import { ExpensesReportsComponent } from '../accounting/acc-reports/expenses/expenses-reports.component';
-import { StockDetailsReportsComponent } from '../accounting/acc-reports/stock-details/stock-details-reports.component';
+import { StockReportsComponent } from '../accounting/acc-reports/stocks/stock-reports.component';
+import { LiabilitiesReportsComponent } from '../accounting/acc-reports/liabilities/liabilities-reports.component';
+import { AssetsReportsComponent } from '../accounting/acc-reports/assets/assets-reports.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -202,7 +204,9 @@ export const routes: Routes = [
           { path: '', component: AccReportsComponent, pathMatch: 'full' },
           { path: 'sales', component: SalesReportsComponent },
           { path: 'expenses', component: ExpensesReportsComponent },
-          { path: 'stock', component: StockDetailsReportsComponent },
+          { path: 'stocks', component: StockReportsComponent },
+          { path: 'liabilities', component: LiabilitiesReportsComponent },
+          { path: 'assets', component: AssetsReportsComponent },
         ]
       },
     ]

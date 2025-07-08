@@ -31,6 +31,7 @@ export interface ReportConfig {
   businessName?: string;
   businessLogoURL?: string;
   filename?: string;
+  extraHeaderData?: { key: string; value: string }[];
 }
 
 @Injectable({
@@ -306,6 +307,20 @@ export class ReportExportService {
       const dateFont = this.getArabicFont(doc, 'normal');
       doc.setFont(dateFont, 'normal');
       doc.text(dateRange, textX, textY);
+      textY += 4;
+    }
+
+    // Add extra header data if available
+    if (config.extraHeaderData && config.extraHeaderData.length > 0) {
+      doc.setFontSize(10);
+      const extraDataFont = this.getArabicFont(doc, 'normal');
+      doc.setFont(extraDataFont, 'normal');
+
+      config.extraHeaderData.forEach(item => {
+        const extraText = `${item.key}: ${item.value}`;
+        doc.text(extraText, textX, textY);
+        textY += 4;
+      });
     }
 
     // Add logo on the right side of header if available
@@ -430,6 +445,15 @@ export class ReportExportService {
       currentRow++;
     }
 
+    // Add extra header data
+    if (config.extraHeaderData && config.extraHeaderData.length > 0) {
+      config.extraHeaderData.forEach(item => {
+        const extraText = `${item.key}: ${item.value}`;
+        XLSX.utils.sheet_add_aoa(ws, [[extraText]], { origin: `A${currentRow}` });
+        currentRow++;
+      });
+    }
+
     currentRow++;
 
     // Prepare data for Excel
@@ -484,6 +508,14 @@ export class ReportExportService {
     const dateRange = this.getDateRange(config.filterForm);
     if (dateRange) {
       csvContent += `${dateRange}\n`;
+    }
+
+    // Add extra header data
+    if (config.extraHeaderData && config.extraHeaderData.length > 0) {
+      config.extraHeaderData.forEach(item => {
+        const extraText = `${item.key}: ${item.value}`;
+        csvContent += `${extraText}\n`;
+      });
     }
 
     csvContent += '\n';
@@ -577,6 +609,14 @@ export class ReportExportService {
 
     if (dateRange) {
       printContent += `<div class="date-range">${dateRange}</div>`;
+    }
+
+    // Add extra header data
+    if (config.extraHeaderData && config.extraHeaderData.length > 0) {
+      config.extraHeaderData.forEach(item => {
+        const extraText = `${item.key}: ${item.value}`;
+        printContent += `<div class="date-range">${extraText}</div>`;
+      });
     }
 
     printContent += `</div><div class="header-right">`;

@@ -2,53 +2,45 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
-import { StockReportResponse, StockReportItem } from '../stock-details-reports.models';
+import { AssetsReportResponse, AssetsReportItem } from '../assets.models';
 import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../../../shared/models/common.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
 import { DropdownsService } from '../../../../../core/services/dropdowns.service';
+import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-stock-report',
+  selector: 'app-assets-report',
   imports: [
     FormsModule,
     ReactiveFormsModule,
     SharedModule
   ],
-  templateUrl: './stock-report.component.html',
-  styleUrl: './stock-report.component.scss'
+  templateUrl: './assets-report.component.html',
+  styleUrl: './assets-report.component.scss'
 })
-export class StockReportComponent implements OnInit {
+export class AssetsReportComponent implements OnInit {
   filterForm!: FormGroup;
   branches: any[] = [];
-  selectedReportItem!: StockReportItem;
-  searchResults!: StockReportResponse;
-  stockData: PaginatedResponse<StockReportItem> = {
+  selectedReportItem!: AssetsReportItem;
+  searchResults!: AssetsReportResponse;
+  assetsData: PaginatedResponse<AssetsReportItem> = {
     results: [],
     count: 0,
     next: null,
     previous: null
   };
   tableOptions: DataTableOptions = new DataTableOptions();
-  columns: DataTableColumn<StockReportItem>[] = [
-    { field: "tag_number", header: "Tag Number", body: (row: StockReportItem) => row.tag_number || '-' },
-    { field: "description", header: "Description", body: (row: StockReportItem) => row.description || '-' },
-    { field: "category", header: "Category", body: (row: StockReportItem) => row.category || '-' },
-    { field: "stone_weight", header: "Stone Weight", body: (row: StockReportItem) => this.getStoneWeight(row) },
-    { field: "gross_weight", header: "Gross Weight", body: (row: StockReportItem) => this.getGrossWeight(row) },
-    { field: "pure_weight", header: "Pure Weight", body: (row: StockReportItem) => row.pure_weight || '-' },
-    { field: "price", header: "Price", body: (row: StockReportItem) => this.getPrice(row) }
+  columns: DataTableColumn<AssetsReportItem>[] = [
+    { field: "name", header: "Asset Name", body: (row: AssetsReportItem) => row.name || '-' },
+    { field: "amount", header: "Amount", body: (row: AssetsReportItem) => this.getRowAmount(row) }
   ];
   currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
   reportTotals: {
-    total_stone_weight: number,
-    total_gross_weight: number,
-    total_price: number
+    amount: number
   } = {
-      total_stone_weight: 0,
-      total_gross_weight: 0,
-      total_price: 0
+      amount: 0
     }
 
   exportItems = [
@@ -75,7 +67,12 @@ export class StockReportComponent implements OnInit {
   shopName!: string;
   shopLogoURL!: string;
 
-  constructor(private _formBuilder: FormBuilder, private _reportsService: ReportsService, private _dropdownService: DropdownsService) { }
+  constructor(
+    private _formBuilder: FormBuilder,
+    private _reportsService: ReportsService,
+    private _dropdownService: DropdownsService,
+    private _authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.prepareFilterForm();
@@ -98,9 +95,6 @@ export class StockReportComponent implements OnInit {
     this.filterForm = this._formBuilder.group({
       created_from: [this.formatDate(firstDayOfMonth), Validators.required],
       created_to: [this.formatDate(lastDayOfMonth), Validators.required],
-      category__icontains: null,
-      description__icontains: null,
-      tag_number__icontains: null,
       search: null,
       branch: null
     }, { validators: this.dateRangeValidator });
@@ -121,16 +115,8 @@ export class StockReportComponent implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
-  private getStoneWeight(row: StockReportItem) {
-    return row.stone_weight ? row.stone_weight.toFixed(3) : '-';
-  }
-
-  private getGrossWeight(row: StockReportItem) {
-    return row.gross_weight ? row.gross_weight.toFixed(3) : '-';
-  }
-
-  private getPrice(row: StockReportItem) {
-    return row.price || '-';
+  private getRowAmount(row: AssetsReportItem) {
+    return row.amount ? row.amount.toFixed(3) : '-';
   }
 
   getPaginatedRows(data: { first: number, rows: number }) {
@@ -162,17 +148,17 @@ export class StockReportComponent implements OnInit {
       this.currentFilter = { ...filter };
     }
 
-    this._reportsService.getStockReport(filterWithPagination).subscribe({
+    this._reportsService.getAssetsReport(filterWithPagination).subscribe({
       next: (response) => {
         this.searchResults = response;
-        this.stockData = response.products;
-        this.tableOptions.totalRecords = response.products.count;
-        this.shopName = response.name ?? '-';
-        this.shopLogoURL = response.logo ?? null;
-        this.updateReportTotals(response.products.results);
+        this.assetsData = response.assets;
+        this.tableOptions.totalRecords = response.assets.count;
+        this.shopName = response.name ?? this._authService.getUser()?.business_name ?? '-';
+        this.shopLogoURL = response.logo ?? this._authService.getUser()?.image ?? '';
+        this.updateReportTotals(response.assets.results);
       },
       error: (error) => {
-        this.toaster.showError('Failed to load stock report data. Please try again.');
+        this.toaster.showError('Failed to load assets report data. Please try again.');
       }
     });
   }
@@ -241,41 +227,32 @@ export class StockReportComponent implements OnInit {
     return finalFilter;
   }
 
-  updateReportTotals(results: StockReportItem[] = []): void {
+  updateReportTotals(results: AssetsReportItem[] = []): void {
     const data = results ?? [];
 
     this.reportTotals = {
-      total_stone_weight: data.reduce((acc: number, item: StockReportItem) => acc + (item.stone_weight || 0), 0),
-      total_gross_weight: data.reduce((acc: number, item: StockReportItem) => acc + (item.gross_weight || 0), 0),
-      total_price: data.reduce((acc: number, item: StockReportItem) => acc + parseFloat(item.price || '0'), 0)
+      amount: data.reduce((acc: number, item: AssetsReportItem) => acc + (item.amount || 0), 0)
     };
   }
 
   // Create report configuration for the export service
   private getReportConfig(): ReportConfig {
     const reportColumns: ReportColumn[] = [
-      { field: 'tag_number', header: 'Tag Number' },
-      { field: 'description', header: 'Description' },
-      { field: 'category', header: 'Category' },
-      { field: 'stone_weight', header: 'Stone Weight', body: (row: StockReportItem) => this.getStoneWeight(row) },
-      { field: 'gross_weight', header: 'Gross Weight', body: (row: StockReportItem) => this.getGrossWeight(row) },
-      { field: 'pure_weight', header: 'Pure Weight' },
-      { field: 'price', header: 'Price', body: (row: StockReportItem) => this.getPrice(row) }
+      { field: 'name', header: 'Asset Name' },
+      { field: 'amount', header: 'Amount', body: (row: AssetsReportItem) => this.getRowAmount(row) }
     ];
 
     return {
-      title: 'Stock Report',
-      data: this.stockData.results,
+      title: 'Assets Report',
+      data: this.assetsData.results,
       columns: reportColumns,
       totals: {
-        stone_weight: this.reportTotals.total_stone_weight,
-        gross_weight: this.reportTotals.total_gross_weight,
-        price: this.reportTotals.total_price
+        amount: this.reportTotals.amount
       },
       filterForm: this.filterForm,
       businessName: this.shopName,
       businessLogoURL: this.shopLogoURL,
-      filename: 'stock-report'
+      filename: 'assets-report'
     };
   }
 

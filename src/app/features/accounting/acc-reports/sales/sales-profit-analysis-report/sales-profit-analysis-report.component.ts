@@ -7,6 +7,7 @@ import { DataTableColumn, DataTableOptions, PaginatedResponse } from '../../../.
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
 import { DropdownsService } from '../../../../../core/services/dropdowns.service';
+import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-sales-profit-analysis-report',
@@ -82,7 +83,12 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
   shopName!: string;
   shopLogoURL!: string;
 
-  constructor(private _formBuilder: FormBuilder, private _reportsService: ReportsService, private _dropdownService: DropdownsService) {
+  constructor(
+    private _formBuilder: FormBuilder,
+    private _reportsService: ReportsService,
+    private _dropdownService: DropdownsService,
+    private _authService: AuthService
+  ) {
   }
 
 
@@ -192,8 +198,8 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
         this.searchResults = response;
         this.salesData = response.sales;
         this.tableOptions.totalRecords = response.sales.count;
-        this.shopName = response.name ?? '-';
-        this.shopLogoURL = response.logo ?? null;
+        this.shopName = response.name ?? this._authService.getUser()?.business_name ?? '-';
+        this.shopLogoURL = response.logo ?? this._authService.getUser()?.image ?? '';
         this.updateReportTotals(response.sales.results);
       },
       error: (error) => {

@@ -1,0 +1,104 @@
+<p-confirmdialog />
+<ng-container #container></ng-container>
+
+<section>
+  <!-- Control buttons -->
+  <div class="header-container">
+    <div class="header-btns">
+      <p-splitButton label="Export" icon="pi pi-file-export" [model]="exportItems">
+      </p-splitButton>
+      <button class="add-btn text-center px-4 py-2" (click)="printReport()">
+        <i class="pi pi-print pr-2"></i>Print
+      </button>
+    </div>
+  </div>
+
+  <!-- filter collapse form -->
+  <div class="filter-container container">
+    <app-filter-collapse>
+      <form class="container" [formGroup]="filterForm">
+        <div class="row">
+          <div class="col-md-4">
+            <app-dropdowns label="Branch" id="Branch" formControlName="branch" [options]="branches" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a Branch"></app-dropdowns>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Brand" id="Brand" formControlName="brand" [options]="brands" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a Brand"></app-dropdowns>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Category" id="Category" formControlName="category" [options]="categories"
+              [showClear]="true" optionLabel="name" optionValue="id" placeholder="Select a Category"></app-dropdowns>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Color" id="Color" formControlName="color" [options]="colors" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a Color"></app-dropdowns>
+          </div>
+          <div class="col-md-4">
+            <app-input-text formControlName="country" placeholder="Country" type="text"
+              inputName="Country"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Design" id="Design" formControlName="design" [options]="designs" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a Design"></app-dropdowns>
+          </div>
+          <div class="col-md-4">
+            <app-input-text formControlName="max_period" placeholder="Maximum Period (days)" type="number"
+              inputName="Max Period"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-input-text formControlName="period" placeholder="Period (days per bucket)" type="number"
+              inputName="Period"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Purity" id="Purity" formControlName="purity" [options]="purities" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a Purity"></app-dropdowns>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Size" id="Size" formControlName="size" [options]="sizes" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a Size"></app-dropdowns>
+          </div>
+        </div>
+        <div class="btns-group">
+          <button class="btn submit-btn" [disabled]="filterForm.invalid" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </app-filter-collapse>
+  </div>
+
+  <!-- Table for displaying aging report in matrix format -->
+  <div class="table-container">
+    <ng-container *ngIf="agingData && tableData.length > 0">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped aging-matrix-table">
+          <thead>
+            <tr>
+              <th class="text-center" *ngFor="let range of rangeColumns">
+                {{ range }} Days
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of tableData; let i = index">
+              <td *ngFor="let range of rangeColumns" class="aging-cell">
+                <div *ngIf="row[range]" class="product-item">
+                  <div class="product-detail"><strong>Tag Number:</strong> {{ row[range].tag_number }}</div>
+                  <div class="product-detail"><strong>Description:</strong> {{ row[range].description || 'No
+                    description' }}</div>
+                  <div class="product-detail"><strong>Category:</strong> {{ getCategoryName(row[range].category_id) }}
+                  </div>
+                  <div class="product-detail"><strong>Price:</strong> {{ row[range].price | number:'1.3-3' }}</div>
+                  <div class="product-detail"><strong>Stock Quantity:</strong> {{ row[range].stock_quantity }}</div>
+                  <div class="product-detail"><strong>Branch:</strong> {{ getBranchName(row[range].branch_id) }}</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+    <div *ngIf="!agingData || tableData.length === 0" class="text-center my-4">
+      No stock data found for the selected criteria. Try adjusting your filter options.
+    </div>
+  </div>
+</section>

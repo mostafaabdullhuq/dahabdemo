@@ -11,8 +11,15 @@ import {
   MonthlyExpensesReportResponse
 } from '../acc-reports/expenses/expenses-reports.models';
 import {
-  StockReportResponse
-} from '../acc-reports/stock-details/stock-details-reports.models';
+  StockAgingReportResponse,
+  StockDetailsReportResponse
+} from '../acc-reports/stocks/stock-reports.models';
+import {
+  LiabilitiesReportResponse
+} from '../acc-reports/liabilities/liabilities.models';
+import {
+  AssetsReportResponse
+} from '../acc-reports/assets/assets.models';
 
 
 @Injectable({
@@ -27,6 +34,9 @@ export class ReportsService {
     totalExpenses: "reporting/expenses",
     monthlyExpenses: "reporting/monthly-expenses",
     stockDetails: "reporting/stock",
+    stockAging: "reporting/stock-aging",
+    liabilities: "reporting/liabilities",
+    assets: "reporting/assets",
 
   }
 
@@ -54,6 +64,18 @@ export class ReportsService {
   }
 
   getStockReport(filter: SearchFilter = {}) {
-    return this._http.get<StockReportResponse>(this.endpoints.stockDetails, filter);
+    return this._http.get<StockDetailsReportResponse>(this.endpoints.stockDetails, filter);
+  }
+
+  getLiabilitiesReport(filter: SearchFilter = {}) {
+    return this._http.get<LiabilitiesReportResponse>(this.endpoints.liabilities, filter);
+  }
+
+  getAssetsReport(filter: SearchFilter = {}) {
+    return this._http.get<AssetsReportResponse>(this.endpoints.assets, filter);
+  }
+
+  getStockAgingReport(filter: SearchFilter = {}) {
+    return this._http.get<StockAgingReportResponse>(this.endpoints.stockAging, filter);
   }
 }

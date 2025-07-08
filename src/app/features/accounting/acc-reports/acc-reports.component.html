@@ -34,9 +34,9 @@
                 </div>
               </div>
               <div class="col-md-4 ">
-                <div class="card">
+                <div class="card" [routerLink]="['/acc', 'acc-reports', 'assets']">
                   <div>
-                    <p class="time-text"><span>Account Payable</span></p>
+                    <p class="time-text"><span>Assets</span></p>
                     <p class="day-text"></p>
                   </div>
                   <div>
@@ -46,9 +46,9 @@
                 </div>
               </div>
               <div class="col-md-4 ">
-                <div class="card">
+                <div class="card" [routerLink]="['/acc', 'acc-reports', 'liabilities']">
                   <div>
-                    <p class="time-text"><span>Account Receivable</span></p>
+                    <p class="time-text"><span>Liabilities</span></p>
                     <p class="day-text"></p>
                   </div>
                   <div>
@@ -93,9 +93,9 @@
                 </div>
               </div>
               <div class="col-md-4 ">
-                <div class="card" [routerLink]="['/acc', 'acc-reports', 'stock']">
+                <div class="card" [routerLink]="['/acc', 'acc-reports', 'stocks']">
                   <div>
-                    <p class="time-text"><span>Stock Value</span></p>
+                    <p class="time-text"><span>Stocks</span></p>
                   </div>
                   <div>
                     <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/seo-report.png"
