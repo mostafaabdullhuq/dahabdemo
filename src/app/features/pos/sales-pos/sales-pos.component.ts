@@ -288,7 +288,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
   calcMetalValueAccordingToPurity(group: any) {
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    const metalValue = this.calculateOrderGoldPriceBasedOnPurity(group) * group?.weight;
+    const metalValue = group.gold_price * group?.weight;
     this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
     return +metalValue.toFixed(decimalPlaces);
   }

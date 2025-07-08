@@ -155,13 +155,9 @@ export class DiamondComponent implements OnInit, OnDestroy {
   }
 
   get totalPrice(): number {
-    console.log("calculating diamond total price!");
-
     const total = this.silverDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (+group.amount || 0), 0) || 0;
     this._posSharedService.setDiamondTotalPrice(+total)
-
     this._posSharedService.setDiamondTotalGrand(+total)
-
     return total
   }
 
