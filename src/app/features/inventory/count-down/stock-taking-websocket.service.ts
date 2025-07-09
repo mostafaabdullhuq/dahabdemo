@@ -47,7 +47,6 @@ export class StockTakingWebsocketService {
         }),
         retryWhen(errors => errors.pipe(
           tap(err => {
-            console.log('Try to reconnect', err);
             if (this.reconnectAttempts++ >= this.maxReconnectAttempts) {
               throw new Error('Max reconnection attempts reached');
             }

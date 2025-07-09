@@ -21,65 +21,65 @@ export class ViewAccLedgerComponent {
   totalRecords: number = 0;
   pageSize: number = 10;
   first: number = 1;
-  accId:any;
-  accounts:any;
-  branches:any;
-  localAccData:any;
+  accId: any;
+  accounts: any;
+  branches: any;
+  localAccData: any;
   constructor(
     private _accService: AccService,
     private _formBuilder: FormBuilder,
-    public permissionService:PermissionService,
-    private _activeRoute:ActivatedRoute,
-    private _dropdownService:DropdownsService
+    public permissionService: PermissionService,
+    private _activeRoute: ActivatedRoute,
+    private _dropdownService: DropdownsService
   ) { }
 
   ngOnInit(): void {
     const accId = this._activeRoute.snapshot.paramMap.get('id');
-    console.log(accId);
-    if(accId)
+
+    if (accId)
       this.accId = accId;
-      if (this.accId) {
-       // this.loadLedgers(this.accId);
-      }
+    if (this.accId) {
+      // this.loadLedgers(this.accId);
+    }
     this.cols = [
       { field: "date", header: "date" },
       { field: "voucher_number", header: "voucher number" },
       { field: "source", header: "source" },
       { field: "description", header: "description" },
-    {
-    field: 'lines', header: 'Debits',
-    body: (row: any) => {
-      // map each line's debit, join with <br> for multiline display
-      return row.lines.map((line: any) => 
-        line.debit !== '0.00' ? `<span class="text-success">${line.debit}</span>` : '-'
-      ).join('<br/>');
-    }
-  },
-  {
-    field: 'lines', header: 'Credits',
-    body: (row: any) => {
-      return row.lines.map((line: any) => 
-        line.credit !== '0.00' ? `<span class="text-danger">${line.credit}</span>` : '-'
-      ).join('<br/>');
-    }
-  },
-   {
-    field: 'lines', header: 'Line Description',
-    body: (row: any) => {
-      return row.lines.map((line: any) => 
-        line.debit !== '0.00' ? `<span style="color:green">${line.description}</span>` : '-'
-      ).join('<br/>');
-    }
-  },
+      {
+        field: 'lines', header: 'Debits',
+        body: (row: any) => {
+          // map each line's debit, join with <br> for multiline display
+          return row.lines.map((line: any) =>
+            line.debit !== '0.00' ? `<span class="text-success">${line.debit}</span>` : '-'
+          ).join('<br/>');
+        }
+      },
+      {
+        field: 'lines', header: 'Credits',
+        body: (row: any) => {
+          return row.lines.map((line: any) =>
+            line.credit !== '0.00' ? `<span class="text-danger">${line.credit}</span>` : '-'
+          ).join('<br/>');
+        }
+      },
+      {
+        field: 'lines', header: 'Line Description',
+        body: (row: any) => {
+          return row.lines.map((line: any) =>
+            line.debit !== '0.00' ? `<span style="color:green">${line.description}</span>` : '-'
+          ).join('<br/>');
+        }
+      },
     ];
     this.filterForm = this._formBuilder.group({
       search: '',
       branch: '',
       account: '',
-      date_range:''
+      date_range: ''
     });
     this.getAccLedgerById(accId);
- this._dropdownService.getAccounts().subscribe(data => {
+    this._dropdownService.getAccounts().subscribe(data => {
       this.accounts = data;
     });
     this._dropdownService.getBranches().subscribe(data => {
@@ -88,13 +88,13 @@ export class ViewAccLedgerComponent {
   }
 
   // Get customers with filtering and pagination
-  getAccLedgerById(id: any , search:string = ''): void {
+  getAccLedgerById(id: any, search: string = ''): void {
     //const searchParams = new URLSearchParams(this.filterForm.value).toString() || '';
     // Correct pagination parameters and make API call
-    this._accService.getAccLedgerById(this.accId,search).subscribe(res => {
+    this._accService.getAccLedgerById(this.accId, search).subscribe(res => {
       this.ledgers = res?.journal_entries;
       this.localAccData = res;
-        this.totalRecords = res?.journal_entries?.length;
+      this.totalRecords = res?.journal_entries?.length;
     });
   }
   loadLedgers(event: any): void {
@@ -111,37 +111,37 @@ export class ViewAccLedgerComponent {
       });
   }
   selectedProduct: any;
-  
-onSearch(): void {
-  const formValues = this.filterForm.value;
-  const queryParts: string[] = [];
 
-  Object.keys(formValues).forEach(key => {
-    const value = formValues[key];
+  onSearch(): void {
+    const formValues = this.filterForm.value;
+    const queryParts: string[] = [];
 
-    if (key === 'date_range' && Array.isArray(value) && value.length === 2) {
-      const [startDate, endDate] = value;
-      const formattedStart = this.formatDate(startDate);
-      const formattedEnd = this.formatDate(endDate);
-      const formattedRange = `${formattedStart} - ${formattedEnd}`;
-      queryParts.push(`date_range=${encodeURIComponent(formattedRange).replace(/%20/g, '+')}`);
-    } else if (value !== null && value !== '' && value !== undefined) {
-      const encodedKey = encodeURIComponent(key);
-      const encodedValue = encodeURIComponent(value).replace(/%20/g, '+');
-      queryParts.push(`${encodedKey}=${encodedValue}`);
-    }
-  });
+    Object.keys(formValues).forEach(key => {
+      const value = formValues[key];
 
-  const queryParams = queryParts.join('&');
-  this.getAccLedgerById(this.accId, queryParams);
-}
+      if (key === 'date_range' && Array.isArray(value) && value.length === 2) {
+        const [startDate, endDate] = value;
+        const formattedStart = this.formatDate(startDate);
+        const formattedEnd = this.formatDate(endDate);
+        const formattedRange = `${formattedStart} - ${formattedEnd}`;
+        queryParts.push(`date_range=${encodeURIComponent(formattedRange).replace(/%20/g, '+')}`);
+      } else if (value !== null && value !== '' && value !== undefined) {
+        const encodedKey = encodeURIComponent(key);
+        const encodedValue = encodeURIComponent(value).replace(/%20/g, '+');
+        queryParts.push(`${encodedKey}=${encodedValue}`);
+      }
+    });
 
-// Format Date to DD-MM-YYYY
-private formatDate(date: Date): string {
-  const d = new Date(date);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}-${month}-${year}`;
-}
+    const queryParams = queryParts.join('&');
+    this.getAccLedgerById(this.accId, queryParams);
+  }
+
+  // Format Date to DD-MM-YYYY
+  private formatDate(date: Date): string {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
 }

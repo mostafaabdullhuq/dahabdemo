@@ -104,11 +104,8 @@ export class StockAgingReportComponent implements OnInit {
     this.maxRows = 0;
     this._reportsService.getStockAgingReport(filter).subscribe({
       next: (response: StockAgingReportResponse) => {
-        console.log('Stock Aging Response:', response);
         if (response && response.results && response.results.buckets) {
           this.agingData = response.results;
-          console.log('Aging Data:', this.agingData);
-          console.log('Buckets:', this.agingData.buckets);
           this.shopName = this.agingData.branch ?? this._authService.getUser()?.business_name ?? '-';
           this.shopLogoURL = this.agingData.logo ?? this._authService.getUser()?.image ?? '';
           this.processTableData();
@@ -130,12 +127,8 @@ export class StockAgingReportComponent implements OnInit {
 
     // Extract range columns
     this.rangeColumns = this.agingData.buckets.map(bucket => bucket.range);
-    console.log('Range Columns:', this.rangeColumns);
-
     // Find the maximum number of products in any bucket
     this.maxRows = Math.max(...this.agingData.buckets.map(bucket => bucket.products.length));
-    console.log('Max Rows:', this.maxRows);
-
     // Create table data - each row represents a product position across all ranges
     this.tableData = [];
     for (let i = 0; i < this.maxRows; i++) {
@@ -146,7 +139,6 @@ export class StockAgingReportComponent implements OnInit {
       });
       this.tableData.push(row);
     }
-    console.log('Table Data:', this.tableData);
   }
 
   onSearch() {

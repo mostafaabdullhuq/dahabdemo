@@ -193,8 +193,6 @@ export class SalesProfitAnalysisReportComponent implements OnInit {
 
     this._reportsService.getSalesProfitAnalysisReport(filterWithPagination).subscribe({
       next: (response) => {
-        console.log("sales profit response: ", response);
-
         this.searchResults = response;
         this.salesData = response.sales;
         this.tableOptions.totalRecords = response.sales.count;

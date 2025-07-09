@@ -353,6 +353,22 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
     this.componentRef.instance.showDialog();
   }
 
+  onPaymentMethodChange(paymentMethodId: number) {
+    const fallbackPayment = [{
+      payment_method: paymentMethodId,
+      amount: this.totalWithVat
+    }];
+
+    const paymentFormArray = this.totalForm.get('payments') as FormArray;
+    paymentFormArray.clear();
+    fallbackPayment.forEach(payment => {
+      paymentFormArray.push(this._formBuilder.group({
+        payment_method: [payment.payment_method, Validators.required],
+        amount: [payment.amount, Validators.required]
+      }));
+    });
+  }
+
   onPlaceOrder(form?: any, isPopup: boolean = false) {
 
     if (this.totalForm?.invalid) {
@@ -378,6 +394,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
         }));
       });
     }
+
     this._posService.getOrderId().subscribe(res => {
       if (res?.order_id) {
         this._posService.addOrder(res.order_id, form ?? this.totalForm.value).subscribe({
@@ -411,7 +428,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
             this._posSharedService.setGrandTotalWithVat(0);
             this._posSharedService.setVat(0);
             this._posSharedService.setDiscountAmount(0);
-
+            this._posSharedService.triggerRefreshCurrency();
           },
           error: () => {
 

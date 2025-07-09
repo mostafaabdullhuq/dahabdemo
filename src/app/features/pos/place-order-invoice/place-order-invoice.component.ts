@@ -30,8 +30,6 @@ export class PlaceOrderInvoiceComponent {
 
   getInvoiceData() {
     this._posService.getOrderInvoice().subscribe(res => {
-      console.log("invoice: ", res);
-
       this.invoiceData = res
     })
   }

@@ -198,7 +198,6 @@ export class RepairPosComponent implements OnInit, OnDestroy {
   totalAmount(): number {
     return this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
       const amount = parseFloat(group.amount) || 0;
-      console.log(sum + amount);
       // this._posSharedService.setRepairTotalPrice(sum + amount)
       //  console.log(sum + amount );
       return sum + amount;
@@ -245,8 +244,6 @@ export class RepairPosComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     this.productForm.get('tax')?.enable();
-    console.log(this.productForm.value);
-    console.log(this.productForm.value);
     if (this.productForm.invalid) return;
 
     const formValue = this.productForm.value;

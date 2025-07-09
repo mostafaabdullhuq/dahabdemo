@@ -15,15 +15,15 @@ interface PermissionGroup {
   templateUrl: './group-permissions.component.html',
   styleUrl: './group-permissions.component.scss'
 })
-export class GroupPermissionsComponent implements OnChanges ,OnInit{
+export class GroupPermissionsComponent implements OnChanges, OnInit {
   @Input() permissions: { id: number; name: string }[] = [];
   groupedPermissions: { entity: string; actions: { [key: string]: number } }[] = [];
   selectedPermissions = new Set<number>(); // Store selected IDs
-  isEditMode:boolean =false;
+  isEditMode: boolean = false;
   form: FormGroup;
   roleId: string | number = '';
 
-  constructor(    private _router:Router,private fb: FormBuilder, private _userManagmentService:UserManagmentService,private _activeRoute: ActivatedRoute) {
+  constructor(private _router: Router, private fb: FormBuilder, private _userManagmentService: UserManagmentService, private _activeRoute: ActivatedRoute) {
     this.form = this.fb.group({
       role_name: ['']
     });
@@ -69,57 +69,53 @@ export class GroupPermissionsComponent implements OnChanges ,OnInit{
       entity,
       actions
     }));
-    console.log(this.groupedPermissions);
-    
   }
 
-togglePermission(id: any, forceAdd?: boolean): void {
-  if (forceAdd === true) {
-    this.selectedPermissions.add(id);
-  } else if (forceAdd === false) {
-    this.selectedPermissions.delete(id);
-  } else {
-    if (this.selectedPermissions.has(id)) {
+  togglePermission(id: any, forceAdd?: boolean): void {
+    if (forceAdd === true) {
+      this.selectedPermissions.add(id);
+    } else if (forceAdd === false) {
       this.selectedPermissions.delete(id);
     } else {
-      this.selectedPermissions.add(id);
+      if (this.selectedPermissions.has(id)) {
+        this.selectedPermissions.delete(id);
+      } else {
+        this.selectedPermissions.add(id);
+      }
     }
   }
-  console.log('Selected Permissions:', this.selectedPermissions);
-}
-private loadRoleData(roleId: string | number): void {
-  this._userManagmentService.getRoleById(roleId).subscribe((role: any) => {
-    const permissionIds = role.permissions;
+  private loadRoleData(roleId: string | number): void {
+    this._userManagmentService.getRoleById(roleId).subscribe((role: any) => {
+      const permissionIds = role.permissions;
 
-    this.form.patchValue({
-      role_name: role.role_name,
-      permissions: permissionIds
+      this.form.patchValue({
+        role_name: role.role_name,
+        permissions: permissionIds
+      });
+
+      // Clear the selectedPermissions set
+      this.selectedPermissions.clear();
+
+      // Call togglePermission for each permission ID to add them
+      permissionIds.forEach((id: any) => this.togglePermission(id));
     });
+  }
 
-    // Clear the selectedPermissions set
-    this.selectedPermissions.clear();
 
-    // Call togglePermission for each permission ID to add them
-    permissionIds.forEach((id: any) => this.togglePermission(id));
-  });
-}
-  
-  
   submit(): void {
     const payload = {
       role_name: this.form.value.role_name,
       role_permissions: Array.from(this.selectedPermissions)
     };
-    console.log(payload);
-    
+
     // this._userManagmentService.addRole(this.form).subscribe(res=>{
-      
+
     // })
   }
   onSubmit(): void {
     if (this.form.invalid) return;
 
-    const payload:any = {
+    const payload: any = {
       role_name: this.form.value.role_name,
       role_permissions: Array.from(this.selectedPermissions)
     };

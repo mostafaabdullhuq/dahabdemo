@@ -139,7 +139,6 @@ export class ProductListComponent {
       this.totalRecords = res?.count;
       this.updateRowsPerPageOptions(res?.count)
       // Ensure the total count is updated
-      console.log('Total records:', this.totalRecords);  // Debugging log
     });
   }
   searchQuery = ''; // Holds the current query string

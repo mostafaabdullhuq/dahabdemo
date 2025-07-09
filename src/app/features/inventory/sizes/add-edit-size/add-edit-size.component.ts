@@ -15,24 +15,24 @@ export class AddEditSizeComponent {
   addEditSizeForm!: FormGroup;
   isEditMode = false;
   sizeId: string | number = '';
-  units:any[] =[];
+  units: any[] = [];
 
   nextPageUrl: string | null = null;
   isLoading = false;
-  selectedBranches =[];
+  selectedBranches = [];
 
   constructor(
     private _inventoryService: InventoryService,
     private _formBuilder: FormBuilder,
     private _dropdownService: DropdownsService,
-    private _activeRoute:ActivatedRoute,
-        private _router:Router
-  ) {}
+    private _activeRoute: ActivatedRoute,
+    private _router: Router
+  ) { }
 
   ngOnInit(): void {
     const sizeId = this._activeRoute.snapshot.paramMap.get('id');
-  if(sizeId)
-    this.sizeId = sizeId;
+    if (sizeId)
+      this.sizeId = sizeId;
     this.initForm();
     if (this.sizeId) {
       this.loadSizesData(this.sizeId);
@@ -50,7 +50,7 @@ export class AddEditSizeComponent {
   }
 
   private loadSizesData(sizeId: number | string): void {
-    this._inventoryService.getSizeById(sizeId).subscribe((size:any) => {
+    this._inventoryService.getSizeById(sizeId).subscribe((size: any) => {
       this.addEditSizeForm.patchValue({
         name: size?.name,
       });
@@ -61,8 +61,7 @@ export class AddEditSizeComponent {
     if (this.addEditSizeForm.invalid) return;
 
     const formData = this.addEditSizeForm?.value;
-    console.log(this.selectedBranches);
-    
+
     if (this.isEditMode && this.sizeId) {
       this._inventoryService.updatePurity(this.sizeId, formData).subscribe({
         next: res => this._router.navigate([`inventory/sizes`]),

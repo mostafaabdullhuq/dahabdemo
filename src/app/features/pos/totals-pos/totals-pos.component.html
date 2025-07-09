@@ -68,7 +68,8 @@
         <div *ngFor="let payment of paymentsControls; let i = index" [formGroupName]="i">
           <div class="col-md-12 mb-3">
             <app-dropdowns [required]="true" label="Payment Methods" formControlName="payment_method"
-              [options]="paymnetMethods" optionLabel="name" optionValue="id" placeholder="Select a method">
+              [options]="paymnetMethods" optionLabel="name" optionValue="id" placeholder="Select a method"
+              (ngModelChange)="onPaymentMethodChange($event)">
             </app-dropdowns>
           </div>
         </div>
@@ -91,6 +92,13 @@
           Place Order
         </button>
       </div>
+    </div>
+
+    <div class="col-md-12">
+      <pre>Values: {{totalForm.value | json}}</pre>
+    </div>
+    <div class="col-md-12">
+      <pre>Errors: {{totalForm.errors | json}}</pre>
     </div>
 
   </form>

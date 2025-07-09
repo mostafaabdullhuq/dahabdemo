@@ -9,7 +9,7 @@ import { PermissionService } from '../../../core/services/permission.service';
 
 @Component({
   selector: 'app-users',
-  imports: [ SharedModule, RouterLink],
+  imports: [SharedModule, RouterLink],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
 })
@@ -24,8 +24,8 @@ export class UsersComponent {
   constructor(
     private _userManage: UserManagmentService,
     private _formBuilder: FormBuilder,
-    private _router:Router,
-    private _confirmPopUp:ConfirmationPopUpService,
+    private _router: Router,
+    private _confirmPopUp: ConfirmationPopUpService,
     public permissionService: PermissionService
   ) { }
 
@@ -74,43 +74,41 @@ export class UsersComponent {
       this.totalRecords = res?.count;  // Ensure the total count is updated
     });
   }
-loadUsers(event: any): void {
-  const page = event.first / event.rows + 1;
-  const pageSize = event.rows;
+  loadUsers(event: any): void {
+    const page = event.first / event.rows + 1;
+    const pageSize = event.rows;
 
-  this.first = event.first;
-  this.pageSize = pageSize;
+    this.first = event.first;
+    this.pageSize = pageSize;
 
-  this._userManage.getUsers(this.filterForm?.value?.search || '',page,pageSize)
-    .subscribe((res) => {
-      this.users = res.results;
-      this.totalRecords = res.count;
+    this._userManage.getUsers(this.filterForm?.value?.search || '', page, pageSize)
+      .subscribe((res) => {
+        this.users = res.results;
+        this.totalRecords = res.count;
+      });
+  }
+  selectedProduct: any;
+
+  productMenuItems: MenuItem[] = [];
+
+  editUser(user: any) {
+    this._router.navigate([`user-management/users/edit/${user?.id}`]);
+  }
+  deleteUser(user: any) {
+    this._userManage.deleteUser(user?.id).subscribe(res => {
+      if (res) {
+        this.getUsers()
+      }
+    })
+  }
+  showConfirmDelete(user: any) {
+    this._confirmPopUp.confirm({
+      message: 'Do you want to delete this item?',
+      header: 'Confirm Delete',
+      onAccept: () => {
+        this.deleteUser(user);
+      },
+      target: user
     });
-}
-selectedProduct: any;
-
-productMenuItems: MenuItem[] = [];
-
-editUser(user: any) {
-  this._router.navigate([`user-management/users/edit/${user?.id}`]);
-}
-deleteUser(user:any){
-  this._userManage.deleteUser(user?.id).subscribe(res=>{
-    if(res){
-      this.getUsers()
-    }
-  })
-}
-showConfirmDelete(user: any) {
-  console.log(user);
-  
-  this._confirmPopUp.confirm({
-    message: 'Do you want to delete this item?',
-    header: 'Confirm Delete',
-    onAccept: () => {
-      this.deleteUser(user);
-    },
-    target:user
-  });
-}
+  }
 }

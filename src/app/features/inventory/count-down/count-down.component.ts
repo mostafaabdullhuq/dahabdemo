@@ -61,7 +61,6 @@ export class CountDownComponent implements OnInit, OnDestroy {
   selectProduct(productId: string): void {
     const selected = this.multipleProducts.find(p => p.id === productId);
     if (selected) {
-      console.log(selected);
       this.scanningProductForm.get('product')?.patchValue(selected?.tag_number)
       //this.handleScanSuccess({ item: selected }); // Reuse the existing logic
       this.statusMessage = { type: 'success', text: 'Product selected from multiple matches' };
@@ -315,8 +314,6 @@ export class CountDownComponent implements OnInit, OnDestroy {
       if (stockPointId) message.stock_point = stockPointId;
 
       this.websocketService.sendMessage(message);
-      console.log(message);
-
     } else {
       this.statusMessage = { type: 'warning', text: 'Please select a branch first' };
     }

@@ -11,68 +11,67 @@ import { ActivatedRoute } from '@angular/router';
   styleUrl: './add-edit-expense-cat.component.scss'
 })
 export class AddEditExpenseCatComponent {
-    addEditCategoryForm!: FormGroup;
-    isEditMode = false;
-    brandId: string | number = '';
-    categories:any[] =[];
-  
-    nextPageUrl: string | null = null;
-    isLoading = false;
-    selectedBranches =[];
-  
-    constructor(
-      private _accService: AccService,
-      private _formBuilder: FormBuilder,
-      private _activeRoute:ActivatedRoute
-    ) {}
-  
-    ngOnInit(): void {
-      const brandId = this._activeRoute.snapshot.paramMap.get('id');
-    if(brandId)
-      this.brandId = brandId;
-      this.initForm();
-      if (this.brandId) {
-        this.loadCatData(this.brandId);
-        this.isEditMode = true
-      }
+  addEditCategoryForm!: FormGroup;
+  isEditMode = false;
+  brandId: string | number = '';
+  categories: any[] = [];
 
-       this._accService.getExpenseCategories('',1,10000000000).subscribe(res=>{
+  nextPageUrl: string | null = null;
+  isLoading = false;
+  selectedBranches = [];
+
+  constructor(
+    private _accService: AccService,
+    private _formBuilder: FormBuilder,
+    private _activeRoute: ActivatedRoute
+  ) { }
+
+  ngOnInit(): void {
+    const brandId = this._activeRoute.snapshot.paramMap.get('id');
+    if (brandId)
+      this.brandId = brandId;
+    this.initForm();
+    if (this.brandId) {
+      this.loadCatData(this.brandId);
+      this.isEditMode = true
+    }
+
+    this._accService.getExpenseCategories('', 1, 10000000000).subscribe(res => {
       this.categories = res?.results
     })
-    }
-  
-    private initForm(): void {
-      this.addEditCategoryForm = this._formBuilder.group({
-        name: ['', [Validators.required]],
-        parent: [''],
+  }
+
+  private initForm(): void {
+    this.addEditCategoryForm = this._formBuilder.group({
+      name: ['', [Validators.required]],
+      parent: [''],
+    });
+  }
+
+  private loadCatData(brandId: number | string): void {
+    this._accService.getExpenseCategoryById(brandId).subscribe((unit: any) => {
+      this.addEditCategoryForm.patchValue({
+        name: unit?.name,
+        parent: unit?.parent?.name
+      });
+    });
+  }
+
+  onSubmit(): void {
+    if (this.addEditCategoryForm.invalid) return;
+
+    const formData = this.addEditCategoryForm?.value;
+
+    if (this.isEditMode && this.brandId) {
+      this._accService.updateExpenseCategory(this.brandId, formData).subscribe({
+        next: res => console.log('User updated successfully', res),
+        error: err => console.error('Error updating user', err)
+      });
+    } else {
+      this._accService.addExpenseCategory(formData).subscribe({
+        next: res => console.log('User created successfully', res),
+        error: err => console.error('Error creating user', err)
       });
     }
-  
-    private loadCatData(brandId: number | string): void {
-      this._accService.getExpenseCategoryById(brandId).subscribe((unit:any) => {
-        this.addEditCategoryForm.patchValue({
-          name: unit?.name,
-          parent:unit?.parent?.name
-        });
-      });
-    }
-  
-    onSubmit(): void {
-      if (this.addEditCategoryForm.invalid) return;
-  
-      const formData = this.addEditCategoryForm?.value;
-      console.log(this.selectedBranches);
-      
-      if (this.isEditMode && this.brandId) {
-        this._accService.updateExpenseCategory(this.brandId, formData).subscribe({
-          next: res => console.log('User updated successfully', res),
-          error: err => console.error('Error updating user', err)
-        });
-      } else {
-        this._accService.addExpenseCategory(formData).subscribe({
-          next: res => console.log('User created successfully', res),
-          error: err => console.error('Error creating user', err)
-        });
-      }
-    }
+  }
 }

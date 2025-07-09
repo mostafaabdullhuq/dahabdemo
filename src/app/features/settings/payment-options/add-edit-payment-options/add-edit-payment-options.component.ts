@@ -11,81 +11,80 @@ import { SharedModule } from '../../../../shared/shared.module';
   templateUrl: './add-edit-payment-options.component.html',
   styleUrl: './add-edit-payment-options.component.scss'
 })
-export class AddEditPaymentOptionsComponent implements OnInit{
-    addEditBrandForm!: FormGroup;
-    isEditMode = false;
-    brandId: string | number = '';
-    country:any[] =[];
-  accounts:any[] =[]
-    nextPageUrl: string | null = null;
-    isLoading = false;
-    selectedBranches =[];
-  
-    constructor(
-      private _settingService: SettingsService,
-      private _formBuilder: FormBuilder,
-      private _activeRoute:ActivatedRoute,
-      private _dropdownService:DropdownsService,
-      private _router:Router
-    ) {}
-  
-    ngOnInit(): void {
-      const brandId = this._activeRoute.snapshot.paramMap.get('id');
-    if(brandId)
-      this.brandId = brandId;
-      this.initForm();
-      if (this.brandId) {
-        this.loadBrandsData(this.brandId);
-        this.isEditMode = true
-      }
+export class AddEditPaymentOptionsComponent implements OnInit {
+  addEditBrandForm!: FormGroup;
+  isEditMode = false;
+  brandId: string | number = '';
+  country: any[] = [];
+  accounts: any[] = []
+  nextPageUrl: string | null = null;
+  isLoading = false;
+  selectedBranches = [];
 
-      this._dropdownService.getCountryCore().subscribe(res=>{
-        this.country = res?.results
-      });
-      this._dropdownService.getAccounts().subscribe(res=>{
-        this.accounts = res
-      })
+  constructor(
+    private _settingService: SettingsService,
+    private _formBuilder: FormBuilder,
+    private _activeRoute: ActivatedRoute,
+    private _dropdownService: DropdownsService,
+    private _router: Router
+  ) { }
+
+  ngOnInit(): void {
+    const brandId = this._activeRoute.snapshot.paramMap.get('id');
+    if (brandId)
+      this.brandId = brandId;
+    this.initForm();
+    if (this.brandId) {
+      this.loadBrandsData(this.brandId);
+      this.isEditMode = true
     }
-  
-    private initForm(): void {
-      this.addEditBrandForm = this._formBuilder.group({
-        name: ['', [Validators.required]],
-        country: [''],
-        tax_rate: [''],
-        account:['']
-      });
-    }
-  
-    private loadBrandsData(brandId: number | string): void {
-      this._settingService.getPaymentOptionById(brandId).subscribe((unit:any) => {
-        this.addEditBrandForm.patchValue({
-          name: unit?.name,
-          country: unit?.country,
+
+    this._dropdownService.getCountryCore().subscribe(res => {
+      this.country = res?.results
+    });
+    this._dropdownService.getAccounts().subscribe(res => {
+      this.accounts = res
+    })
+  }
+
+  private initForm(): void {
+    this.addEditBrandForm = this._formBuilder.group({
+      name: ['', [Validators.required]],
+      country: [''],
+      tax_rate: [''],
+      account: ['']
+    });
+  }
+
+  private loadBrandsData(brandId: number | string): void {
+    this._settingService.getPaymentOptionById(brandId).subscribe((unit: any) => {
+      this.addEditBrandForm.patchValue({
+        name: unit?.name,
+        country: unit?.country,
         tax_rate: unit?.tax_rate,
-        account:unit?.account
-        });
+        account: unit?.account
+      });
+    });
+  }
+
+  onSubmit(): void {
+    if (this.addEditBrandForm.invalid) return;
+
+    const formData = this.addEditBrandForm?.value;
+
+    if (this.isEditMode && this.brandId) {
+      this._settingService.updatePaymentOption(this.brandId, formData).subscribe({
+        next: res => {
+          this._router.navigate([`setting/payment-options`]);
+        },
+        error: err => console.error('Error updating user', err)
+      });
+    } else {
+      this._settingService.addPaymentOption(formData).subscribe({
+        next: res => this._router.navigate([`setting/payment-options`])
+        ,
+        error: err => console.error('Error creating user', err)
       });
     }
-  
-    onSubmit(): void {
-      if (this.addEditBrandForm.invalid) return;
-  
-      const formData = this.addEditBrandForm?.value;
-      console.log(this.selectedBranches);
-      
-      if (this.isEditMode && this.brandId) {
-        this._settingService.updatePaymentOption(this.brandId, formData).subscribe({
-          next: res => {
-                this._router.navigate([`setting/payment-options`]);
-          },
-          error: err => console.error('Error updating user', err)
-        });
-      } else {
-        this._settingService.addPaymentOption(formData).subscribe({
-          next: res => this._router.navigate([`setting/payment-options`])
-          ,
-          error: err => console.error('Error creating user', err)
-        });
-      }
-    }
+  }
 }

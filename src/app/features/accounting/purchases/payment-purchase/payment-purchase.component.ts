@@ -86,8 +86,6 @@ export class PaymentPurchaseComponent implements OnInit {
     });
   }
   patchForm(data: any) {
-    console.log(data);
-
     this.paymentForm.patchValue({
       purchase_order: data.purchase_order ?? 0,
       payment_date: data.payment_date ?? '',
@@ -169,8 +167,6 @@ export class PaymentPurchaseComponent implements OnInit {
     group.get('weight')?.valueChanges.subscribe(() => this.calculatePureWeight(group));
     group.get('value')?.valueChanges.subscribe((res) => {
       this.calculatePureWeight(group)
-      console.log(res);
-
     });
     group.get('purity_rate')?.valueChanges.subscribe(() => this.calculatePureWeight(group));
 

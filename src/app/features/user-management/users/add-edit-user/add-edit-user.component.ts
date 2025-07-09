@@ -11,30 +11,29 @@ import { ActivatedRoute, Router } from '@angular/router';
   templateUrl: './add-edit-user.component.html',
   styleUrl: './add-edit-user.component.scss'
 })
-export class AddEditUserComponent implements OnInit{
+export class AddEditUserComponent implements OnInit {
   addEditUserForm!: FormGroup;
   isEditMode = false;
   userId: string | number = '';
-  branches:any[] =[];
-  roles:any[] = [];
+  branches: any[] = [];
+  roles: any[] = [];
 
   nextPageUrl: string | null = null;
   isLoading = false;
-  selectedBranches =[];
+  selectedBranches = [];
 
   constructor(
     private _userManage: UserManagmentService,
     private _formBuilder: FormBuilder,
     private _dropdownService: DropdownsService,
-    private _activeRoute:ActivatedRoute,
-    private _router:Router
-  ) {}
+    private _activeRoute: ActivatedRoute,
+    private _router: Router
+  ) { }
 
   ngOnInit(): void {
     const userId = this._activeRoute.snapshot.paramMap.get('id');
-  console.log(userId);
-  if(userId)
-    this.userId = userId;
+    if (userId)
+      this.userId = userId;
     this.initForm();
     if (this.userId) {
       this.loadUserData(this.userId);
@@ -66,11 +65,11 @@ export class AddEditUserComponent implements OnInit{
   }
 
   private loadUserData(userId: number | string): void {
-    this._userManage.getUserById(userId).subscribe((user:any) => {
+    this._userManage.getUserById(userId).subscribe((user: any) => {
       this.addEditUserForm.patchValue({
         email: user.email,
         username: user.username,
-        password: '', 
+        password: '',
         phone_number: user.phone_number,
         address: user.address,
         role: user.role,
@@ -83,8 +82,7 @@ export class AddEditUserComponent implements OnInit{
     if (this.addEditUserForm.invalid) return;
 
     const formData = this.addEditUserForm?.value;
-    console.log(this.selectedBranches);
-    
+
     if (this.isEditMode && this.userId) {
       this._userManage.updateUser(this.userId, formData).subscribe({
         next: res => this._router.navigate([`user-management/users`]),

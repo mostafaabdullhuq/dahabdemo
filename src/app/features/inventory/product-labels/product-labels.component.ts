@@ -21,7 +21,7 @@ export class ProductLabelsComponent implements OnInit {
     { id: 'Inc. Tax', name: 'Inc. Tax' },
     { id: 'Exc. Tax', name: 'Exc. Tax' },
   ];
-  
+
   barcodeType = [
     { id: 'Synthetic coated', name: 'Synthetic coated' },
     { id: 'Butterfly', name: 'Butterfly' },
@@ -32,7 +32,7 @@ export class ProductLabelsComponent implements OnInit {
     private _dropdownService: DropdownsService,
     private _route: ActivatedRoute,
     private dialog: Dialog
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // 1. Get query param
@@ -65,7 +65,7 @@ export class ProductLabelsComponent implements OnInit {
         }
       }
     });
-    
+
   }
 
   get productArray(): FormArray {
@@ -81,7 +81,6 @@ export class ProductLabelsComponent implements OnInit {
       (ctrl: any) => ctrl.value.product_id === selectedProductId
     );
     if (alreadyAdded) return;
-console.log(selectedProduct);
 
     const productGroup = this._formBuilder.group({
       product_id: [selectedProduct.id],

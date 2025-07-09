@@ -157,8 +157,6 @@ export class AddEditProductComponent {
       branchesArray.clear();
 
       if (product.branches?.length) {
-        console.log(product.branches);
-
         product.branches.forEach((stock: any) => {
           this.addStockItem({
             branch_id: stock.branch_id,

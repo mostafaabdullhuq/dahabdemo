@@ -12,11 +12,11 @@ import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-purchase-pos',
-  standalone:false,
+  standalone: false,
   templateUrl: './purchase-pos.component.html',
   styleUrl: './purchase-pos.component.scss'
 })
-export class PurchasePosComponent implements OnInit , OnDestroy{
+export class PurchasePosComponent implements OnInit, OnDestroy {
   purities: any = [];
   receipts: any = [];
   productForm!: FormGroup;
@@ -29,12 +29,12 @@ export class PurchasePosComponent implements OnInit , OnDestroy{
   selectedCurrency: any = ''
   private destroy$ = new Subject<void>();
   defualtVat = 0;
-  shiftData:any = [];
-    menuItem: MenuItem[] = [];
+  shiftData: any = [];
+  menuItem: MenuItem[] = [];
 
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
-    private _dropdownService: DropdownsService, private _posSharedService: PosSharedService,private _posStatusService:PosStatusService
-  ,private _posPurchaseService:PosPurchaseService
+    private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
+    , private _posPurchaseService: PosPurchaseService
   ) { }
 
   ngOnInit(): void {
@@ -44,48 +44,46 @@ export class PurchasePosComponent implements OnInit , OnDestroy{
       purity: [''],
       attachment: [''],
     })
-    
+
     this._dropdownService.getPurities().subscribe((res) => {
       this.purities = res?.results;
     });
     this.getPurchaseOrders()
     this._posStatusService.shiftData$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(data => {
-      this.shiftData = data;
-      if(this.shiftData && this.shiftData?.is_active){
-        this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
-          this.manualGoldPrice = res?.manual_gold_price;
-        });
-      }
-    });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.shiftData = data;
+        if (this.shiftData && this.shiftData?.is_active) {
+          this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
+            this.manualGoldPrice = res?.manual_gold_price;
+          });
+        }
+      });
 
     this._posSharedService.selectedCurrency$
       .subscribe(currency => {
         if (currency) {
-          this.selectedCurrency = currency;          
+          this.selectedCurrency = currency;
         } else {
           this.selectedCurrency = null;
         }
       });
 
-      this.productForm.get('product_id')?.valueChanges
-  .pipe(
-    takeUntil(this.destroy$),
-    distinctUntilChanged(), // prevent firing if same value is set again
-    filter(value => !!value) // avoid null/undefined triggers
-  )
-  .subscribe((productId: number) => {
-    this.onProductSelected(productId);
-  });
-this._posStatusService.shiftActive$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((status:any) => {
-        this.isShiftActive = status?.is_active;
-        console.log(status);
-        
+    this.productForm.get('product_id')?.valueChanges
+      .pipe(
+        takeUntil(this.destroy$),
+        distinctUntilChanged(), // prevent firing if same value is set again
+        filter(value => !!value) // avoid null/undefined triggers
+      )
+      .subscribe((productId: number) => {
+        this.onProductSelected(productId);
       });
-        this.menuItem = [
+    this._posStatusService.shiftActive$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((status: any) => {
+        this.isShiftActive = status?.is_active;
+      });
+    this.menuItem = [
       {
         label: 'Delete',
         icon: 'pi pi-trash',
@@ -95,40 +93,40 @@ this._posStatusService.shiftActive$
       }
     ];
   }
-  isShiftActive:boolean = false;
+  isShiftActive: boolean = false;
   selectedRowData: any = [];
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
   }
-    removeItem(id: any) {
+  removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
         this._posPurchaseService.fetchPurchaseProducts();
       },
     })
   }
-totalAmount(): number {
-  return this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
-    const amount = parseFloat(group.amount) || 0;
-    return sum + amount;
-  }, 0);
-}
-private subtractFromTotals(amount: number): void {
-  this._posSharedService.purchaseTotalGrand$.pipe(take(1)).subscribe(res => {
-    this._posSharedService.setPurchaseTotalGrand(amount);
-  });
+  totalAmount(): number {
+    return this.purchaseTableData.reduce((sum: number, group: { amount: string }) => {
+      const amount = parseFloat(group.amount) || 0;
+      return sum + amount;
+    }, 0);
+  }
+  private subtractFromTotals(amount: number): void {
+    this._posSharedService.purchaseTotalGrand$.pipe(take(1)).subscribe(res => {
+      this._posSharedService.setPurchaseTotalGrand(amount);
+    });
 
-  this._posSharedService.purchaseTotalPrice$.pipe(take(1)).subscribe(res => {    
-    this._posSharedService.setPurchaseTotalPrice(amount);
-  });
-}
+    this._posSharedService.purchaseTotalPrice$.pipe(take(1)).subscribe(res => {
+      this._posSharedService.setPurchaseTotalPrice(amount);
+    });
+  }
 
-getPurchaseOrders() {
-  this._posPurchaseService.purchaseProducts$.subscribe(data => {
-    this.purchaseTableData = data;
-    this.subtractFromTotals(this.totalAmount());
-  });
-}
+  getPurchaseOrders() {
+    this._posPurchaseService.purchaseProducts$.subscribe(data => {
+      this.purchaseTableData = data;
+      this.subtractFromTotals(this.totalAmount());
+    });
+  }
   onProductSelected(productId: number): void {
     const selectedProduct = this.purities.find((p: any) => p.id === productId);
     if (!selectedProduct) return;
@@ -141,7 +139,7 @@ getPurchaseOrders() {
     this._posService.addProductSale(payload)
       .subscribe({
         next: res => {
-         // this._posSalesService.getSalesOrdersFromServer();
+          // this._posSalesService.getSalesOrdersFromServer();
         },
         error: err => {
           console.error('Error posting product', err);
@@ -150,33 +148,33 @@ getPurchaseOrders() {
   }
 
   onSubmit(): void {
-  if (this.productForm.invalid) return;
+    if (this.productForm.invalid) return;
 
-  const formValue = this.productForm.value;
-  const formData = new FormData();
+    const formValue = this.productForm.value;
+    const formData = new FormData();
 
-  // Convert simple fields
-  formData.append('weight', formValue.weight);
-  formData.append('amount', formValue.amount);
-  formData.append('purity', formValue.purity ?? '');
+    // Convert simple fields
+    formData.append('weight', formValue.weight);
+    formData.append('amount', formValue.amount);
+    formData.append('purity', formValue.purity ?? '');
 
-  // Handle file upload (assuming attachment is a File object)
-  const file = formValue.attachment;
-  if (file instanceof File) {
-    formData.append('attachment', file);
-  }
-
-  // Submit the formData to your API
-  this._posPurchaseService.addPurchaseProduct(formData).subscribe({
-    next: res => {
-      this.productForm.reset();
-      this.getPurchaseOrders()
-      this.productForm.reset()
+    // Handle file upload (assuming attachment is a File object)
+    const file = formValue.attachment;
+    if (file instanceof File) {
+      formData.append('attachment', file);
     }
+
+    // Submit the formData to your API
+    this._posPurchaseService.addPurchaseProduct(formData).subscribe({
+      next: res => {
+        this.productForm.reset();
+        this.getPurchaseOrders()
+        this.productForm.reset()
+      }
       ,
-    error: err => console.error('Error submitting', err)
-  });
-}
+      error: err => console.error('Error submitting', err)
+    });
+  }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

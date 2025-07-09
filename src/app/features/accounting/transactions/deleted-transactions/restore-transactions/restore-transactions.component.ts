@@ -12,9 +12,9 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './restore-transactions.component.scss'
 })
 export class RestoreTransactionsComponent {
-    addEditCustomerForm!: FormGroup;
+  addEditCustomerForm!: FormGroup;
   isEditMode = false;
-  visible:boolean = false;
+  visible: boolean = false;
   transId: string | number = '';
   customersGroup: any[] = [];
   nextPageUrl: string | null = null;
@@ -26,10 +26,10 @@ export class RestoreTransactionsComponent {
   branches: any = [];
   isAddSuccessfully = new EventEmitter<any>
   paymentStatusOptions = [
-  { id: 'pending', name: 'Pending' },
-  { id: 'paid', name: 'Paid' },
-  { id: 'partially_paid', name: 'Partially Paid' }
-];
+    { id: 'pending', name: 'Pending' },
+    { id: 'paid', name: 'Paid' },
+    { id: 'partially_paid', name: 'Partially Paid' }
+  ];
   constructor(
     private _accService: AccService,
     private _formBuilder: FormBuilder,
@@ -40,7 +40,7 @@ export class RestoreTransactionsComponent {
 
   ngOnInit(): void {
     const transId = this._activeRoute.snapshot.paramMap.get('id');
-    console.log(transId);
+
     if (transId)
       this.transId = transId;
     this.initForm();
@@ -66,40 +66,40 @@ export class RestoreTransactionsComponent {
   }
 
 
-orderProducts: any[] = [];
-allDataOfTrans:any =[]
-private loadTransData(transId: number | string): void {
-  this._accService.getTransactionById(transId).subscribe((customer: any) => {
-    const selectedPaymentMethod = this.paymentMethods?.find(
-      (pm: { name: string }) => pm?.name === customer?.payment_method
-    );    
-    this.addEditCustomerForm.patchValue({
-      customer: customer?.customer,
-      payment_date: new Date(customer?.payment_date),
-      payment_method: selectedPaymentMethod?.id, // patch the whole object if your form expects it
-      payment_status: customer?.payment_status
+  orderProducts: any[] = [];
+  allDataOfTrans: any = []
+  private loadTransData(transId: number | string): void {
+    this._accService.getTransactionById(transId).subscribe((customer: any) => {
+      const selectedPaymentMethod = this.paymentMethods?.find(
+        (pm: { name: string }) => pm?.name === customer?.payment_method
+      );
+      this.addEditCustomerForm.patchValue({
+        customer: customer?.customer,
+        payment_date: new Date(customer?.payment_date),
+        payment_method: selectedPaymentMethod?.id, // patch the whole object if your form expects it
+        payment_status: customer?.payment_status
+      });
+      this.orderProducts = customer.order_products || [];
+      this.allDataOfTrans = customer
     });
-        this.orderProducts = customer.order_products || [];
-this.allDataOfTrans=customer
-  });
-}
-onSubmit(): void {
-  if (this.addEditCustomerForm.invalid) return;
+  }
+  onSubmit(): void {
+    if (this.addEditCustomerForm.invalid) return;
 
-  const formValue = this.addEditCustomerForm.value;
+    const formValue = this.addEditCustomerForm.value;
 
-  // Send JSON directly
-  const request$ = this._accService.restoreTransaction(this.transId, formValue);
+    // Send JSON directly
+    const request$ = this._accService.restoreTransaction(this.transId, formValue);
 
-  request$.subscribe({
-    next: res =>{
-      this._router.navigate([`acc/deleted-transactions`]);
-      this.visible = false;
-      this.isAddSuccessfully.emit()
-    },
-    error: err => console.error('Error', err)
-  });
-}
+    request$.subscribe({
+      next: res => {
+        this._router.navigate([`acc/deleted-transactions`]);
+        this.visible = false;
+        this.isAddSuccessfully.emit()
+      },
+      error: err => console.error('Error', err)
+    });
+  }
 
   showDialog() {
     this.visible = true;

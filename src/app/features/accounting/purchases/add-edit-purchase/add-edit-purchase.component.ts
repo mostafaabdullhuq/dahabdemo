@@ -741,8 +741,6 @@ export class AddEditPurchaseComponent implements OnInit {
   }
 
   onSubmit(): void {
-    console.log("form: ", this.addEditExpenseForm);
-
     if (this.addEditExpenseForm.invalid) {
       this.addEditExpenseForm.markAllAsTouched();
       return;
@@ -899,8 +897,6 @@ export class AddEditPurchaseComponent implements OnInit {
 
     // Clean the entire payload
     const cleanedPayload = this.cleanObject(payload);
-
-    console.log('Purchase Payload:', cleanedPayload);
 
     // Convert to FormData
     const formDataPayload = this.toFormData(cleanedPayload);

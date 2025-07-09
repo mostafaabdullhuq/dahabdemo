@@ -205,9 +205,14 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     }
 
     const baseValue = (+this.manualGoldPrice);
-    let purityFactor = 1;
 
-    if (group?.purity) {
+
+
+    let purityFactor;
+
+    if (group.purity_value) {
+      purityFactor = +group.purity_value;
+    } else {
       switch (group.purity) {
         case 24:
           purityFactor = 1;
@@ -224,12 +229,10 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         default:
           purityFactor = 1;
       }
-    } else {
-      purityFactor = +group.purity_value
     }
 
 
-    const goldPrice = baseValue * purityFactor * group.purity_value;
+    const goldPrice = baseValue * purityFactor;
 
     // Format based on selected currency decimal point
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
@@ -243,14 +246,22 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     if (!newPrice || isNaN(newPrice)) {
       return;
-
     }
 
     this.calcGrandTotalWithVat();
 
-    this._posService.updateOrderValues(order.id, {
-      gold_price: newPrice
-    }).subscribe(res => {
+    const metalValue = this.calcMetalValueAccordingToPurity(order)
+    const totalValue = this.calcTotalPrice(order)
+    const vatAmount = this.calculateVat(totalValue, order.selectedVatId ?? this.selectedVatId);
+
+    const updatedPrices = {
+      gold_price: newPrice,
+      metal_value: metalValue,
+      amount: totalValue,
+      vat_amount: vatAmount
+    }
+
+    this._posService.updateOrderValues(order.id, updatedPrices).subscribe(res => {
     });
   }
 
@@ -264,26 +275,30 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    let purityFactor = 1;
+    let purityFactor;
 
-    switch (group.purity) {
-      case 24:
-        purityFactor = 1;
-        break;
-      case 22:
-        purityFactor = 0.916;
-        break;
-      case 21:
-        purityFactor = 0.88;
-        break;
-      case 18:
-        purityFactor = 0.75;
-        break;
-      default:
-        purityFactor = 1;
+    if (group.purity_value) {
+      purityFactor = +group.purity_value
+    } else {
+      switch (group.purity) {
+        case 24:
+          purityFactor = 1;
+          break;
+        case 22:
+          purityFactor = 0.916;
+          break;
+        case 21:
+          purityFactor = 0.88;
+          break;
+        case 18:
+          purityFactor = 0.75;
+          break;
+        default:
+          purityFactor = 1;
+      }
     }
 
-    const goldPrice = group.gold_price * purityFactor * group.purity_value;
+    const goldPrice = group.gold_price * purityFactor;
 
     // Format based on selected currency decimal point
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
@@ -338,6 +353,9 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     // Recalculate grand total with VAT
     this.calcGrandTotalWithVat();
 
+    const totalPrice = this.calcTotalPrice(group);
+    const vatAmount = this.calculateVat(totalPrice, vatId);
+
     // Track if it's the first or second+ selection
     if (!group._vatSelectedOnce) {
       group._vatSelectedOnce = true; // first time, don't send
@@ -345,10 +363,17 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       // second time or more, send to backend
       const pId = group?.id;
       const form = this._formBuilder.group({
-        vat_amount: [vatRate]
+        vat_amount: [vatAmount]
       });
+
       this._posService.setDiscountProductSale(pId, form.value).subscribe();
     }
+  }
+
+  calculateVat(totalPrice: number, selectedVatId: number) {
+    const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === selectedVatId);
+    const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
+    return +((vatRate / 100) * totalPrice).toFixed(3);
   }
 
   calcTotalPriceWithVat(group: any): number {
@@ -412,12 +437,14 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
       const totalPrice = this.calcTotalPrice(tempGroup);
       const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
+      const vatAmount = this.calculateVat(totalPrice, this.selectedVatId);
 
       const payload = {
         product: selectedProduct.id,
         amount: totalPrice,
-        vat_amount: branchTaxNo,
-        metal_value: metalValue
+        vat_amount: vatAmount,
+        metal_value: metalValue,
+        gold_price: selectedProduct.gold_price
       };
 
       this._posService.addProductSale(payload).subscribe({
