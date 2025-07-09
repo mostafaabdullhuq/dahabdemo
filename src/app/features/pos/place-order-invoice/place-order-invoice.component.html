@@ -19,9 +19,9 @@
             <div class="card-body">
               <h6 class="card-title text-primary fw-bold">Shop</h6>
               <p class="mb-1"><strong>Shop name:</strong> {{ invoiceData?.branch_name }}</p>
-              <p class="mb-1"><strong>Shop address:</strong>-</p>
-              <p class="mb-1"><strong>VAT no.:</strong> {{ invoiceData?.tax }}</p>
-              <p class="mb-0"><strong>CR no.:</strong> -</p>
+              <p class="mb-1"><strong>Shop address:</strong> {{ invoiceData?.branch_address}}</p>
+              <p class="mb-1"><strong>VAT no.:</strong> {{ invoiceData?.branch_vat_number}}</p>
+              <p class="mb-0"><strong>CR no.:</strong> {{ invoiceData?.branch_cr_number}}</p>
             </div>
           </div>
         </div>
@@ -44,13 +44,13 @@
           <div class="card h-100 shadow-sm border-0 rounded-4">
             <div class="card-body">
               <h6 class="card-title text-primary fw-bold">Invoice</h6>
-              <p class="mb-1"><strong>Date:</strong> {{ invoiceData?.order_date | date:'dd-mm-yyyy' }}</p>
+              <p class="mb-1"><strong>Date:</strong> {{ invoiceData?.order_date | date:'dd-MM-yyyy'}}</p>
               <p class="mb-1"><strong>Number:</strong> {{ invoiceData?.invoice_id }}</p>
               <p class="mb-1"><strong>Method:</strong> {{invoiceData?.payment_method}}</p>
-              <p class="mb-0"><strong>Payment date:</strong> {{ invoiceData?.payment_date | date:'dd-mm-yyyy'}}</p>
+              <p class="mb-0"><strong>Payment date:</strong> {{ invoiceData?.payment_date | date:'dd-MM-yyyy'}}</p>
               <p class="mb-0"><strong>Paid:</strong> {{ invoiceData?.paid_amount | number:'1.3-3' }} {{
                 invoiceData?.currency }}</p>
-              <p class="mb-0"><strong>Remaining:</strong> {{ invoiceData?.remaining_amount | number:'1.3-3' }} {{
+              <p class="mb-0"><strong>Due Amount:</strong> {{ invoiceData?.remaining_amount | number:'1.3-3' }} {{
                 invoiceData?.currency }}</p>
             </div>
           </div>
@@ -87,7 +87,7 @@
       </tbody>
       <tfoot>
         <tr>
-          <th colspan="5" class="text-end"> Total</th>
+          <th colspan="6" class="text-end"> Total</th>
           <th class="text-end">{{getTotalPrice(invoiceData?.products?.sale) | number:'1.3-3' }} {{
             invoiceData?.currency }}</th>
         </tr>

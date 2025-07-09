@@ -1,18 +1,21 @@
-@use 'variables' as *;
+@use "variables" as *;
 
-.section-form-header{
-    border-left: 5px solid $stone-700;
-    border-radius: 5px;
-    padding: 0 10px;
+.section-form-header {
+  border-left: 5px solid $stone-700;
+  border-radius: 5px;
+  padding: 0 10px;
 }
-.section-form{
-    background-color: $stone-50 ;
-    border-radius: 15px;
-    padding: 15px;
-    border-bottom: 5px solid $stone-700;
-    
+.section-form {
+  background-color: $stone-50;
+  border-radius: 15px;
+  padding: 15px;
+  border-bottom: 5px solid $stone-700;
 }
-.form-container{
-    border-top: 5px solid $stone-700;
-    border-radius: 15px;
+.form-container {
+  border-top: 5px solid $stone-700;
+  border-radius: 15px;
+}
+
+.invalid-control {
+  border: 1px solid red;
 }

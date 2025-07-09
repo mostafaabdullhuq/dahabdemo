@@ -1,9 +1,10 @@
-import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AccService } from '../../@services/acc.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { take } from 'rxjs';
+import { SettingsService } from '../../../settings/@services/settings.service';
 
 @Component({
   selector: 'app-payment-purchase',
@@ -15,6 +16,7 @@ export class PaymentPurchaseComponent implements OnInit {
   paymentData: any = [];
   scrap: any = [];
   paymentMethod: any = [];
+  paymentBranch: any;
   products: any = [];
   manualGoldPrice: any = 0;
   paymentForm!: FormGroup;
@@ -27,7 +29,12 @@ export class PaymentPurchaseComponent implements OnInit {
     { id: 'Scrap', name: 'Scrap' },
   ]
   visible: boolean = false;
-  constructor(private _formBuilder: FormBuilder, private _accService: AccService, private _dropdownService: DropdownsService) { }
+  constructor(
+    private _formBuilder: FormBuilder,
+    private _accService: AccService,
+    private _dropdownService: DropdownsService,
+    private _settingService: SettingsService
+  ) { }
   showDialog() {
     this.visible = true;
   }
@@ -35,9 +42,18 @@ export class PaymentPurchaseComponent implements OnInit {
     this.initForm();
 
     if (this.paymentData && Object.keys(this.paymentData).length > 0) {
+      console.log("payment data: ", this.paymentData);
+
+      if (this.paymentData.branch) {
+        this._settingService.getBranchById(this.paymentData.branch).subscribe(res => {
+          this.paymentBranch = res;
+        })
+      }
+
+
       this.patchForm(this.paymentData); // patch main controls
       if (this.paymentData.items?.length > 0) {
-        //this.patchPaymentData(this.paymentData.items); // patch items array
+        // this.patchPaymentData(this.paymentData.items); // patch items array
       }
     } else {
       this.addItem(); // add an empty item
@@ -115,11 +131,11 @@ export class PaymentPurchaseComponent implements OnInit {
   get items(): FormArray {
     return this.paymentForm.get('items') as FormArray;
   }
+
   patchPaymentData(data: any[]) {
     this.items.clear();
     data.forEach((item) => {
       const product = item.product || {};
-
       const group = this.createItem({
         purchase_payment: item.purchase_payment || 0,
         type: item.type || 'fixed',
@@ -162,6 +178,7 @@ export class PaymentPurchaseComponent implements OnInit {
       value: [''],
       purity_rate: [0],
     });
+
 
     // Calculate pure weight dynamically
     group.get('weight')?.valueChanges.subscribe(() => this.calculatePureWeight(group));
@@ -207,6 +224,7 @@ export class PaymentPurchaseComponent implements OnInit {
 
     group.get('amount')?.setValue(amount.toFixed(2), { emitEvent: false });
   }
+
   attachValueListener(group: FormGroup, type: string): void {
     const valueControl = group.get('value');
 
@@ -223,6 +241,7 @@ export class PaymentPurchaseComponent implements OnInit {
           purity: selectedItem?.purity || 0
         });
       }
+
       else if (type === 'TTB') {
         selectedItem = this.ttbs.find((p: { id: number; }) => p.id === selectedId);
         group.patchValue({

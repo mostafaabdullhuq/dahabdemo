@@ -1,60 +1,61 @@
 <p-confirmdialog />
 <ng-template #paymentContainer></ng-template>
 <section>
-    <div class="header-container">
-        <h3>Purchases </h3>
-        <hr>
-        <div class="header-btns">
-            <a href="excels/purchase.csv" class="add-btn rounded-3 text-center" title="download template">
-               <i class="pi pi-download px-2 py-1"></i>
-           </a>
-             <button class="add-btn text-center" (click)="fileInput.click()">
-                <i class="pi pi-file-import px-2"></i>Import purchases
-            </button>
-            <input #fileInput type="file" accept=".csv" (change)="onFileSelected($event)" hidden />
-            <button [routerLink]="['/acc/purchase/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add Purchase</button>
+  <div class="header-container">
+    <h3>Purchases </h3>
+    <hr>
+    <div class="header-btns">
+      <a href="excels/purchase.csv" class="add-btn rounded-3 text-center" title="download template">
+        <i class="pi pi-download px-2 py-1"></i>
+      </a>
+      <button class="add-btn text-center" (click)="fileInput.click()">
+        <i class="pi pi-file-import px-2"></i>Import purchases
+      </button>
+      <input #fileInput type="file" accept=".csv" (change)="onFileSelected($event)" hidden />
+      <button [routerLink]="['/acc/purchase/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add
+        Purchase</button>
+    </div>
+  </div>
+  <div class="filter-container container">
+    <app-filter-collapse>
+      <form class="container" [formGroup]="filterForm">
+        <div class="row">
+          <div class="col-md-12">
+            <app-input-text formControlName="search" placeholder="Global Search" type="text"
+              inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-3">
+            <app-dropdowns label="status" formControlName="status" [options]="status" optionLabel="name"
+              optionValue="id" placeholder="Select a status"></app-dropdowns>
+          </div>
+          <div class="col-md-3">
+            <app-dropdowns label="type" formControlName="type" [options]="type" optionLabel="name" optionValue="id"
+              placeholder="Select a type"></app-dropdowns>
+          </div>
+          <div class="col-md-3">
+            <app-dropdowns label="branch" formControlName="branch" [options]="branches" optionLabel="name"
+              optionValue="id" placeholder="Select a branch"></app-dropdowns>
+          </div>
+          <div class="col-md-3">
+            <app-dropdowns label="supplier" formControlName="supplier" [options]="suppliers" optionLabel="name"
+              optionValue="id" placeholder="Select a supplier"></app-dropdowns>
+          </div>
+          <div class="col-md-3">
+            <app-input-date formControlName="order_date" inputName="order date" placeholder="Enter date">
+            </app-input-date>
+          </div>
         </div>
-    </div>
-    <div class="filter-container container">
-        <app-filter-collapse>
-            <form class="container" [formGroup]="filterForm">
-                <div class="row">
-                    <div class="col-md-12">
-                        <app-input-text formControlName="search" placeholder="Global Search" type="text" inputName="Search"></app-input-text>
-                    </div>
-                     <div class="col-md-3">
-                            <app-dropdowns label="status" formControlName="status" [options]="status"
-                                optionLabel="name" optionValue="id" placeholder="Select a status"></app-dropdowns>
-                        </div>
-                        <div class="col-md-3">
-                            <app-dropdowns label="type" formControlName="type" [options]="type"
-                                optionLabel="name" optionValue="id" placeholder="Select a type"></app-dropdowns>
-                        </div>
-                        <div class="col-md-3">
-                            <app-dropdowns label="branch" formControlName="branch" [options]="branches"
-                                optionLabel="name" optionValue="id" placeholder="Select a branch"></app-dropdowns>
-                        </div>
-                        <div class="col-md-3">
-                            <app-dropdowns label="supplier" formControlName="supplier" [options]="suppliers"
-                                optionLabel="name" optionValue="id" placeholder="Select a supplier"></app-dropdowns>
-                        </div>
-                        <div class="col-md-3">
-                        <app-input-date formControlName="order_date" inputName="order date"
-                                placeholder="Enter date">
-                            </app-input-date>
-                    </div>
-                </div>
-                <div class="btns-group">
-                    <button class=" submit-btn" (click)="onSearch()">Search</button>
-                </div>
-                </form >
-        </app-filter-collapse>
-    </div>
+        <div class="btns-group">
+          <button class=" submit-btn" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </app-filter-collapse>
+  </div>
 
-    <div class="table-container">
-        <app-data-table [contextMenuItems]="transactionsMenuItems"
-        (rowSelected)="selectedTransaction = $event" [data]="transactions" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
-            (pageChange)="loadPurchases($event)">
-        </app-data-table>
-    </div>
+  <div class="table-container">
+    <app-data-table [contextMenuItems]="transactionsMenuItems" (rowSelected)="selectedTransaction = $event"
+      [data]="transactions" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
+      [rowsPerPageOptions]="rowsPerPage" (pageChange)="loadPurchases($event)">
+    </app-data-table>
+  </div>
 </section>

@@ -1,171 +1,177 @@
 <p-dialog header="Add Payment" [modal]="true" [(visible)]="visible" [style]="{ width: '70rem' }">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card-body">
-                <a class="card1 d-flex flex-column justify-content-between" href="#">
-                    <p class=" d-flex flex-column">
-                        <strong>Reference Number : </strong>
-                        {{paymentData?.reference_number}}
-                    </p>
-                    <p class=" d-flex flex-column">
-                        <strong>Supplier : </strong>
-                        {{paymentData?.supplier_name}}
-                    </p>
-                    <div class="go-corner" href="#">
-                        <div class="go-arrow">
-                            →
-                        </div>
-                    </div>
-                </a>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card-body">
+        <a class="card1 d-flex flex-column justify-content-between" href="#">
+          <p class=" d-flex flex-column">
+            <strong>Reference Number : </strong>
+            {{paymentData?.reference_number ?? '-' }}
+          </p>
+          <p class=" d-flex flex-column">
+            <strong>Supplier : </strong>
+            {{paymentData?.supplier_name ?? '-' }}
+          </p>
+          <p class=" d-flex flex-column">
+            <strong>VAT Number : </strong>
+            {{paymentBranch?.vat_number ?? '-' }}
+          </p>
+          <p class=" d-flex flex-column">
+            <strong>CR Number : </strong>
+            {{paymentBranch?.cr_number ?? '-' }}
+          </p>
+          <div class="go-corner" href="#">
+            <div class="go-arrow">
+              →
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card-body">
-                <a class="card1 d-flex flex-column justify-content-between" href="#">
-                    <p class=" d-flex flex-column">
-                        <strong>Expected Delivery Date : </strong>
-                        {{paymentData?.expected_delivery_date}}
-                    </p>
-                    <p class=" d-flex flex-column">
-                        <strong>Status : </strong>
-                        {{paymentData?.status}}
-                    </p>
-                    <div class="go-corner" href="#">
-                        <div class="go-arrow">
-                            →
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card-body">
-                <a class="card1 d-flex flex-column justify-content-between" href="#">
-                    <p class=" d-flex flex-column">
-                        <strong>Total Amount : </strong>
-                        {{paymentData?.total_amount}}
-                    </p>
-                    <div class="go-corner" href="#">
-                        <div class="go-arrow">
-                            →
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
+          </div>
+        </a>
+      </div>
     </div>
-
-
-    <form [formGroup]="paymentForm" (ngSubmit)="submit()">
-        <div class="container my-4">
-            <div class="row">
-                <div class="col-md-6">
-                    <app-input-date formControlName="payment_date" inputName="payment date"
-                        placeholder="Enter payment date">
-                    </app-input-date>
-                </div>
-                <div class="col-md-6">
-                    <app-dropdowns label="branch" formControlName="branch" [options]="branches"
-                                optionLabel="name" optionValue="id" placeholder="Select branch"></app-dropdowns>
-                </div>
+    <div class="col-md-4">
+      <div class="card-body">
+        <a class="card1 d-flex flex-column justify-content-between" href="#">
+          <p class=" d-flex flex-column">
+            <strong>Expected Delivery Date : </strong>
+            {{paymentData?.expected_delivery_date}}
+          </p>
+          <p class=" d-flex flex-column">
+            <strong>Status : </strong>
+            {{paymentData?.status}}
+          </p>
+          <div class="go-corner" href="#">
+            <div class="go-arrow">
+              →
             </div>
-        </div>
-        <table class="table" formArrayName="items">
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>value</th>
-                    <th>Amount</th>
-                    <th>Quantity</th>
-                    <th>Purity</th>
-                    <th>Purity Rate</th>
-                    <th>Weight</th>
-                    <th>Pure Weight</th>
-                    <th>Description</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
-                    <td>
-                        <app-dropdowns formControlName="type" [options]="paymentTypeOptions" optionLabel="id"
-                            optionValue="id" placeholder="Select type"></app-dropdowns>
-                    </td>
-                    <td>
-                        <ng-container [ngSwitch]="item.get('type')?.value">
-                            <!-- Tag NO -->
-                            <app-dropdowns *ngSwitchCase="'Tag No'" formControlName="value" [options]="products"
-                                optionLabel="name" optionValue="id" placeholder="Select Product"></app-dropdowns>
-                                <!-- TTB -->
-                            <app-dropdowns *ngSwitchCase="'TTB'" formControlName="value" [options]="ttbs"
-                                optionLabel="name" optionValue="id" placeholder="Select TTB"></app-dropdowns>
-                            <!-- Scrap -->
-                            <app-dropdowns *ngSwitchCase="'Scrap'" formControlName="value" [options]="scrap"
-                                optionLabel="name" optionValue="id" placeholder="Select Scrap"></app-dropdowns>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card-body">
+        <a class="card1 d-flex flex-column justify-content-between" href="#">
+          <p class=" d-flex flex-column">
+            <strong>Total Amount : </strong>
+            {{paymentData?.total_amount}}
+          </p>
+          <div class="go-corner" href="#">
+            <div class="go-arrow">
+              →
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
 
-                            <!-- Amount -->
-                            <app-dropdowns *ngSwitchCase="'Amount'" formControlName="value" [options]="paymentMethod"
-                                optionLabel="name" optionValue="id" placeholder="Select Method"></app-dropdowns>
 
-                            <!-- Fallback (TTB or other types) -->
-                            <app-input-text *ngSwitchDefault formControlName="value"
-                                placeholder="Value"></app-input-text>
-                        </ng-container>
-                    </td>
-                    <td>
-                        <app-input-text formControlName="amount" placeholder="amount">
-                        </app-input-text>
-                    </td>
-                    <td>
-                        <app-input-text formControlName="quantity" placeholder="quantity">
-                        </app-input-text>
-                    </td>
-                    <td>
-                        <app-input-text formControlName="purity" placeholder="purity">
-                        </app-input-text>
-                    </td>
-                    <td>
-                        <app-input-text formControlName="purity_rate" placeholder="purity_rate">
-                        </app-input-text>
-                    </td>
-                    <td>
-                        <app-input-text formControlName="weight" placeholder="weight">
-                        </app-input-text>
-                    </td>
-                    <td>
-                        <app-input-text formControlName="pure_weight" placeholder="pure weight">
-                        </app-input-text>
-                    </td>
-                    <td>
-                        <app-input-text formControlName="description" placeholder="description">
-                        </app-input-text>
-                    </td>
-                    <td>
-                        <button type="button" class="delete-btn" (click)="removeItem(i)">
-                            <i class="pi pi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-                <tr class="total-row">
-                    <td colspan="2"><strong>Totals</strong></td>
-                    <td><strong>{{ totalAmount | number: '1.2-2' }}</strong></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td><strong>{{ totalWeight | number: '1.3-3' }}</strong></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="btns-group">
-            <button type="button" class="add-btn" (click)="addItem()"> <i class="pi pi-plus"></i></button>
+  <form [formGroup]="paymentForm" (ngSubmit)="submit()">
+    <div class="container my-4">
+      <div class="row">
+        <div class="col-md-6">
+          <app-input-date formControlName="payment_date" inputName="payment date" placeholder="Enter payment date">
+          </app-input-date>
         </div>
-        <div class="btns-group">
-            <button type="submit" class="submit-btn">Submit</button>
+        <div class="col-md-6">
+          <app-dropdowns label="branch" formControlName="branch" [options]="branches" optionLabel="name"
+            optionValue="id" placeholder="Select branch"></app-dropdowns>
         </div>
-    </form>
+      </div>
+    </div>
+    <table class="table" formArrayName="items">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>value</th>
+          <th>Amount</th>
+          <th>Quantity</th>
+          <th>Purity</th>
+          <th>Purity Rate</th>
+          <th>Weight</th>
+          <th>Pure Weight</th>
+          <th>Description</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+          <td>
+            <app-dropdowns formControlName="type" [options]="paymentTypeOptions" optionLabel="id" optionValue="id"
+              placeholder="Select type"></app-dropdowns>
+          </td>
+          <td>
+            <ng-container [ngSwitch]="item.get('type')?.value">
+              <!-- Tag NO -->
+              <app-dropdowns *ngSwitchCase="'Tag No'" formControlName="value" [options]="products" optionLabel="name"
+                optionValue="id" placeholder="Select Product"></app-dropdowns>
+              <!-- TTB -->
+              <app-dropdowns *ngSwitchCase="'TTB'" formControlName="value" [options]="ttbs" optionLabel="name"
+                optionValue="id" placeholder="Select TTB"></app-dropdowns>
+              <!-- Scrap -->
+              <app-dropdowns *ngSwitchCase="'Scrap'" formControlName="value" [options]="scrap" optionLabel="name"
+                optionValue="id" placeholder="Select Scrap"></app-dropdowns>
+
+              <!-- Amount -->
+              <app-dropdowns *ngSwitchCase="'Amount'" formControlName="value" [options]="paymentMethod"
+                optionLabel="name" optionValue="id" placeholder="Select Method"></app-dropdowns>
+
+              <!-- Fallback (TTB or other types) -->
+              <app-input-text *ngSwitchDefault formControlName="value" placeholder="Value"></app-input-text>
+            </ng-container>
+          </td>
+          <td>
+            <app-input-text formControlName="amount" placeholder="amount">
+            </app-input-text>
+          </td>
+          <td>
+            <app-input-text formControlName="quantity" placeholder="quantity">
+            </app-input-text>
+          </td>
+          <td>
+            <app-input-text formControlName="purity" placeholder="purity">
+            </app-input-text>
+          </td>
+          <td>
+            <app-input-text formControlName="purity_rate" placeholder="purity_rate">
+            </app-input-text>
+          </td>
+          <td>
+            <app-input-text formControlName="weight" placeholder="weight">
+            </app-input-text>
+          </td>
+          <td>
+            <app-input-text formControlName="pure_weight" placeholder="pure weight">
+            </app-input-text>
+          </td>
+          <td>
+            <app-input-text formControlName="description" placeholder="description">
+            </app-input-text>
+          </td>
+          <td>
+            <button type="button" class="delete-btn" (click)="removeItem(i)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2"><strong>Totals</strong></td>
+          <td><strong>{{ totalAmount | number: '1.2-2' }}</strong></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td><strong>{{ totalWeight | number: '1.3-3' }}</strong></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="btns-group">
+      <button type="button" class="add-btn" (click)="addItem()"> <i class="pi pi-plus"></i></button>
+    </div>
+    <div class="btns-group">
+      <button type="submit" class="submit-btn">Submit</button>
+    </div>
+  </form>
 
 
 </p-dialog>
