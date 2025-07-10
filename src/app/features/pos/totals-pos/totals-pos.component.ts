@@ -312,6 +312,17 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
     this._dropDownsService.getCustomers().subscribe(res => {
       this.customers = res?.results || [];
 
+      this.customers.map(customer => {
+        customer.display_value = customer.name;
+
+        if (customer.cpr) {
+          customer.display_value += ` - ${customer.cpr}`
+        }
+
+        return customer
+      })
+
+
       if (callback) {
         callback();
       }

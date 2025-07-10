@@ -1,103 +1,86 @@
 <section class="form-container">
-    <div class="header-container">
-        <h3>{{isEditMode ? 'Edit' : 'Add'}} Customer</h3>
-        <hr />
-    </div>
-
-    <div class="add-form">
-        <form [formGroup]="addEditCustomerForm" class="container" (ngSubmit)="onSubmit()">
-            <section class="form-section">
-                <!-- 🔹 customer Info -->
-                <h6 class="section-form-header">Customer Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <app-input-text formControlName="name" inputName="customer Name" [required]="true"
-                                placeholder="Enter customer name">
-                                @if (addEditCustomerForm.get('name')?.hasError('required') &&
-                                addEditCustomerForm.get('name')?.touched) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>Name is required</small>
-                                </div>
-                                }
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-text formControlName="phone" inputName="phone" [required]="true"
-                                placeholder="Enter phone">
-                                @if (addEditCustomerForm.get('phone')?.hasError('required') &&
-                                addEditCustomerForm.get('phone')?.touched) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>phone is required</small>
-                                </div>
-                                }
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-text formControlName="email" inputName="Email" type="email" 
-                                placeholder="Enter your email">
-                                @if ((addEditCustomerForm.get('email')?.errors?.['required'] &&
-                                addEditCustomerForm.get('email')?.touched)) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>Email is required</small>
-                                </div>
-                                }
-                            </app-input-text>
-                        </div>
-
-                        <div class="col-md-6">
-                            <app-input-text formControlName="address" inputName="Address"
-                                placeholder="Enter address">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-text formControlName="opening_balance" [required]="true" type="number" inputName="opening balance"
-                                placeholder="Enter opening balance">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-dropdowns label="Select group" id="group" formControlName="group"
-                                [options]="customersGroup" optionLabel="name" optionValue="id" placeholder="Select a group">
-                            </app-dropdowns>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">CPR attachment <sup class="text-danger">*</sup> </label>
-                            <app-upload-input formControlName="cpr_attachment" label="Upload File"></app-upload-input>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-text formControlName="cpr" [required]="true" inputName="CPR"
-                                placeholder="Enter CPR">
-                            </app-input-text>
-                        </div>
-                    </div>
-                </div>
-                <!-- 🔹 Custom Fields Info -->
-                <h6 class="section-form-header mt-4">Custom Fields Info</h6>
-<div class="container section-form">
-    <div class="row" formArrayName="custom_fields">
-        <div
-          class="col-md-4 mt-2"
-          *ngFor="let fieldGroup of customFieldsFormArray.controls; index as i"
-          [formGroupName]="i"
-        >
-          <app-input-text
-            [formControlName]="'value'"
-            [inputName]="customFields[i]?.field_name"
-            [placeholder]="'Enter ' + customFields[i]?.field_name"
-          ></app-input-text>
-        </div>
+  <div class="header-container">
+    <h3>{{isEditMode ? 'Edit' : 'Add'}} Customer</h3>
+    <hr />
   </div>
-</div>
-            </section>
 
-
-            <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn">{{isEditMode?
-                    'Update' : 'Submit'}}</button>
+  <div class="add-form">
+    <form [formGroup]="addEditCustomerForm" class="container" (ngSubmit)="onSubmit()">
+      <section class="form-section">
+        <!-- 🔹 customer Info -->
+        <h6 class="section-form-header">Customer Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-6">
+              <app-input-text formControlName="name" inputName="customer Name" [required]="true"
+                placeholder="Enter customer name">
+                @if (addEditCustomerForm.get('name')?.hasError('required') &&
+                addEditCustomerForm.get('name')?.touched) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>Name is
+                    required</small>
+                </div>
+                }
+              </app-input-text>
             </div>
-        </form>
-    </div>
+            <div class="col-md-6">
+              <app-input-text formControlName="phone" inputName="phone" [required]="true" placeholder="Enter phone">
+                @if (addEditCustomerForm.get('phone')?.hasError('required') &&
+                addEditCustomerForm.get('phone')?.touched) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>phone is
+                    required</small>
+                </div>
+                }
+              </app-input-text>
+            </div>
+            <div class="col-md-6">
+              <app-input-text formControlName="email" inputName="Email" type="email" placeholder="Enter your email">
+              </app-input-text>
+            </div>
+
+            <div class="col-md-6">
+              <app-input-text formControlName="address" inputName="Address" placeholder="Enter address">
+              </app-input-text>
+            </div>
+            <div class="col-md-6">
+              <app-input-text formControlName="opening_balance" [required]="true" type="number"
+                inputName="opening balance" placeholder="Enter opening balance">
+              </app-input-text>
+            </div>
+            <div class="col-md-6">
+              <app-dropdowns label="Select group" id="group" formControlName="group" [options]="customersGroup"
+                optionLabel="name" optionValue="id" placeholder="Select a group">
+              </app-dropdowns>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">CPR attachment <sup class="text-danger">*</sup> </label>
+              <app-upload-input formControlName="cpr_attachment" label="Upload File"></app-upload-input>
+            </div>
+            <div class="col-md-6">
+              <app-input-text formControlName="cpr" [required]="true" inputName="CPR" placeholder="Enter CPR">
+              </app-input-text>
+            </div>
+          </div>
+        </div>
+        <!-- 🔹 Custom Fields Info -->
+        <h6 class="section-form-header mt-4">Custom Fields Info</h6>
+        <div class="container section-form">
+          <div class="row" formArrayName="custom_fields">
+            <div class="col-md-4 mt-2" *ngFor="let fieldGroup of customFieldsFormArray.controls; index as i"
+              [formGroupName]="i">
+              <app-input-text [formControlName]="'value'" [inputName]="customFields[i]?.field_name"
+                [placeholder]="'Enter ' + customFields[i]?.field_name"></app-input-text>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <div class="btns-group">
+        <button type="submit" class="my-4 submit-btn">{{isEditMode?
+          'Update' : 'Submit'}}</button>
+      </div>
+    </form>
+  </div>
 </section>

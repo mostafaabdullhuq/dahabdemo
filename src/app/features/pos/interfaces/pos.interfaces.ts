@@ -14,6 +14,7 @@ export interface Customer {
   contact_id: string;
   opening_balance: string; // API returns as string with decimals
   custom_fields: CustomField[];
+  display_value?: string;
 }
 
 export interface CustomField {
