@@ -168,7 +168,6 @@ export class DiamondComponent implements OnInit, OnDestroy {
   get totalPrice(): number {
     const total = this.diamondDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (+group.amount || 0), 0) || 0;
     this._posSharedService.setDiamondTotalPrice(+total)
-    this._posSharedService.setDiamondTotalGrand(+total)
     return total
   }
 
@@ -217,13 +216,13 @@ export class DiamondComponent implements OnInit, OnDestroy {
     // Patch VAT rate into the form
     this.productForm.get('vat')?.patchValue(vatRate);
 
-    // Recalculate grand total with VAT
-    this.calcGrandTotalWithVat();
 
     const totalPrice = this.calcTotalPrice(group);
 
     const vatAmount = this.calculateVat(totalPrice, group.selectedVatId ?? this.selectedVatId);
 
+    // Recalculate grand total with VAT
+    this.calcGrandTotalWithVat();
 
     // Track if it's the first or second+ selection
     if (!group._vatSelectedOnce) {

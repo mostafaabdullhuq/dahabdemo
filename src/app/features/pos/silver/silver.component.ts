@@ -146,10 +146,10 @@ export class SilverComponent implements OnInit, OnDestroy {
     // initial load
     this._posSilverService.fetchSilverOrders();
   }
+
   get totalPrice(): number {
     const total = this.silverDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (+group.amount || 0), 0) || 0;
     this._posSharedService.setSilverTotalPrice(total)
-    this._posSharedService.setSilverTotalGrand(total)
     return total
   }
   getProductList() {

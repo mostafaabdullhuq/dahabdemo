@@ -65,6 +65,7 @@ export class AddEditCustomerComponent {
       opening_balance: ['']
     });
   }
+
   get customFieldsFormArray(): FormArray {
     return this.addEditCustomerForm.get('custom_fields') as FormArray;
   }
@@ -81,6 +82,7 @@ export class AddEditCustomerComponent {
       customFieldsFormArray.push(group);
     });
   }
+
   private loadCustomerData(customerId: number | string): void {
     this._contactService.getCustomerById(customerId).subscribe((customer: any) => {
       this.addEditCustomerForm.patchValue({
