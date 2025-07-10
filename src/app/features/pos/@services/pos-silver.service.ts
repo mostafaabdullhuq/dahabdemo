@@ -10,12 +10,12 @@ export class PosSilverService {
   constructor(private _http: SingletonService) {
     this.fetchSilverOrders()
   }
+
   private silverOrdersSubject = new BehaviorSubject<any[]>([]);
   silverOrders$ = this.silverOrdersSubject.asObservable();
 
   getTableSilverOrder(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/order-product-receipt/silver/`);
-
   }
 
   getSilverProducts(): Observable<any> {
@@ -32,9 +32,11 @@ export class PosSilverService {
       }
     });
   }
+
   addProductSilver(form: any): Observable<any> {
     return this._http.postRequest(`${environment.api_url}pos/order-product/silver/`, form);
   }
+
   // Optional getter for direct access
   get currentSilverOrders(): any[] {
     return this.silverOrdersSubject.value;

@@ -45,7 +45,7 @@
             <div class="card-body">
               <h6 class="card-title text-primary fw-bold">Invoice</h6>
               <p class="mb-1"><strong>Date:</strong> {{ invoiceData?.payment_date | date:'dd-mm-yyyy' }}</p>
-              <p class="mb-1"><strong>Number:</strong> {{ invoiceData?.reference_number }}</p>
+              <p class="mb-1"><strong>Number:</strong> {{ invoiceData?.id }}</p>
               <p class="mb-1"><strong>Method:</strong> {{invoiceData?.payment_method}}</p>
               <p class="mb-1"><strong>Payment Status:</strong>
                 <span class="badge rounded-pill mx-2" [ngClass]="{

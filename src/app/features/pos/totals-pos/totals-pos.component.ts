@@ -74,7 +74,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
       customer: [null, Validators.required],
       currency: [null, Validators.required],
       amount: [0, Validators.required],
-      discount: [this.discountAmount],
+      discount: [this.discountAmount || 0],
       tax: [this.totalVat],
       payments: this._formBuilder.array([
         this._formBuilder.group({
@@ -408,6 +408,9 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
 
     this._posService.getOrderId().subscribe(res => {
       if (res?.order_id) {
+        if (this.totalForm.get("discount")?.value == null) {
+          this.totalForm.get("discount")?.setValue(0)
+        }
         this._posService.addOrder(res.order_id, form ?? this.totalForm.value).subscribe({
           next: res => {
             this.totalPrice = 0;

@@ -8,7 +8,7 @@ import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { PosReturnsService } from '../@services/pos-returns.service';
 import { MenuItem } from 'primeng/api';
-import { Currency, Tax } from '../interfaces/pos.interfaces';
+import { Currency, Customer, Tax } from '../interfaces/pos.interfaces';
 
 @Component({
   selector: 'app-retun-pos',
@@ -26,11 +26,13 @@ export class RetunPosComponent implements OnInit, OnDestroy {
   taxes: Tax[] = [];
   salesProduct: any = [];
   manualGoldPrice = '';
-  selectedCurrency: Currency | null = null
+  selectedCurrency: Currency | null = null;
+  selectedCustomer: Customer | null = null;
   private destroy$ = new Subject<void>();
   defualtVat = 0;
   shiftData: any = [];
   menuItem: MenuItem[] = [];
+
   constructor(private _formBuilder: FormBuilder, private _posReturnService: PosReturnsService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
   ) { }
@@ -82,6 +84,12 @@ export class RetunPosComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(currency => {
         this.selectedCurrency = currency;
+      });
+
+    this._posSharedService.selectedCustomer$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(customer => {
+        this.selectedCustomer = customer;
       });
 
     this.productForm.get('product_id')?.valueChanges

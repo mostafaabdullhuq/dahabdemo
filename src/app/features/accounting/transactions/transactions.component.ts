@@ -60,7 +60,7 @@ export class TransactionsComponent {
 
   ngOnInit(): void {
     this.cols = [
-      { field: "reference_number", header: "Reference Number" },
+      { field: "invoice_number", header: "Invoice Number" },
       {
         field: "created_at", header: "Date",
         body: (row: any) => {

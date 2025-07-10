@@ -5,15 +5,17 @@
         <div class="row">
           <div class="col-md-6">
             <app-dropdowns label="Receipts" formControlName="reciept_id" [options]="receipts" [showClear]="true"
-              optionLabel="id" optionValue="id" placeholder="Select a Receipt"></app-dropdowns>
+              [disabled]="!selectedCurrency || !selectedCustomer" optionLabel="id" optionValue="id"
+              placeholder="Select a Receipt"></app-dropdowns>
           </div>
           <div class="col-md-6">
             <app-dropdowns label="Products" formControlName="product_id" [options]="products" [showClear]="true"
-              optionLabel="name" optionValue="id" placeholder="Select a product"></app-dropdowns>
+              [disabled]="!selectedCurrency || !selectedCustomer" optionLabel="name" optionValue="id"
+              placeholder="Select a product"></app-dropdowns>
           </div>
         </div>
       </form>
-      @if(selectedCurrency && isShiftActive){
+      @if(selectedCurrency && isShiftActive && selectedCustomer){
       <div class="table">
         <div class="mt-5">
           <div class="container">
@@ -53,7 +55,6 @@
         </div>
       </div>
       }@else {
-
       <div class="container h-100  d-flex justify-content-center align-items-center">
         <h6 class="text-danger">You Need To select customer & Currency first</h6>
       </div> }

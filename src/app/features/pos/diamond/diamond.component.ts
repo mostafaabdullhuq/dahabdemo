@@ -119,6 +119,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
     this.componentRef = this.container.createComponent(SetDiscountComponent);
     this.componentRef.instance.selectedRowId = id;
     this.componentRef.instance.visible = true;
+
   }
 
   onRowClick(rowData: any): void {
@@ -135,7 +136,6 @@ export class DiamondComponent implements OnInit, OnDestroy {
     this._posDiamondService.diamondOrders$
       .subscribe((res: any) => {
         this.diamondDataOrders = res;
-
         if (this.diamondDataOrders.length === 0) {
           this._posSharedService.setDiamondTax(0);
           this._posSharedService.setDiamondTotalGrand(0);
