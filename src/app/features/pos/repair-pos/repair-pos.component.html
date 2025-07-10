@@ -1,86 +1,90 @@
 <div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <form [formGroup]="productForm" class="d-flex justify-content-between sales" (ngSubmit)="onSubmit()">
-                <div class="row">
-                    <div class="col-md-6">
-                        <app-input-text formControlName="weight" placeholder="weight" type="text" inputName="weight"></app-input-text>
-                    </div>
-                    <div class="col-md-6">
-                        <app-dropdowns label="purity" formControlName="purity" [options]="purities"
-                            optionLabel="name" optionValue="id"
-                            placeholder="Select a purity"></app-dropdowns>
-                    </div>
-                    <!-- <div class="col-md-6">
+  <div class="row">
+    <div class="col-md-12">
+      <form [formGroup]="productForm" class="d-flex justify-content-between sales" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="col-md-6">
+            <app-input-text formControlName="weight" placeholder="weight" type="text" [required]="true"
+              inputName="weight"></app-input-text>
+          </div>
+          <div class="col-md-6">
+            <app-dropdowns label="purity" formControlName="purity" [options]="purities" optionLabel="name"
+              optionValue="id" placeholder="Select a purity"></app-dropdowns>
+          </div>
+          <!-- <div class="col-md-6">
                         <app-input-text formControlName="price" placeholder="price" type="number" inputName="price"></app-input-text>
                     </div> -->
-                    <div class="col-md-6">
-                        <app-input-text formControlName="description" placeholder="description" type="text" inputName="description"></app-input-text>
-                    </div>
-                    <div class="col-md-6">
-                        <app-input-text formControlName="tax" placeholder="tax" type="number" inputName="tax"></app-input-text>
-                    </div>
-                    <div class="col-md-6">
-                        <app-input-text formControlName="amount" placeholder="amount" type="number" inputName="amount"></app-input-text>
-                    </div>
-                    <div class="col-md-6">
-                        <app-input-text [disabled]="true" formControlName="amount_with_tax" placeholder="amount with tax" type="number" inputName="amount with tax"></app-input-text>
-                    </div>
-                    <div class="col-md-6">
-                            <label class="form-label"> Attachment <sup class="text-danger">*</sup> </label>
-                            <app-upload-input formControlName="attachment" label="Upload Image"></app-upload-input>
-                    </div>
-                    <div class="col-md-6">
-                        <app-input-text formControlName="add_gram" placeholder="add_gram" type="number" inputName="add_gram"></app-input-text>
-                    </div>
-                    <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn">
-                    Add</button>
-                    <!-- [disabled]="selectedCurrency && isShiftActive"  -->
-            </div>
-                </div>
-            </form>
-            @if(selectedCurrency && isShiftActive){
-            <div class="table">
-                <div class="mt-5">
-                    <div class="container">
-                        <app-input-table [data]="purchaseTableData">
-                            <ng-template #headerTemplate>
-                                <th>Weight</th>
-                                <th>tax</th>
-                                <th>Purity</th>
-                                <th>Description</th>
-                                <td>Price</td>
-                                <th>Actions</th>
-
-                            </ng-template>
-
-                            <ng-template #bodyTemplate let-group let-i="index">
-                                <td>{{ group.weight }}</td>
-                                <td>{{ group.tax }}</td>
-                                <!-- <td>{{ group.size }}</td> -->
-                                <td>{{ group.purity_name }}</td>
-                                <td>{{ group.description }}</td>
-                                <td>{{group.amount}}</td>
-<td>
-                                    <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'"
-                                        [model]="menuItem" dropdownIcon="pi pi-cog" appendTo="body">
-                                    </p-splitbutton>
-                                </td>
-                            </ng-template>
-                        </app-input-table>
-                        <div class="d-flex justify-content-end w-100">
-                            <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
-                                Total: {{ totalAmount()| number:'1.3-3' }} </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            }@else {
-
-            <div class="container h-100  d-flex justify-content-center align-items-center">
-                <h6 class="text-danger">You Need To select customer & Currency first</h6>
-            </div> }
+          <div class="col-md-6">
+            <app-input-text formControlName="description" placeholder="description" type="text"
+              inputName="description"></app-input-text>
+          </div>
+          <div class="col-md-6">
+            <app-input-text formControlName="tax" placeholder="tax" type="number" inputName="tax"></app-input-text>
+          </div>
+          <div class="col-md-6">
+            <app-input-text formControlName="amount" placeholder="amount" type="number" [required]="true"
+              inputName="amount"></app-input-text>
+          </div>
+          <div class="col-md-6">
+            <app-input-text [disabled]="true" formControlName="amount_with_tax" placeholder="amount with tax"
+              type="number" inputName="amount with tax"></app-input-text>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label"> Attachment <sup class="text-danger">*</sup> </label>
+            <app-upload-input formControlName="attachment" label="Upload Image"></app-upload-input>
+          </div>
+          <div class="col-md-6">
+            <app-input-text formControlName="add_gram" placeholder="add_gram" type="number"
+              inputName="add_gram"></app-input-text>
+          </div>
+          <div class="btns-group">
+            <button type="submit" class="my-4 submit-btn" [disabled]="productForm.invalid">
+              Add</button>
+            <!-- [disabled]="selectedCurrency && isShiftActive"  -->
+          </div>
         </div>
+      </form>
+      @if(selectedCurrency && isShiftActive){
+      <div class="table">
+        <div class="mt-5">
+          <div class="container">
+            <app-input-table [data]="purchaseTableData">
+              <ng-template #headerTemplate>
+                <th>Weight</th>
+                <th>tax</th>
+                <th>Purity</th>
+                <th>Description</th>
+                <td>Price</td>
+                <th>Actions</th>
+
+              </ng-template>
+
+              <ng-template #bodyTemplate let-group let-i="index">
+                <td>{{ group.weight }}</td>
+                <td>{{ group.tax }}</td>
+                <!-- <td>{{ group.size }}</td> -->
+                <td>{{ group.purity_name }}</td>
+                <td>{{ group.description }}</td>
+                <td>{{group.amount}}</td>
+                <td>
+                  <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'" [model]="menuItem"
+                    dropdownIcon="pi pi-cog" appendTo="body">
+                  </p-splitbutton>
+                </td>
+              </ng-template>
+            </app-input-table>
+            <div class="d-flex justify-content-end w-100">
+              <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
+                Total: {{ totalAmount()| number:'1.3-3' }} </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      }@else {
+
+      <div class="container h-100  d-flex justify-content-center align-items-center">
+        <h6 class="text-danger">You Need To select customer & Currency first</h6>
+      </div> }
     </div>
+  </div>
 </div>

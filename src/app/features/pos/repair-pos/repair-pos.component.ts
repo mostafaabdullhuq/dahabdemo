@@ -6,9 +6,8 @@ import { PosSalesService } from '../@services/pos-sales.service';
 import { combineLatest, distinctUntilChanged, filter, startWith, Subject, takeUntil } from 'rxjs';
 import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
-import { PosReturnsService } from '../@services/pos-returns.service';
-import { PosPurchaseService } from '../@services/pos-purchase.service';
 import { PosRepairService } from '../@services/pos-repair.service';
+import { Customer } from '../interfaces/pos.interfaces';
 import { MenuItem } from 'primeng/api';
 
 @Component({
@@ -28,6 +27,7 @@ export class RepairPosComponent implements OnInit, OnDestroy {
   salesProduct: any = [];
   manualGoldPrice = '';
   selectedCurrency: any = ''
+  selectedCustomer!: Customer | null;
   private destroy$ = new Subject<void>();
   defualtVat = 0;
   shiftData: any = [];
@@ -37,19 +37,21 @@ export class RepairPosComponent implements OnInit, OnDestroy {
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
     , private _posRepairService: PosRepairService
-  ) { }
+  ) {
+
+  }
 
   ngOnInit(): void {
     const customerID = sessionStorage.getItem('customer')
     this.productForm = this._formBuilder.group({
-      customer: [customerID],
+      customer: [customerID, Validators.required],
       weight: ['', Validators.required],
       amount: ['', Validators.required],
       price: [''],
       purity: [''],
       amount_with_tax: [{ value: 0, disabled: true }],
       description: [''],
-      attachment: [''],
+      attachment: ['', Validators.required],
       tax: [{ value: 0, disabled: true }],
       add_gram: [''],
     })
@@ -87,6 +89,12 @@ export class RepairPosComponent implements OnInit, OnDestroy {
           this.selectedCurrency = null;
         }
       });
+
+    this._posSharedService.selectedCustomer$.subscribe(customer => {
+      this.selectedCustomer = customer || null;
+      this.productForm.get("customer")?.setValue(customer?.id ?? null)
+    })
+
     this.productForm.get('product_id')?.valueChanges
       .pipe(
         takeUntil(this.destroy$),

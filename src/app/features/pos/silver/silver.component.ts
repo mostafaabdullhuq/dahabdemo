@@ -152,6 +152,7 @@ export class SilverComponent implements OnInit, OnDestroy {
     this._posSharedService.setSilverTotalPrice(total)
     return total
   }
+
   getProductList() {
     this._posService.getProductSilverList().subscribe((res) => {
       this.products = res?.results;
