@@ -152,6 +152,7 @@ export class RepairPosComponent implements OnInit, OnDestroy {
     this.selectedRowData = rowData;
   }
   isShiftActive: boolean = false;
+
   getPurchaseOrders() {
     this._posRepairService.repairProducts$.subscribe(products => {
       this.purchaseTableData = products;
@@ -229,6 +230,12 @@ export class RepairPosComponent implements OnInit, OnDestroy {
     // Set the shared service values once
     this._posSharedService.setRepairTotalPrice(totalPrice);
     this._posSharedService.setRepairTotalGrand(totalGrand);
+
+    if (this.purchaseTableData.length === 0) {
+      this._posSharedService.setRepairTotalPrice(0);
+      this._posSharedService.setRepairTotalGrand(0);
+      this._posSharedService.setRepairTotalTax(0);
+    }
   }
   onProductSelected(productId: number): void {
     const selectedProduct = this.purities.find((p: any) => p.id === productId);

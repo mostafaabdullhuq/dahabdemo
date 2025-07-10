@@ -155,9 +155,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         });
 
         if (this.salesDataOrders.length === 0) {
-          this._posSharedService.setTotalPrice(0)
-          this._posSharedService.setVat(0)
-          this._posSharedService.setGrandTotalWithVat(0)
           this._posSharedService.setSalesTax(0)
           this._posSharedService.setSalesTotalGrand(0)
           this._posSharedService.setSalesTotalPrice(0)

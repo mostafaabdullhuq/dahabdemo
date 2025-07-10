@@ -136,16 +136,11 @@ export class DiamondComponent implements OnInit, OnDestroy {
       .subscribe((res: any) => {
         this.diamondDataOrders = res;
 
-
         if (this.diamondDataOrders.length === 0) {
-          this._posSharedService.setTotalPrice(0)
-          this._posSharedService.setVat(0)
-          this._posSharedService.setGrandTotalWithVat(0)
-          this._posSharedService.setDiamondTax(0)
-          this._posSharedService.setDiamondTotalGrand(0)
-          this._posSharedService.setDiamondTotalPrice(0)
+          this._posSharedService.setDiamondTax(0);
+          this._posSharedService.setDiamondTotalGrand(0);
+          this._posSharedService.setDiamondTotalPrice(0);
         }
-
       });
 
     // initial load

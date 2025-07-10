@@ -134,9 +134,6 @@ export class SilverComponent implements OnInit, OnDestroy {
         this.silverDataOrders = res;
 
         if (this.silverDataOrders.length === 0) {
-          this._posSharedService.setTotalPrice(0)
-          this._posSharedService.setVat(0)
-          this._posSharedService.setGrandTotalWithVat(0)
           this._posSharedService.setSilverTax(0)
           this._posSharedService.setSilverTotalGrand(0)
           this._posSharedService.setSilverTotalPrice(0)

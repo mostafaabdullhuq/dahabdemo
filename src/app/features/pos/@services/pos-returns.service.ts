@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { SingletonService } from '../../../core/services/singleton.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
+import { PosSharedService } from './pos-shared.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PosReturnsService {
-  constructor(private _http: SingletonService) {
+  constructor(private _http: SingletonService, private _posSharedService: PosSharedService) {
     this.fetchReturnOrders()
   }
   private returnOrdersSubject = new BehaviorSubject<any[]>([]);
@@ -31,6 +32,12 @@ export class PosReturnsService {
     this._http.getRequest(`${environment.api_url}pos/order-product-receipt/return/`).subscribe({
       next: (res: any) => {
         this.returnOrdersSubject.next(res || []);
+
+        if (this.returnOrdersSubject?.value?.length === 0) {
+          this._posSharedService.setReturnTotalTax(0);
+          this._posSharedService.setReturnTotalGrand(0);
+          this._posSharedService.setReturnTotalPrice(0);
+        }
       },
       error: () => {
         this.returnOrdersSubject.next([]);

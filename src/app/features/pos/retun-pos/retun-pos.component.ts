@@ -123,13 +123,10 @@ export class RetunPosComponent implements OnInit, OnDestroy {
 
   }
   removeItem(item: any) {
-    console.log("item to be removed: ", item);
-
     if (!item.id || !item.sold_orderproduct_id) {
       return;
     }
 
-    console.log("item: ", item);
 
     // http://104.248.35.179:8003/api/pos/product-return/?orderproduct__order_id=%20%20%20%20%20%20%20%20&orderproduct__order__customer_id=8
     this._posService.deleteReturnProductPos(+item.id, +item.sold_orderproduct_id).subscribe({
