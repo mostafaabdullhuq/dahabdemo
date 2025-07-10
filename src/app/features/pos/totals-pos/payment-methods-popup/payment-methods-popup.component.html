@@ -6,12 +6,12 @@
       </div>
     </ng-template>
     <div *ngIf="typeOfPayment === 'credit' && isCreditOverpaid" class="text-danger text-center mt-2">
-The total credit payments must be less than the total payable amount.
-</div>
+      The total credit payments must be less than the total payable amount.
+    </div>
     <div class="container bg-secondary-subtle my-3 rounded-3">
       <div class="row py-2">
         <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
-          <h6>Total payed amount</h6>
+          <h6>Total paid amount</h6>
           <span>{{totalWithVat| number:'1.3-3'}}</span>
         </div>
         <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
@@ -28,21 +28,21 @@ The total credit payments must be less than the total payable amount.
         </div>
       </div>
     </div>
-        <div class="header-btns">
-            <button type="button" class="add-btn" (click)="addPayment()">
-                <i class="pi pi-plus"></i>
-            </button>
-        </div>
+    <div class="header-btns">
+      <button type="button" class="add-btn" (click)="addPayment()">
+        <i class="pi pi-plus"></i>
+      </button>
+    </div>
     <div class="content d-flex flex-column justify-content-between h-100">
       <div formArrayName="payments" class="form-content">
         <div *ngFor="let payment of payments.controls; let i = index" [formGroupName]="i" class="mb-3">
           <div class="items-center">
-            <app-input-text formControlName="amount" placeholder="Amount" type="number" inputName="Amount"></app-input-text>
+            <app-input-text formControlName="amount" placeholder="Amount" type="number"
+              inputName="Amount"></app-input-text>
           </div>
           <div class="items-center mb-2">
-            <app-dropdowns label="Payment Method" formControlName="payment_method" 
-              [options]="baymentMethods" optionLabel="name" optionValue="id" 
-              placeholder="Select a method"></app-dropdowns>
+            <app-dropdowns label="Payment Method" formControlName="payment_method" [options]="baymentMethods"
+              optionLabel="name" optionValue="id" placeholder="Select a method"></app-dropdowns>
           </div>
           <div class="header-btns d-flex justify-content-end">
             <button type="button" (click)="removePayment(i)" class="delete-btn" *ngIf="payments.length > 1">
@@ -56,7 +56,8 @@ The total credit payments must be less than the total payable amount.
       <div class="btns">
         <div class="d-flex justify-content-end gap-2 mt-4">
           <p-button label="Cancel" severity="secondary" (click)="visible = false" />
-          <p-button label="Save" [disabled]="typeOfPayment === 'credit' && isCreditOverpaid"  (click)="submitForm(registerPosForm)" />
+          <p-button label="Save" [disabled]="typeOfPayment === 'credit' && isCreditOverpaid"
+            (click)="submitForm(registerPosForm)" />
         </div>
       </div>
     </div>

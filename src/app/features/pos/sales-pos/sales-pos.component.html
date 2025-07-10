@@ -7,7 +7,7 @@
         <div class="w-100 me-2">
           <form [formGroup]="productForm">
             <app-dropdowns [disabled]="!selectedCurrency" label="Products" formControlName="product_id"
-              [options]="products" optionLabel="displayLabel" optionValue="id"
+              [options]="products" optionLabel="displayLabel" optionValue="id" [showClear]="true"
               placeholder="Select a product"></app-dropdowns>
           </form>
         </div>

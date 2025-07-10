@@ -415,6 +415,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
             this.totalForm.get('payments')?.reset();
             this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
             this.openOrderInvoice();
+            this._posSharedService.resetAllValues();
             this._posSharedService.notifyOrderPlaced();
             this._posSharedService.notifyReturnsOrderPlaced();
             this._posSalesService.getSalesOrdersFromServer();
@@ -424,10 +425,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
             this._posGoldService.fetchGoldReceiptProducts();
             this._posRepairService.fetchRepairProducts();
             this._posReturnService.fetchReturnOrders();
-            this._posSharedService.setTotalPrice(0);
-            this._posSharedService.setGrandTotalWithVat(0);
-            this._posSharedService.setVat(0);
-            this._posSharedService.setDiscountAmount(0);
             this._posSharedService.triggerRefreshCurrency();
           },
           error: () => {

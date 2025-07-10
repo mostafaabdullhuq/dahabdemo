@@ -12,6 +12,6 @@
     [options]="options" [loading]="loading" [disabled]="disabled" [(ngModel)]="selectedValue"
     [optionLabel]="optionLabel" [ngModel]="selectedValue" [optionValue]="optionValue ?? optionLabel"
     [required]="required" [placeholder]="placeholder" (onChange)="onSelectionChange($event)" (onClear)="onClear()"
-    (blur)="onBlur()"></p-select>
+    [filterFields]="filterByFields" (blur)="onBlur()"></p-select>
   <ng-content></ng-content>
 </div>

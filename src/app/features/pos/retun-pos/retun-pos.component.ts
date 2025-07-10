@@ -96,7 +96,7 @@ export class RetunPosComponent implements OnInit, OnDestroy {
 
     this._posReturnService.returnOrders$.subscribe(data => {
       this.returnDataOrders = data;
-      const totalVatAmount = data.reduce((acc, item) => acc + (item.vat_amount || 0), 0);
+      const totalVatAmount = data.reduce((acc, item) => acc + (+item.vat_amount || 0), 0);
       this._posSharedService.setReturnTotalTax(totalVatAmount)
     });
 
@@ -112,7 +112,7 @@ export class RetunPosComponent implements OnInit, OnDestroy {
         label: 'Delete',
         icon: 'pi pi-trash',
         command: () => {
-          this.removeItem(this.selectedRowData?.id);
+          this.removeItem(this.selectedRowData);
         }
       }
     ];
@@ -122,8 +122,17 @@ export class RetunPosComponent implements OnInit, OnDestroy {
     });
 
   }
-  removeItem(id: any) {
-    this._posService.deleteProductPos(id).subscribe({
+  removeItem(item: any) {
+    console.log("item to be removed: ", item);
+
+    if (!item.id || !item.sold_orderproduct_id) {
+      return;
+    }
+
+    console.log("item: ", item);
+
+    // http://104.248.35.179:8003/api/pos/product-return/?orderproduct__order_id=%20%20%20%20%20%20%20%20&orderproduct__order__customer_id=8
+    this._posService.deleteReturnProductPos(+item.id, +item.sold_orderproduct_id).subscribe({
       next: res => {
         this._posReturnService.fetchReturnOrders();
       },
@@ -131,9 +140,15 @@ export class RetunPosComponent implements OnInit, OnDestroy {
       complete: () => { this.getProductList() }
     })
   }
+
   getProductList() {
-    const params = `orderproduct__order_id=${this.productForm.get('reciept_id')?.value}
-        &orderproduct__order__customer_id=${sessionStorage.getItem('customer')}`
+    let params = '';
+    if (this.productForm.get('reciept_id')?.value) {
+      params += `orderproduct__order_id=${this.productForm.get('reciept_id')?.value}&`
+    }
+
+    params += `orderproduct__order__customer_id=${sessionStorage.getItem('customer')}`
+
     this._posReturnService.getReturnProducts(params).subscribe((res) => {
       this.products = res?.results;
     });
@@ -238,7 +253,7 @@ export class RetunPosComponent implements OnInit, OnDestroy {
     const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
     const vatAmount = (vatRate / 100) * baseTotal;
     const totalVat = this.returnDataOrders.reduce((acc: number, group: any) => {
-      const baseTotal = this.calcTotalPrice(group); // your existing method
+      const baseTotal = +this.calcTotalPrice(group); // your existing method
       const selectedTax = this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat);
       const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
       const vatAmount = (vatRate / 100) * baseTotal;
@@ -295,14 +310,14 @@ export class RetunPosComponent implements OnInit, OnDestroy {
   // }
   get totalPrice(): number {
     const totalWithVat = this.returnDataOrders?.reduce(
-      (sum: any, item: { amount: any; }) => sum + (item.amount || 0),
+      (sum: any, item: { amount: any; }) => sum + (+item.amount || 0),
       0
     ) || 0;
 
     const totalWithoutVat = this.returnDataOrders?.reduce(
       (sum: number, item: { amount: number; vat_amount: number; }) => {
-        const amount = item.amount || 0;
-        const vat = item.vat_amount || 0;
+        const amount = +item.amount || 0;
+        const vat = +item.vat_amount || 0;
         return sum + (amount - vat);
       },
       0

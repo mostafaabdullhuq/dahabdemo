@@ -51,7 +51,7 @@ export class SilverComponent implements OnInit, OnDestroy {
       this.selectedVatId = this.taxes[0].id; // Set first VAT as default
     });
 
-    this.getSalesOrder()
+    this.getSilverOrder()
 
     this._posStatusService.shiftData$
       .pipe(takeUntil(this.destroy$))
@@ -127,17 +127,27 @@ export class SilverComponent implements OnInit, OnDestroy {
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
   }
-  getSalesOrder() {
-    this._posSilverService.returnOrders$
+
+  getSilverOrder() {
+    this._posSilverService.silverOrders$
       .subscribe((res: any) => {
         this.silverDataOrders = res;
+
+        if (this.silverDataOrders.length === 0) {
+          this._posSharedService.setTotalPrice(0)
+          this._posSharedService.setVat(0)
+          this._posSharedService.setGrandTotalWithVat(0)
+          this._posSharedService.setSilverTax(0)
+          this._posSharedService.setSilverTotalGrand(0)
+          this._posSharedService.setSilverTotalPrice(0)
+        }
       });
 
     // initial load
     this._posSilverService.fetchSilverOrders();
   }
   get totalPrice(): number {
-    const total = this.silverDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (group.amount || 0), 0) || 0;
+    const total = this.silverDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (+group.amount || 0), 0) || 0;
     this._posSharedService.setSilverTotalPrice(total)
     this._posSharedService.setSilverTotalGrand(total)
     return total
@@ -147,6 +157,7 @@ export class SilverComponent implements OnInit, OnDestroy {
       this.products = res?.results;
     });
   }
+
   removeItem(id: any) {
     this._posService.deleteProductPos(id).subscribe({
       next: res => {
@@ -170,7 +181,7 @@ export class SilverComponent implements OnInit, OnDestroy {
 
   calcTotalPrice(group: any): number {
     this.priceOfProductToPatch = 0;
-    const metalValue = this.calcMetalValueAccordingToPurity(group);
+    const metalValue = +this.calcMetalValueAccordingToPurity(group);
 
     const makingCharge = +group?.retail_making_charge || 0;
     const discountPercentage = +group?.discount || 0;
@@ -207,6 +218,11 @@ export class SilverComponent implements OnInit, OnDestroy {
     // Recalculate grand total with VAT
     this.calcGrandTotalWithVat();
 
+    const totalPrice = this.calcTotalPrice(group);
+
+    const vatAmount = this.calculateVat(totalPrice, group.selectedVatId ?? this.selectedVatId);
+
+
     // Track if it's the first or second+ selection
     if (!group._vatSelectedOnce) {
       group._vatSelectedOnce = true; // first time, don't send
@@ -214,11 +230,19 @@ export class SilverComponent implements OnInit, OnDestroy {
       // second time or more, send to backend
       const pId = group?.id;
       const form = this._formBuilder.group({
-        vat_amount: [vatRate]
+        vat_amount: [vatAmount]
       });
       this._posService.setDiscountProductSale(pId, form.value).subscribe();
     }
   }
+
+
+  calculateVat(totalPrice: number, selectedVatId: number) {
+    const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === selectedVatId);
+    const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
+    return +((vatRate / 100) * totalPrice).toFixed(3);
+  }
+
 
   calcTotalPriceWithVat(group: any): number {
     this.priceOfProductToPatch = 0
@@ -227,7 +251,7 @@ export class SilverComponent implements OnInit, OnDestroy {
     const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
     const vatAmount = (vatRate / 100) * baseTotal;
     const totalVat = this.silverDataOrders.reduce((acc: number, group: any) => {
-      const baseTotal = this.calcTotalPrice(group); // your existing method
+      const baseTotal = +this.calcTotalPrice(group); // your existing method
       const selectedTax = this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat);
       const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
       const vatAmount = (vatRate / 100) * baseTotal;
@@ -290,12 +314,13 @@ export class SilverComponent implements OnInit, OnDestroy {
       const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
       const totalPrice = this.calcTotalPrice(tempGroup);
       const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
+      const vatAmount = this.calculateVat(totalPrice, tempGroup.selectedVat ?? this.selectedVatId);
 
 
       const payload = {
         product: selectedProduct.id,
         amount: totalPrice,
-        vat_amount: branchTaxNo,
+        vat_amount: vatAmount,
         metal_value: metalValue
       };
 
@@ -307,7 +332,7 @@ export class SilverComponent implements OnInit, OnDestroy {
           console.error('Error posting product', err);
         },
         complete: () => {
-          this.getSalesOrder()
+          this.getSilverOrder()
           this.getProductList()
         }
       });

@@ -242,6 +242,7 @@ export class PosSharedService {
   setSilverTotalPrice(total: number) {
     this.silverTotalPriceSubject.next(total);
   }
+
   setDiamondTotalGrand(total: number) {
     this.diamondTotalGrandSubject.next(total);
   }
@@ -249,6 +250,7 @@ export class PosSharedService {
   setDiamondTotalPrice(total: number) {
     this.diamondTotalPriceSubject.next(total);
   }
+
   setPurchaseTotalPrice(total: number) {
     this.purchaseTotalPriceSubject.next(total);
   }
@@ -256,18 +258,23 @@ export class PosSharedService {
   setGoldReceiptTotalTax(total: number) {
     this.goldReceiptTotalTaxSubject.next(total);
   }
+
   setRepairTotalTax(total: number) {
     this.repairTotalTaxSubject.next(total);
   }
+
   setReturnTotalTax(total: number) {
     this.returnTotalTaxSubject.next(total);
   }
+
   setSalesTax(total: number) {
     this.salesTotalTaxSubject.next(total);
   }
+
   setSilverTax(total: number) {
     this.silverTotalTaxSubject.next(total);
   }
+
   setDiamondTax(total: number) {
     this.diamondTotalTaxSubject.next(total);
   }

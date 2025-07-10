@@ -1,92 +1,92 @@
 <ng-container #container></ng-container>
 
 <div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between sales">
-                <div class="w-100">
-                    <form [formGroup]="productForm">
-                        <app-dropdowns [disabled]="!selectedCurrency" label="Products" formControlName="product_id" [options]="products"
-                            optionLabel="name" optionValue="id" placeholder="Select a product"></app-dropdowns>
-                    </form>
-                </div>
-                <div>
-                    <label class="opacity-0">btn </label>
-                    <p-button [routerLink]="['/inventory/product/add']" size="small" class="add-btn white-icon-btn"
-                        [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
-                    <ng-template #tooltipContent>
-                        <button [disabled]="selectedCurrency && isShiftActive" class="flex items-center">
-                            Add Product
-                        </button>
-                    </ng-template>
-                </div>
-            </div>
-            @if(selectedCurrency && isShiftActive){
-            <div class="table">
-                <div class="mt-5">
-                    <div class="container-fluid">
-                        <table class="table-class"> <!-- Add any classes or Tailwind classes as needed -->
-                            <thead>
-                                <tr>
-                                    <th>Tag No</th>
-                                    <th>Weight</th>
-                                    <th>Item Size</th>
-                                    <th>Purity</th>
-                                    <th>Description</th>
-                                    <th>Stone (1)</th>
-                                    <th>Stone (2)</th>
-                                    <th>Stone (3)</th>
-                                    <th>Vat</th>
-                                    <th>Making Charge</th>
-                                    <th>Discount</th>
-                                    <th>Max Discount</th>
-                                    <th>Price</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let group of silverDataOrders; let i = index">
-                                    <td>{{ group.tag_number }}</td>
-                                    <td>{{ group.weight }}</td>
-                                    <td>{{ group.size }}</td>
-                                    <td>{{ group.purity }}</td>
-                                    <td>{{ group.description }}</td>
-                                    <td>{{ group.stones[0]?.retail_value }}</td>
-                                    <td>{{ group.stones[1]?.retail_value }}</td>
-                                    <td>{{ group.stones[2]?.retail_value }}</td>
-                                    <td>
-                                        <app-dropdowns [options]="taxes" optionLabel="rate" optionValue="id"
-                                            placeholder="Select Vat" [(ngModel)]="selectedVatId"
-                                            (selectionChange)="onVatChange($event, group)">
-                                        </app-dropdowns>
-                                    </td>
-                                    <!-- (selectionChange)="onVatChange($event, group)" -->
-                                    <td>{{ group.retail_making_charge }}</td>
-                                    <td>{{ group.discount }}</td>
-                                    <td>{{ group.max_discount }}</td>
-                                    <td>{{ group?.amount }}</td>
-                                    <td>
-                                        <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'"
-                                            [model]="menuItem" dropdownIcon="pi pi-cog" appendTo="body">
-                                        </p-splitbutton>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="d-flex justify-content-end w-100">
-                            <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
-                                Total: 
-                                {{ totalPrice | number:'1.3-3'}} 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            }@else {
-
-            <div class="container h-100  d-flex justify-content-center align-items-center">
-                <h6 class="text-danger">You Need To select customer & Currency first</h6>
-            </div> }
+  <div class="row">
+    <div class="col-md-12">
+      <div class="d-flex justify-content-between sales">
+        <div class="w-100">
+          <form [formGroup]="productForm">
+            <app-dropdowns [disabled]="!selectedCurrency" label="Products" formControlName="product_id"
+              [options]="products" [showClear]="true" optionLabel="name" optionValue="id"
+              placeholder="Select a product"></app-dropdowns>
+          </form>
         </div>
+        <div>
+          <label class="opacity-0">btn </label>
+          <p-button [routerLink]="['/inventory/product/add']" size="small" class="add-btn white-icon-btn"
+            [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
+          <ng-template #tooltipContent>
+            <button [disabled]="selectedCurrency && isShiftActive" class="flex items-center">
+              Add Product
+            </button>
+          </ng-template>
+        </div>
+      </div>
+      @if(selectedCurrency && isShiftActive){
+      <div class="table">
+        <div class="mt-5">
+          <div class="container-fluid">
+            <table class="table-class"> <!-- Add any classes or Tailwind classes as needed -->
+              <thead>
+                <tr>
+                  <th>Tag No</th>
+                  <th>Weight</th>
+                  <th>Item Size</th>
+                  <th>Purity</th>
+                  <th>Description</th>
+                  <th>Stone (1)</th>
+                  <th>Stone (2)</th>
+                  <th>Stone (3)</th>
+                  <th>Vat</th>
+                  <th>Making Charge</th>
+                  <th>Discount</th>
+                  <th>Max Discount</th>
+                  <th>Price</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let group of diamondDataOrders; let i = index">
+                  <td>{{ group.tag_number }}</td>
+                  <td>{{ group.weight }}</td>
+                  <td>{{ group.size }}</td>
+                  <td>{{ group.purity }}</td>
+                  <td>{{ group.description }}</td>
+                  <td>{{ group.stones[0]?.retail_value }}</td>
+                  <td>{{ group.stones[1]?.retail_value }}</td>
+                  <td>{{ group.stones[2]?.retail_value }}</td>
+                  <td>
+                    <app-dropdowns [options]="taxes" optionLabel="rate" optionValue="id" placeholder="Select Vat"
+                      [(ngModel)]="selectedVatId" (selectionChange)="onVatChange($event, group)">
+                    </app-dropdowns>
+                  </td>
+                  <!-- (selectionChange)="onVatChange($event, group)" -->
+                  <td>{{ group.retail_making_charge }}</td>
+                  <td>{{ group.discount }}</td>
+                  <td>{{ group.max_discount }}</td>
+                  <td>{{ group?.amount }}</td>
+                  <td>
+                    <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'" [model]="menuItem"
+                      dropdownIcon="pi pi-cog" appendTo="body">
+                    </p-splitbutton>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="d-flex justify-content-end w-100">
+              <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
+                Total:
+                {{ totalPrice | number:'1.3-3'}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      }@else {
+
+      <div class="container h-100  d-flex justify-content-center align-items-center">
+        <h6 class="text-danger">You Need To select customer & Currency first</h6>
+      </div> }
     </div>
+  </div>
 </div>

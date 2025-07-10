@@ -145,19 +145,16 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         this.salesDataOrders = res;
-
         this.salesDataOrders = this.salesDataOrders.map((order: any) => {
-
           // if the default manual gold price value, calculate it based on purity, otherwise it's already calculated before
           if ((+order.gold_price)?.toFixed(2) === (+this.manualGoldPrice)?.toFixed(2)) {
             order.gold_price = this.calculateOrderGoldPriceBasedOnPurity(order);
             this.onGoldPriceChange(order)
           }
-
           return order;
-        })
+        });
 
-        if (this.salesDataOrders.length == 0) {
+        if (this.salesDataOrders.length === 0) {
           this._posSharedService.setTotalPrice(0)
           this._posSharedService.setVat(0)
           this._posSharedService.setGrandTotalWithVat(0)
@@ -250,8 +247,8 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     this.calcGrandTotalWithVat();
 
-    const metalValue = this.calcMetalValueAccordingToPurity(order)
-    const totalValue = this.calcTotalPrice(order)
+    const metalValue = this.calcMetalValueAccordingToPurity(order);
+    const totalValue = this.calcTotalPrice(order);
     const vatAmount = this.calculateVat(totalValue, order.selectedVatId ?? this.selectedVatId);
 
     const updatedPrices = {

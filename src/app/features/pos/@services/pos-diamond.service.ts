@@ -7,11 +7,11 @@ import { SingletonService } from '../../../core/services/singleton.service';
   providedIn: 'root'
 })
 export class PosDiamondService {
-  constructor(private _http: SingletonService) { 
+  constructor(private _http: SingletonService) {
     this.fetchDiamondOrders()
   }
-    private diamondOrdersSubject = new BehaviorSubject<any[]>([]);
-  returnOrders$ = this.diamondOrdersSubject.asObservable();
+  private diamondOrdersSubject = new BehaviorSubject<any[]>([]);
+  diamondOrders$ = this.diamondOrdersSubject.asObservable();
 
   getTableDiamondOrder(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/order-product-receipt/diamond/`);
@@ -21,7 +21,7 @@ export class PosDiamondService {
   getSilverProducts(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/product-diamond/`);
   }
-  
+
   fetchDiamondOrders(): void {
     this._http.getRequest(`${environment.api_url}pos/order-product-receipt/diamond/`).subscribe({
       next: (res: any) => {
@@ -32,7 +32,8 @@ export class PosDiamondService {
       }
     });
   }
-  addProductDiamond(form:any): Observable<any>{
+
+  addProductDiamond(form: any): Observable<any> {
     return this._http.postRequest(`${environment.api_url}pos/order-product/diamond/`, form);
   }
   // Optional getter for direct access

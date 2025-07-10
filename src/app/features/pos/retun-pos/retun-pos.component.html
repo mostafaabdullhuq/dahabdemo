@@ -1,62 +1,62 @@
 <div class="container">
-    <div class="row">
-        <div>
-            <form [formGroup]="productForm" class=" sales">
-                <div class="row">
-                    <div class="col-md-6">
-                        <app-dropdowns label="Receipts" formControlName="reciept_id" [options]="receipts"
-                            optionLabel="id" optionValue="id" placeholder="Select a Receipt"></app-dropdowns>
-                    </div>
-                    <div class="col-md-6">
-                        <app-dropdowns label="Products" formControlName="product_id" [options]="products"
-                            optionLabel="name" optionValue="id" placeholder="Select a product"></app-dropdowns>
-                    </div>
-                </div>
-            </form>
-            @if(selectedCurrency && isShiftActive){
-            <div class="table">
-                <div class="mt-5">
-                    <div class="container">
-                        <app-input-table [data]="returnDataOrders">
-                            <ng-template #headerTemplate>
-                                <th>Tag No</th>
-                                <th>Weight</th>
-                                <th>Item Size</th>
-                                <th>Description</th>
-                                <th>Making Charge</th>
-                                <th>Discount</th>
-                                <td>Price</td>
-                                <th>Actions</th>
-                            </ng-template>
-
-                            <ng-template #bodyTemplate let-group let-i="index">
-                                <td>{{ group.tag_number }}</td>
-                                <td>{{ group.weight }}</td>
-                                <td>{{ group.size }}</td>
-                                <td>{{ group.description }}</td>
-
-                                <td>{{ group.retail_making_charge }}</td>
-                                <td>{{ group.discount }}</td>
-                                <td>{{group.amount}}</td>
-                                <td>
-                                    <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'"
-                                        [model]="menuItem" dropdownIcon="pi pi-cog" appendTo="body">
-                                    </p-splitbutton>
-                                </td>
-                            </ng-template>
-                        </app-input-table>
-                        <div class="d-flex justify-content-end w-100">
-                            <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
-                                Total: {{ totalPrice | number:'1.3-3'}} </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            }@else {
-
-            <div class="container h-100  d-flex justify-content-center align-items-center">
-                <h6 class="text-danger">You Need To select customer & Currency first</h6>
-            </div> }
+  <div class="row">
+    <div>
+      <form [formGroup]="productForm" class=" sales">
+        <div class="row">
+          <div class="col-md-6">
+            <app-dropdowns label="Receipts" formControlName="reciept_id" [options]="receipts" [showClear]="true"
+              optionLabel="id" optionValue="id" placeholder="Select a Receipt"></app-dropdowns>
+          </div>
+          <div class="col-md-6">
+            <app-dropdowns label="Products" formControlName="product_id" [options]="products" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a product"></app-dropdowns>
+          </div>
         </div>
+      </form>
+      @if(selectedCurrency && isShiftActive){
+      <div class="table">
+        <div class="mt-5">
+          <div class="container">
+            <app-input-table [data]="returnDataOrders">
+              <ng-template #headerTemplate>
+                <th>Tag No</th>
+                <th>Weight</th>
+                <th>Item Size</th>
+                <th>Description</th>
+                <th>Making Charge</th>
+                <th>Discount</th>
+                <td>Price</td>
+                <th>Actions</th>
+              </ng-template>
+
+              <ng-template #bodyTemplate let-group let-i="index">
+                <td>{{ group.tag_number }}</td>
+                <td>{{ group.weight }}</td>
+                <td>{{ group.size }}</td>
+                <td>{{ group.description }}</td>
+
+                <td>{{ group.retail_making_charge }}</td>
+                <td>{{ group.discount }}</td>
+                <td>{{group.amount}}</td>
+                <td>
+                  <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'" [model]="menuItem"
+                    dropdownIcon="pi pi-cog" appendTo="body">
+                  </p-splitbutton>
+                </td>
+              </ng-template>
+            </app-input-table>
+            <div class="d-flex justify-content-end w-100">
+              <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
+                Total: {{ totalPrice | number:'1.3-3'}} </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      }@else {
+
+      <div class="container h-100  d-flex justify-content-center align-items-center">
+        <h6 class="text-danger">You Need To select customer & Currency first</h6>
+      </div> }
     </div>
+  </div>
 </div>

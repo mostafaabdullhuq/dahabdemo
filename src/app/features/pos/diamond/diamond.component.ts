@@ -19,7 +19,7 @@ import { Currency, Tax } from '../interfaces/pos.interfaces';
 export class DiamondComponent implements OnInit, OnDestroy {
   products: any = [];
   productForm!: FormGroup;
-  silverDataOrders: any = [];
+  diamondDataOrders: any = [];
   cols: any = [];
   selectedVat: any = ''
   taxes: Tax[] = [];
@@ -50,7 +50,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
       this.selectedVatId = this.taxes[0].id; // Set first VAT as default
     });
 
-    this.getSalesOrder()
+    this.getDiamondOrder()
 
     this._posStatusService.shiftData$
       .pipe(takeUntil(this.destroy$))
@@ -131,10 +131,21 @@ export class DiamondComponent implements OnInit, OnDestroy {
     });
   }
 
-  getSalesOrder() {
-    this._posDiamondService.returnOrders$
+  getDiamondOrder() {
+    this._posDiamondService.diamondOrders$
       .subscribe((res: any) => {
-        this.silverDataOrders = res;
+        this.diamondDataOrders = res;
+
+
+        if (this.diamondDataOrders.length === 0) {
+          this._posSharedService.setTotalPrice(0)
+          this._posSharedService.setVat(0)
+          this._posSharedService.setGrandTotalWithVat(0)
+          this._posSharedService.setDiamondTax(0)
+          this._posSharedService.setDiamondTotalGrand(0)
+          this._posSharedService.setDiamondTotalPrice(0)
+        }
+
       });
 
     // initial load
@@ -155,7 +166,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
   }
 
   get totalPrice(): number {
-    const total = this.silverDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (+group.amount || 0), 0) || 0;
+    const total = this.diamondDataOrders?.reduce((sum: any, group: { amount: any; }) => sum + (+group.amount || 0), 0) || 0;
     this._posSharedService.setDiamondTotalPrice(+total)
     this._posSharedService.setDiamondTotalGrand(+total)
     return total
@@ -209,6 +220,11 @@ export class DiamondComponent implements OnInit, OnDestroy {
     // Recalculate grand total with VAT
     this.calcGrandTotalWithVat();
 
+    const totalPrice = this.calcTotalPrice(group);
+
+    const vatAmount = this.calculateVat(totalPrice, group.selectedVatId ?? this.selectedVatId);
+
+
     // Track if it's the first or second+ selection
     if (!group._vatSelectedOnce) {
       group._vatSelectedOnce = true; // first time, don't send
@@ -216,11 +232,19 @@ export class DiamondComponent implements OnInit, OnDestroy {
       // second time or more, send to backend
       const pId = group?.id;
       const form = this._formBuilder.group({
-        vat_amount: [vatRate]
+        vat_amount: [vatAmount]
       });
       this._posService.setDiscountProductSale(pId, form.value).subscribe();
     }
   }
+
+
+  calculateVat(totalPrice: number, selectedVatId: number) {
+    const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === selectedVatId);
+    const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
+    return +((vatRate / 100) * totalPrice).toFixed(3);
+  }
+
 
   calcTotalPriceWithVat(group: any): number {
     this.priceOfProductToPatch = 0
@@ -228,13 +252,14 @@ export class DiamondComponent implements OnInit, OnDestroy {
     const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat);
     const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
     const vatAmount = (vatRate / 100) * baseTotal;
-    const totalVat = this.silverDataOrders.reduce((acc: number, group: any) => {
+    const totalVat = this.diamondDataOrders.reduce((acc: number, group: any) => {
       const baseTotal = this.calcTotalPrice(group); // your existing method
       const selectedTax = this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat);
       const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
       const vatAmount = (vatRate / 100) * baseTotal;
       return acc + vatAmount;
     }, 0);
+
     // Update shared VAT immediately
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     this._posSharedService.setDiamondTax(+totalVat.toFixed(decimalPlaces));
@@ -244,9 +269,9 @@ export class DiamondComponent implements OnInit, OnDestroy {
   }
 
   calcGrandTotalWithVat(): number {
-    if (!this.silverDataOrders || this.silverDataOrders.length === 0) return 0;
+    if (!this.diamondDataOrders || this.diamondDataOrders.length === 0) return 0;
 
-    const total = this.silverDataOrders.reduce((sum: number, group: any) => {
+    const total = this.diamondDataOrders.reduce((sum: number, group: any) => {
       return sum + this.calcTotalPriceWithVat(group);
     }, 0);
 
@@ -275,11 +300,12 @@ export class DiamondComponent implements OnInit, OnDestroy {
 
       const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
       const totalPrice = this.calcTotalPrice(tempGroup);
+      const vatAmount = this.calculateVat(totalPrice, tempGroup.selectedVat ?? this.selectedVatId);
 
       const payload = {
         product: selectedProduct.id,
         amount: totalPrice,
-        vat_amount: branchTaxNo,
+        vat_amount: vatAmount,
       };
 
       this._posDiamondService.addProductDiamond(payload).subscribe({
@@ -290,7 +316,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
           console.error('Error posting product', err);
         },
         complete: () => {
-          this.getSalesOrder()
+          this.getDiamondOrder()
           this.getProductList()
         }
       });

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -14,7 +14,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     }
   ]
 })
-export class DropdownsComponent implements ControlValueAccessor {
+export class DropdownsComponent implements ControlValueAccessor, OnChanges {
   @Input() options: any[] = [];
   @Input() id: string = `input-${Math.random().toString(36).substring(2, 15)}`; // unique id
   @Input() optionLabel: string = '';
@@ -29,17 +29,29 @@ export class DropdownsComponent implements ControlValueAccessor {
   @Output() valueChange = new EventEmitter<any>();
   @Input() value: any;
   @Output() valueCleared = new EventEmitter<void>();
+  @Input() filterByFields: string[] = [];
 
   selectedValue: any = '';
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.filterByFields?.length && changes['optionLabel']?.currentValue) {
+
+      if (!this.filterByFields) {
+        this.filterByFields = [];
+      }
+
+      this.filterByFields.push(changes['optionLabel']?.currentValue)
+    }
+  }
+
   // ControlValueAccessor hooks
   onChange: (value: any) => void = () => { };
+
   onTouched: () => void = () => { };
 
   // Called when value is written from outside (form model or programmatically)
   writeValue(value: any): void {
     this.selectedValue = value;
-
     // Emit changes to notify parent
     this.onChange(this.selectedValue);
     this.selectionChange.emit(this.selectedValue);
@@ -56,7 +68,6 @@ export class DropdownsComponent implements ControlValueAccessor {
   // User changes selection
   onSelectionChange(event: any): void {
     this.selectedValue = event.value; // PrimeNG passes `{originalEvent, value}`
-
     this.onChange(this.selectedValue);
     this.selectionChange.emit(this.selectedValue);
     this.valueChange.emit(this.selectedValue); // Optional if two-way binding is needed

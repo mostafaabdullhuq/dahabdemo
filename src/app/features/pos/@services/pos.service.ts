@@ -32,6 +32,10 @@ export class PosService {
     return this._http.deleteRequest(`${environment.api_url}pos/order-product/${id}/`);
   }
 
+  deleteReturnProductPos(id: number, sold_product_id: number): Observable<any> {
+    return this._http.deleteRequest(`${environment.api_url}pos/order-product/${id}/?orderproduct_id=${sold_product_id}`);
+  }
+
   setDiscountProductSale(id: any, form: any): Observable<any> {
     return this._http.patchRequest(`${environment.api_url}pos/order-product-update/${id}/`, form);
   }

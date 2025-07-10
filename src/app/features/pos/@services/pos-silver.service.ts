@@ -7,11 +7,11 @@ import { environment } from '../../../../environments/environment.development';
   providedIn: 'root'
 })
 export class PosSilverService {
-  constructor(private _http: SingletonService) { 
+  constructor(private _http: SingletonService) {
     this.fetchSilverOrders()
   }
-    private silverOrdersSubject = new BehaviorSubject<any[]>([]);
-  returnOrders$ = this.silverOrdersSubject.asObservable();
+  private silverOrdersSubject = new BehaviorSubject<any[]>([]);
+  silverOrders$ = this.silverOrdersSubject.asObservable();
 
   getTableSilverOrder(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/order-product-receipt/silver/`);
@@ -21,7 +21,7 @@ export class PosSilverService {
   getSilverProducts(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/product-silver/`);
   }
-  
+
   fetchSilverOrders(): void {
     this._http.getRequest(`${environment.api_url}pos/order-product-receipt/silver/`).subscribe({
       next: (res: any) => {
@@ -32,7 +32,7 @@ export class PosSilverService {
       }
     });
   }
-  addProductSilver(form:any): Observable<any>{
+  addProductSilver(form: any): Observable<any> {
     return this._http.postRequest(`${environment.api_url}pos/order-product/silver/`, form);
   }
   // Optional getter for direct access
