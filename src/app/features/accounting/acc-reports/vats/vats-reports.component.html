@@ -1,0 +1,27 @@
+<div class="container-fluid">
+  <div class="row">
+    <p-tabs class="col-md-12" value="0">
+      <p-tablist>
+        <p-tab value="0">Vat Data</p-tab>
+        <p-tab value="1">Vat Return</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <div class="row">
+            <div class="col-md-12">
+              <app-vat-data-report></app-vat-data-report>
+            </div>
+          </div>
+        </p-tabpanel>
+        <p-tabpanel value="1">
+          <div class="row">
+            <div class="col-md-12">
+              <app-vat-return-report></app-vat-return-report>
+            </div>
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</div>

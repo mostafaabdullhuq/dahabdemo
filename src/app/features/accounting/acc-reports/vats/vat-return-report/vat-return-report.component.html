@@ -1,0 +1,113 @@
+<p-confirmdialog />
+<ng-container #container></ng-container>
+
+<section>
+  <div class="header-container mb-3">
+    <div class="header-btns">
+      <p-splitButton label="Export" icon="pi pi-file-export" [model]="exportItems"></p-splitButton>
+      <button class="add-btn text-center px-4 py-2" (click)="printReport()">
+        <i class="pi pi-print pr-2"></i>Print
+      </button>
+    </div>
+  </div>
+
+  <div class="filter-container container mb-4">
+    <app-filter-collapse>
+      <form class="container" [formGroup]="filterForm">
+        <div *ngIf="filterForm.errors?.['dateRangeInvalid'] && filterForm.touched" class="alert alert-danger mt-2">
+          <i class="pi pi-exclamation-triangle mr-2"></i> From Date cannot be later than To Date.
+        </div>
+        <div class="row">
+          <div class="col-md-8">
+            <app-input-text formControlName="search" placeholder="Global Search" type="text"
+              inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label=" Branch" id="Branch" formControlName="branch" [options]="branches" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a Branch"></app-dropdowns>
+          </div>
+          <div class="col-md-6">
+            <app-input-text formControlName="created_from" placeholder="YYYY-MM-DD" type="date"
+              inputName="From Date"></app-input-text>
+            <div *ngIf="filterForm.get('created_from')?.invalid && filterForm.get('created_from')?.touched"
+              class="text-danger small mt-1">From Date is required</div>
+          </div>
+          <div class="col-md-6">
+            <app-input-text formControlName="created_to" placeholder="YYYY-MM-DD" type="date"
+              inputName="To Date"></app-input-text>
+            <div *ngIf="filterForm.get('created_to')?.invalid && filterForm.get('created_to')?.touched"
+              class="text-danger small mt-1">To Date is required</div>
+          </div>
+        </div>
+        <div class="btns-group">
+          <button class="btn submit-btn" [disabled]="filterForm.invalid" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </app-filter-collapse>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered vat-return-table">
+      <thead>
+        <tr class="vat-header-row">
+          <th>Category</th>
+          <th>Description</th>
+          <th>Amount {{ currency }}</th>
+          <th>Vat Amount {{ currency }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of tableRows; let i = index">
+          <td *ngIf="row.category" [attr.rowspan]="row.rowspan" class="vat-category-cell text-center">
+            <span>{{ row.category }}</span>
+          </td>
+          <td [ngClass]="{'vat-subtotal-row': row.isSubtotal}">{{ row.description }}</td>
+          <td [ngClass]="{'vat-subtotal-row': row.isSubtotal}">{{ getAmount(row) }}</td>
+          <td [ngClass]="{'vat-subtotal-row': row.isSubtotal}">{{ getVatAmount(row) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .vat-return-table th,
+  .vat-return-table td {
+    vertical-align: middle;
+    text-align: left;
+  }
+
+  .vat-header-row th {
+    background: #2c6eaa !important;
+    color: #fff !important;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+
+  .vat-category-cell {
+    background: #2c6eaa;
+    color: white;
+    font-weight: bold;
+    text-align: left;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .vat-category-cell span {
+    display: block;
+    text-align: center;
+    font-size: 1.1em;
+    transform: rotate(270deg) !important;
+    transform-origin: center center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .vat-subtotal-row {
+    background: #2c6eaa !important;
+    color: white;
+    font-weight: bold;
+  }
+</style>
