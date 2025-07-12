@@ -96,7 +96,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
         label: 'Set Discount',
         icon: 'pi pi-percentage',
         command: () => {
-          this.setDiscount(this.selectedRowData?.id);
+          this.setDiscount();
         }
       },
       {
@@ -114,12 +114,12 @@ export class DiamondComponent implements OnInit, OnDestroy {
   componentRef!: ComponentRef<SetDiscountComponent>;
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
-  setDiscount(id: any) {
+  setDiscount() {
     this.container.clear();
     this.componentRef = this.container.createComponent(SetDiscountComponent);
-    this.componentRef.instance.selectedRowId = id;
+    this.componentRef.instance.selectedRow = this.selectedRowData;
     this.componentRef.instance.visible = true;
-
+    this.componentRef.instance.parentTab = "diamond"
   }
 
   onRowClick(rowData: any): void {
@@ -140,6 +140,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
           this._posSharedService.setDiamondTax(0);
           this._posSharedService.setDiamondTotalGrand(0);
           this._posSharedService.setDiamondTotalPrice(0);
+          this._posSharedService.setDiscountAmount(0);
         }
       });
 

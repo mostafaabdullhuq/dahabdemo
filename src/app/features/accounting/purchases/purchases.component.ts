@@ -124,18 +124,10 @@ export class PurchasesComponent implements OnInit {
         `;
     }
 
-
-    console.log("form: ", this.filterForm);
-    console.log("form values: ", this.filterForm?.value);
-    console.log("params: ", params);
-
-
     // Correct pagination parameters and make API call
     this._accService.getPurchases(params, page, pageSize).subscribe(res => {
       this.transactions = res?.results;
       this.totalRecords = res?.count;  // Ensure the total count is updated
-      console.log("search response: ", res);
-
     });
   }
   loadPurchases(event: any): void {

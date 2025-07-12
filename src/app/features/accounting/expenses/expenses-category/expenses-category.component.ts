@@ -9,7 +9,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 
 @Component({
   selector: 'app-expenses-category',
-  imports: [SharedModule,RouterLink],
+  imports: [SharedModule, RouterLink],
   templateUrl: './expenses-category.component.html',
   styleUrl: './expenses-category.component.scss'
 })
@@ -18,29 +18,29 @@ export class ExpensesCategoryComponent {
   suppliers: any[] = [];
   branches: any[] = [];
   status: any[] = [
-     {
-    id: "", name:'All'
-  },
-  {
-    id: "pending", name:'pending'
-  },
-  {
-    id: "approved", name:'approved'
-  },
-  {
-    id: "shipped", name:'delivered'
-  },
-  {
-    id: "delivered", name:'delivered'
-  },
-  {
-    id: "cancelled", name:'cancelled'
-  }
+    {
+      id: "", name: 'All'
+    },
+    {
+      id: "pending", name: 'pending'
+    },
+    {
+      id: "approved", name: 'approved'
+    },
+    {
+      id: "shipped", name: 'delivered'
+    },
+    {
+      id: "delivered", name: 'delivered'
+    },
+    {
+      id: "cancelled", name: 'cancelled'
+    }
   ];
-  type:any[] = [
-    {id:'' , name:'All'},
-    {id:'fixed' , name:'fixed'},
-    {id:'unfixed' , name:'unfixed'},
+  type: any[] = [
+    { id: '', name: 'All' },
+    { id: 'fixed', name: 'fixed' },
+    { id: 'unfixed', name: 'unfixed' },
   ]
   cols: any[] = [];
   filterForm!: FormGroup;
@@ -53,7 +53,7 @@ export class ExpensesCategoryComponent {
     private _formBuilder: FormBuilder,
     private _router: Router,
     private _confirmPopUp: ConfirmationPopUpService,
-    private _dropdown:DropdownsService
+    private _dropdown: DropdownsService
   ) { }
 
   ngOnInit(): void {
@@ -63,19 +63,19 @@ export class ExpensesCategoryComponent {
     ];
     this.filterForm = this._formBuilder.group({
       search: '',
-      transaction_type:'',
-      branch:'',
-      payments__payment_method__id:'',
-      supplier:'',
-      type:'',
-      order_date:'',
-      status:''
+      transaction_type: '',
+      branch: '',
+      payments__payment_method__id: '',
+      supplier: '',
+      type: '',
+      order_date: '',
+      status: ''
     });
     this.getExpenseCategories();
-    this._dropdown.getBranches().subscribe(res=>{
+    this._dropdown.getBranches().subscribe(res => {
       this.branches = res?.results
     })
-    this._dropdown.getSuppliers().subscribe(res=>{
+    this._dropdown.getSuppliers().subscribe(res => {
       this.suppliers = res?.results
     })
   }
@@ -92,8 +92,8 @@ export class ExpensesCategoryComponent {
     `
     // Correct pagination parameters and make API call
     this._accService.getExpenseCategories(this.filterForm?.value?.search || '', page, pageSize).subscribe(res => {
-      this.expenses = res?.results;
-      this.totalRecords = res?.count;  // Ensure the total count is updated
+      this.expenses = res;
+      this.totalRecords = res.length;  // Ensure the total count is updated
     });
   }
   loadPurchases(event: any): void {

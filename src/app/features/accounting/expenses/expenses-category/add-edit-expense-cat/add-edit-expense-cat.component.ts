@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { AccService } from '../../../@services/acc.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-edit-expense-cat',
@@ -23,7 +23,8 @@ export class AddEditExpenseCatComponent {
   constructor(
     private _accService: AccService,
     private _formBuilder: FormBuilder,
-    private _activeRoute: ActivatedRoute
+    private _activeRoute: ActivatedRoute,
+    private _router: Router
   ) { }
 
   ngOnInit(): void {
@@ -69,7 +70,9 @@ export class AddEditExpenseCatComponent {
       });
     } else {
       this._accService.addExpenseCategory(formData).subscribe({
-        next: res => console.log('User created successfully', res),
+        next: res => {
+          this._router.navigate(["/acc/expenses-cat"])
+        },
         error: err => console.error('Error creating user', err)
       });
     }

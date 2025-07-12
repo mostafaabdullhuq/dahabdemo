@@ -96,7 +96,7 @@ export class SilverComponent implements OnInit, OnDestroy {
         label: 'Set Discount',
         icon: 'pi pi-percentage',
         command: () => {
-          this.setDiscount(this.selectedRowData?.id);
+          this.setDiscount();
         }
       },
       {
@@ -118,12 +118,14 @@ export class SilverComponent implements OnInit, OnDestroy {
   componentRef!: ComponentRef<SetDiscountComponent>;
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
-  setDiscount(id: any) {
+  setDiscount() {
     this.container.clear();
     this.componentRef = this.container.createComponent(SetDiscountComponent);
-    this.componentRef.instance.selectedRowId = id;
+    this.componentRef.instance.selectedRow = this.selectedRowData;
     this.componentRef.instance.visible = true;
+    this.componentRef.instance.parentTab = "silver"
   }
+
   onRowClick(rowData: any): void {
     this.selectedRowData = rowData;
   }
@@ -134,9 +136,10 @@ export class SilverComponent implements OnInit, OnDestroy {
         this.silverDataOrders = res;
 
         if (this.silverDataOrders.length === 0) {
-          this._posSharedService.setSilverTax(0)
-          this._posSharedService.setSilverTotalGrand(0)
-          this._posSharedService.setSilverTotalPrice(0)
+          this._posSharedService.setSilverTax(0);
+          this._posSharedService.setSilverTotalGrand(0);
+          this._posSharedService.setSilverTotalPrice(0);
+          this._posSharedService.setDiscountAmount(0);
         }
       });
 

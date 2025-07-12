@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AccService } from '../../@services/acc.service';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { ActivatedRoute } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -39,38 +39,51 @@ export class AddEditExpensesComponent {
 
   ngOnInit(): void {
     const productId = this._activeRoute.snapshot.paramMap.get('id');
-    if (productId)
-      this.productId = productId;
+    if (productId) this.productId = productId;
+
     this.initForm();
+
     if (this.productId) {
       this.loadExpenseData(this.productId);
       this.isEditMode = true
     }
 
+    this.getLookupData();
+  }
+
+  private getLookupData() {
     this._dropdownService.getBrands().subscribe(data => {
       this.brands = data?.results;
     });
+
     this._accService.getExpenseCategories().subscribe(data => {
-      this.expensesCat = data?.results;
-    })
+      this.expensesCat = data;
+    });
+
     this._dropdownService.getPurities().subscribe(data => {
       this.purities = data?.results;
     });
+
     this._dropdownService.getBranches().subscribe(data => {
       this.branches = data?.results;
     });
+
     this._dropdownService.getSizes().subscribe(data => {
       this.sizes = data?.results;
     });
+
     this._dropdownService.getStones().subscribe(data => {
       this.stones = data?.results;
     });
+
     this._dropdownService.getDesigners().subscribe(data => {
       this.designers = data?.results;
     });
+
     this._dropdownService.getUnits().subscribe(data => {
       this.units = data?.results;
     });
+
     this._dropdownService.getStockPoints().subscribe(data => {
       this.stockPoints = data?.results;
     });

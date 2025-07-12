@@ -107,7 +107,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         label: 'Set Discount',
         icon: 'pi pi-percentage',
         command: () => {
-          this.setDiscount(this.selectedRowData?.id);
+          this.setDiscount();
         }
       },
       {
@@ -129,11 +129,14 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     });
   }
 
-  setDiscount(id: any) {
+  setDiscount() {
+    if (!this.selectedRowData?.id || !this.selectedRowData?.amount) return;
+
     this.container.clear();
     this.componentRef = this.container.createComponent(SetDiscountComponent);
-    this.componentRef.instance.selectedRowId = id;
+    this.componentRef.instance.selectedRow = this.selectedRowData;
     this.componentRef.instance.visible = true;
+    this.componentRef.instance.parentTab = "sales"
   }
 
   onRowClick(rowData: any): void {
@@ -155,9 +158,10 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         });
 
         if (this.salesDataOrders.length === 0) {
-          this._posSharedService.setSalesTax(0)
-          this._posSharedService.setSalesTotalGrand(0)
-          this._posSharedService.setSalesTotalPrice(0)
+          this._posSharedService.setSalesTax(0);
+          this._posSharedService.setSalesTotalGrand(0);
+          this._posSharedService.setSalesTotalPrice(0);
+          this._posSharedService.setDiscountAmount(0);
         }
         this.productForm.get('product_id')?.patchValue(null)
       });

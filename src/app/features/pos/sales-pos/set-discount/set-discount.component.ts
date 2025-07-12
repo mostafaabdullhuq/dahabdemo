@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { PosStatusService } from '../../@services/pos-status.service';
 import { PosService } from '../../@services/pos.service';
 import { PosSalesService } from '../../@services/pos-sales.service';
 import { PosDiamondService } from '../../@services/pos-diamond.service';
@@ -17,7 +16,9 @@ export class SetDiscountComponent implements OnInit {
   visible: boolean = false;
   discForm!: FormGroup;
   branches: any = [];
-  selectedRowId: any = 0;
+  selectedRow: any = 0;
+  parentTab: "sales" | "diamond" | "silver" = "sales";
+
   constructor(
     private _posService: PosService,
     private _posSaleService: PosSalesService,
@@ -28,7 +29,8 @@ export class SetDiscountComponent implements OnInit {
 
   ngOnInit(): void {
     this.discForm = this._formBuilder.group({
-      discount: ['', Validators.required],
+      discount: [(this.selectedRow.discount) || "", Validators.required],
+      amount: [this.selectedRow.amount, Validators.required]
     });
   }
   showDialog() {
@@ -36,13 +38,57 @@ export class SetDiscountComponent implements OnInit {
   }
 
   submitForm(form: FormGroup) {
-    this._posService.setDiscountProductSale(this.selectedRowId, form.value).subscribe(res => {
+
+    console.log("product to be submitted: ", this.selectedRow);
+
+
+    console.log("amount before discount: ", this.discForm.get("amount")?.value);
+
+    this.discForm.get("amount")?.setValue(this.calculateAmountAfterDiscount());
+
+    console.log("amount after discount: ", this.discForm.get("amount")?.value);
+
+    this._posService.setDiscountProductSale(this.selectedRow.id, form.value).subscribe(res => {
       this.visible = false;
       if (res) {
-        this._posSaleService.getSalesOrdersFromServer();
-        this._posDiamondService.fetchDiamondOrders();
-        this._posSilverService.fetchSilverOrders();
+        if (this.parentTab === "sales") {
+          this._posSaleService.getSalesOrdersFromServer();
+        }
+
+        if (this.parentTab === "diamond") {
+          this._posDiamondService.fetchDiamondOrders();
+        }
+
+        if (this.parentTab === "silver") {
+          this._posSilverService.fetchSilverOrders();
+        }
       }
     })
+  }
+
+  calculateAmountAfterDiscount() {
+    const discountValue = +(this.discForm.get("discount")?.value || 0);
+    const oldAmount = +(this.discForm.get("amount")?.value || 0);
+    let discountSourceValue = 0;
+
+    switch (this.parentTab) {
+      case "sales":
+        discountSourceValue = +this.selectedRow.retail_making_charge;
+        break;
+      case "diamond":
+        discountSourceValue = +this.selectedRow.price;
+        break;
+      case "silver":
+        discountSourceValue = +this.selectedRow.price;
+        break;
+      default:
+        discountSourceValue = 0;
+        0;
+    }
+
+    console.log("discount source value: ", discountSourceValue);
+
+
+    return (oldAmount - (discountSourceValue * (discountValue / 100))).toFixed(3);
   }
 }
