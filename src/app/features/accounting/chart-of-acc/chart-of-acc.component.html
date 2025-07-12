@@ -24,7 +24,8 @@
         {{ node.label }}
       </span>
       <span class="d-flex justify-content-around align-items-center mx-3">
-        <button [routerLink]="['/acc/ledger-view', node.key]" class="btn"><i class="pi pi-eye text-success"></i></button>
+        <button [routerLink]="['/acc/ledger-view', node.key]" class="btn"><i
+            class="pi pi-eye text-success"></i></button>
         <button (click)="addAcc(node.key)" class="btn"><i class="pi pi-file-edit text-warning"></i></button>
       </span>
     </div>

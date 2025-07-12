@@ -80,6 +80,7 @@ import { StockReportsComponent } from '../accounting/acc-reports/stocks/stock-re
 import { LiabilitiesReportsComponent } from '../accounting/acc-reports/liabilities/liabilities-reports.component';
 import { AssetsReportsComponent } from '../accounting/acc-reports/assets/assets-reports.component';
 import { VatsReportsComponent } from '../accounting/acc-reports/vats/vats-reports.component';
+import { BalanceSheetReportsComponent } from '../accounting/acc-reports/balance-sheets/balance-sheet-reports.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -209,6 +210,7 @@ export const routes: Routes = [
           { path: 'liabilities', component: LiabilitiesReportsComponent },
           { path: 'assets', component: AssetsReportsComponent },
           { path: 'vats', component: VatsReportsComponent },
+          { path: 'balance-sheet', component: BalanceSheetReportsComponent },
 
         ]
       },

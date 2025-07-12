@@ -19,6 +19,7 @@ export class DataTableComponent implements OnInit {
   @Input() contextMenuItems: MenuItem[] = [];
   @Input() paginator: boolean = true
   @Input() emptyMessage: string = "No Data Found."
+  @Input() tableStyle: any = { 'width': '100%', 'max-height': '10rem', 'min-height': '10rem' }
   selectedRow: any;
   @Output() rowSelected = new EventEmitter<any>();
 

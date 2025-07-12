@@ -1,0 +1,80 @@
+// Balance sheet report component styles
+
+// Hierarchical table styles
+::ng-deep .balance-sheet-table {
+  .p-datatable-tbody tr td:first-child {
+    font-family: "Courier New", monospace;
+    white-space: pre;
+  }
+
+  // Parent rows (categories with children)
+  .p-datatable-tbody tr.parent-row {
+    background-color: #f8f9fa;
+    font-weight: 600;
+
+    td {
+      border-bottom: 2px solid #dee2e6;
+    }
+  }
+
+  // Leaf rows (actual amounts)
+  .p-datatable-tbody tr.leaf-row {
+    td:last-child {
+      font-family: "Courier New", monospace;
+      text-align: right;
+      font-weight: 500;
+    }
+  }
+}
+
+// Indentation for hierarchical display
+.hierarchy-level-0 {
+  font-weight: bold;
+  color: #2c3e50;
+  background-color: #ecf0f1 !important;
+}
+
+.hierarchy-level-1 {
+  font-weight: 600;
+  color: #34495e;
+  background-color: #f8f9fa !important;
+}
+
+.hierarchy-level-2 {
+  color: #5a6c7d;
+}
+
+.hierarchy-level-3 {
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+// Amount formatting
+.amount-cell {
+  font-family: "Courier New", monospace;
+  text-align: right;
+  font-weight: 500;
+}
+
+.amount-parent {
+  color: #95a5a6;
+  font-style: italic;
+}
+
+.amount-value {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  ::ng-deep .balance-sheet-table {
+    .p-datatable-tbody tr td:first-child {
+      font-size: 12px;
+    }
+
+    .p-datatable-tbody tr td:last-child {
+      font-size: 12px;
+    }
+  }
+}

@@ -1,10 +1,10 @@
-<section class="d-flex ">
+<section class="d-flex" style="max-height: calc(100% - 5px) !important; overflow: hidden;">
   <aside class="sidebar shadow">
     <app-sidebar />
   </aside>
-  <main class="d-flex flex-column container ">
+  <main class="d-flex flex-column container">
     <app-navbar></app-navbar>
-    <div class="card shadow">
+    <div class="card shadow" style="overflow: auto; height: 100%; padding: 20px;">
       <router-outlet></router-outlet>
     </div>
   </main>

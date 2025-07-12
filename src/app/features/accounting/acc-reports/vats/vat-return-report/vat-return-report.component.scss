@@ -1,0 +1,39 @@
+.vat-return-table th,
+.vat-return-table td {
+  vertical-align: middle;
+  text-align: left;
+}
+
+.vat-header-row th {
+  background: #2c6eaa !important;
+  color: #fff !important;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.vat-category-cell {
+  background: #2c6eaa;
+  color: white;
+  font-weight: bold;
+  text-align: left;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.vat-category-cell span {
+  display: block;
+  text-align: center;
+  font-size: 1.1em;
+  transform: rotate(270deg) !important;
+  transform-origin: center center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vat-subtotal-row {
+  background: #2c6eaa !important;
+  color: white;
+  font-weight: bold;
+}

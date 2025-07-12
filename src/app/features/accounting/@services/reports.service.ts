@@ -22,6 +22,7 @@ import {
 } from '../acc-reports/assets/assets.models';
 import { Observable, of } from 'rxjs';
 import { VatsDataReportResponse, VatsReturnReportResponse, VatsDataReportItem, VatsReturnReportItem } from '../acc-reports/vats/vats-reports.models';
+import { BalanceSheetReportResponse } from '../acc-reports/balance-sheets/balance-sheet-reports.models';
 
 
 @Injectable({
@@ -39,6 +40,8 @@ export class ReportsService {
     stockAging: "reporting/stock-aging",
     liabilities: "reporting/liabilities",
     assets: "reporting/assets",
+    vatsDataReport: "reporting/vats",
+    balanceSheet: "reporting/balance-sheet",
 
   }
 
@@ -79,6 +82,58 @@ export class ReportsService {
 
   getStockAgingReport(filter: SearchFilter = {}) {
     return this._http.get<StockAgingReportResponse>(this.endpoints.stockAging, filter);
+  }
+
+  getBalanceSheetReport(filter: SearchFilter = {}) {
+    // Dummy data for Balance Sheet Report with hierarchical structure
+    const dummyData: BalanceSheetReportResponse = {
+      id: 1,
+      name: "DAHAB Jewellery",
+      logo: "https://example.com/logo.png",
+      currency: "BHD",
+      date: new Date().toISOString(),
+      balances: {
+        "assets": {
+          "fixed_assets_at_cost": {
+            "vehicles": 200000.000,
+            "computer": 100000.000,
+            "decor": 500000.000
+          },
+          "variable_assets": {
+            "cash_in_hand": 22000.000,
+            "bank_balance": 211300.000,
+            "investments": {
+              "short_term": 121230.000,
+              "long_term": {
+                "bonds": 50000.000,
+                "stocks": 75000.000
+              }
+            }
+          },
+          "other_assets": 500000.000
+        },
+        "liabilities": {
+          "current_liabilities": {
+            "accounts_payable": 30000.000,
+            "short_term_loans": 50000.000,
+            "accrued_expenses": 10000.000
+          },
+          "long_term_liabilities": {
+            "long_term_loans": {
+              "loan_test": 150000.000
+            },
+            "bonds_payable": 100000.000
+          }
+        },
+        "equity": {
+          "share_capital": 800000.000,
+          "retained_earnings": 229530.000,
+          "current_year_profit": 50000.000
+        }
+      }
+    };
+
+    return of(dummyData);
   }
 
   getVatsDataReport(filter: SearchFilter = {}) {
