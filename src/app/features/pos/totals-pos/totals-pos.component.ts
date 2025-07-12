@@ -180,7 +180,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
     });
 
     this._posSharedService.grandTotalWithVat$.subscribe(vat => {
-      this.totalWithVat = +vat;
+      this.totalWithVat = +(vat.toFixed(3));
     });
 
     this._posSharedService.vat$.subscribe(vat => {
@@ -442,10 +442,8 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
             this._posSharedService.triggerRefreshCurrency();
           },
           error: () => {
-
           },
           complete: () => {
-
           }
         });
       }

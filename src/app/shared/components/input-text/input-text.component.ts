@@ -1,9 +1,9 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, Input, OnInit } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-input-text',
-  standalone:false,
+  standalone: false,
   templateUrl: './input-text.component.html',
   styleUrl: './input-text.component.scss',
   providers: [
@@ -21,12 +21,11 @@ export class InputTextComponent implements ControlValueAccessor {
   @Input() type = 'text';
   @Input() inputName = '';
   @Input() id: string = `input-${Math.random().toString(36).substring(2, 15)}`;
-
+  @Input() disabled = false;
   value = '';
-  disabled = false;
 
-  onChange: (value: any) => void = () => {};
-  onTouched: () => void = () => {};
+  onChange: (value: any) => void = () => { };
+  onTouched: () => void = () => { };
 
   writeValue(value: any): void {
     this.value = value ?? '';

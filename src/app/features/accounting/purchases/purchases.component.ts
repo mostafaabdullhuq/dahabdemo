@@ -23,19 +23,13 @@ export class PurchasesComponent implements OnInit {
       id: "", name: 'All'
     },
     {
-      id: "pending", name: 'pending'
+      id: "pending", name: 'Pending'
     },
     {
-      id: "approved", name: 'approved'
+      id: "completed", name: 'Completed'
     },
     {
-      id: "shipped", name: 'delivered'
-    },
-    {
-      id: "delivered", name: 'delivered'
-    },
-    {
-      id: "cancelled", name: 'cancelled'
+      id: "cancelled", name: 'Cancelled'
     }
   ];
 
@@ -67,7 +61,7 @@ export class PurchasesComponent implements OnInit {
       { field: "order_date", header: "Date" },
       {
         field: "status",
-        header: "Status",
+        header: "Purchase Status",
         body: (row: any) => {
           if (row?.status === 'pending') {
             return `<span class="badge rounded-pill text-bg-warning">Pending</span>`;
@@ -80,17 +74,33 @@ export class PurchasesComponent implements OnInit {
           }
         }
       },
-      { field: "metal_amount", header: "Metal Amount" },
+      {
+        field: "payment_status",
+        header: "Payment Status",
+        body: (row: any) => {
+          if (row?.payment_status === 'due') {
+            return `<span class="badge rounded-pill text-bg-warning">Due</span>`;
+          } else if (row?.payment_status === 'partially_paid') {
+            return `<span class="badge rounded-pill text-bg-danger">Partially Paid</span>`;
+          } else if (row?.payment_status === 'paid') {
+            return `<span class="badge rounded-pill text-bg-success">Paid</span>`;
+          } else {
+            return `<span class="badge rounded-pill text-bg-secondary">${row?.payment_status || 'Unknown'}</span>`;
+          }
+        }
+      },
+      { field: "total_metal_amount", header: "Metal Amount" },
       { field: "metal_weight", header: "Metal Weight" },
+      { field: "total_stone_amount", header: "Total Stone Amount" },
       { field: "metal_making_charge", header: "Making Charge" },
       { field: "tax_amount", header: "Tax" },
-      { field: "total_stone_value", header: "Total Stone Value" },
-      { field: "total_metal_amount", header: "Total Amount" },
-      { field: "salesman", header: "User" },
+      { field: "total_amount", header: "Total Amount" },
       { field: "total_items", header: "Total Items" },
       { field: "total_weight", header: "Total Weight" },
       { field: "type", header: "Type Of Transaction" },
+      { field: "salesman", header: "User" },
     ];
+
     this.filterForm = this._formBuilder.group({
       search: '',
       transaction_type: '',
@@ -101,10 +111,13 @@ export class PurchasesComponent implements OnInit {
       order_date: '',
       status: ''
     });
+
     this.getPurchases();
+
     this._dropdown.getBranches().subscribe(res => {
       this.branches = res?.results
     })
+
     this._dropdown.getSuppliers().subscribe(res => {
       this.suppliers = res?.results
     })
@@ -130,6 +143,8 @@ export class PurchasesComponent implements OnInit {
       this.totalRecords = res?.count;  // Ensure the total count is updated
     });
   }
+
+
   loadPurchases(event: any): void {
     const page = event.first / event.rows + 1;
     const pageSize = event.rows;
@@ -163,24 +178,27 @@ export class PurchasesComponent implements OnInit {
     }
 
   ];
+
   @ViewChild('paymentContainer', { read: ViewContainerRef }) container!: ViewContainerRef;
   private componentRef!: ComponentRef<PaymentPurchaseComponent>;
+
   addPayment(data: any) {
     this.container.clear();
     this.componentRef = this.container.createComponent(PaymentPurchaseComponent);
     this.componentRef.instance.paymentData = data;
     this.componentRef.instance.showDialog();
   }
+
   editPurchase(user: any) {
     this._router.navigate([`acc/purchase/edit/${user?.id}`]);
   }
+
   deletePurchase(user: any) {
     this._accService.deletePurchase(user?.id).subscribe(res => {
-      if (res) {
-        this.getPurchases()
-      }
-    })
+      this.getPurchases()
+    }, error => { })
   }
+
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({
       message: 'Do you want to delete this item?',
@@ -191,6 +209,7 @@ export class PurchasesComponent implements OnInit {
       target: user?.id
     });
   }
+
   onSearch(): void {
     const formValues = this.filterForm.value;
 
@@ -231,7 +250,6 @@ export class PurchasesComponent implements OnInit {
     this._accService.importPurchase(formData).subscribe({
       next: (res) => {
         this.loadPurchases({ first: 0, rows: this.pageSize }); // reset to first page
-        // You can show a success message or refresh data here
       },
       error: (err) => {
         console.error('Import failed:', err);

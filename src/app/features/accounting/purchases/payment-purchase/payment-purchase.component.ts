@@ -3,7 +3,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AccService } from '../../@services/acc.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { take } from 'rxjs';
+import { filter, Subscription, take } from 'rxjs';
 import { SettingsService } from '../../../settings/@services/settings.service';
 
 @Component({
@@ -22,34 +22,36 @@ export class PaymentPurchaseComponent implements OnInit {
   paymentForm!: FormGroup;
   ttbs: any = []
   branches: any = []
+  selectedProduct: any;
   paymentTypeOptions: any = [
     { id: 'Tag No', name: 'Tag NO' },
     { id: 'TTB', name: 'TTB' },
     { id: 'Amount', name: 'Amount' },
     { id: 'Scrap', name: 'Scrap' },
   ]
+
   visible: boolean = false;
+
   constructor(
     private _formBuilder: FormBuilder,
     private _accService: AccService,
     private _dropdownService: DropdownsService,
     private _settingService: SettingsService
   ) { }
+
   showDialog() {
     this.visible = true;
   }
+
   ngOnInit(): void {
     this.initForm();
 
     if (this.paymentData && Object.keys(this.paymentData).length > 0) {
-      console.log("payment data: ", this.paymentData);
-
       if (this.paymentData.branch) {
         this._settingService.getBranchById(this.paymentData.branch).subscribe(res => {
           this.paymentBranch = res;
         })
       }
-
 
       this.patchForm(this.paymentData); // patch main controls
       if (this.paymentData.items?.length > 0) {
@@ -62,49 +64,62 @@ export class PaymentPurchaseComponent implements OnInit {
     this._dropdownService.getScraps().subscribe(res => {
       this.scrap = res;
     });
+
     this._dropdownService.getProducts().subscribe(res => {
       this.products = res?.results;
     });
+
     this._dropdownService.getTTBs().subscribe(res => {
       this.products = res?.results;
     });
+
     this._dropdownService.getBranches().subscribe(res => {
       this.branches = res?.results;
     });
+
     this._dropdownService.getPaymentMethods().subscribe(res => {
       this.paymentMethod = res?.results;
     });
+
     this._accService.getGoldPrice(this.paymentData?.branch)?.subscribe(res => {
-      this.manualGoldPrice = res?.manual_gold_price;
-      this.updateAmountsBasedOnGoldPrice();
+      this.manualGoldPrice = +((+(res?.manual_gold_price ?? 0)).toFixed(3));
+      this.paymentForm.get("gold_price")?.setValue(this.manualGoldPrice);
     });
   }
-  updateAmountsBasedOnGoldPrice() {
-    const baseRate = this.manualGoldPrice;
 
-    this.items.controls.forEach(group => {
-      const purity = group.get('purity')?.value;
-      const pureWeight = parseFloat(group.get('pure_weight')?.value) || 0;
-
-      let purityFactor = 1;
-      if (purity === 22 || purity === '22k') {
-        purityFactor = 0.916;
-      } else if (purity === 21 || purity === '21k') {
-        purityFactor = 0.88;
-      } else if (purity === 18 || purity === '18k') {
-        purityFactor = 0.75;
-      }
-
-      const metalRate = baseRate * purityFactor;
-      const amount = pureWeight * metalRate;
-
-      group.get('amount')?.setValue(amount.toFixed(2));
-    });
+  onGoldPriceChange(event: any) {
+    this.updateAllAmountsBasedOnGoldPrice();
   }
+
+  updateAllAmountsBasedOnGoldPrice() {
+    this.items.controls.forEach(group => this.calculateGroupAmount(group));
+  }
+
+  calculateGroupAmount(group: any) {
+    const baseRate = +(this.paymentForm.get("gold_price")?.value ?? this.manualGoldPrice);
+
+    const purity = group.get('purity')?.value;
+    const pureWeight = parseFloat(group.get('pure_weight')?.value) || 1;
+
+    let purityFactor = 1;
+    if (purity === 22 || purity === '22k') {
+      purityFactor = 0.916;
+    } else if (purity === 21 || purity === '21k') {
+      purityFactor = 0.88;
+    } else if (purity === 18 || purity === '18k') {
+      purityFactor = 0.75;
+    }
+
+    const metalRate = baseRate * purityFactor;
+    const amount = pureWeight * metalRate;
+
+    group.get('amount')?.setValue(amount.toFixed(2));
+  }
+
   patchForm(data: any) {
     this.paymentForm.patchValue({
       purchase_order: data.purchase_order ?? 0,
-      payment_date: data.payment_date ?? '',
+      payment_date: data.payment_date ?? new Date(),
       total_amount: data.total_amount ?? '',
       payment_method: data.payment_method ?? 0,
       purity: data.purity ?? 0,
@@ -114,6 +129,7 @@ export class PaymentPurchaseComponent implements OnInit {
       total_weight: data.total_weight ?? '',
     });
   }
+
   initForm() {
     return this.paymentForm = this._formBuilder.group({
       purchase_order: [0],
@@ -126,8 +142,10 @@ export class PaymentPurchaseComponent implements OnInit {
       total_weight: [''],
       branch: [''],
       items: this._formBuilder.array([]),
+      gold_price: [this.manualGoldPrice]
     });
   }
+
   get items(): FormArray {
     return this.paymentForm.get('items') as FormArray;
   }
@@ -154,10 +172,12 @@ export class PaymentPurchaseComponent implements OnInit {
       this.calculatePureWeight(group); // optional calculation
     });
   }
+
   getPurityRate(purity: number): number {
     const baseRate = 1; // or fetch from settings
     return purity ? purity * baseRate : 0;
   }
+
   calculateValueFromStones(stones: any[] = []): number {
     return stones.reduce((total, stone) => total + parseFloat(stone.value || '0'), 0);
   }
@@ -172,11 +192,11 @@ export class PaymentPurchaseComponent implements OnInit {
       product_id: [0],
       payment_method: [0],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      pure_weight: ['0'],
+      pure_weight: [{ value: '0', disabled: true }],
       weight: ['0'],
-      purity: [0],
+      purity: [{ value: 0, disabled: true }],
       value: [''],
-      purity_rate: [0],
+      purity_rate: [{ value: 0, disabled: true }],
     });
 
 
@@ -185,11 +205,58 @@ export class PaymentPurchaseComponent implements OnInit {
     group.get('value')?.valueChanges.subscribe((res) => {
       this.calculatePureWeight(group)
     });
+
     group.get('purity_rate')?.valueChanges.subscribe(() => this.calculatePureWeight(group));
+
+    let amountSubscription: Subscription | null = null;
 
     // Attach value logic when type changes
     group.get('type')?.valueChanges.subscribe((type: string | null) => {
       group.get('value')?.reset();
+      amountSubscription?.unsubscribe();
+      amountSubscription = null;
+
+      switch (type) {
+        case "Tag No":
+          // disable amount, quantity, and weight
+          group.get("amount")?.disable();
+          group.get("quantity")?.disable();
+          group.get("weight")?.disable();
+          break;
+        case "TTB":
+          // disable amount, weight
+          group.get("amount")?.disable();
+          group.get("weight")?.disable();
+          group.get("quantity")?.enable();
+          break;
+        case "Scrap":
+          // disable amount, quantity
+          group.get("amount")?.disable();
+          group.get("quantity")?.disable();
+          group.get("weight")?.enable();
+          break;
+        case "Amount":
+          // disable quantity and weight
+          group.get("quantity")?.disable();
+          group.get("weight")?.disable();
+          group.get("amount")?.enable();
+          group.get("quantity")?.setValue(0);
+          group.get("purity")?.setValue(0);
+          group.get("purity_rate")?.setValue(0);
+          group.get("weight")?.setValue('0');
+
+          amountSubscription = group.get("amount")?.valueChanges.pipe().subscribe(res => {
+            let pureWeight = ((+(res ?? 0)) / +(this.paymentForm.get("gold_price")?.value ?? 1)).toFixed(3);
+            group.get("pure_weight")?.setValue(pureWeight, { emitEvent: false })
+          }) || null;
+          break;
+        default:
+          group.get("quantity")?.disable();
+          group.get("weight")?.disable();
+          group.get("amount")?.disable();
+          break;
+      }
+
       this.attachValueListener(group, type || '');
     });
 
@@ -197,16 +264,18 @@ export class PaymentPurchaseComponent implements OnInit {
     group.get('pure_weight')?.valueChanges.subscribe(() => {
       this.updateSingleAmount(group);
     });
+
     group.get('purity')?.valueChanges.subscribe(() => {
       this.updateSingleAmount(group);
     });
 
     return group;
   }
+
   updateSingleAmount(group: FormGroup) {
     if (!this.manualGoldPrice) return;
 
-    const baseRate = (this.manualGoldPrice / 31.10348) * 0.378;
+    const baseRate = +(this.paymentForm.get("gold_price")?.value ?? this.manualGoldPrice);
     const purity = group.get('purity')?.value;
     const pureWeight = parseFloat(group.get('pure_weight')?.value) || 0;
 
@@ -230,38 +299,40 @@ export class PaymentPurchaseComponent implements OnInit {
 
     // Remove previous listener by resetting (will only trigger one-time setup here)
     valueControl?.valueChanges?.pipe(take(1)).subscribe((selectedId: number) => {
-      let selectedItem: any;
-
       if (type === 'Tag No') {
-        selectedItem = this.products.find((p: { id: number; }) => p.id === selectedId);
+        this.selectedProduct = this.products.find((p: { id: number; }) => p.id === selectedId);
         group.patchValue({
-          product_id: selectedItem?.id || 0,
-          weight: selectedItem?.gross_weight || '0',
-          purity_rate: selectedItem?.purity_value || 0,
-          purity: selectedItem?.purity || 0
+          product_id: this.selectedProduct?.id || 0,
+          weight: this.selectedProduct?.gross_weight || '0',
+          purity_rate: this.selectedProduct?.purity_value || 0,
         });
-      }
-
-      else if (type === 'TTB') {
-        selectedItem = this.ttbs.find((p: { id: number; }) => p.id === selectedId);
+      } else if (type === 'TTB') {
+        this.selectedProduct = this.ttbs.find((p: { id: number; }) => p.id === selectedId);
         group.patchValue({
-          product_id: selectedItem?.id || 0,
-          weight: selectedItem?.gross_weight || '0',
-          purity_rate: selectedItem?.purity_value || 0,
-          purity: selectedItem?.purity || 0
+          product_id: this.selectedProduct?.id || 0,
+          weight: this.selectedProduct?.gross_weight || '0',
+          purity_rate: this.selectedProduct?.purity_value || 0,
         })
       } else if (type === 'Scrap') {
-        selectedItem = this.scrap.find((s: { id: number; }) => s.id === selectedId);
+        this.selectedProduct = this.scrap.find((s: { id: number; }) => s.id === selectedId);
         group.patchValue({
-          product_id: selectedItem?.id || 0,
-          weight: selectedItem?.weight || '0',
-          purity_rate: selectedItem?.purity_value || 0,
-          purity: selectedItem?.purity || 0
+          product_id: this.selectedProduct?.id || 0,
+          weight: this.selectedProduct?.weight || '0',
+          purity_rate: this.selectedProduct?.purity_value || 0,
         });
       } else if (type === 'Amount') {
         group.patchValue({
           payment_method: selectedId
         });
+        this.selectedProduct = "amount";
+      } else {
+        this.selectedProduct = null;
+      }
+
+      if (type && type !== 'Amount' && this.selectedProduct) {
+        group.patchValue({
+          purity: this.selectedProduct.purity
+        })
       }
     });
   }
@@ -271,9 +342,17 @@ export class PaymentPurchaseComponent implements OnInit {
     // const value = parseFloat(group.get('value')!.value) || 0;
     const purityRate = parseFloat(group.get('purity_rate')!.value) || 0;
 
-    const pureWeight = weight * purityRate;
-    group.get('pure_weight')!.setValue(pureWeight.toFixed(2), { emitEvent: false });
+    const type = group.get("type")!.value;
+
+    let pureWeight = (weight * purityRate);
+
+    pureWeight = (type === "Scrap") ? (pureWeight - (pureWeight * 1 / 100)) : pureWeight
+
+    group.get('pure_weight')!.setValue(pureWeight.toFixed(3), { emitEvent: false });
+
+    this.calculateGroupAmount(group);
   }
+
   addItem(data?: any) {
     this.items.push(this.createItem(data));
   }
@@ -281,6 +360,7 @@ export class PaymentPurchaseComponent implements OnInit {
   removeItem(index: number) {
     this.items.removeAt(index);
   }
+
   get totalAmount(): number {
     return this.items.controls.reduce((sum, group) => {
       const amount = parseFloat(group.get('amount')?.value) || 0;
@@ -308,8 +388,7 @@ export class PaymentPurchaseComponent implements OnInit {
       purchase_order: this.paymentData?.id,
       payment_date: formattedDate,
       branch: formValue.branch,
-      // total_amount: this.totalAmount.toString(),
-      //  total_weight: this.totalWeight.toString(),
+
       items: formValue.items.map((item: any) => {
         const base = {
           //purchase_payment: item.purchase_payment,
@@ -321,19 +400,17 @@ export class PaymentPurchaseComponent implements OnInit {
           pure_weight: item.pure_weight.toString(),
           weight: item.weight.toString(),
         };
-        const scrapBase = {
-          //purchase_payment: item.purchase_payment,
-          type: item.type,
-          is_fixed: item.type === 'Amount',
-          // amount: item.amount.toString(),
-          description: item.description,
-          quantity: item.quantity,
-          pure_weight: (item.pure_weight - (item.pure_weight * 1 / 100)).toString(),
-          weight: item.weight.toString(),
-        };
-
 
         if (item?.type === 'Scrap') {
+          const scrapBase = {
+            type: item.type,
+            is_fixed: item.type === 'Amount',
+            description: item.description,
+            quantity: item.quantity,
+            pure_weight: (item.pure_weight).toString(),
+            weight: item.weight.toString(),
+          };
+
           return {
             ...scrapBase,
             product_id: item.value
@@ -371,5 +448,4 @@ export class PaymentPurchaseComponent implements OnInit {
       }
     });
   }
-
 }

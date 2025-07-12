@@ -62,7 +62,7 @@ export class AccService {
   }
 
   deletePurchase(id: number) {
-    return this._http.deleteRequest(`${environment.api_url}purchases/${id}`);
+    return this._http.deleteRequest(`${environment.api_url}purchases/delete/${id}/`);
   }
 
   getBranchTax(id: any): Observable<any> {

@@ -31,12 +31,16 @@
       <div class="card-body">
         <a class="card1 d-flex flex-column justify-content-between" href="#">
           <p class=" d-flex flex-column">
-            <strong>Expected Delivery Date : </strong>
-            {{paymentData?.expected_delivery_date}}
-          </p>
-          <p class=" d-flex flex-column">
             <strong>Status : </strong>
             {{paymentData?.status}}
+          </p>
+          <p class=" d-flex flex-column">
+            <strong>Purchase Type : </strong>
+            {{paymentData?.type ?? '-'}}
+          </p>
+          <p class=" d-flex flex-column">
+            <strong>Branch : </strong>
+            {{paymentData?.branch_name ?? '-'}}
           </p>
           <div class="go-corner" href="#">
             <div class="go-arrow">
@@ -51,8 +55,21 @@
         <a class="card1 d-flex flex-column justify-content-between" href="#">
           <p class=" d-flex flex-column">
             <strong>Total Amount : </strong>
-            {{paymentData?.total_amount}}
+            {{paymentData?.total_amount ?? '-'}}
           </p>
+          <p class=" d-flex flex-column">
+            <strong>Total Due Amount : </strong>
+            {{paymentData?.total_due_amount ?? '-'}}
+          </p>
+          <p class=" d-flex flex-column">
+            <strong>Total Weight : </strong>
+            {{paymentData?.total_weight ?? '-'}}
+          </p>
+          <p class=" d-flex flex-column">
+            <strong>Total Due Weight : </strong>
+            {{paymentData?.total_due_weight ?? '-'}}
+          </p>
+
           <div class="go-corner" href="#">
             <div class="go-arrow">
               →
@@ -63,7 +80,6 @@
     </div>
   </div>
 
-
   <form [formGroup]="paymentForm" (ngSubmit)="submit()">
     <div class="container my-4">
       <div class="row">
@@ -72,16 +88,17 @@
           </app-input-date>
         </div>
         <div class="col-md-6">
-          <app-dropdowns label="branch" formControlName="branch" [options]="branches" optionLabel="name"
-            optionValue="id" placeholder="Select branch"></app-dropdowns>
+          <app-input-text formControlName="gold_price" inputName="gold price" placeholder="Enter gold price"
+            (ngModelChange)="onGoldPriceChange($event)">
+          </app-input-text>
         </div>
       </div>
     </div>
     <table class="table" formArrayName="items">
       <thead>
         <tr>
+          <th>Method</th>
           <th>Type</th>
-          <th>value</th>
           <th>Amount</th>
           <th>Quantity</th>
           <th>Purity</th>

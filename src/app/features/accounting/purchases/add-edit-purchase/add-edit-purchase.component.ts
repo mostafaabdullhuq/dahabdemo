@@ -51,7 +51,8 @@ export class AddEditPurchaseComponent implements OnInit {
     private _formBuilder: FormBuilder,
     private _dropdownService: DropdownsService,
     private _activeRoute: ActivatedRoute,
-    private _toasterService: ToasterMsgService
+    private _toasterService: ToasterMsgService,
+    private _router: Router
   ) { }
   decimalInputs = 3;
   ngOnInit(): void {
@@ -255,7 +256,7 @@ export class AddEditPurchaseComponent implements OnInit {
     this.addEditExpenseForm = this._formBuilder.group({
       // Main purchase fields
       order_date: [new Date()],
-      expected_delivery_date: [null, Validators.required],
+      // expected_delivery_date: [null, Validators.required],
       branch: [null, Validators.required],
       supplier: [null, Validators.required],
       total_amount: [0],
@@ -466,7 +467,7 @@ export class AddEditPurchaseComponent implements OnInit {
         branch: expense.branch,
         type: expense.type,
         order_date: expense.order_date ? new Date(expense.order_date) : new Date(),
-        expected_delivery_date: new Date(expense.expected_delivery_date),
+        // expected_delivery_date: new Date(expense.expected_delivery_date),
         //attachment: expense.attachment,
         status: expense.status,
         total_amount: expense.total_amount,
@@ -749,8 +750,8 @@ export class AddEditPurchaseComponent implements OnInit {
     const formValue = this.addEditExpenseForm.value;
 
     // Format dates
-    const formattedDeliveryDate = formValue.expected_delivery_date ?
-      new Date(formValue.expected_delivery_date).toISOString().slice(0, 10) : '';
+    // const formattedDeliveryDate = formValue.expected_delivery_date ?
+    //   new Date(formValue.expected_delivery_date).toISOString().slice(0, 10) : '';
     const orderDate = formValue.order_date ?
       new Date(formValue.order_date).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
 
@@ -866,7 +867,6 @@ export class AddEditPurchaseComponent implements OnInit {
     const payload = {
       supplier_name: selectedSupplier?.name || "",
       order_date: orderDate,
-      expected_delivery_date: formattedDeliveryDate,
       branch_name: selectedBranch?.name || "",
       branch: formValue.branch,
       supplier: formValue.supplier,
@@ -878,14 +878,12 @@ export class AddEditPurchaseComponent implements OnInit {
       items: items,
       metal_weight: totalMetalWeight.toString(),
       total_items: totalItems.toString(),
-      metal_making_charge: this.purchases.reduce((sum, item) =>
-        sum + Number(item.making_charge || 0), 0).toString(),
+      metal_making_charge: this.purchases.reduce((sum, item) => sum + Number(item.making_charge || 0), 0).toString(),
       attachment: formValue.attachment || "",
       total_metal_amount: totalMetalAmount.toString(),
       total_stone_amount: totalStoneAmount.toString(),
       reference_number: formValue.reference_number || "",
       total_due_amount: totalDueAmount.toString(),
-      total_due_weight: totalWeight.toString(),
       total_paid_amount: totalPaidAmount.toString(),
       total_paid_weight: "0"
     };
@@ -907,7 +905,8 @@ export class AddEditPurchaseComponent implements OnInit {
 
     request$.subscribe({
       next: (response) => {
-        this._toasterService.showSuccess("Operation successfully done.")
+        console.log("response: ", response);
+        this._router.navigate(["acc/purchases"])
       },
       error: (err) => {
         this._toasterService.showError(err.message ?? 'Unexpected error happened')
