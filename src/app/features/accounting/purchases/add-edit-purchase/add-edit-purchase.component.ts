@@ -203,7 +203,7 @@ export class AddEditPurchaseComponent implements OnInit {
         this.calculateLineTotal();
       });
 
-      control.get('retail_value')?.valueChanges.subscribe(() => {
+      control.get('value')?.valueChanges.subscribe(() => {
         this.calculateTax();
         this.calculateLineTotal();
       });
@@ -218,12 +218,16 @@ export class AddEditPurchaseComponent implements OnInit {
   }
 
   calculateLineTotal() {
+    const stones = this.addEditExpenseForm.get('stones') as FormArray;
+
     const metalValue = Number(this.addEditExpenseForm.get('metal_value')?.value) || 0;
     const metalWeight = Number(this.addEditExpenseForm.get('metal_weight')?.value) || 0;
     const makingCharge = Number(this.addEditExpenseForm.get('making_charge')?.value) || 0;
     const taxAmount = Number(this.addEditExpenseForm.get('tax_amount')?.value) || 0;
+    const stoneValues = stones.controls.reduce((acc, s) => acc + (+s.get('value')?.value || 0), 0);
 
-    const total = metalValue + (makingCharge * metalWeight) + taxAmount;
+
+    const total = metalValue + (makingCharge * metalWeight) + taxAmount + stoneValues;
 
     this.addEditExpenseForm.patchValue({
       line_total_amount: (+total).toFixed(this.decimalInputs)
