@@ -113,7 +113,7 @@ export class PaymentPurchaseComponent implements OnInit {
     const metalRate = baseRate * purityFactor;
     const amount = pureWeight * metalRate;
 
-    group.get('amount')?.setValue(amount.toFixed(2));
+    group.get('amount')?.setValue(amount.toFixed(3));
   }
 
   patchForm(data: any) {
@@ -197,6 +197,7 @@ export class PaymentPurchaseComponent implements OnInit {
       purity: [{ value: 0, disabled: true }],
       value: [''],
       purity_rate: [{ value: 0, disabled: true }],
+      purity_name: [{ value: '', disabled: true }]
     });
 
 
@@ -267,6 +268,7 @@ export class PaymentPurchaseComponent implements OnInit {
 
     group.get('purity')?.valueChanges.subscribe(() => {
       this.updateSingleAmount(group);
+      group?.get("purity_name")?.setValue(this.selectedProduct?.purity_name ?? '-')
     });
 
     return group;
@@ -291,7 +293,7 @@ export class PaymentPurchaseComponent implements OnInit {
     const metalRate = baseRate * purityFactor;
     const amount = pureWeight * metalRate;
 
-    group.get('amount')?.setValue(amount.toFixed(2), { emitEvent: false });
+    group.get('amount')?.setValue(amount.toFixed(3), { emitEvent: false });
   }
 
   attachValueListener(group: FormGroup, type: string): void {
@@ -381,15 +383,20 @@ export class PaymentPurchaseComponent implements OnInit {
       return;
     }
 
-    const formValue = this.paymentForm.value;
+    const formValue = this.paymentForm.getRawValue();
     const formattedDate = new Date(formValue.payment_date).toISOString().slice(0, 10);
+
+    console.log("gold_price: ", formValue.gold_price);
+
 
     const payload = {
       purchase_order: this.paymentData?.id,
       payment_date: formattedDate,
       branch: formValue.branch,
-
+      gold_price: formValue.gold_price,
       items: formValue.items.map((item: any) => {
+        console.log("item: ", item);
+
         const base = {
           //purchase_payment: item.purchase_payment,
           type: item.type,
