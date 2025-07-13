@@ -1,39 +1,40 @@
-<div href="/"
-  class="d-flex align-items-center mt-2 justify-content-around mb-3 mb-md-0 me-md-auto text-decoration-none">
-  <img [src]="user?.image" alt="User" width="40" height="40" class="rounded-circle me-2">
-  <div class="d-flex flex-column">
-    <strong class="text-dark">{{user?.username}}</strong>
-    <small class="text-muted">{{user?.email}}</small>
+<div class="d-flex flex-column flex-shrink-0 max-height-100">
+  <div href="/"
+    class="d-flex align-items-center mt-2 justify-content-around mb-3 mb-md-0 me-md-auto text-decoration-none px-3 py-1">
+    <img [src]="user?.image" alt="User" width="40" height="40" class="rounded-circle me-2">
+    <div class="d-flex flex-column">
+      <strong class="text-dark">{{user?.username}}</strong>
+      <small class="text-muted">{{user?.email}}</small>
+    </div>
   </div>
-</div>
-<div class="menu-container d-flex flex-column flex-shrink-0 p-3">
-  <ul class="nav nav-pills flex-column mb-auto">
-    <!-- Super Admin -->
+  <div class="menu-container">
+    <ul class="nav nav-pills flex-column mb-auto">
+      <!-- Super Admin -->
 
-    <li *ngIf="userTokenData?.is_superuser">
-      <a class="nav-link text-dark d-flex justify-content-between  d-flex justify-content-between"
-        data-bs-toggle="collapse" href="#submenuSuperAdmin" role="button" aria-expanded="false"
-        aria-controls="submenuSuperAdmin">
-        <i class="pi pi-dashboard me-2"></i> Super Admin
-        <i class="pi pi-chevron-down float-end"></i>
-      </a>
-      <div class="collapse ps-4" id="submenuSuperAdmin">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-          <li><a href="#" class="nav-link text-dark"><i class="pi pi-building me-2"></i> All Business</a></li>
-          <li><a href="#" class="nav-link text-dark"><i class="pi pi-box me-2"></i> Packages</a></li>
-          <li><a href="#" class="nav-link text-dark"><i class="pi pi-calendar me-2"></i> All Subscription
-              Packages</a></li>
-          <li><a href="#" class="nav-link text-dark"><i class="pi pi-cog me-2"></i> Settings</a></li>
-          <!-- <li><a href="#" class="nav-link text-dark"><i class="pi pi-bell me-2"></i> Notifications</a></li> -->
-        </ul>
-      </div>
-    </li>
-    <li>
-      <a [routerLink]="['/dashboard']" routerLinkActive="active-link" class="nav-link text-dark"
-        *ngIf="permissionService.hasPermission(113)"><i class="pi pi-user me-2"></i> User Dashboard</a>
-    </li>
-    <!-- Settings -->
-    <!-- <li>
+      <li *ngIf="userTokenData?.is_superuser">
+        <a class="nav-link text-dark d-flex justify-content-between  d-flex justify-content-between"
+          data-bs-toggle="collapse" href="#submenuSuperAdmin" role="button" aria-expanded="false"
+          aria-controls="submenuSuperAdmin">
+          <i class="pi pi-dashboard me-2"></i> Super Admin
+          <i class="pi pi-chevron-down float-end"></i>
+        </a>
+        <div class="collapse ps-4" id="submenuSuperAdmin">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <li><a href="#" class="nav-link text-dark"><i class="pi pi-building me-2"></i> All Business</a></li>
+            <li><a href="#" class="nav-link text-dark"><i class="pi pi-box me-2"></i> Packages</a></li>
+            <li><a href="#" class="nav-link text-dark"><i class="pi pi-calendar me-2"></i> All Subscription
+                Packages</a></li>
+            <li><a href="#" class="nav-link text-dark"><i class="pi pi-cog me-2"></i> Settings</a></li>
+            <!-- <li><a href="#" class="nav-link text-dark"><i class="pi pi-bell me-2"></i> Notifications</a></li> -->
+          </ul>
+        </div>
+      </li>
+      <li>
+        <a [routerLink]="['/dashboard']" routerLinkActive="active-link" class="nav-link text-dark"
+          *ngIf="permissionService.hasPermission(113)"><i class="pi pi-user me-2"></i> User Dashboard</a>
+      </li>
+      <!-- Settings -->
+      <!-- <li>
             <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
                 href="#submenuSuperAdminSettings" role="button" aria-expanded="false"
                 aria-controls="submenuSuperAdminSettings">
@@ -47,148 +48,153 @@
             </div>
         </li> -->
 
-    <!-- User Management -->
-    <li *ngIf="permissionService.hasPermission(2) || permissionService.hasPermission(6)">
-      <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
-        href="#submenuUserManagement" role="button" aria-expanded="false" aria-controls="submenuUserManagement">
-        <i class="pi pi-users me-2"></i> User Management
-        <i class="pi pi-chevron-down float-end"></i>
-      </a>
-      <div class="collapse ps-4" id="submenuUserManagement">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-          <a *ngIf="permissionService.hasPermission(2)" [routerLink]="['/user-management/users']"
-            routerLinkActive="active-link" class="nav-link text-dark">
-            <i class="pi pi-user me-2"></i> Users
-          </a>
-          <a *ngIf="permissionService.hasPermission(6)" [routerLink]="['user-management/roles']"
-            routerLinkActive="active-link" class="nav-link text-dark">
-            <i class="pi pi-key me-2"></i> Roles
-          </a>
-        </ul>
-      </div>
-    </li>
+      <!-- User Management -->
+      <li *ngIf="permissionService.hasPermission(2) || permissionService.hasPermission(6)">
+        <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
+          href="#submenuUserManagement" role="button" aria-expanded="false" aria-controls="submenuUserManagement">
+          <i class="pi pi-users me-2"></i> User Management
+          <i class="pi pi-chevron-down float-end"></i>
+        </a>
+        <div class="collapse ps-4" id="submenuUserManagement">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <a *ngIf="permissionService.hasPermission(2)" [routerLink]="['/user-management/users']"
+              routerLinkActive="active-link" class="nav-link text-dark">
+              <i class="pi pi-user me-2"></i> Users
+            </a>
+            <a *ngIf="permissionService.hasPermission(6)" [routerLink]="['user-management/roles']"
+              routerLinkActive="active-link" class="nav-link text-dark">
+              <i class="pi pi-key me-2"></i> Roles
+            </a>
+          </ul>
+        </div>
+      </li>
 
-    <!-- Contacts -->
-    <li *ngIf="permissionService.hasPermission(66)">
-      <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse" href="#submenuContacts"
-        role="button" aria-expanded="false" aria-controls="submenuContacts">
-        <i class="pi pi-address-book me-2"></i> Contacts
-        <i class="pi pi-chevron-down float-end"></i>
-      </a>
-      <div class="collapse ps-4" id="submenuContacts">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-          <a *ngIf="permissionService.hasPermission(67)" [routerLink]="['/contact/customers']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-user me-2"></i> Customers</a>
-          <a [routerLink]="['/contact/customers-group']" routerLinkActive="active-link" class="nav-link text-dark"><i
-              class="pi pi-users me-2"></i> Customers Group</a>
-          <a *ngIf="permissionService.hasPermission(71)" [routerLink]="['/contact/suppliers']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-truck me-2"></i> Suppliers</a>
-        </ul>
-      </div>
-    </li>
+      <!-- Contacts -->
+      <li *ngIf="permissionService.hasPermission(66)">
+        <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse" href="#submenuContacts"
+          role="button" aria-expanded="false" aria-controls="submenuContacts">
+          <i class="pi pi-address-book me-2"></i> Contacts
+          <i class="pi pi-chevron-down float-end"></i>
+        </a>
+        <div class="collapse ps-4" id="submenuContacts">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <a *ngIf="permissionService.hasPermission(67)" [routerLink]="['/contact/customers']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-user me-2"></i> Customers</a>
+            <a [routerLink]="['/contact/customers-group']" routerLinkActive="active-link" class="nav-link text-dark"><i
+                class="pi pi-users me-2"></i> Customers Group</a>
+            <a *ngIf="permissionService.hasPermission(71)" [routerLink]="['/contact/suppliers']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-truck me-2"></i> Suppliers</a>
+          </ul>
+        </div>
+      </li>
 
-    <!-- Inventory -->
-    <li *ngIf="hasAnyInventoryPermission()">
-      <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse" href="#submenuInventory"
-        role="button" aria-expanded="false" aria-controls="submenuInventory">
-        <i class="pi pi-box me-2"></i> Inventory
-        <i class="pi pi-chevron-down float-end"></i>
-      </a>
-      <div class="collapse ps-4" id="submenuInventory">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-          <a *ngIf="permissionService.hasPermission(10)" [routerLink]="['/inventory/products']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-cog me-2"></i> Product</a>
-          <a *ngIf="permissionService.hasPermission(95)" [routerLink]="['/inventory/units']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-ruler me-2"></i> Unit</a>
-          <a *ngIf="permissionService.hasPermission(87)" [routerLink]="['/inventory/purities']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-chart-line me-2"></i> Purity</a>
-          <a *ngIf="permissionService.hasPermission(83)" [routerLink]="['/inventory/sizes']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-sort me-2"></i> Size</a>
-          <a *ngIf="permissionService.hasPermission(79)" [routerLink]="['/inventory/categories']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-tag me-2"></i> Category</a>
-          <a *ngIf="permissionService.hasPermission(14)" [routerLink]="['/inventory/stockpoints']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-server me-2"></i> Stock Point</a>
-          <a *ngIf="permissionService.hasPermission(75)" [routerLink]="['/inventory/brands']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-clone me-2"></i> Brand</a>
-          <a *ngIf="permissionService.hasPermission(91)" [routerLink]="['/inventory/designers']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-palette me-2"></i> Designer</a>
-          <a *ngIf="permissionService.hasPermission(108)" [routerLink]="['/inventory/stones']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-gem me-2"></i> Stone</a>
-          <a *ngIf="permissionService.hasPermission(104)" [routerLink]="['/inventory/colors']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-palette me-2"></i> Color</a>
-          <a *ngIf="permissionService.hasPermission(14)" [routerLink]="['/inventory/stock-transfer-list']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-random me-2"></i> Stock
-            Transfer</a>
-          <!-- LAbel -->
-          <a [routerLink]="['inventory/product/product-label']" class="nav-link text-dark " data-bs-toggle="collapse"
-            href="#label" role="button" aria-expanded="false" aria-controls="label">
-            <i class="pi pi-barcode me-2"></i><span>Print Label</span>
-          </a>
-          <a *ngIf="permissionService.hasPermission(14)" [routerLink]="['/inventory/stock-taking']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-stopwatch me-2"></i> Stock
-            Taking</a>
-        </ul>
-      </div>
-    </li>
+      <!-- Inventory -->
+      <li *ngIf="hasAnyInventoryPermission()">
+        <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse" href="#submenuInventory"
+          role="button" aria-expanded="false" aria-controls="submenuInventory">
+          <i class="pi pi-box me-2"></i> Inventory
+          <i class="pi pi-chevron-down float-end"></i>
+        </a>
+        <div class="collapse ps-4" id="submenuInventory">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <a *ngIf="permissionService.hasPermission(10)" [routerLink]="['/inventory/products']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-cog me-2"></i> Product</a>
+            <a *ngIf="permissionService.hasPermission(95)" [routerLink]="['/inventory/units']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-ruler me-2"></i> Unit</a>
+            <a *ngIf="permissionService.hasPermission(87)" [routerLink]="['/inventory/purities']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-chart-line me-2"></i> Purity</a>
+            <a *ngIf="permissionService.hasPermission(83)" [routerLink]="['/inventory/sizes']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-sort me-2"></i> Size</a>
+            <a *ngIf="permissionService.hasPermission(79)" [routerLink]="['/inventory/categories']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-tag me-2"></i> Category</a>
+            <a *ngIf="permissionService.hasPermission(14)" [routerLink]="['/inventory/stockpoints']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-server me-2"></i> Stock
+              Point</a>
+            <a *ngIf="permissionService.hasPermission(75)" [routerLink]="['/inventory/brands']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-clone me-2"></i> Brand</a>
+            <a *ngIf="permissionService.hasPermission(91)" [routerLink]="['/inventory/designers']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-palette me-2"></i> Designer</a>
+            <a *ngIf="permissionService.hasPermission(108)" [routerLink]="['/inventory/stones']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-gem me-2"></i> Stone</a>
+            <a *ngIf="permissionService.hasPermission(104)" [routerLink]="['/inventory/colors']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-palette me-2"></i> Color</a>
+            <a *ngIf="permissionService.hasPermission(14)" [routerLink]="['/inventory/stock-transfer-list']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-random me-2"></i> Stock
+              Transfer</a>
+            <!-- LAbel -->
+            <a [routerLink]="['inventory/product/product-label']" class="nav-link text-dark " data-bs-toggle="collapse"
+              href="#label" role="button" aria-expanded="false" aria-controls="label">
+              <i class="pi pi-barcode me-2"></i><span>Print Label</span>
+            </a>
+            <a *ngIf="permissionService.hasPermission(14)" [routerLink]="['/inventory/stock-taking']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-stopwatch me-2"></i> Stock
+              Taking</a>
+          </ul>
+        </div>
+      </li>
 
-    <!-- Accounting -->
-    <li>
-      <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse" href="#submenuAccounting"
-        role="button" aria-expanded="false" aria-controls="submenuAccounting">
-        <i class="pi pi-credit-card me-2"></i> Accounting
-        <i class="pi pi-chevron-down float-end"></i>
-      </a>
-      <div class="collapse ps-4" id="submenuAccounting">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-          <a *ngIf="permissionService.hasPermission(39)" [routerLink]="['/acc/transactions']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-exchange me-2"></i>
-            Transactions</a>
-          <a *ngIf="permissionService.hasPermission(47)" [routerLink]="['/acc/purchases']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-shopping-cart me-2"></i>
-            Purchase</a>
+      <!-- Accounting -->
+      <li>
+        <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse"
+          href="#submenuAccounting" role="button" aria-expanded="false" aria-controls="submenuAccounting">
+          <i class="pi pi-credit-card me-2"></i> Accounting
+          <i class="pi pi-chevron-down float-end"></i>
+        </a>
+        <div class="collapse ps-4" id="submenuAccounting">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <a *ngIf="permissionService.hasPermission(39)" [routerLink]="['/acc/transactions']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-exchange me-2"></i>
+              Transactions</a>
+            <a *ngIf="permissionService.hasPermission(47)" [routerLink]="['/acc/purchases']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-shopping-cart me-2"></i>
+              Purchase</a>
 
-          <a *ngIf="permissionService.hasPermission(59)" [routerLink]="['/acc/expenses']" routerLinkActive="active-link"
-            class="nav-link text-dark"><i class="pi pi-money-bill me-2"></i> Expenses</a>
-          <!-- <a [routerLink]="['/acc/expenses-cat']" routerLinkActive="active-link"
+            <a *ngIf="permissionService.hasPermission(59)" [routerLink]="['/acc/expenses']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-money-bill me-2"></i>
+              Expenses</a>
+            <!-- <a [routerLink]="['/acc/expenses-cat']" routerLinkActive="active-link"
                     class="nav-link text-dark"><i class="pi pi-dollar me-2"></i> Expenses Category</a> -->
-          <a *ngIf="permissionService.hasPermission(51)" [routerLink]="['/acc/accounting']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-pie-chart me-2"></i>
-            Accounts </a>
-          <a [routerLink]="['/acc/acc-reports']" routerLinkActive="active-link" class="nav-link text-dark"><i
-              class="pi pi-file me-2"></i>
-            Reports </a>
-        </ul>
-      </div>
-    </li>
+            <a *ngIf="permissionService.hasPermission(51)" [routerLink]="['/acc/accounting']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-pie-chart me-2"></i>
+              Accounts </a>
+            <a [routerLink]="['/acc/acc-reports']" routerLinkActive="active-link" class="nav-link text-dark"><i
+                class="pi pi-file me-2"></i>
+              Reports </a>
+          </ul>
+        </div>
+      </li>
 
-    <!-- Settings -->
-    <li *ngIf="hasAnySettingsPermission()">
-      <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse" href="#submenuSettings"
-        role="button" aria-expanded="false" aria-controls="submenuSettings">
-        <i class="pi pi-cogs me-2"></i> Settings
-        <i class="pi pi-chevron-down float-end"></i>
-      </a>
-      <div class="collapse ps-4" id="submenuSettings">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-          <a *ngIf="permissionService.hasPermission(113)" [routerLink]="['/setting/business']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-briefcase me-2"></i> Business</a>
-          <a *ngIf="permissionService.hasPermission(18)" [routerLink]="['/setting/branch']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-building me-2"></i> Branches</a>
-          <a *ngIf="permissionService.hasPermission(23)" [routerLink]="['/setting/invoice']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-file me-2"></i> Invoice</a>
-          <a *ngIf="permissionService.hasPermission(27)" [routerLink]="['/setting/tax-rate']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-tag me-2"></i> Tax Rates</a>
-          <a *ngIf="permissionService.hasPermission(31)" [routerLink]="['/setting/payment-options']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-credit-card me-2"></i> Payment
-            Options</a>
-          <a *ngIf="permissionService.hasPermission(35)" [routerLink]="['/setting/currencies']"
-            routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-money-bill me-2"></i>
-            Currencies</a>
-        </ul>
-      </div>
-    </li>
+      <!-- Settings -->
+      <li *ngIf="hasAnySettingsPermission()">
+        <a class="nav-link text-dark  d-flex justify-content-between" data-bs-toggle="collapse" href="#submenuSettings"
+          role="button" aria-expanded="false" aria-controls="submenuSettings">
+          <i class="pi pi-cogs me-2"></i> Settings
+          <i class="pi pi-chevron-down float-end"></i>
+        </a>
+        <div class="collapse ps-4" id="submenuSettings">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <a *ngIf="permissionService.hasPermission(113)" [routerLink]="['/setting/business']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-briefcase me-2"></i>
+              Business</a>
+            <a *ngIf="permissionService.hasPermission(18)" [routerLink]="['/setting/branch']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-building me-2"></i> Branches</a>
+            <a *ngIf="permissionService.hasPermission(23)" [routerLink]="['/setting/invoice']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-file me-2"></i> Invoice</a>
+            <a *ngIf="permissionService.hasPermission(27)" [routerLink]="['/setting/tax-rate']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-tag me-2"></i> Tax Rates</a>
+            <a *ngIf="permissionService.hasPermission(31)" [routerLink]="['/setting/payment-options']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-credit-card me-2"></i> Payment
+              Options</a>
+            <a *ngIf="permissionService.hasPermission(35)" [routerLink]="['/setting/currencies']"
+              routerLinkActive="active-link" class="nav-link text-dark"><i class="pi pi-money-bill me-2"></i>
+              Currencies</a>
+          </ul>
+        </div>
+      </li>
 
-    <!-- Logout -->
-    <a (click)="logOut()" class="nav-link text-dark"><i class="pi pi-sign-out me-2"></i> Logout</a>
-  </ul>
+      <!-- Logout -->
+      <a (click)="logOut()" class="nav-link text-dark"><i class="pi pi-sign-out me-2"></i> Logout</a>
+    </ul>
+  </div>
+
 </div>

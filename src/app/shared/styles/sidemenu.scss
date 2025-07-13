@@ -1,12 +1,20 @@
-@use 'variables' as *;
+@use "variables" as *;
 
 .menu-container {
   background-color: $white;
   border-right: 1px solid $gray-300;
   border-radius: $border-radius;
-  min-height: 100vh;
   overflow-y: auto;
   padding-top: 1rem;
+  overflow-y: auto;
+  max-height: 80%;
+  margin-bottom: 1rem;
+  height: calc(100vh - 80px);
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 1rem;
 
   ul.nav {
     li {
@@ -30,8 +38,8 @@
           background-color: $stone-600;
           font-weight: $font-weight-bold;
           color: $white !important;
-          .pi{
-          color: $white !important;
+          .pi {
+            color: $white !important;
           }
         }
       }
@@ -62,4 +70,3 @@
   font-size: 1rem;
   color: $stone-800;
 }
-

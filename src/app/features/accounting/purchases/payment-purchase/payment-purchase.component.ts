@@ -395,8 +395,6 @@ export class PaymentPurchaseComponent implements OnInit {
       branch: formValue.branch,
       gold_price: formValue.gold_price,
       items: formValue.items.map((item: any) => {
-        console.log("item: ", item);
-
         const base = {
           //purchase_payment: item.purchase_payment,
           type: item.type,

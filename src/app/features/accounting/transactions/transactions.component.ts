@@ -1,5 +1,5 @@
 import { Component, ComponentRef, ViewChild, ViewContainerRef } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AccService } from '../@services/acc.service';
 import { Router, RouterLink } from '@angular/router';
 import { ConfirmationPopUpService } from '../../../shared/services/confirmation-pop-up.service';
@@ -99,15 +99,22 @@ export class TransactionsComponent {
       { field: "total_weight", header: "Total Weight" },
       { field: "transaction_type", header: "Transaction Type" },
     ];
+    // Get current month's first and last day
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+
     this.filterForm = this._formBuilder.group({
       search: '',
       transaction_type: '',
       order__customer: '',
-      order__payment_date: '',
+      order__payment_start_date: [firstDayOfMonth],
+      order__payment_end_date: [lastDayOfMonth],
       order__payment_method: '',
       order__status: '',
       shift__branch: ''
-    });
+    }, { validators: this.dateRangeValidator });
     this.getTransactions();
     this._dropdownService.getCustomers().subscribe(data => {
       this.customers = data?.results;
@@ -118,6 +125,22 @@ export class TransactionsComponent {
     this._dropdownService.getBranches().subscribe(res => {
       this.branches = res?.results;
     })
+  }
+
+  // Custom validator for date range
+  dateRangeValidator(formGroup: FormGroup) {
+    const fromDate = formGroup.get('order__payment_start_date')?.value;
+    const toDate = formGroup.get('order__payment_end_date')?.value;
+
+    if ((fromDate && !toDate) || (!fromDate && toDate) || (fromDate && toDate && new Date(fromDate) > new Date(toDate))) {
+      return { dateRangeInvalid: true };
+    }
+
+    return null;
+  }
+
+  formatDate(date: Date) {
+    return date.toISOString().split('T')[0];
   }
 
   // Get transactions with filtering and pagination
@@ -134,11 +157,24 @@ export class TransactionsComponent {
     if (filterValues.order__customer) {
       queryParts.push(`order__customer=${encodeURIComponent(filterValues.order__customer)}`);
     }
-    if (filterValues.order__payment_date) {
-      const date = new Date(filterValues.order__payment_date);
-      const formattedDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
-      queryParts.push(`order__payment_date=${encodeURIComponent(formattedDate)}`);
+
+    if (filterValues.order__payment_start_date || filterValues.order__payment_end_date) {
+      let dateRange = ""
+      if (filterValues.order__payment_start_date) {
+        let date = new Date(filterValues.order__payment_start_date);
+        date.setDate(date.getDate() + 1);
+        dateRange += date.toISOString().split('T')[0];
+      }
+
+      if (filterValues.order__payment_end_date) {
+        let date = new Date(filterValues.order__payment_end_date);
+        date.setDate(date.getDate() + 1);
+        dateRange += `,${date.toISOString().split('T')[0]}`;
+      }
+
+      queryParts.push(`order__payment_date__range=${encodeURIComponent(dateRange)}`);
     }
+
     if (filterValues.order__payment_method) {
       queryParts.push(`order__payment_method=${encodeURIComponent(filterValues.order__payment_method)}`);
     }
@@ -163,6 +199,7 @@ export class TransactionsComponent {
 
     });
   }
+
   loadTransactions(event: any): void {
     const page = event.first / event.rows + 1;
     const pageSize = event.rows;
@@ -178,6 +215,7 @@ export class TransactionsComponent {
         this.updateTotals();
       });
   }
+
   selectedTransaction: any;
   footerValues: { [key: string]: any } = {};
 
