@@ -1,144 +1,133 @@
 <section class="form-container">
-    <div class="header-container">
-        <h3>{{isEditMode ? 'Edit' : 'Add'}} Expense</h3>
-        <hr />
-    </div>
+  <div class="header-container">
+    <h3>{{isEditMode ? 'Edit' : 'Add'}} Expense</h3>
+    <hr />
+  </div>
 
-    <div class="add-form">
-        <form [formGroup]="addEditExpenseForm" class="container" (ngSubmit)="onSubmit()">
-            <section class="form-section">
-                <!-- 🔹 Product Info -->
-                <h6 class="section-form-header">Expense Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <app-dropdowns label="Business Location" formControlName="business" [options]="branches"
-                                optionLabel="name" optionValue="id" placeholder="Select location"></app-dropdowns>
-                        </div>
-                        <div class="col-md-4">
-                            <app-dropdowns label="Expense Category" formControlName="category" [options]="expensesCat"
-                                optionLabel="name" optionValue="id" placeholder="Select Category"></app-dropdowns>
-                        </div>
-                        <div class="col-md-4">
-                            <app-dropdowns label="Expense Sub Category" formControlName="sub_category"
-                                [options]="expensesCat" optionLabel="name" optionValue="id"
-                                placeholder="Select sub Category"></app-dropdowns>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-dropdowns label="for Invoice no." formControlName="invoice" [options]="[]"
-                                optionLabel="name" optionValue="id" placeholder="Select Invoice"></app-dropdowns>
-                        </div>
-                        <div class="col-md-4">
-                            <app-dropdowns label="for purchase" formControlName="purchase_order" [options]="[]"
-                                optionLabel="name" optionValue="id" placeholder="Select purchase"></app-dropdowns>
-                        </div>
-                        <div class="col-md-4">
-                            <app-input-date formControlName="date" inputName="date" placeholder="Enter date">
-                            </app-input-date>
-                        </div>
-                        <div class="col-md-4">
-                            <app-dropdowns label="Expense for" formControlName="purchase_order" [options]="[]"
-                                optionLabel="name" optionValue="id" placeholder="Select purchase"></app-dropdowns>
-                        </div>
-                        <div class="col-md-4">
-                            <app-dropdowns label="Expense for contact" formControlName="purchase_order" [options]="[]"
-                                optionLabel="name" optionValue="id" placeholder="Select purchase"></app-dropdowns>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-dropdowns label="Applicable Tax" formControlName="applicable_tax" [options]="[]"
-                                optionLabel="name" optionValue="id" placeholder="Select Tax"></app-dropdowns>
-                        </div>
-                        <div class="col-md-4">
-                            <app-input-text formControlName="total_amount" inputName="Total amount"
-                                placeholder="Enter Total amount">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-12">
-                            <app-input-text formControlName="notes" inputName="Notes" placeholder="Enter Notes">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Attach Docs <sup class="text-danger">*</sup> </label>
-                            <app-upload-input formControlName="attachment" label="Upload Docs"></app-upload-input>
-                        </div>
-                    </div>
-                </div>
-                <!-- 🔹 VAT & Refund Details Included -->
-                <h6 class="section-form-header mt-4">VAT & Refund Details Included</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <app-check-box formControlName="is_refund" inputId="is_refund"
-                                label="Is Recurring?"></app-check-box>
-                        </div>
-                        <div class="col-md-4">
-                            <app-check-box formControlName="expense_as_vat" inputId="expense_as_vat"
-                                label="Expense as Vat"></app-check-box>
-                        </div>
-                    </div>
-                </div>
-                <!-- 🔹 recurring payment -->
-                @if (addEditExpenseForm.get('is_refund')?.value == true) {
-                <h6 class="section-form-header mt-4">recurring payment</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <app-input-text formControlName="number_of_recurring_payments"
-                                inputName="No. of Repetitions" placeholder="Enter No. of Repetitions">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-4">
-                            <app-input-text formControlName="recurring_interval" inputName="Recurring interval"
-                                placeholder="Enter recurring interval">
-                            </app-input-text>
-                        </div>
-                        <!-- <div class="col-md-4">
-                            <app-check-box formControlName="is_recurring" inputId="is_recurring"
-                                label="Is Recurring?"></app-check-box>
-                        </div> -->
-                    </div>
-                </div>
-                }
-
-                <!-- 🔹 payment -->
-                <h6 class="section-form-header mt-4">Payment</h6>
-                <div class="container section-form">
-                    <div class="row" [formGroupName]="'payment'">
-                        <div class="col-md-4">
-                            <app-input-text formControlName="amount" inputName="Amount" placeholder="Enter Amount">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-4">
-                            <app-input-date formControlName="paid_date" inputName="Paid On"
-                                placeholder="Enter paid date">
-                            </app-input-date>
-                        </div>
-                        <div class="col-md-4">
-                            <app-dropdowns label="Payment Methods" formControlName="payment_method" [options]="[]"
-                                optionLabel="name" optionValue="id" placeholder="Select method">
-                            </app-dropdowns>
-                        </div>
-                        <div class="col-md-4">
-                            <app-dropdowns label="Payment Account" formControlName="payment_account" [options]="[]"
-                                optionLabel="name" optionValue="id" placeholder="Select acc">
-                            </app-dropdowns>
-                        </div>
-                        <div class="col-md-12">
-                            <app-input-text formControlName="note" inputName="Payment Note"
-                                placeholder="Enter Payment note">
-                            </app-input-text>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-
-            <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn">{{isEditMode?
-                    'Update' : 'Submit'}}</button>
+  <div class="add-form">
+    <form [formGroup]="addEditExpenseForm" class="container" (ngSubmit)="onSubmit()">
+      <section class="form-section">
+        <!-- 🔹 Product Info -->
+        <h6 class="section-form-header">Expense Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-4">
+              <app-dropdowns label="Branch" formControlName="branch" [options]="branches" optionLabel="name"
+                [showClear]="true" (ngModelChange)="onBranchChange($event)" optionValue="id"
+                placeholder="Select Branch"></app-dropdowns>
             </div>
-        </form>
-    </div>
+            <div class="col-md-4">
+              <app-dropdowns label="Expense Category" formControlName="category" [options]="expensesCat"
+                optionLabel="name" optionValue="id" placeholder="Select Category" [showClear]="true"></app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              <app-dropdowns label="Expense Sub Category" formControlName="sub_category" [options]="subCategories"
+                optionLabel="name" optionValue="id" placeholder="Select sub Category"
+                [showClear]="true"></app-dropdowns>
+            </div>
+
+            <div class="col-md-4">
+              <app-dropdowns label="for Invoice no." formControlName="invoice" [options]="minimalBranchTransactions"
+                [optionValue]="'invoice_id'" optionLabel="invoice_number" placeholder="Select Invoice"
+                [showClear]="true" (ngModelChange)="onInvoiceChange($event)"></app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              <app-dropdowns label="for purchase" formControlName="purchase_order" [options]="minimalBranchPurchases"
+                optionLabel="reference_number" optionValue="id" placeholder="Select purchase" [showClear]="true"
+                (ngModelChange)="onPurchaseChange($event)"></app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              <app-input-date formControlName="date" inputName="date" placeholder="Enter date">
+              </app-input-date>
+            </div>
+            <div class="col-md-4">
+              <app-dropdowns label="Expense User" formControlName="user" [options]="users" optionLabel="username"
+                (ngModelChange)="onUserChange($event)" optionValue="id" placeholder="Select User"
+                [showClear]="true"></app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              <app-dropdowns label="Expense Suuplier" formControlName="supplier" [options]="suppliers"
+                (ngModelChange)="onSupplierChange($event)" optionLabel="name" optionValue="id"
+                placeholder="Select Supplier" [showClear]="true"></app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              <app-dropdowns label="Expense Customer" formControlName="customer" [options]="customers"
+                (ngModelChange)="onCustomerChange($event)" optionLabel="name" optionValue="id"
+                placeholder="Select Customer" [showClear]="true"></app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              <app-dropdowns label="Applicable Tax" formControlName="applicable_tax" [options]="taxes"
+                optionLabel="rate" optionValue="id" placeholder="Select Tax" [showClear]="true"></app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              <app-input-text formControlName="total_amount" inputName="Total amount" placeholder="Enter Total amount">
+              </app-input-text>
+            </div>
+            <div class="col-md-12">
+              <app-input-text formControlName="notes" inputName="Notes" placeholder="Enter Notes">
+              </app-input-text>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Attach Docs</label>
+              <app-upload-input formControlName="attachment" label="Upload Docs"></app-upload-input>
+            </div>
+          </div>
+        </div>
+        <!-- 🔹 VAT & Refund Details Included -->
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-2">
+              <app-check-box formControlName="is_recurring" inputId="is_refund" label="Is Recurring?"></app-check-box>
+            </div>
+            <!-- 🔹 recurring payment -->
+            @if (addEditExpenseForm.get('is_recurring')?.value == true) {
+            <div class="col-md-5">
+              <app-input-text formControlName="number_of_recurring_payments" inputName="No. of Repetitions"
+                placeholder="Enter No. of Repetitions">
+              </app-input-text>
+            </div>
+            <div class="col-md-5">
+              <app-input-text formControlName="recurring_interval" inputName="Recurring interval"
+                placeholder="Enter recurring interval">
+              </app-input-text>
+            </div>
+            }
+
+
+          </div>
+        </div>
+
+        <!-- 🔹 payment -->
+        <h6 class="section-form-header mt-4">Payment</h6>
+        <div class="container section-form">
+          <div class="row" [formGroupName]="'payment'">
+            <div class="col-md-4">
+              <app-input-text formControlName="amount" inputName="Amount" placeholder="Enter Amount">
+              </app-input-text>
+            </div>
+            <div class="col-md-4">
+              <app-input-date formControlName="paid_on" inputName="Paid On" placeholder="Enter paid date">
+              </app-input-date>
+            </div>
+            <div class="col-md-4">
+              <app-dropdowns label="Payment Method" formControlName="payment_method" [options]="paymentMethods"
+                optionLabel="name" optionValue="id" placeholder="Select method" [showClear]="true">
+              </app-dropdowns>
+            </div>
+            <div class="col-md-12">
+              <app-input-text formControlName="note" inputName="Payment Note" placeholder="Enter Payment note">
+              </app-input-text>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <div class="btns-group">
+        <button type="submit" class="my-4 submit-btn" [disabled]="addEditExpenseForm.invalid">
+          {{isEditMode? 'Update' : 'Submit'}}
+        </button>
+      </div>
+    </form>
+  </div>
 </section>

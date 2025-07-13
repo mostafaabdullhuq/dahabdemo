@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PosService } from '../@services/pos.service';
-import { PosSalesService } from '../@services/pos-sales.service';
 import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
 import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
@@ -52,9 +51,11 @@ export class RetunPosComponent implements OnInit, OnDestroy {
     this._posReturnService.getReturnReciepts(params).subscribe((res) => {
       this.receipts = res?.results;
     });
+
     this._posReturnService.receipts$.subscribe(receipts => {
       this.receipts = receipts;
     });
+
     this.productForm.get('reciept_id')?.valueChanges.subscribe(res => {
       if (res) {
         const params = `orderproduct__order_id=${res}
@@ -64,10 +65,13 @@ export class RetunPosComponent implements OnInit, OnDestroy {
         });
       }
     })
+
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results || [];
     });
+
     this.getReturnsOrder()
+
     this._posStatusService.shiftData$
       .pipe(takeUntil(this.destroy$))
       .subscribe(data => {
@@ -115,6 +119,7 @@ export class RetunPosComponent implements OnInit, OnDestroy {
       .subscribe(status => {
         this.isShiftActive = status;
       });
+
     this.menuItem = [
       {
         label: 'Delete',
@@ -135,8 +140,6 @@ export class RetunPosComponent implements OnInit, OnDestroy {
       return;
     }
 
-
-    // http://104.248.35.179:8003/api/pos/product-return/?orderproduct__order_id=%20%20%20%20%20%20%20%20&orderproduct__order__customer_id=8
     this._posService.deleteReturnProductPos(+item.id, +item.sold_orderproduct_id).subscribe({
       next: res => {
         this._posReturnService.fetchReturnOrders();
@@ -248,10 +251,12 @@ export class RetunPosComponent implements OnInit, OnDestroy {
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     return +total.toFixed(decimalPlaces);
   }
+
   onVatChange(vatId: number, group: any): void {
     group.selectedVat = vatId;
     this.calcGrandTotalWithVat()
   }
+
   calcTotalPriceWithVat(group: any): number {
     const baseTotal = this.calcTotalPrice(group);
     const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat);
@@ -264,6 +269,7 @@ export class RetunPosComponent implements OnInit, OnDestroy {
       const vatAmount = (vatRate / 100) * baseTotal;
       return acc + vatAmount;
     }, 0);
+
     // Update shared VAT immediately
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
     //this._posSharedService.setVat(+totalVat.toFixed(decimalPlaces));
@@ -271,15 +277,16 @@ export class RetunPosComponent implements OnInit, OnDestroy {
     const totalWithVat = baseTotal + vatAmount;
     return +totalWithVat.toFixed(decimalPlaces);
   }
+
   calcGrandTotalWithVat(): number {
     if (!this.returnDataOrders || this.returnDataOrders.length === 0) return 0;
 
     const total = this.returnDataOrders.reduce((sum: number, group: any) => {
-      // return sum + this.calcTotalPriceWithVat(group);
+      return sum + this.calcTotalPriceWithVat(group);
     }, 0);
 
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    //  this._posSharedService.setGrandTotalWithVat(+total.toFixed(decimalPlaces));
+    this._posSharedService.setReturnTotalGrand(+total.toFixed(decimalPlaces));
 
     return +total.toFixed(decimalPlaces);
   }
@@ -314,19 +321,26 @@ export class RetunPosComponent implements OnInit, OnDestroy {
   //   return total
   // }
   get totalPrice(): number {
-    const totalWithVat = this.returnDataOrders?.reduce(
+    const totalWithoutVat = this.returnDataOrders?.reduce(
       (sum: any, item: { amount: any; }) => sum + (+item.amount || 0),
       0
     ) || 0;
 
-    const totalWithoutVat = this.returnDataOrders?.reduce(
+    const totalWithVat = this.returnDataOrders?.reduce(
       (sum: number, item: { amount: number; vat_amount: number; }) => {
         const amount = +item.amount || 0;
         const vat = +item.vat_amount || 0;
-        return sum + (amount - vat);
+        return sum + (amount + vat);
       },
       0
     ) || 0;
+
+    console.log("total with vat: ", totalWithVat);
+    console.log("total without vat: ", totalWithoutVat);
+
+
+
+
     //  const decimalPlaces:number = this.selectedCurrency?.currency_decimal_point ?? 3;
     // Set grand total (includes VAT)
     this._posSharedService.setReturnTotalGrand(+totalWithVat);

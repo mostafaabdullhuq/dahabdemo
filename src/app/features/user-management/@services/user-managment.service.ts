@@ -11,48 +11,52 @@ import { FormGroup } from '@angular/forms';
 export class UserManagmentService {
 
   constructor(private _http: SingletonService) { }
-  
+
   //-----> Users API
-  // Get Users 
+  // Get Users
   getUsers(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     const params = new HttpParams()
       .set('search', search)
       .set('page', page.toString())
       .set('page_size', pageSize.toString());
-    return this._http.getRequest(`${environment.api_url}user`, params );
+    return this._http.getRequest(`${environment.api_url}user`, params);
   }
-  addUser(addForm:FormGroup): Observable<any>{
-    return this._http.postRequest(`${environment.api_url}user/`,addForm);
+
+  addUser(addForm: FormGroup): Observable<any> {
+    return this._http.postRequest(`${environment.api_url}user/`, addForm);
   }
-  getUserById(id:number | string){
+
+  getUserById(id: number | string) {
     return this._http.getRequest(`${environment.api_url}user/${id}`);
   }
-  updateUser(id:number | string, editForm:FormGroup){
-    return this._http.patchRequest(`${environment.api_url}user/${id}/` , editForm);
+
+  updateUser(id: number | string, editForm: FormGroup) {
+    return this._http.patchRequest(`${environment.api_url}user/${id}/`, editForm);
   }
-  deleteUser(id:number ){
+
+  deleteUser(id: number) {
     return this._http.deleteRequest(`${environment.api_url}user/${id}`);
   }
 
   //-----> Roles API
-  // Get Users 
+  // Get Users
   getRoles(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     const params = new HttpParams()
       .set('search', search)
       .set('page', page.toString())
       .set('page_size', pageSize.toString());
-    return this._http.getRequest(`${environment.api_url}business/roles`, params );
+    return this._http.getRequest(`${environment.api_url}business/roles`, params);
   }
-  addRole(addForm:FormGroup): Observable<any>{
-    return this._http.postRequest(`${environment.api_url}business/roles/`,addForm);
+  addRole(addForm: FormGroup): Observable<any> {
+    return this._http.postRequest(`${environment.api_url}business/roles/`, addForm);
   }
-  getRoleById(id:number | string){
+  getRoleById(id: number | string) {
     return this._http.getRequest(`${environment.api_url}business/roles/${id}`);
   }
-  updateRole(id:number | string, editForm:FormGroup){
-    return this._http.patchRequest(`${environment.api_url}business/roles/${id}/` , editForm);
+  updateRole(id: number | string, editForm: FormGroup) {
+    return this._http.patchRequest(`${environment.api_url}business/roles/${id}/`, editForm);
   }
-  deleteRole(id:number ){
+  deleteRole(id: number) {
     return this._http.deleteRequest(`${environment.api_url}business/roles/${id}`);
   }
 

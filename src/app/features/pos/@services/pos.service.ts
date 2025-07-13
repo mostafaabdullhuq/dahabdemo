@@ -62,13 +62,14 @@ export class PosService {
     return this._http.getRequest(`${environment.api_url}pos/product-diamond/?${param}`);
   }
 
-
   getGoldPrice(bId: any): Observable<any> {
     return this._http.getRequest(`${environment.api_url}branch/gold-price/${bId}/`);
   }
+
   getPaymentMethods(): Observable<PaymentMethodResponse> {
     return this._http.getRequest(`${environment.api_url}pos/payment-method/`);
   }
+
   getOrderId(): Observable<any> {
     return this._http.getRequest(`${environment.api_url}pos/order-id/`);
   }

@@ -19,6 +19,11 @@ export class AccService {
     return this._http.getRequest(`${environment.api_url}transactions/${params}`);
   }
 
+  getMinimalBranchTransactions(branchId: number, pageSize: number = 100000000): Observable<any> {
+    const params = `?minimal=true&shift__branch=${branchId}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}transactions/${params}`);
+  }
+
   getTransactionById(id: number | string) {
     return this._http.getRequest(`${environment.api_url}transactions/${id}/`);
   }
@@ -49,6 +54,11 @@ export class AccService {
     return this._http.getRequest(`${environment.api_url}purchases/${params}`);
   }
 
+  getMinimalBranchPurchases(branchId: number, pageSize: number = 100000000): Observable<any> {
+    const params = `?minimal=true&branch=${branchId}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}purchases/${params}`);
+  }
+
   addPurchase(form: any) {
     return this._http.postRequest(`${environment.api_url}purchases/`, form);
   }
@@ -69,7 +79,7 @@ export class AccService {
     return this._http.getRequest(`${environment.api_url}branch/tax/${id}`);
   }
 
-  getBranchPaymentMethods(id: any) {
+  getBranchPaymentMethods(id: any): Observable<any[]> {
     return this._http.getRequest(`${environment.api_url}branch/payment-method/${id}`);
   }
 
@@ -101,6 +111,11 @@ export class AccService {
   getExpenseCategories(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
     const params = `?${search}&page=${page}&page_size=${pageSize}`
     return this._http.getRequest(`${environment.api_url}expenses/category/${params}`);
+  }
+
+  getExpenseSubCategories(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
+    const params = `?${search}&page=${page}&page_size=${pageSize}`
+    return this._http.getRequest(`${environment.api_url}expenses/category/subcategories/${params}`);
   }
 
   addExpenseCategory(form: FormData | FormGroup) {

@@ -159,6 +159,13 @@ export class DropdownsService {
     return this._http.getRequest<any>(url);
   }
 
+  getCustomersSearch(nextPageUrl: string | null = null, minimal: boolean = true, page: any = 1, pageSize = 1000000): Observable<any> {
+    const param = `minimal=${minimal}&page=${page}&page_size=${pageSize}`
+    const url = nextPageUrl || `${this.API}customer/?${param}`;
+    return this._http.getRequest<any>(url);
+  }
+
+
   getTimeZones(nextPageUrl: string | null = null, params?: string): Observable<any> {
     const url = nextPageUrl || `${this.API}core/time-zones/?${params}`;
     return this._http.getRequest<any>(url);

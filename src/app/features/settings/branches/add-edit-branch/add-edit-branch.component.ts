@@ -248,7 +248,6 @@ export class AddEditBranchComponent implements OnInit {
     // delete formattedData.logo
 
     if (this.isEditMode && this.brandId) {
-      [{ "payment_method": { "payment_method": 3 } }, { "payment_method": { "payment_method": 2 } }, { "payment_method": { "payment_method": 1 } }]
       this._sttingService.updateBranch(this.brandId, formData).subscribe({
         next: res => this._router.navigate([`setting/branch`]),
         error: err => this._toasterService.showError(err.error?.message ?? 'Unexpected error happend.', "Failed to update branch settings")
