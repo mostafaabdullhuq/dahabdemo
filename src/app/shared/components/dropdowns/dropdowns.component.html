@@ -8,10 +8,11 @@
 
   <!-- Select Dropdown -->
   <!-- [ngModel]="value"  -->
-  <p-select appendTo="body" size="small" [filter]="true" [showClear]="showClear" (ngModelChange)="onChange($event)"
-    [options]="options" [loading]="loading" [disabled]="disabled" [(ngModel)]="selectedValue"
-    [optionLabel]="optionLabel" [ngModel]="selectedValue" [optionValue]="optionValue ?? optionLabel"
-    [required]="required" [placeholder]="placeholder" (onChange)="onSelectionChange($event)" (onClear)="onClear()"
-    [filterFields]="filterByFields" (blur)="onBlur()"></p-select>
+  <p-select appendTo="body" size="small" [filter]="true" [showClear]="showClear" [style]="style"
+    (ngModelChange)="onChange($event)" [options]="options" [loading]="loading" [disabled]="disabled"
+    [(ngModel)]="selectedValue" [optionLabel]="optionLabel" [ngModel]="selectedValue"
+    [optionValue]="optionValue ?? optionLabel" [required]="required" [placeholder]="placeholder"
+    (onChange)="onSelectionChange($event)" (onClear)="onClear()" [filterFields]="filterByFields"
+    (blur)="onBlur()"></p-select>
   <ng-content></ng-content>
 </div>

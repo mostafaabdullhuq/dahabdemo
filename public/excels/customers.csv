@@ -1,0 +1,4 @@
+name,email,phone,address,cpr,group
+John Doe,john.doe@email.com,1234567890,123 Main St,123456789,Regular
+Jane Smith,jane.smith@email.com,9876543210,456 Oak Ave,987654321,VIP
+Ahmed Ali,ahmed.ali@email.com,5551234567,789 Palm Rd,456789123,Wholesale

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PosService } from '../@services/pos.service';
@@ -9,6 +9,7 @@ import { PosStatusService } from '../@services/pos-status.service';
 import { PosRepairService } from '../@services/pos-repair.service';
 import { Customer } from '../interfaces/pos.interfaces';
 import { MenuItem } from 'primeng/api';
+import { UploadInputComponent } from '../../../shared/components/upload-input/upload-input.component';
 
 @Component({
   selector: 'app-repair-pos',
@@ -22,7 +23,6 @@ export class RepairPosComponent implements OnInit, OnDestroy {
   productForm!: FormGroup;
   purchaseTableData: any = [];
   cols: any = [];
-  selectedVat: any = ''
   taxes: any = [];
   salesProduct: any = [];
   manualGoldPrice = '';
@@ -34,12 +34,12 @@ export class RepairPosComponent implements OnInit, OnDestroy {
   menuItem: MenuItem[] = [];
   selectedRowData: any = [];
   branchTaxNo: any = 0;
+  @ViewChild(UploadInputComponent) uploadInput!: UploadInputComponent
+
+
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
-    , private _posRepairService: PosRepairService
-  ) {
-
-  }
+    , private _posRepairService: PosRepairService) { }
 
   ngOnInit(): void {
     const customerID = sessionStorage.getItem('customer')
@@ -52,19 +52,38 @@ export class RepairPosComponent implements OnInit, OnDestroy {
       amount_with_tax: [{ value: 0, disabled: true }],
       description: [''],
       attachment: ['', Validators.required],
-      tax: [{ value: 0, disabled: true }],
+      tax: [null, Validators.required],
       add_gram: [''],
     })
+
+    this._dropdownService.getTaxes().subscribe((res) => {
+      const taxes = res?.results || [];
+
+      this.taxes = taxes.map((tax: any) => {
+        if (tax.country_tax_rate) {
+          return {
+            tax_rate: tax.country_tax_rate
+          }
+        } else {
+          return {
+            tax_rate: tax.rate
+          }
+        }
+      })
+
+      this.branchTaxNo = this.taxes[0]?.id; // Set first VAT as default
+    });
 
     this._dropdownService.getPurities().subscribe((res) => {
       this.purities = res?.results;
     });
+
     this.getPurchaseOrders()
+
     this._posStatusService.shiftData$
       .pipe(takeUntil(this.destroy$))
       .subscribe(data => {
         this.shiftData = data;
-
         if (this.shiftData?.is_active) {
           this._posService.getGoldPrice(this.shiftData?.branch).subscribe(res => {
             this.manualGoldPrice = res?.manual_gold_price;
@@ -73,7 +92,12 @@ export class RepairPosComponent implements OnInit, OnDestroy {
           this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
             this.branchTaxNo = res;
             const taxRate = res?.tax_rate || 0;
-            this.productForm.get('tax')?.patchValue(taxRate);
+
+            if (this.taxes.find((tax: any) => tax.tax_rate == taxRate)) {
+              this.productForm.get('tax')?.patchValue(taxRate);
+            } else {
+              this.productForm.get('tax')?.patchValue(this.taxes.length ? this.taxes[0] : 0);
+            }
 
             // 👉 Set up listeners for dynamic changes
             this.listenToAmountOrTaxChange();
@@ -124,7 +148,6 @@ export class RepairPosComponent implements OnInit, OnDestroy {
 
   private listenToAmountOrTaxChange() {
     // Clean up previous subscriptions if necessary
-
     combineLatest([
       this.productForm.get('amount')!.valueChanges.pipe(startWith(this.productForm.get('amount')?.value || 0)),
       this.productForm.get('tax')!.valueChanges.pipe(startWith(this.productForm.get('tax')?.value || 0))
@@ -258,7 +281,8 @@ export class RepairPosComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    this.productForm.get('tax')?.enable();
+    // this.productForm.get('tax')?.enable();
+
     if (this.productForm.invalid) return;
 
     const formValue = this.productForm.value;
@@ -284,8 +308,12 @@ export class RepairPosComponent implements OnInit, OnDestroy {
     this._posRepairService.addRepairProduct(formData).subscribe({
       next: (res) => {
         this.productForm.reset();
+        this.uploadInput.reset();
+
+        console.log("reset: ", this.productForm);
+
         this.getPurchaseOrders(); // Refresh data
-        this.productForm.get('tax')?.disable();
+        // this.productForm.get('tax')?.disable();
       },
       error: (err) => console.error('Error submitting', err)
     });

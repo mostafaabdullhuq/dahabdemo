@@ -7,6 +7,7 @@ import { MenuItem } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared.module';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { ProductStockHistoryComponent } from '../product-stock-history/product-stock-history.component';
+import { ToasterMsgService } from '../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-product-list',
@@ -38,7 +39,8 @@ export class ProductListComponent {
     private _formBuilder: FormBuilder,
     private _router: Router,
     private _confirmPopUp: ConfirmationPopUpService,
-    private _dropdownService: DropdownsService
+    private _dropdownService: DropdownsService,
+    private _toaster: ToasterMsgService
   ) { }
 
   ngOnInit(): void {
@@ -106,29 +108,48 @@ export class ProductListComponent {
       branch: [''],
       purity: [''],
       size: [''],
-    });
+      price_from: [null],
+      price_to: [null]
+    }, { validators: this.pricesCorrect });
+
     this.getProducts();
     this._dropdownService.getBrands().subscribe(data => {
       this.brands = data?.results;
     });
+
     this._dropdownService.getCategories().subscribe(data => {
       this.categories = data?.results;
     });
+
     this._dropdownService.getPurities().subscribe(data => {
       this.purities = data?.results;
     });
+
     this._dropdownService.getBranches().subscribe(data => {
       this.branches = data?.results;
     });
+
     this._dropdownService.getSizes().subscribe(data => {
       this.sizes = data?.results;
     });
+
     this._dropdownService.getDesigners().subscribe(data => {
       this.designers = data?.results;
     });
+
     this._dropdownService.getStockPoints().subscribe(data => {
       this.stockPoints = data?.results;
     });
+  }
+
+  pricesCorrect(group: FormGroup) {
+    const startPrice = group.get("price_from")?.value;
+    const toPrice = group.get("price_to")?.value;
+    if (startPrice && toPrice && startPrice > toPrice) {
+      return { invalidPriceInterval: true }
+    }
+
+    return null;
   }
 
   getProducts(queryParams?: any, page: number = 1, pageSize: number = 10): void {
@@ -223,8 +244,10 @@ export class ProductListComponent {
       target: user?.id
     });
   }
+
   componentRef!: ComponentRef<any>;
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
+
   openStockHistory(product: any) {
     this.container.clear();
     this.componentRef = this.container.createComponent(ProductStockHistoryComponent);
@@ -237,7 +260,6 @@ export class ProductListComponent {
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
-
     const file = input.files[0];
     this.submitFile(file);
 
@@ -251,6 +273,7 @@ export class ProductListComponent {
 
     this._inventoryService.importProducts(formData).subscribe({
       next: (res) => {
+        this._toaster.showSuccess("Products imported successfully")
         this.loadProducts({ first: 0, rows: this.pageSize }); // reset to first page
         // You can show a success message or refresh data here
       },

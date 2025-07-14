@@ -8,6 +8,7 @@ import { MenuItem } from 'primeng/api';
 import { TransactionsComponent } from './customer-view/transactions/transactions.component';
 import { CustomerViewComponent } from './customer-view/customer-view.component';
 import { PermissionService } from '../../../core/services/permission.service';
+import { ToasterMsgService } from '../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-customers',
@@ -28,7 +29,8 @@ export class CustomersComponent {
     private _formBuilder: FormBuilder,
     private _router: Router,
     private _confirmPopUp: ConfirmationPopUpService,
-    public permissionService:PermissionService
+    public permissionService: PermissionService,
+    private _toaster: ToasterMsgService
   ) { }
 
   ngOnInit(): void {
@@ -51,25 +53,25 @@ export class CustomersComponent {
 
     if (this.permissionService.hasPermission(69)) {
       this.customersMenuItems.push({
-      label: 'Edit',
-      icon: 'pi pi-fw pi-pen-to-square',
-      command: () => this.editCustomer(this.selectedProduct)
-    })
+        label: 'Edit',
+        icon: 'pi pi-fw pi-pen-to-square',
+        command: () => this.editCustomer(this.selectedProduct)
+      })
     }
 
     if (this.permissionService.hasPermission(68)) {
-    this.customersMenuItems.push({
-      label: 'View',
-      icon: 'pi pi-fw pi-eye',
-      command: () => this.viewTransactions(this.selectedProduct)
-    })
+      this.customersMenuItems.push({
+        label: 'View',
+        icon: 'pi pi-fw pi-eye',
+        command: () => this.viewTransactions(this.selectedProduct)
+      })
     }
     if (this.permissionService.hasPermission(70)) {
-    this.customersMenuItems.push({
-      label: 'Delete',
-      icon: 'pi pi-fw pi-trash',
-      command: () => this.showConfirmDelete(this.selectedProduct)
-    })
+      this.customersMenuItems.push({
+        label: 'Delete',
+        icon: 'pi pi-fw pi-trash',
+        command: () => this.showConfirmDelete(this.selectedProduct)
+      })
     }
   }
 
@@ -97,8 +99,8 @@ export class CustomersComponent {
       });
   }
   selectedProduct: any;
-customersMenuItems:MenuItem[]=[]
-  
+  customersMenuItems: MenuItem[] = []
+
   viewTransactions(data: any) {
     this._router.navigate([`contact/customer-view/${data?.id}`])
   }
@@ -106,8 +108,8 @@ customersMenuItems:MenuItem[]=[]
     this._router.navigate([`contact/customer/edit/${user?.id}`]);
   }
   deleteCustomer(user: any) {
-    this._contactService.deleteCustomer(user?.id).subscribe(res=>{
-        this.loadCustomers({ first: 0, rows: this.pageSize }); // reset to first page
+    this._contactService.deleteCustomer(user?.id).subscribe(res => {
+      this.loadCustomers({ first: 0, rows: this.pageSize }); // reset to first page
     })
   }
   showConfirmDelete(user: any) {
@@ -139,7 +141,7 @@ customersMenuItems:MenuItem[]=[]
     this.getCustomers(queryParams, 1, 10);
   }
 
-     @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
 
   onFileSelected(event: Event) {
@@ -159,6 +161,7 @@ customersMenuItems:MenuItem[]=[]
 
     this._contactService.importCustomers(formData).subscribe({
       next: (res) => {
+        this._toaster.showSuccess("Customers imported successfully")
         this.loadCustomers({ first: 0, rows: this.pageSize }); // reset to first page
         // You can show a success message or refresh data here
       },

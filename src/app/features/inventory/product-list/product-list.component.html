@@ -6,13 +6,15 @@
     <h3>Products</h3>
     <hr>
     <div class="header-btns">
+      <a href="excels/products.csv" class="add-btn rounded-3 text-center" title="download template">
+        <i class="pi pi-download px-2 py-1"></i>
+      </a>
       <button class="add-btn text-center" (click)="fileInput.click()">
         <i class="pi pi-file-import px-2"></i>Import products
       </button>
       <input #fileInput type="file" accept=".csv" (change)="onFileSelected($event)" hidden />
       <button [routerLink]="['/inventory/product/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add
         product</button>
-
     </div>
 
   </div>
@@ -57,10 +59,18 @@
             <app-dropdowns label="Designer" formControlName="designer" [options]="designers" [showClear]="true"
               optionLabel="name" optionValue="id" placeholder="Select designer"></app-dropdowns>
           </div>
+          <div class="col-md-4">
+            <app-input-text formControlName="price_from" placeholder="Enter price from" type="number"
+              inputName="Price From"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-input-text formControlName="price_to" placeholder="Enter price to" type="number"
+              inputName="Price To"></app-input-text>
+          </div>
 
         </div>
         <div class="btns-group">
-          <button class=" submit-btn" (click)="onSearch()">Search</button>
+          <button [disabled]="filterForm.invalid" class=" submit-btn" (click)="onSearch()">Search</button>
         </div>
       </form>
     </app-filter-collapse>

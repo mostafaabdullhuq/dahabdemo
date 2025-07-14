@@ -335,12 +335,6 @@ export class RetunPosComponent implements OnInit, OnDestroy {
       0
     ) || 0;
 
-    console.log("total with vat: ", totalWithVat);
-    console.log("total without vat: ", totalWithoutVat);
-
-
-
-
     //  const decimalPlaces:number = this.selectedCurrency?.currency_decimal_point ?? 3;
     // Set grand total (includes VAT)
     this._posSharedService.setReturnTotalGrand(+totalWithVat);

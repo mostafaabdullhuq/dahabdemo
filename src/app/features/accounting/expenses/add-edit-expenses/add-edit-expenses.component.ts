@@ -29,18 +29,6 @@ export class AddEditExpensesComponent {
   suppliers: any[] = [];
   customers: any[] = [];
 
-  /**
- * Tracks the currently selected contact type to implement mutual exclusion.
- * Only one of customer, supplier, or user can be selected at a time.
- * When one is selected, the others are automatically cleared.
- *
- * Business Rules (Implemented via validation, not disabled states):
- * - Invoice can only be selected when customer is chosen
- * - Purchase can only be selected when supplier is chosen
- * - User selection clears both invoice and purchase options
- * - Invalid combinations show validation errors instead of disabled fields
- * - Form submission is blocked until all validation errors are resolved
- */
 
   constructor(
     private _accService: AccService,

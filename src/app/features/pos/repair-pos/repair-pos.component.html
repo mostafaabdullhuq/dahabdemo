@@ -19,7 +19,10 @@
               inputName="description"></app-input-text>
           </div>
           <div class="col-md-6">
-            <app-input-text formControlName="tax" placeholder="tax" type="number" inputName="tax"></app-input-text>
+            <app-dropdowns [options]="taxes" optionLabel="tax_rate" optionValue="tax_rate" placeholder="Select Tax"
+              label="Tax" formControlName="tax">
+            </app-dropdowns>
+            <!-- <app-input-text formControlName="tax" placeholder="tax" type="number" inputName="tax"></app-input-text> -->
           </div>
           <div class="col-md-6">
             <app-input-text formControlName="amount" placeholder="amount" type="number" [required]="true"
@@ -34,8 +37,8 @@
             <app-upload-input formControlName="attachment" label="Upload Image"></app-upload-input>
           </div>
           <div class="col-md-6">
-            <app-input-text formControlName="add_gram" placeholder="add_gram" type="number"
-              inputName="add_gram"></app-input-text>
+            <app-input-text formControlName="add_gram" placeholder="Add Gram" type="number"
+              inputName="Add Gram"></app-input-text>
           </div>
           <div class="btns-group">
             <button type="submit" class="my-4 submit-btn" [disabled]="productForm.invalid">

@@ -1,6 +1,5 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, Input, ViewChild } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { UploadEvent } from 'primeng/fileupload';
 
 @Component({
   selector: 'app-upload-input',
@@ -19,6 +18,7 @@ export class UploadInputComponent {
   @Input() label: string = 'Choose Image';
   @Input() accept: string = 'image/*';
   @Input() maxFileSize: number = 1000000;
+  @ViewChild('fileInput') fileInput: any;
 
   file: File | null = null;
   previewUrl: string | ArrayBuffer | null = null;
@@ -44,6 +44,7 @@ export class UploadInputComponent {
   }
 
   registerOnChange(fn: any): void {
+
     this.onChange = fn;
   }
 
@@ -64,5 +65,11 @@ export class UploadInputComponent {
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  reset() {
+    this.fileInput.nativeElement.value = '';
+    this.file = null;
+    this.previewUrl = null;
   }
 }

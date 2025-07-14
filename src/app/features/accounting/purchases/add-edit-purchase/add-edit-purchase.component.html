@@ -10,9 +10,10 @@
       <h6 class="section-form-header">purchase Info</h6>
       <div class="container section-form">
         <div class="row">
+
           <div class="col-md-3">
             <app-dropdowns label="supplier" formControlName="supplier" [options]="suppliers" optionLabel="name"
-              optionValue="id" placeholder="Select supplier"></app-dropdowns>
+              optionValue="id" placeholder="Select supplier" [required]="true"></app-dropdowns>
           </div>
           <div class="col-md-1 mt-5 pt-2">
             <label class="opacity-0">btn </label>
@@ -26,7 +27,7 @@
           </div>
           <div class="col-md-4">
             <app-dropdowns label="branch" formControlName="branch" [options]="branches" optionLabel="name"
-              optionValue="id" placeholder="Select branch"></app-dropdowns>
+              [required]="true" optionValue="id" placeholder="Select branch"></app-dropdowns>
           </div>
           <div class="col-md-4">
             <app-dropdowns label="purchase type" formControlName="type"
@@ -52,7 +53,7 @@
             </app-input-text>
           </div>
           <div class="col-md-12">
-            <label class="form-label">Attachment <sup class="text-danger">*</sup> </label>
+            <label class="form-label">Attachment</label>
             <app-upload-input formControlName="attachment" label="Upload Docs"></app-upload-input>
           </div>
         </div>
@@ -116,6 +117,7 @@
         </p-table>
       </div>
       <!-- 🔹Add row -->
+      @if(manualGoldPrice) {
       <h6 class="section-form-header mt-4">Add Row</h6>
       <div class="container section-form">
         <div class="row">
@@ -165,24 +167,21 @@
             </app-input-text>
           </div>
           <div class="col-md-4">
-            <!-- <app-input-text type="number" formControlName="tax" inputName="tax" placeholder="Enter tax">
-                            </app-input-text> -->
             <app-dropdowns label="tax" formControlName="tax" [options]="taxRates" optionLabel="rate" optionValue="rate"
-              placeholder="Select tax"></app-dropdowns>
+              (ngModelChange)="calculateTax()" placeholder="Select tax"></app-dropdowns>
           </div>
           <div class="col-md-4">
-            <app-input-text type="number" formControlName="tax_amount" inputName="tax amount" [disabled]="true"
+            <app-input-text type="number" formControlName="tax_amount" inputName="tax amount"
               placeholder="Enter tax amount">
             </app-input-text>
           </div>
           <div class="col-md-4">
-            <app-input-text type="number" formControlName="gross_weight" inputName="gross weight" [disabled]="true"
-              placeholder="Enter gross weight">
+            <app-input-text type="number" formControlName="gross_weight" inputName="gross weight">
             </app-input-text>
           </div>
           <div class="col-md-4">
             <app-input-text type="number" formControlName="line_total_amount" inputName="line total amount"
-              [disabled]="true" placeholder="Enter line total amount">
+              placeholder="Enter line total amount">
             </app-input-text>
           </div>
           <div class="col-md-4">
@@ -204,10 +203,6 @@
           <div class="col-md-12">
             <app-input-text formControlName="description" inputName="description" placeholder="Enter description">
             </app-input-text>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">Image</label>
-            <app-upload-input formControlName="attachment" label="Upload Docs"></app-upload-input>
           </div>
         </div>
       </div>
@@ -244,9 +239,13 @@
         </div>
       </div>
       <div class="header-btns my-4">
-        <button class="add-btn" type="button" (click)="addPurchaseRow()"><i class="pi pi-plus  px-2"></i>Add
+        <button class="add-btn" type="button" (click)="addPurchaseRow()"
+          [disabled]="!this.addEditExpenseForm.get('line_total_amount')?.value"><i class="pi pi-plus  px-2">
+          </i>Add
           Purchase Row</button>
       </div>
+      }
+
       <!-- 🔹 payment -->
       <div class="d-flex justify-content-between align-items-center">
         <h6 class="section-form-header mt-4">Payment</h6>
@@ -282,7 +281,8 @@
 
 
     <div class="btns-group">
-      <button type="submit" class="my-4 submit-btn">{{isEditMode?
+      <button type="submit" class="my-4 submit-btn"
+        [disabled]="addEditExpenseForm.invalid || !purchases || purchases.length === 0 || isPaymentEmpty()">{{isEditMode?
         'Update' : 'Submit'}}</button>
     </div>
   </form>
