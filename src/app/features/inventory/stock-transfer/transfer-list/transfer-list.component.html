@@ -16,9 +16,13 @@
     <app-filter-collapse>
       <form class="container" [formGroup]="filterForm">
         <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-6">
             <app-input-text formControlName="search" placeholder="Global Search" type="text"
               inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-6">
+            <app-dropdowns formControlName="branch" [options]="branches" optionLabel="name" optionValue="id"
+              label="Branch" placeholder="Select Branch"></app-dropdowns>
           </div>
         </div>
         <div class="btns-group">
@@ -29,7 +33,7 @@
   </div>
 
   <div class="table-container">
-    <app-data-table [contextMenuItems]="transferMenuItems" (rowSelected)="selectedProduct = $event" [data]="users"
+    <app-data-table [contextMenuItems]="transferMenuItems" (rowSelected)="selectedProduct = $event" [data]="transfers"
       [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
       (pageChange)="loadStockTransfer($event)">
     </app-data-table>

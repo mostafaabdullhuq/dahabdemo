@@ -170,14 +170,26 @@ export class ProductListComponent {
 
     Object.keys(formValues).forEach(key => {
       const value = formValues[key];
-      if (value !== null && value !== '' && value !== undefined) {
+      if (value !== null && value !== '' && value !== undefined && key !== 'price_from' && key !== 'price_to') {
         const encodedKey = encodeURIComponent(key);
         const encodedValue = encodeURIComponent(value).replace(/%20/g, '+');
         queryParts.push(`${encodedKey}=${encodedValue}`);
       }
     });
 
+    if (formValues.price_from || formValues.price_to) {
+      let priceRange = `${formValues.price_from || 0}`;
+      if (formValues.price_to) {
+        priceRange += `,${formValues.price_to}`
+      }
+      const encodedKey = encodeURIComponent('price_range');
+      const encodedValue = encodeURIComponent(priceRange).replace(/%20/g, '+');
+      queryParts.push(`${encodedKey}=${encodedValue}`);
+    }
+
     this.searchQuery = queryParts.join('&');
+    console.log("search query: ", this.searchQuery);
+
     this.loadProducts({ first: 0, rows: this.pageSize }); // reset to first page
   }
 

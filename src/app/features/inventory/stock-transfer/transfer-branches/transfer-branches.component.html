@@ -1,104 +1,101 @@
-<form [formGroup]="addEditTransferForm" class="form-container" (ngSubmit)="onSubmit()">
-    <div class="header-container">
-        <h3>{{isEditMode ? 'Edit' : 'Add'}} Branches transfer</h3>
-        <hr />
-    </div>
-    <div class="add-form">
-        <div class="container">
-            <section class="form-section">
-                <h6 class="section-form-header">Branches Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <app-dropdowns label="from Branch" [required]="true" id="current_branch"
-                                formControlName="current_branch" [options]="branches" optionLabel="name" optionValue="id"
-                                placeholder="Select a branch">
-                            </app-dropdowns>
-                        </div>
-                        <div class="col-md-6">
-                            <app-dropdowns label="to Branch" [required]="true" id="transfer_branch"
-                                formControlName="transfer_branch" [options]="branches" optionLabel="name" optionValue="id"
-                                placeholder="Select a branch">
-                            </app-dropdowns>
-                        </div>
-                        <div class="row  d-flex justify-content-center align-items-center h-100">
-                            <div class="col-md-11">
-                                <app-dropdowns label="product" [required]="true" id="product_id"
-                                    formControlName="product_id" [options]="products" optionLabel="name" optionValue="id"
-                                    placeholder="Select a branch">
-                                </app-dropdowns>
-                            </div>
-                            <div class="col-md-1  mt-1">
-                                <label class="opacity-0 mt-5" >btn </label>
-                                <p-button size="small" [routerLink]="['/inventory/product/add']" class="add-btn white-icon-btn"  [pTooltip]="tooltipContent" tooltipPosition="bottom"
-                                icon="pi pi-plus" />
-                                <ng-template #tooltipContent>
-                                    <div class="flex items-center">
-                                        Add Product
-                                    </div>
-                                </ng-template>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-        <div class="mt-5">
-            <div class="container">
-                <app-input-table [data]="productsControls.controls">
-                    <ng-template #headerTemplate>
-                      <th>Product</th>
-                      <th>Unit</th>
-                      <th>Price</th>
-                      <th>Quantity</th>
-                      <th>Action</th>
-                    </ng-template>
-                  
-                    <ng-template #bodyTemplate let-group let-i="index">
-                      <td>{{ group.get('name')?.value }}</td>
-                      <td>{{ group.get('unit')?.value }}</td>
-                      <td>{{ group.get('price')?.value }}</td>
-                      <td>
-                        <input type="number" [formControl]="group.get('transfer_quantity')" class="form-control" />
-                      </td>
-                      <td>
-                        <button type="button" class="btn btn-danger text-end delete-btn btn-sm"
-                          (click)="removeItem(i)">
-                          <i class="pi pi-trash"></i>
-                        </button>
-                      </td>
-                    </ng-template>
-                  </app-input-table>
-                <div class="d-flex justify-content-end w-100">
-                    <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2">
-                      Total: {{ totalPrice | number:'1.2-2' }}
-                    </div>
+<form [formGroup]="addEditTransferForm" (ngSubmit)="onSubmit()">
+  <div class="header-container">
+    <h3>{{isEditMode ? 'Edit' : 'Add'}} Branches transfer</h3>
+    <hr />
+  </div>
+  <div class="add-form">
+    <div class="container">
+      <section class="form-section">
+        <h6 class="section-form-header">Branches Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-6">
+              <app-dropdowns label="from Branch" [required]="true" id="current_branch" formControlName="current_branch"
+                [options]="branches" optionLabel="name" optionValue="id" placeholder="Select a branch">
+              </app-dropdowns>
+            </div>
+            <div class="col-md-6">
+              <app-dropdowns label="to Branch" [required]="true" id="transfer_branch" formControlName="transfer_branch"
+                [options]="branches" optionLabel="name" optionValue="id" placeholder="Select a branch">
+              </app-dropdowns>
+            </div>
+            <div class="row  d-flex justify-content-center align-items-center h-100">
+              <div class="col-md-11">
+                <app-dropdowns label="product" id="product_id" formControlName="product_id" [options]="products"
+                  optionLabel="name" optionValue="id" placeholder="Select a product">
+                </app-dropdowns>
+              </div>
+              <div class="col-md-1  mt-1">
+                <label class="opacity-0 mt-5">btn </label>
+                <p-button size="small" [routerLink]="['/inventory/product/add']" class="add-btn white-icon-btn"
+                  [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
+                <ng-template #tooltipContent>
+                  <div class="flex items-center">
+                    Add Product
                   </div>
+                </ng-template>
+              </div>
             </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6">
-                        <app-input-text formControlName="shipping_charges" inputName="chipping charges"
-                            [required]="true" placeholder="Enter Chipping Charges">
-                            @if ((addEditTransferForm.get('shipping_charges')?.errors?.['required'] &&
-                            addEditTransferForm.get('shipping_charges')?.touched)) {
-                            <div class="text-danger mt-1">
-                                <small><i class="text-danger pi pi-times-circle px-2"
-                                        style="font-size: 0.8rem"></i>Chapping Charges is required</small>
-                            </div>
-                            }
-                        </app-input-text>
-                    </div>
-                    <div class="col-md-6">
-                        <app-input-text formControlName="additional_notes" inputName="notes" placeholder="Enter notes">
-                        </app-input-text>
-                    </div>
-                </div>
-            </div>
-            <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn">{{isEditMode?
-                    'Update' : 'Submit'}}</button>
-            </div>
+          </div>
         </div>
+      </section>
     </div>
+    <div class="mt-5">
+      <div class="container">
+        <app-input-table [data]="productsFormArray.controls">
+          <ng-template #headerTemplate>
+            <th>Product</th>
+            <th>Unit</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Action</th>
+          </ng-template>
+
+          <ng-template #bodyTemplate let-group let-i="index">
+            <td>{{ group.get('name')?.value }}</td>
+            <td>{{ group.get('unit')?.value }}</td>
+            <td>{{ group.get('price')?.value | number:'1.2-2' }}</td>
+            <td>
+              <input type="number" [formControl]="group.get('transfer_quantity')" class="form-control" [min]="0"
+                [max]="group.get('quantity')?.value" />
+            </td>
+            <td>
+              <button type="button" class="btn btn-danger text-end delete-btn btn-sm" (click)="removeItem(i)">
+                <i class="pi pi-trash"></i>
+              </button>
+            </td>
+          </ng-template>
+        </app-input-table>
+        <div class="d-flex justify-content-end w-100">
+          <div style="width: 15%;" class=" bg-secondary-subtle p-2 fw-bold rounded-2 mt-4">
+            Total: {{ totalPrice | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <app-input-text formControlName="shipping_charges" inputName="shipping charges" [required]="true"
+              placeholder="Enter Shipping Charges">
+              @if ((addEditTransferForm.get('shipping_charges')?.errors?.['required'] &&
+              addEditTransferForm.get('shipping_charges')?.touched)) {
+              <div class="text-danger mt-1">
+                <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>Shipping Charges is
+                  required</small>
+              </div>
+              }
+            </app-input-text>
+          </div>
+          <div class="col-md-6">
+            <app-input-text formControlName="additional_notes" inputName="notes" placeholder="Enter notes">
+            </app-input-text>
+          </div>
+        </div>
+      </div>
+      <div class="btns-group">
+        <button type="submit" class="my-4 submit-btn" [disabled]="addEditTransferForm.invalid">{{isEditMode?
+          'Update' : 'Submit'}}</button>
+      </div>
+    </div>
+  </div>
 </form>

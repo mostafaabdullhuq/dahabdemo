@@ -400,9 +400,10 @@ export class AddEditPurchaseComponent implements OnInit {
   }
 
   isPaymentEmpty() {
-    return this.paymentsArray.controls.every(payment => !payment.get('amount')?.value) ||
-      this.paymentsArray.controls.every(payment => !payment.get('payment_method')?.value) ||
-      this.paymentsArray.controls.every(payment => !payment.get('payment_date')?.value)
+    return false;
+    // return this.paymentsArray.controls.every(payment => !payment.get('amount')?.value) ||
+    //   this.paymentsArray.controls.every(payment => !payment.get('payment_method')?.value) ||
+    //   this.paymentsArray.controls.every(payment => !payment.get('payment_date')?.value)
   }
 
   addStone() {
