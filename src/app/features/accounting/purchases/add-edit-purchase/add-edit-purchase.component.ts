@@ -746,9 +746,12 @@ export class AddEditPurchaseComponent implements OnInit {
       });
     }).filter(item => item !== null);
 
+    console.log("payments:", this.paymentsArray.value);
+
     // Build payments array - simplified structure for add operation
     const payments = this.paymentsArray.value
-      .filter((payment: any) => payment.amount && Number(payment.amount) > 0)
+
+      // .filter((payment: any) => payment.amount && Number(payment.amount) > 0)
       .map((payment: any) => {
         const paymentData = {
           payment_date: payment.payment_date ? new Date(payment.payment_date).toISOString().slice(0, 10) : '',
