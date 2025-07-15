@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { InventoryService } from '../../@services/inventory.service';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { filter } from 'rxjs';
+import { ToasterMsgService } from '../../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-transfer-stock-points',
@@ -12,9 +13,12 @@ import { filter } from 'rxjs';
   templateUrl: './transfer-stock-points.component.html',
   styleUrl: './transfer-stock-points.component.scss'
 })
-export class TransferStockPointsComponent {
+export class TransferStockPointsComponent implements OnInit, OnChanges {
+  @Input() isEditMode = false;
+  @Input() transferObject: any = null;
+  @Input() transferType: "branch" | "stock-point" | null = null;
+
   addEditTransferForm!: FormGroup;
-  isEditMode = false;
   transId: string | number = '';
   branches = [];
   products: any = [];
@@ -23,23 +27,18 @@ export class TransferStockPointsComponent {
   isLoading = false;
   selectedBranches = [];
   transferItems: any[] = [];
+  addedProducts: any[] = [];
 
   constructor(
     private _inventoryService: InventoryService,
     private _formBuilder: FormBuilder,
-    private _activeRoute: ActivatedRoute,
     private _dropdownService: DropdownsService,
+    private _toaster: ToasterMsgService,
+    private _router: Router
   ) { }
 
   ngOnInit(): void {
-    const transId = this._activeRoute.snapshot.paramMap.get('id');
-    if (transId)
-      this.transId = transId;
     this.initForm();
-    if (this.transId) {
-      this.loadData(this.transId);
-      this.isEditMode = true
-    }
 
     this._dropdownService.getBranches().subscribe(data => {
       this.branches = data?.results;
@@ -47,10 +46,6 @@ export class TransferStockPointsComponent {
 
     this._dropdownService.getStockPoints().subscribe(data => {
       this.stockPoints = data?.results;
-    });
-
-    this._dropdownService.getProducts().subscribe(data => {
-      this.products = data?.results;
     });
 
     this.addEditTransferForm.get('product_id')?.valueChanges.subscribe(productId => {
@@ -72,6 +67,10 @@ export class TransferStockPointsComponent {
       }
     });
 
+    this.addEditTransferForm.get('current_branch')?.valueChanges.subscribe(branchId => {
+      this.getProductsByBranch(branchId);
+    });
+
     this.addEditTransferForm.get('product_id')?.valueChanges
       .pipe(filter(productId => !!productId))
       .subscribe(productId => {
@@ -79,8 +78,26 @@ export class TransferStockPointsComponent {
       });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isEditMode']?.currentValue && changes['transferObject']?.currentValue) {
+      this.loadData();
+    }
+  }
+
+
+  getProductsByBranch(branchId: string | number) {
+    this._dropdownService.getProducts(true, `branch=${branchId}`).subscribe(data => {
+      this.products = data?.results;
+      this.filterProducts();
+    });
+  }
+
+  filterProducts() {
+    this.products = this.products?.filter((item: any) => !this.addedProducts.includes(item)) || [];
+  }
+
   addProduct(product: any) {
-    const itemExists = this.productsControls.controls.find((ctrl: { value: { product_id: any; }; }) => ctrl.value.product_id === product.id);
+    const itemExists = this.productsFormArray.controls.find((ctrl: { value: { product_id: any; }; }) => ctrl.value.product_id === product.id);
     if (!itemExists) {
       const group = this._formBuilder.group({
         product_id: [product.id],
@@ -89,19 +106,29 @@ export class TransferStockPointsComponent {
         unit: [product.unit],
         transfer_quantity: [1, Validators.required]
       });
-      this.productsControls.push(group);
+      this.productsFormArray.push(group);
     }
   }
 
   removeItem(index: number) {
-    this.productsControls.removeAt(index);
+    let productId = this.productsFormArray?.controls?.at(index)?.value.id;
+
+    let product = this.addedProducts.find(product => product.id === productId)
+    if (product) {
+      this.addedProducts = this.addedProducts.filter(product => product !== product);
+      this.products.unshift(product);
+    }
+
+    this.productsFormArray.removeAt(index);
+
+    this.addEditTransferForm?.get('product_id')?.reset();
   }
 
   get totalPrice(): number {
-    return this.transferItems.reduce((total, item) => {
-      const price = item.price || 0;
-      const quantity = item.transfer_quantity || 0;
-      return total + price * quantity;
+    return this.productsFormArray.controls.reduce((total, item) => {
+      const price = item?.value?.price || 0;
+      const quantity = item?.value?.transfer_quantity || 0;
+      return total + (price * quantity);
     }, 0);
   }
 
@@ -116,20 +143,31 @@ export class TransferStockPointsComponent {
     });
   }
 
-  get productsControls(): FormArray {
+  get productsFormArray(): FormArray {
     return this.addEditTransferForm.get('products') as FormArray;
   }
 
-  private loadData(transfer: number | string): void {
-    this._inventoryService.getTransferBranchById(transfer).subscribe((trans: any) => {
-      this.addEditTransferForm.patchValue({
-        current_branch: trans,
-        stock_point_id: trans,
-        product_id: trans, // temporary for selection
-        shipping_charges: trans,
-        additional_notes: trans,
-      });
+  private loadData(): void {
+    console.log("data: ", this.transferObject);
+
+    this.addEditTransferForm.patchValue({
+      current_branch: this.transferObject.current_branch,
+      stock_point_id: this.transferObject.stock_point,
+      product_id: null,
+      shipping_charges: this.transferObject.shipping_charges,
+      additional_notes: this.transferObject.additional_notes,
     });
+
+    this.transferObject.products.forEach((product: any) => {
+      this.productsFormArray.push(this._formBuilder.group({
+        id: [product.product || '-'],
+        name: [product.product_name || '-'],
+        unit: [product.unit || '-'],
+        price: [product.price || '-'],
+        branch_total_weight: [product.branch_total_weight || '-'],
+        transfer_quantity: { value: product.transfer_quantity || '-', disabled: true }
+      }));
+    })
   }
 
   private tryAddProduct(productId: any): void {
@@ -143,49 +181,57 @@ export class TransferStockPointsComponent {
     const product = this.products?.find((p: any) => p.id === productId);
 
     // Check if product is already added
-    const alreadyAdded = this.productsControls.controls.some(ctrl => ctrl.get('id')?.value === productId);
+    const alreadyAdded = this.productsFormArray.controls.some(ctrl => ctrl.get('id')?.value === productId);
+
     if (product && !alreadyAdded) {
-      this.productsControls.push(this._formBuilder.group({
+      this.addedProducts.push(product);
+      this.filterProducts();
+
+      this.productsFormArray.push(this._formBuilder.group({
         id: [product.id],
         name: [product.name],
         unit: [product.unit],
         price: [product.price],
+        branch_total_weight: [product.branch_total_weight || '-'],
         transfer_quantity: [1]
       }));
     }
+
+    this.addEditTransferForm?.get('product_id')?.reset();
   }
 
   onSubmit(): void {
     const formValue = this.addEditTransferForm.value;
 
-    const payload: any = {
+    const payload: any = this.isEditMode && this.transferObject?.id ? {
+      additional_notes: formValue.additional_notes,
+      shipping_charges: formValue.shipping_charges
+    } : {
       current_branch: formValue.current_branch,
       stock_point_id: formValue.stock_point_id,
       shipping_charges: formValue.shipping_charges,
       additional_notes: formValue.additional_notes,
-      products: this.productsControls.value.map((item: any) => ({
+      products: this.productsFormArray.value.map((item: any) => ({
         transfer_quantity: item.transfer_quantity,
         product_id: item.id
       }))
     };
+
     if (!payload) {
       this.addEditTransferForm.markAllAsTouched();
       return;
     }
 
-
-    const request$ = this.isEditMode && this.transId
-      ? this._inventoryService.updateTransferBranch(this.transId, payload)
+    const request$ = this.isEditMode && this.transferObject?.id
+      ? this._inventoryService.updateTransferStock(this.transferObject?.id, payload)
       : this._inventoryService.addTransferBranch(payload);
 
     request$.subscribe({
       next: res => {
-        console.log(`Transfer ${this.isEditMode ? 'updated' : 'created'} successfully`, res);
-        this.addEditTransferForm.reset();
-        this.productsControls.clear(); // also reset products
+        this._router.navigate(["inventory/stock-transfer-list"])
       },
       error: err => {
-        console.error(`Error ${this.isEditMode ? 'updating' : 'creating'} transfer`, err);
+        this._toaster.showError(err)
       }
     });
   }

@@ -241,12 +241,16 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}product/stock/bulk-transfer/${id}/`);
   }
 
-  updateTransferBranch(id: number | string, editForm: FormGroup | FormData) {
-    return this._http.patchRequest(`${environment.api_url}product/stock/bulk-transfer/${id}/`, editForm);
+  getStockTransferTransactionById(transactionId: number | string) {
+    return this._http.get(`product/stock/transaction/${transactionId}/`);
   }
 
-  deleteTransferBranch(id: number) {
-    return this._http.deleteRequest(`${environment.api_url}product/stock/bulk-transfer/${id}/`);
+  updateTransferStock(id: number | string, data: any) {
+    return this._http.patch(`product/stock/transaction/${id}/`, data);
+  }
+
+  reverseStockTransfer(id: number) {
+    return this._http.delete(`product/stock/reverse-transfer/${id}/`);
   }
 
   /// Labels API

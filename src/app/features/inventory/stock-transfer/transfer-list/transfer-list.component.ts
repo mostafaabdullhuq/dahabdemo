@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ConfirmationPopUpService } from '../../../../shared/services/confirmation-pop-up.service';
 import { MenuItem } from 'primeng/api';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
+import { ToasterMsgService } from '../../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-transfer-list',
@@ -23,6 +24,8 @@ export class TransferListComponent {
   branches: any[] = [];
   selectedProduct: any;
   contextMenuItems: MenuItem[] = [];
+  editContextMenuItem!: MenuItem;
+  approveContextMenuItem!: MenuItem
 
 
   constructor(
@@ -30,7 +33,8 @@ export class TransferListComponent {
     private _formBuilder: FormBuilder,
     private _router: Router,
     private _confirmPopUp: ConfirmationPopUpService,
-    private _dropDownService: DropdownsService
+    private _dropDownService: DropdownsService,
+    private _toaster: ToasterMsgService
   ) {
     this.contextMenuItems = [
       {
@@ -50,6 +54,7 @@ export class TransferListComponent {
         visible: true
       }
     ]
+    this.approveContextMenuItem = this.contextMenuItems[2];
   }
 
   ngOnInit(): void {
@@ -92,7 +97,7 @@ export class TransferListComponent {
 
   onRowSelected(row: any) {
     this.selectedProduct = row;
-    this.contextMenuItems[2].visible = row?.status === "pending";
+    this.approveContextMenuItem.visible = row?.status === "pending";
   }
 
   // Get users with filtering and pagination
@@ -136,18 +141,17 @@ export class TransferListComponent {
   }
 
   editTransfer(user: any) {
-    console.log('editTransfer called with:', user);
-    this._router.navigate([`stock-transfer/edit/${user?.id}`]);
+    this._router.navigate([`inventory/stock-transfer/edit/${user?.id}`]);
   }
 
   deleteTransferBranch(user: any) {
-    this._inventoryService.deleteTransferBranch(user?.id).subscribe(res => {
-      this.getCurrentBranchTransfers()
+    this._inventoryService.reverseStockTransfer(user?.id).subscribe(res => {
+      this._toaster.showSuccess("Done deleting stock transfer transaction")
+      this.getCurrentBranchTransfers();
     })
   }
 
   showConfirmDelete(user: any) {
-    console.log('showConfirmDelete called with:', user);
     this._confirmPopUp.confirm({
       message: 'Do you want to delete this item?',
       header: 'Confirm Delete',

@@ -11,24 +11,31 @@
           <div class="row">
             <div class="col-md-6">
               <app-dropdowns label="from Branch" [required]="true" id="current_branch" formControlName="current_branch"
-                [options]="branches" optionLabel="name" optionValue="id" placeholder="Select a branch">
+                [disabled]="isEditMode && transferObject?.id" [options]="branches" optionLabel="name" optionValue="id"
+                placeholder="Select a branch">
               </app-dropdowns>
             </div>
             <div class="col-md-6">
               <app-dropdowns label="to Branch" [required]="true" id="transfer_branch" formControlName="transfer_branch"
-                [options]="branches" optionLabel="name" optionValue="id" placeholder="Select a branch">
+                [disabled]="isEditMode && transferObject?.id" [options]="branches" optionLabel="name" optionValue="id"
+                placeholder="Select a branch">
               </app-dropdowns>
             </div>
             <div class="row  d-flex justify-content-center align-items-center h-100">
               <div class="col-md-11">
                 <app-dropdowns label="product" id="product_id" formControlName="product_id" [options]="products"
-                  optionLabel="name" optionValue="id" placeholder="Select a product">
+                  [disabled]="(addEditTransferForm.get('current_branch')?.value === addEditTransferForm.get('transfer_branch')?.value) ||
+                  !addEditTransferForm.get('current_branch')?.value ||
+                  !addEditTransferForm.get('transfer_branch')?.value ||
+                  (isEditMode && transferObject?.id)" optionLabel="name" optionValue="id"
+                  placeholder="Select a product">
                 </app-dropdowns>
               </div>
               <div class="col-md-1  mt-1">
                 <label class="opacity-0 mt-5">btn </label>
                 <p-button size="small" [routerLink]="['/inventory/product/add']" class="add-btn white-icon-btn"
-                  [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus" />
+                  [pTooltip]="tooltipContent" tooltipPosition="bottom" icon="pi pi-plus"
+                  [disabled]="isEditMode && transferObject?.id" />
                 <ng-template #tooltipContent>
                   <div class="flex items-center">
                     Add Product
@@ -46,7 +53,7 @@
           <ng-template #headerTemplate>
             <th>Product</th>
             <th>Unit</th>
-            <th>Price</th>
+            <th>Weight</th>
             <th>Quantity</th>
             <th>Action</th>
           </ng-template>
@@ -54,13 +61,14 @@
           <ng-template #bodyTemplate let-group let-i="index">
             <td>{{ group.get('name')?.value }}</td>
             <td>{{ group.get('unit')?.value }}</td>
-            <td>{{ group.get('price')?.value | number:'1.2-2' }}</td>
+            <td>{{ group.get('branch_total_weight')?.value | number:'1.2-2' }}</td>
             <td>
               <input type="number" [formControl]="group.get('transfer_quantity')" class="form-control" [min]="0"
                 [max]="group.get('quantity')?.value" />
             </td>
             <td>
-              <button type="button" class="btn btn-danger text-end delete-btn btn-sm" (click)="removeItem(i)">
+              <button type="button" class="btn btn-danger text-end delete-btn btn-sm" (click)="removeItem(i)"
+                [disabled]="isEditMode && transferObject?.id">
                 <i class="pi pi-trash"></i>
               </button>
             </td>

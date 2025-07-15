@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { InventoryService } from '../../@services/inventory.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { filter } from 'rxjs';
+import { ToasterMsgService } from '../../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-transfer-branches',
@@ -12,10 +13,12 @@ import { filter } from 'rxjs';
   templateUrl: './transfer-branches.component.html',
   styleUrl: './transfer-branches.component.scss'
 })
-export class TransferBranchesComponent {
+export class TransferBranchesComponent implements OnInit, OnChanges {
+  @Input() isEditMode = false;
+  @Input() transferObject: any = null;
+  @Input() transferType: "branch" | "stock-point" | null = null;
+
   addEditTransferForm!: FormGroup;
-  isEditMode = false;
-  transId: string | number = '';
   branches = [];
   products: any[] = [];
   nextPageUrl: string | null = null;
@@ -27,20 +30,20 @@ export class TransferBranchesComponent {
   constructor(
     private _inventoryService: InventoryService,
     private _formBuilder: FormBuilder,
-    private _activeRoute: ActivatedRoute,
     private _dropdownService: DropdownsService,
-    private _router: Router
+    private _router: Router,
+    private _toaster: ToasterMsgService
   ) { }
 
-  ngOnInit(): void {
-    const transId = this._activeRoute.snapshot.paramMap.get('id');
-    if (transId)
-      this.transId = transId;
-    this.initForm();
-    if (this.transId) {
-      this.loadData(this.transId);
-      this.isEditMode = true
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isEditMode']?.currentValue && changes['transferObject']?.currentValue) {
+      this.loadData();
     }
+  }
+
+  ngOnInit(): void {
+    this.initForm();
 
     this._dropdownService.getBranches().subscribe(data => {
       this.branches = data?.results;
@@ -63,6 +66,8 @@ export class TransferBranchesComponent {
         }
       });
   }
+
+
 
   addProduct(product: any) {
     const itemExists = this.productsFormArray.controls.find(ctrl => ctrl.value.product_id === product.id);
@@ -115,20 +120,29 @@ export class TransferBranchesComponent {
     return this.addEditTransferForm?.get("products") as FormArray
   }
 
-  private loadData(transfer: number | string): void {
-    this._inventoryService.getTransferBranchById(transfer).subscribe((trans: any) => {
-      this.addEditTransferForm.patchValue({
-        current_branch: trans,
-        transfer_branch: trans,
-        product_id: trans, // temporary for selection
-        shipping_charges: trans,
-        additional_notes: trans,
-      });
+  private loadData(): void {
+    this.addEditTransferForm.patchValue({
+      current_branch: this.transferObject?.current_branch || null,
+      transfer_branch: this.transferObject?.transfer_branch || null,
+      product_id: null,
+      shipping_charges: this.transferObject?.shipping_charges || null,
+      additional_notes: this.transferObject?.additional_notes || null,
     });
+
+    this.transferObject.products.forEach((product: any) => {
+      this.productsFormArray.push(this._formBuilder.group({
+        id: [product.product || '-'],
+        name: [product.product_name || '-'],
+        unit: [product.unit || '-'],
+        price: [product.price || '-'],
+        branch_total_weight: [product.branch_total_weight || '-'],
+        transfer_quantity: { value: product.transfer_quantity || '-', disabled: true }
+      }));
+    })
   }
 
   getProductsByBranch(branchId: string | number) {
-    this._dropdownService.getProducts(true, `branch=${branchId}&branch__id=${branchId}`).subscribe(data => {
+    this._dropdownService.getProducts(true, `branch=${branchId}`).subscribe(data => {
       this.products = data?.results;
       this.filterProducts();
     });
@@ -160,6 +174,7 @@ export class TransferBranchesComponent {
         name: [product.name],
         unit: [product.unit],
         price: [product.price],
+        branch_total_weight: [product.branch_total_weight || '-'],
         transfer_quantity: [1, Validators.required]
       }));
     }
@@ -170,7 +185,10 @@ export class TransferBranchesComponent {
   onSubmit(): void {
     const formValue = this.addEditTransferForm.value;
 
-    const payload: any = {
+    const payload: any = this.isEditMode && this.transferObject?.id ? {
+      additional_notes: formValue.additional_notes,
+      shipping_charges: formValue.shipping_charges
+    } : {
       current_branch: formValue.current_branch,
       transfer_branch: formValue.transfer_branch,
       shipping_charges: formValue.shipping_charges,
@@ -180,13 +198,14 @@ export class TransferBranchesComponent {
         product_id: item.id
       }))
     };
+
     if (!payload) {
       this.addEditTransferForm.markAllAsTouched();
       return;
     }
 
-    const request$ = this.isEditMode && this.transId
-      ? this._inventoryService.updateTransferBranch(this.transId, payload)
+    const request$ = this.isEditMode && this.transferObject?.id
+      ? this._inventoryService.updateTransferStock(this.transferObject.id, payload)
       : this._inventoryService.addTransferBranch(payload);
 
     request$.subscribe({
@@ -194,7 +213,7 @@ export class TransferBranchesComponent {
         this._router.navigate(["inventory/stock-transfer-list"])
       },
       error: err => {
-        console.error(`Error ${this.isEditMode ? 'updating' : 'creating'} transfer`, err);
+        this._toaster.showError(err)
       }
     });
   }

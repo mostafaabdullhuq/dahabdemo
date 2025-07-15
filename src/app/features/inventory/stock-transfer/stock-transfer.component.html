@@ -1,14 +1,18 @@
-<p-tabs value="0" class="container">
-  <p-tablist>
-    <p-tab value="0">Branches</p-tab>
-    <p-tab value="1">Stock Points</p-tab>
+<p-tabs value="0" class="container"
+  [value]="isEditMode && transferObject?.id && transferType === 'stock-point' ? '1' : '0'">
+  <p-tablist #tablist>
+    <p-tab value="0" [disabled]="isEditMode && transferObject?.id && transferType === 'stock-point'">Branches</p-tab>
+    <p-tab value="1" [disabled]="isEditMode && transferObject?.id && transferType === 'branch'">Stock
+      Points</p-tab>
   </p-tablist>
   <p-tabpanels>
     <p-tabpanel value="0">
-      <app-transfer-branches></app-transfer-branches>
+      <app-transfer-branches [isEditMode]="isEditMode" [transferObject]="transferObject"
+        [transferType]="transferType"></app-transfer-branches>
     </p-tabpanel>
     <p-tabpanel value="1">
-      <app-transfer-stock-points></app-transfer-stock-points>
+      <app-transfer-stock-points [isEditMode]="isEditMode" [transferObject]="transferObject"
+        [transferType]="transferType"></app-transfer-stock-points>
     </p-tabpanel>
   </p-tabpanels>
 </p-tabs>
