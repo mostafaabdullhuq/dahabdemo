@@ -75,7 +75,7 @@ export class InventoryService {
     return this._http.patchRequest(`${environment.api_url}product/purity/${id}/`, editForm);
   }
   deletePurity(id: number) {
-    return this._http.deleteRequest(`${environment.api_url}product/purity/${id}`);
+    return this._http.deleteRequest(`${environment.api_url}product/purity/${id}/`);
   }
 
   getSizes(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
