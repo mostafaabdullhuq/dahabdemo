@@ -54,7 +54,7 @@ export class InventoryService {
     return this._http.patchRequest(`${environment.api_url}product/unit/${id}/`, editForm);
   }
   deleteUnit(id: number) {
-    return this._http.deleteRequest(`${environment.api_url}product/unit/${id}`);
+    return this._http.deleteRequest(`${environment.api_url}product/unit/${id}/`);
   }
 
   getPurity(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
@@ -96,7 +96,7 @@ export class InventoryService {
     return this._http.patchRequest(`${environment.api_url}product/size/${id}/`, editForm);
   }
   deleteSize(id: number) {
-    return this._http.deleteRequest(`${environment.api_url}product/size/${id}`);
+    return this._http.deleteRequest(`${environment.api_url}product/size/${id}/`);
   }
 
   getCategories(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
@@ -263,7 +263,7 @@ export class InventoryService {
     return this._http.getRequest(`${environment.api_url}${params}`);
   }
   deleteCountDown(id: number) {
-    return this._http.deleteRequest(`${environment.api_url}product/color/${id}`);
+    return this._http.deleteRequest(`${environment.api_url}product/color/${id}/`);
   }
 
   ///Storck History
