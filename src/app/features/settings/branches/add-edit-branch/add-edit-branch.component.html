@@ -87,6 +87,7 @@
                 <sup class="text-danger ml-1">*</sup>
               </label>
               }
+
               <!-- Radio button for default currency -->
               <input type="radio" class="form-radio-input ml-3" name="defaultCurrency"
                 [checked]="group.get('default')?.value ?? false" (change)="setDefaultCurrency(i)"

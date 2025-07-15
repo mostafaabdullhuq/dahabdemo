@@ -8,7 +8,7 @@ import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-units',
-  imports: [SharedModule , RouterLink],
+  imports: [SharedModule, RouterLink],
   templateUrl: './units.component.html',
   styleUrl: './units.component.scss'
 })
@@ -23,8 +23,8 @@ export class UnitsComponent {
   constructor(
     private _inventoryService: InventoryService,
     private _formBuilder: FormBuilder,
-    private _router:Router,
-    private _confirmPopUp:ConfirmationPopUpService
+    private _router: Router,
+    private _confirmPopUp: ConfirmationPopUpService
   ) { }
 
   ngOnInit(): void {
@@ -53,53 +53,55 @@ export class UnitsComponent {
       this.totalRecords = res?.count;  // Ensure the total count is updated
     });
   }
-loadUsers(event: any): void {
-  const page = event.first / event.rows + 1;
-  const pageSize = event.rows;
 
-  this.first = event.first;
-  this.pageSize = pageSize;
+  loadUsers(event: any): void {
+    const page = event.first / event.rows + 1;
+    const pageSize = event.rows;
 
-  this._inventoryService.getUnits(this.filterForm?.value?.search || '',page,pageSize)
-    .subscribe((res) => {
-      this.users = res.results;
-      this.totalRecords = res.count;
-    });
-}
-selectedProduct: any;
+    this.first = event.first;
+    this.pageSize = pageSize;
 
-unitsMenuItems: MenuItem[] = [
-  {
-    label: 'Edit',
-    icon: 'pi pi-fw pi-pen-to-square',
-    command: () => this.editUser(this.selectedProduct)
-  },
-  {
-    label: 'Delete',
-    icon: 'pi pi-fw pi-trash',
-    command: () => this.showConfirmDelete(this.selectedProduct)
+    this._inventoryService.getUnits(this.filterForm?.value?.search || '', page, pageSize)
+      .subscribe((res) => {
+        this.users = res.results;
+        this.totalRecords = res.count;
+      });
   }
-  
-];
 
-editUser(user: any) {
-  this._router.navigate([`inventory/unit/edit/${user?.id}`]);
-}
-deleteUnit(user:any){
-  this._inventoryService.deleteUnit(user?.id).subscribe(res=>{
-    if(res){
-      this.getUnits()
-    }
-  })
-}
-showConfirmDelete(user: any) {
-  this._confirmPopUp.confirm({
-    message: 'Do you want to delete this item?',
-    header: 'Confirm Delete',
-    onAccept: () => {
-      this.deleteUnit(user);
+  selectedProduct: any;
+
+  unitsMenuItems: MenuItem[] = [
+    {
+      label: 'Edit',
+      icon: 'pi pi-fw pi-pen-to-square',
+      command: () => this.editUser(this.selectedProduct)
     },
-    target: user?.id
-  });
-}
+    {
+      label: 'Delete',
+      icon: 'pi pi-fw pi-trash',
+      command: () => this.showConfirmDelete(this.selectedProduct)
+    }
+
+  ];
+
+  editUser(user: any) {
+    this._router.navigate([`inventory/unit/edit/${user?.id}`]);
+  }
+
+  deleteUnit(user: any) {
+    this._inventoryService.deleteUnit(user?.id).subscribe(res => {
+      this.getUnits()
+    })
+  }
+
+  showConfirmDelete(user: any) {
+    this._confirmPopUp.confirm({
+      message: 'Do you want to delete this item?',
+      header: 'Confirm Delete',
+      onAccept: () => {
+        this.deleteUnit(user);
+      },
+      target: user?.id
+    });
+  }
 }

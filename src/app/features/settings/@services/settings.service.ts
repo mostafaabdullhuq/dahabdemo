@@ -9,13 +9,14 @@ import { FormGroup } from '@angular/forms';
 })
 export class SettingsService {
   constructor(private _http: SingletonService) { }
+
   //-----> Businesss API
   addBusiness(addForm: FormGroup | FormData): Observable<any> {
     return this._http.postRequest(`${environment.api_url}business/settings/business/`, addForm);
   }
 
   getBusinessById(id: number | string) {
-    return this._http.getRequest(`${environment.api_url}superadmin/all-businesses/${id}`);
+    return this._http.getRequest(`${environment.api_url}superadmin/all-businesses/${id}/`);
   }
 
   updateBusiness(id: number | string, editForm: FormGroup | FormData) {
@@ -55,12 +56,8 @@ export class SettingsService {
   }
 
   getBranches(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
-    // const params = new HttpParams()
-    //   .set('', search)
-    //   .set('page', page.toString())
-    //   .set('page_size', pageSize.toString());
     const params = `?${search}&page=${page}&page_size=${pageSize}`
-    return this._http.getRequest(`${environment.api_url}branch/${params}`);
+    return this._http.getRequest(`${environment.api_url}branch/${params}/`);
   }
 
   addTaxRate(addForm: FormGroup | FormData): Observable<any> {
@@ -80,12 +77,8 @@ export class SettingsService {
   }
 
   getTaxRatees(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
-    // const params = new HttpParams()
-    //   .set('', search)
-    //   .set('page', page.toString())
-    //   .set('page_size', pageSize.toString());
     const params = `?${search}&page=${page}&page_size=${pageSize}`
-    return this._http.getRequest(`${environment.api_url}business/settings/tax-rates/${params}`);
+    return this._http.getRequest(`${environment.api_url}business/settings/tax-rates/${params}/`);
   }
 
   addPaymentOption(addForm: FormGroup | FormData): Observable<any> {
@@ -105,12 +98,8 @@ export class SettingsService {
   }
 
   getPaymentOptions(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
-    // const params = new HttpParams()
-    //   .set('', search)
-    //   .set('page', page.toString())
-    //   .set('page_size', pageSize.toString());
     const params = `?${search}&page=${page}&page_size=${pageSize}`
-    return this._http.getRequest(`${environment.api_url}business/settings/payment-methods/${params}`);
+    return this._http.getRequest(`${environment.api_url}business/settings/payment-methods/${params}/`);
   }
 
 
@@ -131,12 +120,8 @@ export class SettingsService {
   }
 
   getCurrencies(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {
-    // const params = new HttpParams()
-    //   .set('', search)
-    //   .set('page', page.toString())
-    //   .set('page_size', pageSize.toString());
     const params = `?${search}&page=${page}&page_size=${pageSize}`
-    return this._http.getRequest(`${environment.api_url}business/settings/currencies${params}`);
+    return this._http.getRequest(`${environment.api_url}business/settings/currencies${params}/`);
   }
 
   getInvoiceLayouts(search: string = '', page: number = 1, pageSize: number = 10): Observable<any> {

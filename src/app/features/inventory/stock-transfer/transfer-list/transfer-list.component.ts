@@ -21,6 +21,9 @@ export class TransferListComponent {
   pageSize: number = 10;
   first: number = 0;
   branches: any[] = [];
+  selectedProduct: any;
+  contextMenuItems: MenuItem[] = [];
+
 
   constructor(
     private _inventoryService: InventoryService,
@@ -28,7 +31,26 @@ export class TransferListComponent {
     private _router: Router,
     private _confirmPopUp: ConfirmationPopUpService,
     private _dropDownService: DropdownsService
-  ) { }
+  ) {
+    this.contextMenuItems = [
+      {
+        label: 'Edit',
+        icon: 'pi pi-fw pi-pen-to-square',
+        command: () => this.editTransfer(this.selectedProduct)
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-fw pi-trash',
+        command: () => this.showConfirmDelete(this.selectedProduct)
+      },
+      {
+        label: 'Approve Transfer',
+        icon: 'pi pi-arrow-right-arrow-left',
+        command: () => this.approveTransfer(this.selectedProduct),
+        visible: true
+      }
+    ]
+  }
 
   ngOnInit(): void {
     this.cols = [
@@ -68,6 +90,11 @@ export class TransferListComponent {
     })
   }
 
+  onRowSelected(row: any) {
+    this.selectedProduct = row;
+    this.contextMenuItems[2].visible = row?.status === "pending";
+  }
+
   // Get users with filtering and pagination
   getCurrentBranchTransfers(page: number = 1, pageSize: number = 10): void {
     let branchId = this.filterForm.value?.branch;
@@ -94,35 +121,33 @@ export class TransferListComponent {
     this.getCurrentBranchTransfers();
   }
 
-  selectedProduct: any;
+  approveTransfer(rowData: any) {
+    this._confirmPopUp.confirm({
+      message: 'Do you want to approve this transfer?',
+      header: 'Confirm Approval',
+      onAccept: () => {
+        this._inventoryService.approveTransfer(rowData.id).subscribe(res => {
+          this.getCurrentBranchTransfers(); // Refresh the list
+        })
+      },
 
-  transferMenuItems: MenuItem[] = [
-    {
-      label: 'Edit',
-      icon: 'pi pi-fw pi-pen-to-square',
-      command: () => this.editTransfer(this.selectedProduct)
-    },
-    {
-      label: 'Delete',
-      icon: 'pi pi-fw pi-trash',
-      command: () => this.showConfirmDelete(this.selectedProduct)
-    }
-
-  ];
+      target: rowData?.id
+    });
+  }
 
   editTransfer(user: any) {
+    console.log('editTransfer called with:', user);
     this._router.navigate([`stock-transfer/edit/${user?.id}`]);
   }
 
   deleteTransferBranch(user: any) {
     this._inventoryService.deleteTransferBranch(user?.id).subscribe(res => {
-      if (res) {
-        this.getCurrentBranchTransfers()
-      }
+      this.getCurrentBranchTransfers()
     })
   }
 
   showConfirmDelete(user: any) {
+    console.log('showConfirmDelete called with:', user);
     this._confirmPopUp.confirm({
       message: 'Do you want to delete this item?',
       header: 'Confirm Delete',

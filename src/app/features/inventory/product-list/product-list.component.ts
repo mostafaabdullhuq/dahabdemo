@@ -236,16 +236,17 @@ export class ProductListComponent {
   editUser(user: any) {
     this._router.navigate([`inventory/product/edit/${user?.id}`]);
   }
+
   openPrintLabel(data: any) {
     this._router.navigate(['inventory/product/product-label'], { queryParams: { id: data?.id } });
   }
+
   deleteProduct(user: any) {
     this._inventoryService.deleteProduct(user?.id).subscribe(res => {
-      if (res) {
-        this.getProducts()
-      }
+      this.getProducts()
     })
   }
+
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({
       message: 'Do you want to delete this item?',

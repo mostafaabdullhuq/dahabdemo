@@ -114,9 +114,7 @@ export class AddEditBranchComponent implements OnInit {
         email: unit?.email,
         tax_rate: unit?.tax_rate,
         manual_gold_price: unit?.manual_gold_price,
-        payment_methods: unit?.payment_methods?.map((pm: any) => ({
-          payment_method: pm.payment_method
-        })) || [],
+        payment_methods: unit?.payment_methods?.map((pm: any) => (pm.payment_method)) || [],
         logo: unit?.logo,
         vat_number: unit?.vat_number,
         cr_number: unit?.cr_number
@@ -216,9 +214,8 @@ export class AddEditBranchComponent implements OnInit {
       default: item?.default ?? false
     }));
 
-
     const paymentMethods = rawValue.payment_methods?.map((pm: any) => ({
-      payment_method: pm.payment_method
+      payment_method: pm
     })) || [];
 
     const formattedData = {

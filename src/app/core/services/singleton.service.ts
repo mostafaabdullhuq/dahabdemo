@@ -1,7 +1,7 @@
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {environment} from '../../../environments/environment.development';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class SingletonService {
 
   // GET REQUEST
   getRequest<T>(api: string, params?: any): Observable<T> {
-    return this._httpClient.get<T>(api, {params});
+    return this._httpClient.get<T>(api, { params });
   }
 
   // POST REQUEST
@@ -25,7 +25,7 @@ export class SingletonService {
       httpOptions = {}; // No custom headers; Angular will auto-set multipart/form-data
     } else {
       httpOptions = {
-        headers: headers || new HttpHeaders({'Content-Type': 'application/json'}),
+        headers: headers || new HttpHeaders({ 'Content-Type': 'application/json' }),
       };
     }
 
@@ -42,7 +42,7 @@ export class SingletonService {
     return this._httpClient.put<T>(api, payload);
   }
 
-// PATCH REQUEST
+  // PATCH REQUEST
   patchRequest<T>(api: string, payload?: any): Observable<T> {
     return this._httpClient.patch<T>(api, payload);
   }
@@ -50,8 +50,8 @@ export class SingletonService {
   // Generic methods for API requests
 
   get<T>(endpoint: string, params: { [key: string]: any } = {}): Observable<T> {
-    const _params: HttpParams | {} = params ? new HttpParams({fromObject: params}) : {};
-    return this._httpClient.get<T>(this.getEndpointUrl(endpoint), {params: _params});
+    const _params: HttpParams | {} = params ? new HttpParams({ fromObject: params }) : {};
+    return this._httpClient.get<T>(this.getEndpointUrl(endpoint), { params: _params });
   }
 
   post<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
@@ -61,7 +61,7 @@ export class SingletonService {
       httpOptions = {}; // No custom headers; Angular will auto-set multipart/form-data
     } else {
       httpOptions = {
-        headers: headers || new HttpHeaders({'Content-Type': 'application/json'}),
+        headers: headers || new HttpHeaders({ 'Content-Type': 'application/json' }),
       };
     }
 

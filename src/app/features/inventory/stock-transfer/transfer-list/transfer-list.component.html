@@ -5,9 +5,6 @@
     <h3>Stock Transfer</h3>
     <hr>
     <div class="header-btns">
-      <a href="excels/stock_taking.csv" class="add-btn rounded-3 text-center" title="download template">
-        <i class="pi pi-download px-2 py-1"></i>
-      </a>
       <button [routerLink]="['/inventory/stock-transfer']" class="add-btn text-center"><i
           class="pi pi-plus  px-2"></i>Add Transfer</button>
     </div>
@@ -33,7 +30,7 @@
   </div>
 
   <div class="table-container">
-    <app-data-table [contextMenuItems]="transferMenuItems" (rowSelected)="selectedProduct = $event" [data]="transfers"
+    <app-data-table [contextMenuItems]="contextMenuItems" (rowSelected)="onRowSelected($event)" [data]="transfers"
       [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
       (pageChange)="loadStockTransfer($event)">
     </app-data-table>
