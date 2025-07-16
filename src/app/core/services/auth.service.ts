@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ITokens } from '../interfaces/itokens.interface';
-import { BehaviorSubject, catchError, of, tap } from 'rxjs';
+import { BehaviorSubject, catchError, of, tap, map } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 import { SingletonService } from './singleton.service';
 import { FormGroup } from '@angular/forms';
@@ -17,6 +17,11 @@ export class AuthService {
   private readonly API_URL = environment.api_url;
   private currentTokens$ = new BehaviorSubject<ITokens | null>(this.getTokens());
   private currentUser$ = new BehaviorSubject<User | null>(null);
+
+  // Public observable for login state
+  public readonly isLoggedIn$ = this.currentTokens$.asObservable().pipe(
+    map(tokens => !!tokens)
+  );
 
   constructor(private _http: SingletonService, private router: Router) { }
   login(form: FormGroup, remember: boolean) {

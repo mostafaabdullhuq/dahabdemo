@@ -4,7 +4,7 @@ import { SharedModule } from './shared/shared.module';
 import { RouterOutlet } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ThemeService } from './shared/services/theme.service';
-import { WebsocketTimerService } from './core/services/websocket-timer.service';
+import { LiveGoldRatesService } from './shared/services/live-gold-rates.service';
 import { updatePreset } from '@primeng/themes';
 export const AmberPreset = updatePreset(Aura, {
   semantic: {
@@ -46,7 +46,7 @@ export class AppComponent {
     private themeService: ThemeService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
-    private websocketTimerService: WebsocketTimerService
+    private liveGoldRatesService: LiveGoldRatesService
   ) { }
   confirm1(event: Event) {
     this.confirmationService.confirm({

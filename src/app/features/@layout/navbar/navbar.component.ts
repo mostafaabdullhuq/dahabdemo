@@ -2,7 +2,7 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { PermissionService } from '../../../core/services/permission.service';
 import { Subscription } from 'rxjs';
-import { WebsocketTimerService, GoldPrices } from '../../../core/services/websocket-timer.service';
+import { LiveGoldRatesService, GoldPrices } from '../../../shared/services/live-gold-rates.service';
 
 @Component({
   selector: 'app-navbar',
@@ -23,7 +23,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private _websocketTimerService: WebsocketTimerService
+    private liveGoldRatesService: LiveGoldRatesService
   ) {
     this.items = [];
 
@@ -58,10 +58,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private setupPriceSubscription(): void {
     console.log('[Navbar] Subscribing to gold price updates');
-    this.pricesSubscription = this._websocketTimerService.currentPrices$.subscribe(
+    this.pricesSubscription = this.liveGoldRatesService.currentPrices$.subscribe(
       prices => {
         this.currentGoldRates = prices;
-        console.log('[Navbar] Gold prices updated:', prices);
       }
     );
   }

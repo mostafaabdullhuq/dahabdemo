@@ -22,36 +22,72 @@
               <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
               <strong class="rates-header px-1">24K</strong>
             </div>
+            @if (currentGoldRates.price_gram_24k) {
             <div class="ps-2">
-              40.73 BHD
+              {{(currentGoldRates.price_gram_24k | number:'1.2-2')}} BHD
             </div>
+            } @else {
+            <div class="mx-4">
+              <!-- loader -->
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            }
           </div>
           <div class="rate-content d-flex p-0 justify-content-center align-items-center">
             <div class="col-md-3 text-center rates-header">
               <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
               <strong class="rates-header px-1">22K</strong>
             </div>
+            @if (currentGoldRates.price_gram_22k) {
             <div class="ps-2">
-              37.33 BHD
+              {{(currentGoldRates.price_gram_22k | number:'1.2-2')}} BHD
             </div>
+            } @else {
+            <div class="mx-4">
+              <!-- loader -->
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            }
           </div>
           <div class="rate-content d-flex p-0 justify-content-center align-items-center">
             <div class="col-md-3 text-center rates-header">
               <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
               <strong class="rates-header px-1">21K</strong>
             </div>
+            @if (currentGoldRates.price_gram_21k) {
             <div class="ps-2">
-              35.64 BHD
+              {{(currentGoldRates.price_gram_21k | number:'1.2-2')}} BHD
             </div>
+            } @else {
+            <div class="mx-4">
+              <!-- loader -->
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            }
           </div>
           <div class="rate-content d-flex p-0 justify-content-center align-items-center">
             <div class="col-md-3 text-center rates-header">
               <img class="text-center mx-1" src="nav-rates/gold-ingots.png" alt="">
               <strong class="rates-header px-1">18K</strong>
             </div>
+            @if (currentGoldRates.price_gram_18k) {
             <div class="ps-2">
-              30.06 BHD
+              {{(currentGoldRates.price_gram_18k | number:'1.2-2')}} BHD
             </div>
+            } @else {
+            <div class="mx-4">
+              <!-- loader -->
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            }
           </div>
         </div>
       </div>
