@@ -3,6 +3,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../shared/shared.module';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { AccService } from '../../@services/acc.service';
+import { ToasterMsgService } from '../../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-payment-expense',
@@ -10,111 +11,128 @@ import { AccService } from '../../@services/acc.service';
   templateUrl: './payment-expense.component.html',
   styleUrl: './payment-expense.component.scss'
 })
-export class PaymentExpenseComponent implements OnInit{
+export class PaymentExpenseComponent implements OnInit {
   paymentData: any = [];
   paymentMethods: any = [];
   paymentForm!: FormGroup;
-  paymentTypeOptions:any = [
-    {id:'Tag NO' , name:'Tag NO'},
-    {id:'TTB' , name:'TTB'},
-    {id:'Amount' , name:'Amount'},
-    {id:'Scrap' , name:'Scrap'},
+  paymentTypeOptions: any = [
+    { id: 'Tag NO', name: 'Tag NO' },
+    { id: 'TTB', name: 'TTB' },
+    { id: 'Amount', name: 'Amount' },
+    { id: 'Scrap', name: 'Scrap' },
   ]
   visible: boolean = false;
-  constructor(private _formBuilder:FormBuilder, private _dropdownSrvice:DropdownsService , private _accService:AccService){}
+
+  constructor(private _formBuilder: FormBuilder, private _dropdownSrvice: DropdownsService, private _accService: AccService, private _toaster: ToasterMsgService) { }
+
   showDialog() {
     this.visible = true;
   }
- ngOnInit(): void {
-  this.initForm();
 
-  if (this.paymentData && Object.keys(this.paymentData).length > 0) {
-    this.patchForm(this.paymentData); // patch main controls
-  } 
+  ngOnInit(): void {
+    this.initForm();
 
-  this._dropdownSrvice.getPaymentMethods().subscribe(res=>{
-this.paymentMethods=res
-  })
-}
-patchForm(data: any) {
-  this.paymentForm.patchValue({
-    attachment:data?.attachment,
-      note:data?.note,
-      paid_on: data?.paid_on,
-      amount:data?.amount,
-      payment_method:data?.payment_method,
-  });
-}
-initForm(){
-  return this.paymentForm = this._formBuilder.group({
+    if (this.paymentData.branch) {
+      this._accService.getBranchPaymentMethods(this.paymentData.branch).subscribe(result => {
+        this.paymentMethods = result;
+      })
+    }
+
+    if (this.paymentData && Object.keys(this.paymentData).length > 0) {
+      this.patchForm(this.paymentData); // patch main controls
+    }
+  }
+
+  patchForm(data: any) {
+    this.paymentForm.patchValue({
+      attachment: data?.attachment,
+      note: data?.note,
+      paid_on: data?.paid_on || new Date(),
+      amount: data?.amount,
+      payment_method: data?.payment_method,
+    });
+  }
+
+  initForm() {
+    return this.paymentForm = this._formBuilder.group({
       attachment: [0],
       note: [''],
       paid_on: ['', Validators.required],
       amount: [0, Validators.required],
       payment_method: [0, Validators.required],
     });
-}
+  }
+
   patchPaymentData(data: any[]) {
-  this.items.clear();
-  data.forEach((item) => {
-    const group = this.createItem(item);
-    this.items.push(group);
-    this.calculatePureWeight(group); // Trigger initial calculation
-  });
-}
-   get items(): FormArray {
+    this.items.clear();
+    data.forEach((item) => {
+      const group = this.createItem(item);
+      this.items.push(group);
+      this.calculatePureWeight(group); // Trigger initial calculation
+    });
+  }
+
+  get items(): FormArray {
     return this.paymentForm.get('items') as FormArray;
   }
 
-submit() {
-  if (this.paymentForm.invalid) {
-    this.paymentForm.markAllAsTouched();
-    return;
+  submit() {
+
+    if (this.paymentForm.invalid) {
+      console.log("invalid payment");
+
+      this.paymentForm.markAllAsTouched();
+      return;
+    }
+
+    const formData = new FormData();
+
+    const formValue = this.paymentForm.value;
+
+    // Append each form field to FormData
+    formData.append('attachment', formValue.attachment ?? ''); // assume attachment is a File object or '' if empty
+    formData.append('note', formValue.note);
+    formData.append('paid_on', new Date(formValue.paid_on).toISOString().split('T')[0]);
+    formData.append('amount', formValue.amount.toString());
+    formData.append('payment_method', formValue.payment_method.toString());
+    this._accService.addExpensePayment(this.paymentData?.id, formData).subscribe(result => {
+      this._toaster.showSuccess("Expense payment done successfully");
+      this.visible = false;
+    })
   }
 
-  const formData = new FormData();
 
-  const formValue = this.paymentForm.value;
+  createItem(data?: any): FormGroup {
+    const group = this._formBuilder.group({
+      purchase_payment: [data?.purchase_payment || 0],
+      type: [data?.type || 'fixed', Validators.required],
+      is_fixed: [data?.is_fixed ?? true],
+      amount: [data?.amount || '', Validators.required],
+      description: [data?.description || ''],
+      product_id: [data?.product_id || 0],
+      quantity: [data?.quantity || 1, [Validators.required, Validators.min(1)]],
+      pure_weight: [data?.pure_weight || '0'],
+      weight: [data?.weight || '0'],
+      purity: [data?.purity || 0],
+      value: [data?.value || 0],
+      purity_rate: [data?.purity_rate || 0],
+    });
 
-  // Append each form field to FormData
-  formData.append('attachment', formValue.attachment ?? ''); // assume attachment is a File object or '' if empty
-  formData.append('note', formValue.note);
-  formData.append('paid_on', formValue.paid_on);
-  formData.append('amount', formValue.amount.toString());
-  formData.append('payment_method', formValue.payment_method.toString());
-  this._accService.addExpensePayment(this.paymentData?.id , formData).subscribe()
-}
+    return group;
+  }
 
+  calculatePureWeight(group: FormGroup) {
+    const weight = parseFloat(group.get('weight')!.value) || 0;
+    const value = parseFloat(group.get('value')!.value) || 0;
+    const purityRate = parseFloat(group.get('purity_rate')!.value) || 0;
 
-createItem(data?: any): FormGroup {
-  const group = this._formBuilder.group({
-    purchase_payment: [data?.purchase_payment || 0],
-    type: [data?.type || 'fixed', Validators.required],
-    is_fixed: [data?.is_fixed ?? true],
-    amount: [data?.amount || '', Validators.required],
-    description: [data?.description || ''],
-    product_id: [data?.product_id || 0],
-    quantity: [data?.quantity || 1, [Validators.required, Validators.min(1)]],
-    pure_weight: [data?.pure_weight || '0'],
-    weight: [data?.weight || '0'],
-    purity: [data?.purity || 0],
-    value: [data?.value || 0],
-    purity_rate: [data?.purity_rate || 0],
-  });
+    const pureWeight = weight * (value * purityRate);
+    group.get('pure_weight')!.setValue(pureWeight.toFixed(3), { emitEvent: false });
+  }
 
-  return group;
-}
-calculatePureWeight(group: FormGroup) {
-  const weight = parseFloat(group.get('weight')!.value) || 0;
-  const value = parseFloat(group.get('value')!.value) || 0;
-  const purityRate = parseFloat(group.get('purity_rate')!.value) || 0;
-
-  const pureWeight = weight * (value * purityRate);
-  group.get('pure_weight')!.setValue(pureWeight.toFixed(3), { emitEvent: false });
-}
-addItem(data?: any) {
-  this.items.push(this.createItem(data));
-}
+  addItem(data?: any) {
+    this.items.push(this.createItem(data));
+  }
 
   removeItem(index: number) {
     this.items.removeAt(index);

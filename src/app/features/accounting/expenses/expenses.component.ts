@@ -10,7 +10,7 @@ import { PaymentExpenseComponent } from './payment-expense/payment-expense.compo
 
 @Component({
   selector: 'app-expenses',
-  imports: [SharedModule , RouterLink],
+  imports: [SharedModule, RouterLink],
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.scss'
 })
@@ -19,29 +19,29 @@ export class ExpensesComponent {
   suppliers: any[] = [];
   branches: any[] = [];
   status: any[] = [
-     {
-    id: "", name:'All'
-  },
-  {
-    id: "pending", name:'pending'
-  },
-  {
-    id: "approved", name:'approved'
-  },
-  {
-    id: "shipped", name:'delivered'
-  },
-  {
-    id: "delivered", name:'delivered'
-  },
-  {
-    id: "cancelled", name:'cancelled'
-  }
+    {
+      id: "", name: 'All'
+    },
+    {
+      id: "pending", name: 'pending'
+    },
+    {
+      id: "approved", name: 'approved'
+    },
+    {
+      id: "shipped", name: 'delivered'
+    },
+    {
+      id: "delivered", name: 'delivered'
+    },
+    {
+      id: "cancelled", name: 'cancelled'
+    }
   ];
-  type:any[] = [
-    {id:'' , name:'All'},
-    {id:'fixed' , name:'fixed'},
-    {id:'unfixed' , name:'unfixed'},
+  type: any[] = [
+    { id: '', name: 'All' },
+    { id: 'fixed', name: 'fixed' },
+    { id: 'unfixed', name: 'unfixed' },
   ]
   cols: any[] = [];
   filterForm!: FormGroup;
@@ -54,34 +54,34 @@ export class ExpensesComponent {
     private _formBuilder: FormBuilder,
     private _router: Router,
     private _confirmPopUp: ConfirmationPopUpService,
-    private _dropdown:DropdownsService
+    private _dropdown: DropdownsService
   ) { }
 
   ngOnInit(): void {
     this.cols = [
       { field: "id", header: "ID" },
-        { field: "name", header: "Expense Name" },
-        { field: "reference_number", header: "Refrence Number" },
-        { field: "total_amount", header: "Amount" },
-        { field: "date", header: "Date" },
-        { field: "category", header: "Category" },
-        { field: "payment_status", header: "Payment Status" },
+      { field: "name", header: "Expense Name" },
+      { field: "reference_number", header: "Refrence Number" },
+      { field: "total_amount", header: "Amount" },
+      { field: "date", header: "Date" },
+      { field: "category", header: "Category" },
+      { field: "payment_status", header: "Payment Status" },
     ];
     this.filterForm = this._formBuilder.group({
       search: '',
-      transaction_type:'',
-      branch:'',
-      payments__payment_method__id:'',
-      supplier:'',
-      type:'',
-      order_date:'',
-      status:''
+      transaction_type: '',
+      branch: '',
+      payments__payment_method__id: '',
+      supplier: '',
+      type: '',
+      order_date: '',
+      status: ''
     });
     this.getExpenses();
-    this._dropdown.getBranches().subscribe(res=>{
+    this._dropdown.getBranches().subscribe(res => {
       this.branches = res?.results
     })
-    this._dropdown.getSuppliers().subscribe(res=>{
+    this._dropdown.getSuppliers().subscribe(res => {
       this.suppliers = res?.results
     })
   }
@@ -102,6 +102,7 @@ export class ExpensesComponent {
       this.totalRecords = res?.count;  // Ensure the total count is updated
     });
   }
+
   loadPurchases(event: any): void {
     const page = event.first / event.rows + 1;
     const pageSize = event.rows;
@@ -123,7 +124,7 @@ export class ExpensesComponent {
       icon: 'pi pi-fw pi-pen-to-square',
       command: () => this.editExpense(this.selectedTransaction)
     },
-     {
+    {
       label: 'Add Payment',
       icon: 'pi pi-fw pi-payment',
       command: () => this.addPayment(this.selectedTransaction)
@@ -139,6 +140,7 @@ export class ExpensesComponent {
   editExpense(user: any) {
     this._router.navigate([`acc/expense/edit/${user?.id}`]);
   }
+
   deleteExpense(user: any) {
     this._accService.deleteExpense(user?.id).subscribe(res => {
       if (res) {
@@ -146,6 +148,7 @@ export class ExpensesComponent {
       }
     })
   }
+
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({
       message: 'Do you want to delete this item?',
@@ -156,7 +159,8 @@ export class ExpensesComponent {
       target: user?.id
     });
   }
-    @ViewChild('paymentContainer', { read: ViewContainerRef }) container!: ViewContainerRef;
+
+  @ViewChild('paymentContainer', { read: ViewContainerRef }) container!: ViewContainerRef;
   private componentRef!: ComponentRef<PaymentExpenseComponent>;
   addPayment(data: any) {
     this.container.clear();
@@ -164,6 +168,7 @@ export class ExpensesComponent {
     this.componentRef.instance.paymentData = data;
     this.componentRef.instance.showDialog();
   }
+
   onSearch(): void {
     const formValues = this.filterForm.value;
 

@@ -2,50 +2,40 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
-import { BalanceSheetReportResponse, BalanceSheetNodeMap, BalanceSheetNode } from '../balance-sheet-reports.models';
+import { CashFlowReportResponse, CashFlowData, CashFlowTableItem } from '../cash-flow-reports.models';
 import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 import { ReportExportService, ReportConfig, ReportColumn } from '../../../@services/report-export.service';
 import { DropdownsService } from '../../../../../core/services/dropdowns.service';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { DataTableColumn } from '../../../../../shared/models/common.models';
 
-interface BalanceSheetTableItem {
-  description: string;
-  amount: number | null;
-  level: number;
-  isParent: boolean;
-  code: string;
-  id: number;
-}
-
 @Component({
-  selector: 'app-balance-sheet-report',
+  selector: 'app-cash-flow-report',
   imports: [
     FormsModule,
     ReactiveFormsModule,
     SharedModule
   ],
-  templateUrl: './balance-sheet-report.component.html',
-  styleUrl: './balance-sheet-report.component.scss'
+  templateUrl: './cash-flow-report.component.html',
+  styleUrl: './cash-flow-report.component.scss'
 })
-export class BalanceSheetReportComponent implements OnInit {
+export class CashFlowReportComponent implements OnInit {
   filterForm!: FormGroup;
   branches: any[] = [];
-  balanceSheetData: BalanceSheetReportResponse | null = null;
-  balanceSheetTree: BalanceSheetNodeMap | null = null;
-  balanceSheetTableData: BalanceSheetTableItem[] = [];
+  cashFlowData: CashFlowData | null = null;
+  cashFlowTableData: CashFlowTableItem[] = [];
   currency: string = '';
 
-  columns: DataTableColumn<BalanceSheetTableItem>[] = [
+  columns: DataTableColumn<CashFlowTableItem>[] = [
     {
       field: "description",
       header: "Description",
-      body: (row: BalanceSheetTableItem) => this.getDescriptionWithIndentation(row)
+      body: (row: CashFlowTableItem) => this.getDescriptionDisplay(row)
     },
     {
       field: "amount",
       header: "Amount",
-      body: (row: BalanceSheetTableItem) => this.getFormattedAmount(row)
+      body: (row: CashFlowTableItem) => this.getFormattedAmount(row)
     }
   ];
 
@@ -122,84 +112,123 @@ export class BalanceSheetReportComponent implements OnInit {
   }
 
   private getData(filter: {} = {}) {
-    this._reportsService.getBalanceSheetReport(filter).subscribe({
-      next: (response: BalanceSheetReportResponse) => {
-        this.balanceSheetData = response;
+    this._reportsService.getCashFlowReport(filter).subscribe({
+      next: (response: CashFlowReportResponse) => {
+        this.cashFlowData = response.cash_flow;
         this.currency = response.currency;
         this.shopName = response.name ?? this._authService.getUser()?.business_name ?? '-';
         this.shopLogoURL = response.logo ?? this._authService.getUser()?.image ?? '';
-        this.balanceSheetTree = response.balance_sheet;
-        this.processBalanceSheetToTable();
+        this.processCashFlowToTable();
       },
       error: (error) => {
-        this.toaster.showError('Failed to load balance sheet data. Please try again.');
+        this.toaster.showError('Failed to load cash flow data. Please try again.');
       }
     });
   }
 
-  private processBalanceSheetToTable() {
-    this.balanceSheetTableData = [];
-    if (this.balanceSheetTree) {
-      this.flattenBalanceSheetTree(this.balanceSheetTree, 0);
-    }
-  }
+  private processCashFlowToTable() {
+    this.cashFlowTableData = [];
+    if (!this.cashFlowData) return;
 
-  private flattenBalanceSheetTree(nodeMap: BalanceSheetNodeMap, level: number) {
-    Object.keys(nodeMap).forEach(key => {
-      const node = nodeMap[key];
+    // Opening Balance
+    this.cashFlowTableData.push({
+      description: 'Opening Balance',
+      amount: this.cashFlowData.opening_balance,
+      isCategory: false,
+      isTotal: false
+    });
 
-      // Add the current node to the table
-      this.balanceSheetTableData.push({
-        description: node.name,
-        amount: node.total_amount,
-        level: level,
-        isParent: !!node.subaccounts && Object.keys(node.subaccounts).length > 0,
-        code: node.code,
-        id: node.id
+    // Cash Inflow Section
+    this.cashFlowTableData.push({
+      description: 'Cash Inflow',
+      amount: null,
+      isCategory: true,
+      isTotal: false
+    });
+
+    // Cash Inflow Items
+    this.cashFlowData.cash_inflow.forEach(item => {
+      this.cashFlowTableData.push({
+        description: `${item.account_name} (${item.account_code})`,
+        amount: item.debit_amount || 0,
+        isCategory: false,
+        isTotal: false,
+        account_code: item.account_code
       });
+    });
 
-      // Recursively process children if they exist
-      if (node.subaccounts && Object.keys(node.subaccounts).length > 0) {
-        this.flattenBalanceSheetTree(node.subaccounts, level + 1);
-      }
+    // Cash Outflow Section
+    this.cashFlowTableData.push({
+      description: 'Cash Outflow',
+      amount: null,
+      isCategory: true,
+      isTotal: false
+    });
+
+    // Cash Outflow Items
+    this.cashFlowData.cash_outflow.forEach(item => {
+      this.cashFlowTableData.push({
+        description: `${item.account_name} (${item.account_code})`,
+        amount: -(item.credit_amount || 0), // Negative for outflow
+        isCategory: false,
+        isTotal: false,
+        account_code: item.account_code
+      });
+    });
+
+    // Net Cash Flow
+    this.cashFlowTableData.push({
+      description: 'Net Cash Flow',
+      amount: this.cashFlowData.net_cash_flow,
+      isCategory: false,
+      isTotal: true
+    });
+
+    // Ending Cash Balance
+    this.cashFlowTableData.push({
+      description: 'Ending Cash Balance',
+      amount: this.cashFlowData.ending_cash_balance,
+      isCategory: false,
+      isTotal: true
     });
   }
 
-  getDescriptionWithIndentation(row: BalanceSheetTableItem): string {
-    // Create indentation using nested blockquote elements
-    let openTags = '';
-    let closeTags = '';
-
-    let indentation = "   ".repeat(row.level)
-
-    for (let i = 0; i < row.level; i++) {
-      openTags += '<blockquote>';
-      closeTags = '</blockquote>' + closeTags;
-    }
-
-    // Apply semantic markup based on whether it's a parent or child item
-    const displayText = `${indentation}${row.description}`;
-    if (row.isParent) {
-      return `${openTags}<strong><pre>${displayText}</pre></strong>${closeTags}`;
+  getDescriptionDisplay(row: CashFlowTableItem): string {
+    if (row.isCategory) {
+      return `<strong><pre>${row.description}</pre></strong>`;
+    } else if (row.isTotal) {
+      return `<strong>${row.description}</strong>`;
     } else {
-      return `${openTags}<pre>${displayText}</pre>${closeTags}`;
+      return `<span><pre>  ${row.description}</pre></span>`;
     }
   }
 
-  getDescriptionWithIndentationForReport(row: BalanceSheetTableItem): string {
-
-    let indentation = "     ".repeat(row.level)
-
-    // Apply semantic markup based on whether it's a parent or child item
-    return `${indentation}${row.description}`;
+  getDescriptionForExport(row: CashFlowTableItem): string {
+    if (row.isCategory) {
+      return row.description;
+    } else if (row.isTotal) {
+      return row.description;
+    } else {
+      return `    ${row.description}`;
+    }
   }
 
-
-  getFormattedAmount(row: BalanceSheetTableItem): string {
+  getFormattedAmountForExport(row: CashFlowTableItem): string {
     if (row.amount === null) {
       return '-';
     }
+
     return row.amount.toFixed(3) + ' ' + this.currency;
+  }
+
+  getFormattedAmount(row: CashFlowTableItem): string {
+    if (row.amount === null) {
+      return '-';
+    }
+
+    let amount = row.amount.toFixed(3) + ' ' + this.currency;
+
+    return `<strong>${amount}</strong>`
   }
 
   onSearch() {
@@ -268,28 +297,28 @@ export class BalanceSheetReportComponent implements OnInit {
       {
         field: 'description',
         header: 'Description',
-        body: (row: BalanceSheetTableItem) => this.getDescriptionWithIndentationForReport(row)
+        body: (row: CashFlowTableItem) => this.getDescriptionForExport(row)
       },
       {
         field: 'amount',
         header: `Amount (${this.currency})`,
-        body: (row: BalanceSheetTableItem) => this.getFormattedAmount(row)
+        body: (row: CashFlowTableItem) => this.getFormattedAmountForExport(row)
       }
     ];
 
     return {
-      title: 'Balance Sheet Report',
-      data: this.balanceSheetTableData,
+      title: 'Cash Flow Report',
+      data: this.cashFlowTableData,
       columns: reportColumns,
       filterForm: this.filterForm,
       businessName: this.shopName,
       businessLogoURL: this.shopLogoURL,
-      filename: 'balance-sheet-report'
+      filename: 'cash-flow-report'
     };
   }
 
   exportToPDF(): void {
-    if (!this.balanceSheetData || this.balanceSheetTableData.length === 0) {
+    if (!this.cashFlowData || this.cashFlowTableData.length === 0) {
       this.toaster.showInfo('No data to export.');
       return;
     }
@@ -297,7 +326,7 @@ export class BalanceSheetReportComponent implements OnInit {
   }
 
   exportToExcel(): void {
-    if (!this.balanceSheetData || this.balanceSheetTableData.length === 0) {
+    if (!this.cashFlowData || this.cashFlowTableData.length === 0) {
       this.toaster.showInfo('No data to export.');
       return;
     }
@@ -305,7 +334,7 @@ export class BalanceSheetReportComponent implements OnInit {
   }
 
   exportToCSV(): void {
-    if (!this.balanceSheetData || this.balanceSheetTableData.length === 0) {
+    if (!this.cashFlowData || this.cashFlowTableData.length === 0) {
       this.toaster.showInfo('No data to export.');
       return;
     }
@@ -313,7 +342,7 @@ export class BalanceSheetReportComponent implements OnInit {
   }
 
   printReport(): void {
-    if (!this.balanceSheetData || this.balanceSheetTableData.length === 0) {
+    if (!this.cashFlowData || this.cashFlowTableData.length === 0) {
       this.toaster.showInfo('No data to print.');
       return;
     }

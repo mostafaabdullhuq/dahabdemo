@@ -2,19 +2,28 @@
 import { BaseReportResponse } from "../reports.models";
 
 export interface BalanceSheetReportResponse extends BaseReportResponse {
-  balances: Balances;
+  report_type: string;
+  balance_sheet: BalanceSheetNodeMap;
+  totals: BalanceSheetTotals;
 }
 
-type Balances = { [key: string]: number | Balances }
-
-export interface BalanceSheetReport {
-  sales: VatsReturnReportItem[];
-  purchase: VatsReturnReportItem[];
-  totals: VatsReturnReportItem[];
+export interface BalanceSheetNodeMap {
+  [key: string]: BalanceSheetNode;
 }
 
-export interface VatsReturnReportItem {
-  description: string;
-  amount: number;
-  vat_amount: number;
+export interface BalanceSheetNode {
+  name: string;
+  code: string;
+  total_amount: number;
+  id: number;
+  balance: number;
+  quantity: number;
+  subaccounts?: BalanceSheetNodeMap;
+}
+
+export interface BalanceSheetTotals {
+  total_assets: number;
+  total_liabilities: number;
+  total_equity: number;
+  net_income: number;
 }

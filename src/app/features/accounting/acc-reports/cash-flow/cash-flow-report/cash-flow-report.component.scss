@@ -1,0 +1,52 @@
+// Cash flow report component styles for table layout
+
+// Table styles with hierarchical display
+::ng-deep .cash-flow-table {
+  .p-datatable-tbody tr td:first-child {
+    // Category styling
+    strong {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    // Item styling with indentation
+    span {
+      color: #5a6c7d;
+      font-weight: normal;
+    }
+  }
+
+  // Amount column styling
+  .p-datatable-tbody tr td:last-child {
+    font-family: "Courier New", monospace;
+    text-align: right;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  // Row styling
+  .p-datatable-tbody tr {
+    &:hover {
+      background-color: #f8f9fa;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #ecf0f1;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .cash-flow-table {
+    font-size: 14px;
+  }
+}
+
+.table-container {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}

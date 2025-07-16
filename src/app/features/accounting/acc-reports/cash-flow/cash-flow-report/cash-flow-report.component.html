@@ -56,37 +56,16 @@
     </app-filter-collapse>
   </div>
 
-  <!-- Balance Sheet Table -->
+  <!-- Cash Flow Table -->
   <div class="table-container">
-    <app-data-table [data]="balanceSheetTableData" [cols]="columns" [totalRecords]="balanceSheetTableData.length"
-      [hasContext]="false" [paginator]="false">
+    <div class="cash-flow-table">
+      <app-data-table [data]="cashFlowTableData" [cols]="columns" [totalRecords]="cashFlowTableData.length"
+        [hasContext]="false" [paginator]="false">
 
-      <ng-container table-empty-message *ngIf="balanceSheetTableData.length === 0">
-        No balance sheet data found for the selected criteria. Try adjusting your filter options.
-      </ng-container>
-    </app-data-table>
-  </div>
-
-  <!-- Totals Section -->
-  <div class="totals-section" *ngIf="balanceSheetData?.totals">
-    <h4>Totals</h4>
-    <div class="totals-grid">
-      <div class="total-item">
-        <strong>Total Assets:</strong>
-        <span>{{balanceSheetData?.totals?.total_assets | number:'1.3-3'}} {{currency}}</span>
-      </div>
-      <div class="total-item">
-        <strong>Total Liabilities:</strong>
-        <span>{{balanceSheetData?.totals?.total_liabilities | number:'1.3-3'}} {{currency}}</span>
-      </div>
-      <div class="total-item">
-        <strong>Total Equity:</strong>
-        <span>{{balanceSheetData?.totals?.total_equity | number:'1.3-3'}} {{currency}}</span>
-      </div>
-      <div class="total-item">
-        <strong>Net Income:</strong>
-        <span>{{balanceSheetData?.totals?.net_income | number:'1.3-3'}} {{currency}}</span>
-      </div>
+        <ng-container table-empty-message *ngIf="cashFlowTableData.length === 0">
+          No cash flow data found for the selected criteria. Try adjusting your filter options.
+        </ng-container>
+      </app-data-table>
     </div>
   </div>
 </section>

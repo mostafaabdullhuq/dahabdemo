@@ -81,6 +81,9 @@ import { LiabilitiesReportsComponent } from '../accounting/acc-reports/liabiliti
 import { AssetsReportsComponent } from '../accounting/acc-reports/assets/assets-reports.component';
 import { VatsReportsComponent } from '../accounting/acc-reports/vats/vats-reports.component';
 import { BalanceSheetReportsComponent } from '../accounting/acc-reports/balance-sheets/balance-sheet-reports.component';
+import { CashFlowReportsComponent } from '../accounting/acc-reports/cash-flow/cash-flow-reports.component';
+import { ProfitAndLossReportsComponent } from '../accounting/acc-reports/profit-and-loss/profit-and-loss-reports.component';
+import { TrialBalanceReportsComponent } from '../accounting/acc-reports/trial-balance/trial-balance-reports.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -211,6 +214,9 @@ export const routes: Routes = [
           { path: 'assets', component: AssetsReportsComponent },
           { path: 'vats', component: VatsReportsComponent },
           { path: 'balance-sheet', component: BalanceSheetReportsComponent },
+          { path: 'cash-flow', component: CashFlowReportsComponent },
+          { path: 'profit-and-loss', component: ProfitAndLossReportsComponent },
+          { path: 'trial-balance', component: TrialBalanceReportsComponent },
 
         ]
       },

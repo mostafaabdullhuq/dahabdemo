@@ -1,4 +1,4 @@
-// Balance sheet report component styles for table layout with hierarchical display
+// Profit and Loss report component styles for table layout with hierarchical display
 
 .business-info {
   margin: 20px 0;
@@ -28,7 +28,7 @@
 }
 
 // Hierarchical table styles with blockquote indentation
-::ng-deep .balance-sheet-table {
+::ng-deep .profit-and-loss-table {
   .p-datatable-tbody tr td:first-child {
     // Blockquote styling for hierarchy
     blockquote {
@@ -64,16 +64,6 @@
       color: #5a6c7d;
       font-weight: normal;
     }
-
-    // reset the pre tag
-    pre {
-      margin: 0 !important;
-      padding: 0 !important;
-      border: none !important;
-      background: none !important;
-      font-family: inherit !important;
-      font-size: inherit !important;
-    }
   }
 
   // Amount column styling
@@ -81,7 +71,7 @@
     font-family: "Courier New", monospace;
     text-align: right;
     font-weight: 500;
-    color: #27ae60;
+    color: #1a1a1a;
   }
 
   // Row styling
@@ -174,7 +164,7 @@
     }
   }
 
-  ::ng-deep .balance-sheet-table {
+  ::ng-deep .profit-and-loss-table {
     .p-datatable-tbody tr td:first-child {
       font-size: 12px;
 
