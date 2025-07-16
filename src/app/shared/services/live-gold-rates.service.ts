@@ -21,17 +21,17 @@ export class LiveGoldRatesService {
   private readonly maxReconnectAttempts = 5;
   private readonly reconnectDelay = 3000;
 
-  private socket$!: WebSocketSubject<any>;
-  private messagesSubject = new Subject<any>();
-  public messages$ = this.messagesSubject.asObservable();
   private connectionStatusSubject = new Subject<boolean>();
-  public connectionStatus$ = this.connectionStatusSubject.asObservable();
+  private messagesSubject = new Subject<any>();
+  private socket$!: WebSocketSubject<any>;
   private currentPricesSubject = new BehaviorSubject<GoldPrices>({
     price_gram_18k: null,
     price_gram_21k: null,
     price_gram_22k: null,
     price_gram_24k: null
   });
+  public messages$ = this.messagesSubject.asObservable();
+  public connectionStatus$ = this.connectionStatusSubject.asObservable();
   public currentPrices$ = this.currentPricesSubject.asObservable();
 
   private timer: any;
@@ -54,7 +54,8 @@ export class LiveGoldRatesService {
   }
 
   private getWebSocketUrl(): string {
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const protocol = 'ws';
+    // const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const token = this.authService.getAccessToken();
     return `${protocol}://${environment.api_web_socket}ws/gold-rate/?token=${token}`;
   }
