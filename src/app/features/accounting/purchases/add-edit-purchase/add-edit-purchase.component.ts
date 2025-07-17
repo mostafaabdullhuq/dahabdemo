@@ -34,11 +34,13 @@ export class AddEditPurchaseComponent implements OnInit {
   payments: any[] = [];
   paymentMethods: any = [];
   taxRates: any = [];
+
   status: any = [
     { id: 'pending', name: 'pending' },
     { id: 'completed', name: 'completed' },
     { id: 'cancelled', name: 'canceled' }
   ]
+
   manualGoldPrice: any = 0
 
   nextPageUrl: string | null = null;
@@ -200,8 +202,6 @@ export class AddEditPurchaseComponent implements OnInit {
   }
 
   updateMetalRate() {
-    console.log("gold price: ", this.manualGoldPrice);
-
     const goldPrice = this.manualGoldPrice || 0;
     const purity = this.selectedPurityValue || 1;
     const rate = (+goldPrice * +purity).toFixed(this.decimalInputs);
@@ -434,6 +434,7 @@ export class AddEditPurchaseComponent implements OnInit {
   removePayment(index: number) {
     this.paymentsArray.removeAt(index);
   }
+
   addPurchaseRow(): void {
     const formValue = this.addEditExpenseForm.getRawValue();
 
@@ -492,6 +493,7 @@ export class AddEditPurchaseComponent implements OnInit {
       country: '',
       description: '',
     });
+
     this.addEditExpenseForm.updateValueAndValidity();
   }
 
@@ -746,8 +748,6 @@ export class AddEditPurchaseComponent implements OnInit {
       });
     }).filter(item => item !== null);
 
-    console.log("payments:", this.paymentsArray.value);
-
     // Build payments array - simplified structure for add operation
     const payments = this.paymentsArray.value
 
@@ -783,6 +783,7 @@ export class AddEditPurchaseComponent implements OnInit {
     const totalPaidAmount = this.paymentsArray.value.reduce((sum: number, payment: any) =>
       sum + (Number(payment.amount) || 0), 0);
     const totalDueAmount = totalAmount - totalPaidAmount;
+
 
     // Build final payload for add operation
     const payload = {

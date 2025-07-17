@@ -39,8 +39,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   selectedRowData: any = [];
   componentRef!: ComponentRef<SetDiscountComponent>;
 
-
-
   constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
     private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
   ) { }
@@ -80,7 +78,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
           });
         }
       });
-
 
 
     this.productForm.get('product_id')?.valueChanges
@@ -150,10 +147,11 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         this.salesDataOrders = res;
         this.salesDataOrders = this.salesDataOrders.map((order: any) => {
           // if the default manual gold price value, calculate it based on purity, otherwise it's already calculated before
-          if ((+order.gold_price)?.toFixed(2) === (+this.manualGoldPrice)?.toFixed(2)) {
+          if ((+order.gold_price)?.toFixed(3) === (+this.manualGoldPrice)?.toFixed(3)) {
             order.gold_price = this.calculateOrderGoldPriceBasedOnPurity(order);
             this.onGoldPriceChange(order)
           }
+
           return order;
         });
 
@@ -204,8 +202,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     const baseValue = (+this.manualGoldPrice);
 
-
-
     let purityFactor;
 
     if (group.purity_value) {
@@ -233,7 +229,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const goldPrice = baseValue * purityFactor;
 
     // Format based on selected currency decimal point
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
     this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
     return +goldPrice.toFixed(decimalPlaces);
   }
@@ -299,23 +295,27 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const goldPrice = group.gold_price * purityFactor;
 
     // Format based on selected currency decimal point
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
     this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
     return +goldPrice.toFixed(decimalPlaces);
   }
 
   calcMetalValueAccordingToPurity(group: any) {
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
-    const metalValue = group.gold_price * group?.weight;
-    this._posSharedService.setMetalValue(+metalValue.toFixed(decimalPlaces));
-    return +metalValue.toFixed(decimalPlaces);
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+    const metalValue = +(group.gold_price * group?.weight).toFixed(decimalPlaces);
+
+    this._posSharedService.setMetalValue(metalValue);
+
+    return metalValue;
   }
 
   calcTotalPrice(group: any): number {
     this.priceOfProductToPatch = 0;
+
     const metalValue = this.calcMetalValueAccordingToPurity(group);
 
     const makingCharge = +group?.retail_making_charge || 0;
+
     const discountPercentage = +group?.discount || 0;
 
     // Calculate discount amount
@@ -364,7 +364,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         vat_amount: [vatAmount]
       });
 
-      this._posService.setDiscountProductSale(pId, form.value).subscribe();
+      this._posService.setProductDiscount(pId, form.value).subscribe();
     }
   }
 
@@ -389,7 +389,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     }, 0);
 
     // Update shared VAT immediately
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
     this._posSharedService.setSalesTax(+totalVat.toFixed(decimalPlaces));
 
     const totalWithVat = baseTotal + vatAmount;
@@ -403,7 +403,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       return sum + this.calcTotalPriceWithVat(group);
     }, 0);
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
     this._posSharedService.setSalesTotalGrand(+total.toFixed(decimalPlaces));
 
     return +total.toFixed(decimalPlaces);
@@ -411,11 +411,13 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
   onProductSelected(productId: number): void {
     const selectedProduct = this.products.find((p: any) => p.id === productId);
+
     if (!selectedProduct.gold_price) {
       selectedProduct.gold_price = this.calculateInitialGoldPriceBasedOnPurity(selectedProduct);
     }
 
     if (!selectedProduct) return;
+
     this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
       const branchTaxNo = res?.tax_rate || 0;
       const tempGroup = {
@@ -435,11 +437,11 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       const metalValue = this.calcMetalValueAccordingToPurity(tempGroup);
       const totalPrice = this.calcTotalPrice(tempGroup);
       const totalWithVat = this.calcTotalPriceWithVat(tempGroup);
-      const vatAmount = this.calculateVat(totalPrice, this.selectedVatId);
+      const vatAmount = this.calculateVat((+selectedProduct.price || totalPrice), this.selectedVatId);
 
       const payload = {
         product: selectedProduct.id,
-        amount: totalPrice,
+        amount: +selectedProduct.price || totalPrice,
         vat_amount: vatAmount,
         metal_value: metalValue,
         gold_price: selectedProduct.gold_price
@@ -464,7 +466,9 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       return sum + this.calcTotalPrice(group);
     }, 0);
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 2;
+    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+
+
     const formattedTotal = +total.toFixed(decimalPlaces);
     // Update the service with the calculated gold price
     this._posSharedService.setSalesTotalPrice(formattedTotal);

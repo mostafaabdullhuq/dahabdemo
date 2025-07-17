@@ -161,7 +161,7 @@ export class GoldReceiptPosComponent implements OnInit, OnDestroy {
         const numericTax = +taxRate || 0;
         const amountWithTax = numericAmount + (numericAmount * numericTax / 100);
 
-        this.productForm.get('amount_with_tax')?.patchValue(amountWithTax.toFixed(2), { emitEvent: false });
+        this.productForm.get('amount_with_tax')?.patchValue(amountWithTax.toFixed(3), { emitEvent: false });
       });
   }
   totalAmount(): number {

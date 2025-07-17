@@ -240,9 +240,9 @@
       </div>
       <div class="header-btns my-4">
         <button class="add-btn" type="button" (click)="addPurchaseRow()"
-          [disabled]="!this.addEditExpenseForm.get('line_total_amount')?.value"><i class="pi pi-plus  px-2">
-          </i>Add
-          Purchase Row</button>
+          [disabled]="!this.addEditExpenseForm.get('line_total_amount')?.value || !this.addEditExpenseForm.get('name')?.value || !this.addEditExpenseForm.get('category')?.value || !this.addEditExpenseForm.get('purity')?.value"><i
+            class="pi pi-plus  px-2">
+          </i>Add Purchase Row</button>
       </div>
       }
 

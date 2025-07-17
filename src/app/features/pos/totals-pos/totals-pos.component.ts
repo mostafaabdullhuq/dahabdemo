@@ -326,7 +326,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
     });
   }
 
-
   get paymentsControls() {
     return (this.totalForm.get('payments') as FormArray).controls;
   }

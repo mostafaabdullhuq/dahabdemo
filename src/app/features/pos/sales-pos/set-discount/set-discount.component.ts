@@ -5,6 +5,7 @@ import { PosService } from '../../@services/pos.service';
 import { PosSalesService } from '../../@services/pos-sales.service';
 import { PosDiamondService } from '../../@services/pos-diamond.service';
 import { PosSilverService } from '../../@services/pos-silver.service';
+import { ToasterMsgService } from '../../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-set-discount',
@@ -24,7 +25,8 @@ export class SetDiscountComponent implements OnInit {
     private _posSaleService: PosSalesService,
     private _formBuilder: FormBuilder,
     private _posDiamondService: PosDiamondService,
-    private _posSilverService: PosSilverService
+    private _posSilverService: PosSilverService,
+    private _toasterService: ToasterMsgService
   ) { }
 
   ngOnInit(): void {
@@ -33,23 +35,26 @@ export class SetDiscountComponent implements OnInit {
       amount: [this.selectedRow.amount, Validators.required]
     });
   }
+
   showDialog() {
     this.visible = true;
   }
 
   submitForm(form: FormGroup) {
+    let amount = this.calculateAmountAfterDiscount();
+    this.discForm.get("amount")?.setValue(amount);
 
-    console.log("product to be submitted: ", this.selectedRow);
+    let postData = {
+      ...form.value,
+      amount: amount
+    }
+
+    console.log("data: ", postData);
 
 
-    console.log("amount before discount: ", this.discForm.get("amount")?.value);
-
-    this.discForm.get("amount")?.setValue(this.calculateAmountAfterDiscount());
-
-    console.log("amount after discount: ", this.discForm.get("amount")?.value);
-
-    this._posService.setDiscountProductSale(this.selectedRow.id, form.value).subscribe(res => {
+    this._posService.setProductDiscount(this.selectedRow.id, postData).subscribe(res => {
       this.visible = false;
+
       if (res) {
         if (this.parentTab === "sales") {
           this._posSaleService.getSalesOrdersFromServer();
@@ -63,12 +68,15 @@ export class SetDiscountComponent implements OnInit {
           this._posSilverService.fetchSilverOrders();
         }
       }
+    }, (error) => {
+      let errorMsg = error?.error?.errors?.amount
+      this._toasterService.showError(errorMsg || "Unexpected Error Happened")
     })
   }
 
   calculateAmountAfterDiscount() {
     const discountValue = +(this.discForm.get("discount")?.value || 0);
-    const oldAmount = +(this.discForm.get("amount")?.value || 0);
+    const originalAmount = +(this.selectedRow.price || 0);
     let discountSourceValue = 0;
 
     switch (this.parentTab) {
@@ -86,9 +94,6 @@ export class SetDiscountComponent implements OnInit {
         0;
     }
 
-    console.log("discount source value: ", discountSourceValue);
-
-
-    return (oldAmount - (discountSourceValue * (discountValue / 100))).toFixed(3);
+    return (originalAmount - (discountSourceValue * (discountValue / 100))).toFixed(3);
   }
 }
