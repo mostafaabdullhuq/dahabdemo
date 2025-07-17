@@ -229,9 +229,10 @@ export class UserDashboardComponent implements OnInit {
         pointRadius: 4,
         pointBackgroundColor: documentStyle.getPropertyValue('--p-orange-500')
       }));
+      let newLabels: string[] = barChartData?.labels
 
       this.dataPars = {
-        labels: barChartData?.labels || [],
+        labels: newLabels || [],
         datasets: [...lineDatasets, ...barDatasets]
       };
 

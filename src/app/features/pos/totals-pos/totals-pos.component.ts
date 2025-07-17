@@ -109,7 +109,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
   private getBranchTax(branchId: number) {
 
     this._posService.getBranchTax(branchId).subscribe(result => {
-
       this.branchTax = result;
     })
   }
@@ -123,7 +122,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
       )
       .subscribe(data => {
         this.shiftData = data;
-
         this.isShiftActive = data?.is_active ?? false;
 
         if (this.shiftData?.is_active) {
@@ -308,7 +306,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
   }
 
   getCustomers(callback: Function | null = null) {
-
     this._dropDownsService.getCustomers().subscribe(res => {
       this.customers = res?.results || [];
 
@@ -339,7 +336,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
     this.componentRef = this.container.createComponent(PaymentMethodsPopupComponent);
     this.componentRef.instance.visible = true;
     this.componentRef.instance.typeOfPayment = type;
-    this.componentRef.instance.baymentMethods = this.paymnetMethods;
+    this.componentRef.instance.paymentMethods = this.paymnetMethods;
     this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
       this.paymentsFromPopup = payments;
 
@@ -352,7 +349,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
           amount: [payment.amount, Validators.required]
         }));
       });
-
 
       this.onPlaceOrder(this.totalForm.value, true);
     });
@@ -426,7 +422,14 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
             // Update shared services to notify other components
             this.updateSharedServices();
 
-            this.totalForm.get('payments')?.reset();
+            let paymentsArray = (this.totalForm.get('payments') as FormArray);
+
+            paymentsArray?.clear();
+            paymentsArray.push(this._formBuilder.group({
+              payment_method: ['', Validators.required],
+              amount: this.totalWithVat
+            }));
+
             this.totalForm.get('currency')?.patchValue(parseInt(sessionStorage?.getItem('currency') || ''));
             this.openOrderInvoice();
             this._posSharedService.resetAllValues();

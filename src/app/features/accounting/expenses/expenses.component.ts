@@ -59,14 +59,68 @@ export class ExpensesComponent {
 
   ngOnInit(): void {
     this.cols = [
-      { field: "id", header: "ID" },
-      { field: "name", header: "Expense Name" },
-      { field: "reference_number", header: "Refrence Number" },
-      { field: "total_amount", header: "Amount" },
       { field: "date", header: "Date" },
-      { field: "category", header: "Category" },
-      { field: "payment_status", header: "Payment Status" },
+      { field: "reference_number", header: "Refrence Number" },
+      {
+        field: "recurring_details", header: "Recurring Details", body: (row: any) => {
+          let text = ""
+
+          if (row.is_recurring) {
+            if (row.recurring_interval) {
+              text += `<strong>Interval: ${row.recurring_interval}</strong><br>`
+            }
+
+            if (row.recurring_interval_type) {
+              text += `<strong>Type: ${row.recurring_interval_type}</strong><br>`
+            }
+
+            if (row.recurring_start_date) {
+              text += `<strong>Start Date: ${row.recurring_start_date}</strong><br>`
+            }
+
+            if (row.recurring_end_date) {
+              text += `<strong>End Date: ${row.recurring_end_date}</strong><br>`
+            }
+
+            if (row.number_of_recurring_payments) {
+              text += `<strong>Payments: ${row.number_of_recurring_payments}</strong>`
+            }
+
+            if (text) {
+              return text;
+            }
+
+            return null;
+          }
+
+          return null;
+        }
+      },
+      { field: "category_name", header: "Expense Category" },
+      // { field: "category", header: "Sub Category" },
+      { field: "branch_name", header: "Location" },
+      {
+        field: "payment_status", header: "Payment Status", body: (row: any) => {
+          if (row?.payment_status === 'due') {
+            return `<span class="badge rounded-pill text-bg-warning">Due</span>`;
+          } else if (row?.payment_status === 'partially_paid') {
+            return `<span class="badge rounded-pill text-bg-danger">Partially Paid</span>`;
+          } else if (row?.payment_status === 'paid') {
+            return `<span class="badge rounded-pill text-bg-success">Paid</span>`;
+          } else {
+            return `<span class="badge rounded-pill text-bg-secondary">${row?.payment_status || 'Unknown'}</span>`;
+          }
+        }
+      },
+      { field: "applicable_tax_name", header: "Tax" },
+      { field: "total_amount", header: "Total Amount" },
+      { field: "amount_due", header: "Payment Due" },
+      { field: "user_name", header: "Expense For" },
+      { field: "contact", header: "Contact", body: (row: any) => row.supplier_name || row.customer_name || null },
+      { field: "notes", header: "Expense Note" },
+      { field: "created_by_name", header: "Added By" },
     ];
+
     this.filterForm = this._formBuilder.group({
       search: '',
       transaction_type: '',

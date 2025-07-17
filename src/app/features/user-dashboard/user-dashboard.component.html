@@ -1,287 +1,284 @@
 <section>
-    <div class="container">
-        <div class="d-flex mt-3 justify-content-between  align-items-center">
-            <!-- <img src="dashboard/waving-hand.png" alt=""> -->
-            <h3 class="w-100">Welcome, {{userName}}</h3>
-            <div class="container ">
-                <form [formGroup]="financialFilterForm" class="row">
-                <div class="col-md-4">
-                    <app-dropdowns [showClear]="financialFilterForm.get('branch')?.value ? true : false"  label="branch" formControlName="branch" [options]="branches" optionLabel="name"
-                        optionValue="id" placeholder="Select a branch"></app-dropdowns>
-                </div>
-                <div class="col-md-4">
-                    <!-- [showClear]="financialFilterForm.get('start_date')?.value ? true : false" -->
-                    <app-input-date  formControlName="start_date" inputName="start date" placeholder="Enter date">
-                                </app-input-date>
-                </div>
-                <div class="col-md-4">
-                    <!-- [showClear]="financialFilterForm.get('end_date')?.value ? true : false" -->
-                    <app-input-date  formControlName="end_date" inputName="end date" placeholder="Enter date">
-                                </app-input-date>
-                </div>
-                <!-- <div class="col-md-1">
+  <div class="container">
+    <div class="d-flex mt-3 justify-content-between  align-items-center">
+      <!-- <img src="dashboard/waving-hand.png" alt=""> -->
+      <h3 class="w-100">Welcome, {{userName}}</h3>
+      <div class="container ">
+        <form [formGroup]="financialFilterForm" class="row">
+          <div class="col-md-4">
+            <app-dropdowns [showClear]="financialFilterForm.get('branch')?.value ? true : false" label="branch"
+              formControlName="branch" [options]="branches" optionLabel="name" optionValue="id"
+              placeholder="Select a branch"></app-dropdowns>
+          </div>
+          <div class="col-md-4">
+            <!-- [showClear]="financialFilterForm.get('start_date')?.value ? true : false" -->
+            <app-input-date formControlName="start_date" inputName="start date" placeholder="Enter date">
+            </app-input-date>
+          </div>
+          <div class="col-md-4">
+            <!-- [showClear]="financialFilterForm.get('end_date')?.value ? true : false" -->
+            <app-input-date formControlName="end_date" inputName="end date" placeholder="Enter date">
+            </app-input-date>
+          </div>
+          <!-- <div class="col-md-1">
                     <button><i class="pi pi-filter-slash"></i></button>
                 </div> -->
-            </form>
-            </div>
-        </div>
-        <div *ngIf="permissionService.hasPermission(113)">
-            <hr>
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-md-9">
-                    <div class="cards-container py-3">
-                        <div class="card-1">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h4 class="section-form-header mt-2 mb-5">Financial </h4>
-                                <div>
-
-                                </div>
-                            </div>
-                            <div class="row row-gap-4">
-                                <div class="col-md-4 ">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>Income</span></p>
-                                            <p class="day-text"> BD {{finacialData?.income | number:'1.3-3' }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/profits.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 ">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>Expense</span></p>
-                                            <p class="day-text"> BD {{finacialData?.expenses| number:'1.3-3' }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/spending.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 ">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>Purchase</span></p>
-                                            <p class="day-text"> BD {{finacialData?.purchases| number:'1.3-3' }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/payment-method.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 ">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>Profit</span></p>
-                                            <p class="day-text"> BD {{finacialData?.profit| number:'1.3-3' }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/profit.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 ">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>Purchase Due Amount</span></p>
-                                            <p class="day-text"> BD {{finacialData?.purchase_due_amount| number:'1.3-3' }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/receiver.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 ">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>Receivables</span></p>
-                                            <p class="day-text"> BD {{finacialData?.receivables| number:'1.3-3' }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/receiver.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 ">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>Purchase Due Weight</span></p>
-                                            <p class="day-text"> BD {{finacialData?.purchase_due_weight| number:'1.3-3' }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 4rem; height: 4rem;"
-                                                src="dashboard/receiver.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <p-chart type="pie" [data]="dataFinancial" [options]="optionsFinancial"
-                        class="w-full md:w-[40rem]" />
-                </div>
-            </div>
-            <hr>
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-md-9">
-                    <div class="cards-container py-3">
-                        <div class="card-1">
-                            <h4 class="section-form-header mt-2 mb-5">Inventory </h4>
-                            <div class="row row-gap-4 pb-4">
-                                <div class="col-md-4 " *ngFor="let item of inventoryData?.purity_totals  | keyvalue">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>{{ item?.key }}</span></p>
-                                            <p class="day-text">gm {{ item.value }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/gold-ingots.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row row-gap-4">
-                                <div class="col-md-4 " *ngFor="let item of inventoryData?.category_totals  | keyvalue">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>{{item?.key}}</span></p>
-                                            <p class="day-text"> gm {{item?.value}}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/bars.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row row-gap-4 pt-4">
-                                <div class="col-md-4 " *ngFor="let item of inventoryData?.stone_totals  | keyvalue">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>{{ item?.key }}</span></p>
-                                            <p class="day-text">gm {{ item.value }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/crystal.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <p-chart type="pie" [data]="dataInventry" [options]="optionsInventory"
-                        class="w-full md:w-[40rem]" />
-                    <div class="container pt-4">
-                        <div class="row d-flex justify-content-center align-items-center">
-                            <div class="col-md-6">
-                                <h5>Total Stock Items</h5>
-                            </div>
-                            <div class="col-md-6">
-                                <h5>{{inventoryData?.total_stock_items}} PCS</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <hr>
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-md-9">
-                    <div class="cards-container py-3">
-                        <div class="card-1">
-                            <h4 class="section-form-header mt-2 mb-5">Transactions </h4>
-                            <div class="row row-gap-4">
-                                <div class="col-md-4 my-4" *ngFor="let item of transData?.purity_totals  | keyvalue">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>{{ item?.key }}</span></p>
-                                            <p class="day-text"> {{ item.value }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/gold-ingots.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row row-gap-4">
-                                <div class="col-md-4 " *ngFor="let item of transData?.category_totals  | keyvalue">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>{{item?.key}}</span></p>
-                                            <p class="day-text"> {{item?.value}}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/bars.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row row-gap-4 pt-4">
-                                <div class="col-md-4 " *ngFor="let item of transData?.stone_totals  | keyvalue">
-                                    <div class="card">
-                                        <div>
-                                            <p class="time-text"><span>{{ item?.key }}</span></p>
-                                            <p class="day-text"> {{ item.value }}</p>
-                                        </div>
-                                        <div>
-                                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
-                                                src="dashboard/crystal.png" alt="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card mb-3" style="min-height: 10rem;">
-                        <div>
-                            <p class="time-text"><span>Pending Repair</span></p>
-                            <p class="day-text">{{transData?.total_repair}}</p>
-                        </div>
-                        <div>
-                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/repair.png"
-                                alt="">
-                        </div>
-                    </div>
-                    <div class="card" style="min-height: 10rem;">
-                        <div>
-                            <p class="time-text"><span>Pending G. Receipt</span></p>
-                            <p class="day-text">{{transData?.total_gold_receipt}}</p>
-                        </div>
-                        <div>
-                            <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/clock.png"
-                                alt="">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <hr>
-            <div class="row">
-                <p-chart type="bar" [data]="dataPars" [options]="optionsPar" class="h-[30rem]" />
-            </div>
-        </div>
+        </form>
+      </div>
     </div>
+    <div *ngIf="permissionService.hasPermission(113)">
+      <hr>
+      <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-md-9">
+          <div class="cards-container py-3">
+            <div class="card-1">
+              <div class="d-flex justify-content-between align-items-center">
+                <h4 class="section-form-header mt-2 mb-5">Financial </h4>
+                <div>
+
+                </div>
+              </div>
+              <div class="row row-gap-4">
+                <div class="col-md-4 ">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>Income</span></p>
+                      <p class="day-text"> BD {{finacialData?.income | number:'1.3-3' }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/profits.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 ">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>Expense</span></p>
+                      <p class="day-text"> BD {{finacialData?.expenses| number:'1.3-3' }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/spending.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 ">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>Purchase</span></p>
+                      <p class="day-text"> BD {{finacialData?.purchases| number:'1.3-3' }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;"
+                        src="dashboard/payment-method.png" alt="">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12 ">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>Profit</span></p>
+                      <p class="day-text"> BD {{finacialData?.profit| number:'1.3-3' }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/profit.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 ">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>Purchase Due Amount</span></p>
+                      <p class="day-text"> BD {{finacialData?.purchase_due_amount| number:'1.3-3' }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/receiver.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 ">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>Receivables</span></p>
+                      <p class="day-text"> BD {{finacialData?.receivables| number:'1.3-3' }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/receiver.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 ">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>Purchase Due Weight</span></p>
+                      <p class="day-text"> BD {{finacialData?.purchase_due_weight| number:'1.3-3' }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 4rem; height: 4rem;" src="dashboard/receiver.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="col-md-3">
+          <p-chart type="pie" [data]="dataFinancial" [options]="optionsFinancial" class="w-full md:w-[40rem]" />
+        </div>
+      </div>
+      <hr>
+      <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-md-9">
+          <div class="cards-container py-3">
+            <div class="card-1">
+              <h4 class="section-form-header mt-2 mb-5">Inventory </h4>
+              <div class="row row-gap-4 pb-4">
+                <div class="col-md-4 " *ngFor="let item of inventoryData?.purity_totals  | keyvalue">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>{{ item?.key }}</span></p>
+                      <p class="day-text">gm {{ item.value }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/gold-ingots.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row row-gap-4">
+                <div class="col-md-4 " *ngFor="let item of inventoryData?.category_totals  | keyvalue">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>{{item?.key}}</span></p>
+                      <p class="day-text"> gm {{item?.value}}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/bars.png" alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row row-gap-4 pt-4">
+                <div class="col-md-4 " *ngFor="let item of inventoryData?.stone_totals  | keyvalue">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>{{ item?.key }}</span></p>
+                      <p class="day-text">gm {{ item.value }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/crystal.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="col-md-3">
+          <p-chart type="pie" [data]="dataInventry" [options]="optionsInventory" class="w-full md:w-[40rem]" />
+          <div class="container pt-4">
+            <div class="row d-flex justify-content-center align-items-center">
+              <div class="col-md-6">
+                <h5>Total Stock Items</h5>
+              </div>
+              <div class="col-md-6">
+                <h5>{{inventoryData?.total_stock_items}} PCS</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+      <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-md-9">
+          <div class="cards-container py-3">
+            <div class="card-1">
+              <h4 class="section-form-header mt-2 mb-5">Transactions </h4>
+              <div class="row row-gap-4">
+                <div class="col-md-4 my-4" *ngFor="let item of transData?.purity_totals  | keyvalue">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>{{ item?.key }}</span></p>
+                      <p class="day-text"> {{ item.value }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/gold-ingots.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row row-gap-4">
+                <div class="col-md-4 " *ngFor="let item of transData?.category_totals  | keyvalue">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>{{item?.key}}</span></p>
+                      <p class="day-text"> {{item?.value}}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/bars.png" alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row row-gap-4 pt-4">
+                <div class="col-md-4 " *ngFor="let item of transData?.stone_totals  | keyvalue">
+                  <div class="card">
+                    <div>
+                      <p class="time-text"><span>{{ item?.key }}</span></p>
+                      <p class="day-text"> {{ item.value }}</p>
+                    </div>
+                    <div>
+                      <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/crystal.png"
+                        alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card mb-3" style="min-height: 10rem;">
+            <div>
+              <p class="time-text"><span>Pending Repair</span></p>
+              <p class="day-text">{{transData?.total_repair}}</p>
+            </div>
+            <div>
+              <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/repair.png" alt="">
+            </div>
+          </div>
+          <div class="card" style="min-height: 10rem;">
+            <div>
+              <p class="time-text"><span>Pending G. Receipt</span></p>
+              <p class="day-text">{{transData?.total_gold_receipt}}</p>
+            </div>
+            <div>
+              <img class="text-center mx-2" style="width: 3rem; height: 3rem;" src="dashboard/clock.png" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <p-chart type="bar" [data]="dataPars" [options]="optionsPar" class="h-[30rem]" />
+      </div>
+    </div>
+  </div>
 </section>
 <!-- <div class="header-container">
         <div class="d-flex justify-content-start gap-4 align-items-center">
