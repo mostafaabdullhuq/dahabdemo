@@ -14,9 +14,9 @@ import { ToasterMsgService } from '../../../../core/services/toaster-msg.service
   styleUrl: './add-edit-purchase.component.scss'
 })
 export class AddEditPurchaseComponent implements OnInit {
-  addEditExpenseForm!: FormGroup;
+  addEditPurchaseForm!: FormGroup;
   isEditMode = false;
-  productId: string | number = '';
+  purchaseId: string | number = '';
   stockPoints: any[] = [];
   units: any[] = [];
   designers: any[] = [];
@@ -56,17 +56,130 @@ export class AddEditPurchaseComponent implements OnInit {
     private _toasterService: ToasterMsgService,
     private _router: Router
   ) { }
+
   decimalInputs = 3;
+
+
   ngOnInit(): void {
-    const productId = this._activeRoute.snapshot.paramMap.get('id');
-    if (productId)
-      this.productId = productId;
+    const purchaseId = this._activeRoute.snapshot.paramMap.get('id');
+    if (purchaseId) this.purchaseId = purchaseId;
+
     this.initForm();
-    if (this.productId) {
-      this.loadExpenseData(this.productId);
+
+    if (this.purchaseId) {
+      this.loadPurchaseData();
       this.isEditMode = true
     }
 
+    this.getLookupData();
+
+    this.addEditPurchaseForm.get('branch')?.valueChanges.subscribe(branchId => {
+      if (!branchId) return;
+
+      forkJoin({
+        goldPrice: this._accService.getGoldPrice(branchId),
+        taxRate: this._accService.getBranchTax(branchId)
+      }).subscribe(({ goldPrice, taxRate }) => {
+        this.manualGoldPrice = goldPrice?.manual_gold_price
+        this.addEditPurchaseForm.patchValue({
+          // manual_gold_price: goldPrice,
+          tax: taxRate?.tax_rate
+        });
+
+        this.updateMetalRate(); // uses gold price & purity
+        this.calculateMetalValue();
+        this.calculateTax();
+        this.calculateGrossWeight();
+        this.calculateLineTotal();
+      });
+
+      this._accService.getBranchPaymentMethods(branchId).subscribe(res => {
+        this.paymentMethods = res
+      })
+    });
+
+    this.addEditPurchaseForm.get('purity')?.valueChanges.subscribe(purityId => {
+      const selectedPurity = this.purities.find(p => p.id === purityId);
+      this.selectedPurityValue = (selectedPurity?.purity_value || 1).toFixed(this.decimalInputs);
+      this.addEditPurchaseForm.get('purity_rate')?.patchValue(selectedPurity?.purity_value)
+
+      this.updateMetalRate();
+      this.calculateMetalValue();
+      this.calculateTax();
+      this.calculateLineTotal();
+    });
+
+    this.addEditPurchaseForm.get('metal_weight')?.valueChanges.subscribe(() => {
+      this.calculateMetalValue();
+      this.calculateGrossWeight();
+      this.calculateTax();
+      this.calculateLineTotal();
+    });
+
+    this.addEditPurchaseForm.get('metal_rate')?.valueChanges.subscribe(() => {
+      this.calculateMetalValue();
+      this.calculateGrossWeight();
+      this.calculateTax();
+      this.calculateLineTotal();
+    })
+
+
+    this.addEditPurchaseForm.get('metal_value')?.valueChanges.subscribe(() => {
+      this.calculateMetalValue();
+      this.calculateGrossWeight();
+      this.calculateTax();
+      this.calculateLineTotal();
+    })
+
+    this.addEditPurchaseForm.get('retail_making_charge')?.valueChanges.subscribe(() => {
+      this.calculateMetalValue();
+      this.calculateGrossWeight();
+      this.calculateTax();
+      this.calculateLineTotal();
+    })
+
+    this.addEditPurchaseForm.get('making_charge')?.valueChanges.subscribe(() => {
+      this.calculateMetalValue();
+      this.calculateGrossWeight();
+      this.calculateTax();
+      this.calculateLineTotal();
+    })
+
+    this.addEditPurchaseForm.get('making_charge')?.valueChanges.subscribe(() => {
+      this.calculateMetalValue();
+      this.calculateGrossWeight();
+      this.calculateTax();
+      this.calculateLineTotal();
+    });
+
+    const stones = this.addEditPurchaseForm.get('stones') as FormArray;
+    stones.valueChanges.subscribe(() => {
+      this.calculateTax();
+      this.watchStoneControls(); // Keep updating as stones are added
+    });
+  }
+
+  getCategoryName(categoryId: number) {
+    return (this.categories?.find(category => category.id === categoryId)?.name)
+  }
+
+  getDesignerName(designerId: number) {
+    return (this.designers?.find(designer => designer.id === designerId)?.name)
+  }
+
+  getSizeName(sizeId: number) {
+    return (this.sizes?.find(size => size.id === sizeId)?.name)
+  }
+
+  getColorName(colorId: number) {
+    return (this.colors?.find(color => color.id === colorId)?.name)
+  }
+
+  getPurityName(purityId: number) {
+    return (this.purities?.find(purity => purity.id === purityId)?.name)
+  }
+
+  getLookupData() {
     this._dropdownService.getBrands().subscribe(data => {
       this.brands = data?.results;
     });
@@ -80,10 +193,10 @@ export class AddEditPurchaseComponent implements OnInit {
     });
 
     this._dropdownService.getBranchCountries().subscribe(data => {
-      this.countries = data?.results;
+      this.countries = data;
     });
 
-    this._dropdownService.getCategories().subscribe(data => {
+    this._dropdownService.getMinimalCategories().subscribe(data => {
       this.categories = data?.results;
     })
 
@@ -114,114 +227,30 @@ export class AddEditPurchaseComponent implements OnInit {
     this._dropdownService.getTaxes().subscribe(data => {
       this.taxRates = data?.results;
     });
-
-    this.addEditExpenseForm.get('branch')?.valueChanges.subscribe(branchId => {
-      if (!branchId) return;
-
-      forkJoin({
-        goldPrice: this._accService.getGoldPrice(branchId),
-        taxRate: this._accService.getBranchTax(branchId)
-      }).subscribe(({ goldPrice, taxRate }) => {
-        this.manualGoldPrice = goldPrice?.manual_gold_price
-        this.addEditExpenseForm.patchValue({
-          // manual_gold_price: goldPrice,
-          tax: taxRate?.tax_rate
-        });
-
-        this.updateMetalRate(); // uses gold price & purity
-        this.calculateMetalValue();
-        this.calculateTax();
-        this.calculateGrossWeight();
-        this.calculateLineTotal();
-      });
-
-      this._accService.getBranchPaymentMethods(branchId).subscribe(res => {
-        this.paymentMethods = res
-      })
-    });
-
-    this.addEditExpenseForm.get('purity')?.valueChanges.subscribe(purityId => {
-      const selectedPurity = this.purities.find(p => p.id === purityId);
-      this.selectedPurityValue = (selectedPurity?.purity_value || 1).toFixed(this.decimalInputs);
-      this.addEditExpenseForm.get('purity_rate')?.patchValue(selectedPurity?.purity_value)
-
-      this.updateMetalRate();
-      this.calculateMetalValue();
-      this.calculateTax();
-      this.calculateLineTotal();
-    });
-
-    this.addEditExpenseForm.get('metal_weight')?.valueChanges.subscribe(() => {
-      this.calculateMetalValue();
-      this.calculateGrossWeight();
-      this.calculateTax();
-      this.calculateLineTotal();
-    });
-
-    this.addEditExpenseForm.get('metal_rate')?.valueChanges.subscribe(() => {
-      this.calculateMetalValue();
-      this.calculateGrossWeight();
-      this.calculateTax();
-      this.calculateLineTotal();
-    })
-
-
-    this.addEditExpenseForm.get('metal_value')?.valueChanges.subscribe(() => {
-      this.calculateMetalValue();
-      this.calculateGrossWeight();
-      this.calculateTax();
-      this.calculateLineTotal();
-    })
-
-    this.addEditExpenseForm.get('retail_making_charge')?.valueChanges.subscribe(() => {
-      this.calculateMetalValue();
-      this.calculateGrossWeight();
-      this.calculateTax();
-      this.calculateLineTotal();
-    })
-
-    this.addEditExpenseForm.get('making_charge')?.valueChanges.subscribe(() => {
-      this.calculateMetalValue();
-      this.calculateGrossWeight();
-      this.calculateTax();
-      this.calculateLineTotal();
-    })
-
-    this.addEditExpenseForm.get('making_charge')?.valueChanges.subscribe(() => {
-      this.calculateMetalValue();
-      this.calculateGrossWeight();
-      this.calculateTax();
-      this.calculateLineTotal();
-    });
-
-    const stones = this.addEditExpenseForm.get('stones') as FormArray;
-    stones.valueChanges.subscribe(() => {
-      this.calculateTax();
-      this.watchStoneControls(); // Keep updating as stones are added
-    });
   }
+
 
   updateMetalRate() {
     const goldPrice = this.manualGoldPrice || 0;
     const purity = this.selectedPurityValue || 1;
     const rate = (+goldPrice * +purity).toFixed(this.decimalInputs);
-    this.addEditExpenseForm.patchValue({ metal_rate: rate });
+    this.addEditPurchaseForm.patchValue({ metal_rate: rate });
   }
 
   calculateMetalValue() {
-    const rate = this.addEditExpenseForm.get('metal_rate')?.value || 0;
-    const weight = this.addEditExpenseForm.get('metal_weight')?.value || 0;
-    this.addEditExpenseForm.patchValue({ metal_value: (+rate * +weight).toFixed(this.decimalInputs) });
+    const rate = this.addEditPurchaseForm.get('metal_rate')?.value || 0;
+    const weight = this.addEditPurchaseForm.get('metal_weight')?.value || 0;
+    this.addEditPurchaseForm.patchValue({ metal_value: (+rate * +weight).toFixed(this.decimalInputs) });
     this.calculateTax()
   }
 
   calculateTax(): void {
-    const metalValue = Number(this.addEditExpenseForm.get('metal_value')?.value) || 0;
-    const taxRate = Number(this.addEditExpenseForm.get('tax')?.value) || 0;
-    const makingCharge = Number(this.addEditExpenseForm.get('making_charge')?.value) || 0;
-    const metalWeight = Number(this.addEditExpenseForm.get('metal_weight')?.value) || 0;
+    const metalValue = Number(this.addEditPurchaseForm.get('metal_value')?.value) || 0;
+    const taxRate = Number(this.addEditPurchaseForm.get('tax')?.value) || 0;
+    const makingCharge = Number(this.addEditPurchaseForm.get('making_charge')?.value) || 0;
+    const metalWeight = Number(this.addEditPurchaseForm.get('metal_weight')?.value) || 0;
 
-    const stones = this.addEditExpenseForm.get('stones') as FormArray;
+    const stones = this.addEditPurchaseForm.get('stones') as FormArray;
     const stonesValueTotal = stones.controls.reduce((total, stone) => {
       const value = Number(stone.get('value')?.value) || 0;
       return total + value;
@@ -230,7 +259,7 @@ export class AddEditPurchaseComponent implements OnInit {
     const subtotal = metalValue + (makingCharge * metalWeight) + stonesValueTotal;
     const taxAmount = subtotal * (taxRate / 100);
 
-    this.addEditExpenseForm.patchValue({
+    this.addEditPurchaseForm.patchValue({
       tax_amount: +taxAmount.toFixed(this.decimalInputs)
     });
   }
@@ -238,7 +267,7 @@ export class AddEditPurchaseComponent implements OnInit {
   private subscribedStones = new WeakSet<AbstractControl>();
 
   private watchStoneControls() {
-    const stones = this.addEditExpenseForm.get('stones') as FormArray;
+    const stones = this.addEditPurchaseForm.get('stones') as FormArray;
 
     stones.controls.forEach((control: AbstractControl) => {
       if (this.subscribedStones.has(control)) return; // Avoid duplicates
@@ -258,29 +287,29 @@ export class AddEditPurchaseComponent implements OnInit {
   }
 
   calculateGrossWeight() {
-    const metalWeight = +this.addEditExpenseForm.get('metal_weight')?.value || 0;
-    const stones = this.addEditExpenseForm.get('stones') as FormArray;
+    const metalWeight = +this.addEditPurchaseForm.get('metal_weight')?.value || 0;
+    const stones = this.addEditPurchaseForm.get('stones') as FormArray;
     const stoneWeight = stones.controls.reduce((acc, s) => acc + (+s.get('weight')?.value || 0), 0);
-    this.addEditExpenseForm.patchValue({ gross_weight: (metalWeight + +stoneWeight).toFixed(this.decimalInputs) });
+    this.addEditPurchaseForm.patchValue({ gross_weight: (metalWeight + +stoneWeight).toFixed(this.decimalInputs) });
   }
 
   calculateLineTotal() {
-    const stones = this.addEditExpenseForm.get('stones') as FormArray;
+    const stones = this.addEditPurchaseForm.get('stones') as FormArray;
 
-    const metalValue = Number(this.addEditExpenseForm.get('metal_value')?.value) || 0;
-    const metalWeight = Number(this.addEditExpenseForm.get('metal_weight')?.value) || 0;
-    const makingCharge = Number(this.addEditExpenseForm.get('making_charge')?.value) || 0;
-    const taxAmount = Number(this.addEditExpenseForm.get('tax_amount')?.value) || 0;
+    const metalValue = Number(this.addEditPurchaseForm.get('metal_value')?.value) || 0;
+    const metalWeight = Number(this.addEditPurchaseForm.get('metal_weight')?.value) || 0;
+    const makingCharge = Number(this.addEditPurchaseForm.get('making_charge')?.value) || 0;
+    const taxAmount = Number(this.addEditPurchaseForm.get('tax_amount')?.value) || 0;
     const stoneValues = stones.controls.reduce((acc, s) => acc + (+s.get('value')?.value || 0), 0);
     const total = metalValue + (makingCharge * metalWeight) + taxAmount + stoneValues;
 
-    this.addEditExpenseForm.patchValue({
+    this.addEditPurchaseForm.patchValue({
       line_total_amount: (+total).toFixed(this.decimalInputs)
     });
   }
 
   private initForm(): void {
-    this.addEditExpenseForm = this._formBuilder.group({
+    this.addEditPurchaseForm = this._formBuilder.group({
       // Main purchase fields
       order_date: [new Date()],
       // expected_delivery_date: [null, Validators.required],
@@ -392,11 +421,11 @@ export class AddEditPurchaseComponent implements OnInit {
   }
 
   get stonesArray(): FormArray {
-    return this.addEditExpenseForm.get('stones') as FormArray;
+    return this.addEditPurchaseForm.get('stones') as FormArray;
   }
 
   get paymentsArray(): FormArray {
-    return this.addEditExpenseForm.get('payments') as FormArray;
+    return this.addEditPurchaseForm.get('payments') as FormArray;
   }
 
   isPaymentEmpty() {
@@ -429,6 +458,10 @@ export class AddEditPurchaseComponent implements OnInit {
 
   removeStone(index: number) {
     this.stonesArray.removeAt(index);
+    this.calculateTax();
+    this.calculateLineTotal();
+    this.calculateGrossWeight();
+    this.calculateLineTotal();
   }
 
   removePayment(index: number) {
@@ -436,7 +469,7 @@ export class AddEditPurchaseComponent implements OnInit {
   }
 
   addPurchaseRow(): void {
-    const formValue = this.addEditExpenseForm.getRawValue();
+    const formValue = this.addEditPurchaseForm.getRawValue();
 
     const item = {
       id: this.editingIndex !== null ? this.purchases[this.editingIndex].id : null,
@@ -460,6 +493,16 @@ export class AddEditPurchaseComponent implements OnInit {
       country: formValue.country,
       description: formValue.description,
       image: formValue.attachment,
+      stones: this.stonesArray.value.map((stone: any) => {
+        const selectedStone = this.stones.find(s => s.id === stone.stone_id);
+        return this.cleanObject({
+          stone_id: stone.stone_id,
+          value: stone.value?.toString(),
+          weight: stone.weight?.toString(),
+          retail_value: stone.retail_value?.toString(),
+          stone_name: selectedStone?.name
+        });
+      }).filter((stone: any) => stone !== null),
     };
 
     if (this.editingIndex !== null) {
@@ -472,7 +515,7 @@ export class AddEditPurchaseComponent implements OnInit {
     }
 
     // Reset form
-    this.addEditExpenseForm.patchValue({
+    this.addEditPurchaseForm.patchValue({
       tag_number: '',
       name: '',
       metal_rate: 0,
@@ -494,91 +537,93 @@ export class AddEditPurchaseComponent implements OnInit {
       description: '',
     });
 
-    this.addEditExpenseForm.updateValueAndValidity();
+    this.stonesArray.clear();
+    this.addEditPurchaseForm.updateValueAndValidity();
   }
 
-  private loadExpenseData(expenseId: number | string): void {
-    this._accService.getPurchaseById(expenseId).subscribe((expense: any) => {
+  private loadPurchaseData(): void {
+
+    if (!this.purchaseId) return;
+
+    this._accService.getPurchaseById(this.purchaseId).subscribe((purchase: any) => {
       // Patch basic form values
-      this.addEditExpenseForm.patchValue({
-        supplier: expense.supplier,
-        branch: expense.branch,
-        type: expense.type,
-        order_date: expense.order_date ? new Date(expense.order_date) : new Date(),
-        // expected_delivery_date: new Date(expense.expected_delivery_date),
-        //attachment: expense.attachment,
-        status: expense.status,
-        total_amount: expense.total_amount,
-        tax_amount: expense.tax_amount,
-        total_weight: expense.total_weight,
-        reference_number: expense.reference_number
+      this.addEditPurchaseForm.patchValue({
+        supplier: purchase.supplier,
+        branch: purchase.branch,
+        type: purchase.type,
+        order_date: purchase.order_date ? new Date(purchase.order_date) : new Date(),
+        attachment: purchase.attachment,
+        status: purchase.status,
+        total_amount: purchase.total_amount,
+        tax_amount: purchase.tax_amount,
+        total_weight: purchase.total_weight,
+        reference_number: purchase.reference_number
       });
 
       // Clear existing items and add new ones
       this.purchases = [];
-      if (expense.items && expense.items.length > 0) {
-        const firstItem = expense.items[0];
-        this.addEditExpenseForm.patchValue({
-          tag_number: firstItem.product?.tag_number,
-          name: firstItem.product?.name,
-          metal_rate: firstItem.metal_rate,
-          metal_value: firstItem.metal_value,
-          metal_weight: firstItem.product?.weight,
-          purity: firstItem.product?.purity,
-          category: firstItem.product?.category,
-          making_charge: firstItem.product?.making_charge,
-          retail_making_charge: firstItem.product?.retail_making_charge,
-          tax: expense.tax_amount,
-          tax_amount: firstItem.tax_amount,
-          gross_weight: firstItem.product?.weight, // or calculate from metal + stones
-          line_total_amount: firstItem.line_total_amount,
-          color: firstItem.product?.color,
-          size: firstItem.product?.size,
-          designer: firstItem.product?.designer,
-          country: firstItem.product?.country,
-          description: firstItem.product?.description
-        });
 
+      if (purchase.items && !!purchase.items.length) {
         // Add all items to purchases table
-        this.purchases = expense.items.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          tag_number: item.product?.tag_number,
-          metal_rate: item.metal_rate,
-          metal_value: item.metal_value,
-          metal_weight: item.product?.weight,
-          purity: item.product?.purity,
-          category: item.product?.category_name,
-          making_charge: item.product?.making_charge,
-          retail_making_charge: item.product?.retail_making_charge,
-          tax: expense.tax_amount,
-          tax_amount: item.tax_amount,
-          gross_weight: item.product?.weight,
-          line_total_amount: item.line_total_amount,
-          color: item.product?.color_name,
-          size: item.product?.size_name,
-          designer: item.product?.designer_name,
-          country: item.product?.country,
-          description: item.product?.description,
-          is_returned: item.is_returned,
-          product_id: item.product?.id
-        }));
+        purchase.items.forEach((item: any) => {
+          const product = item.product;
+          const refinedItem = {
+            id: item.id,
+            tag_number: product.tag_number, // TODO
+            metal_rate: item.metal_rate,
+            metal_value: item.metal_value,
+            metal_weight: product.metal_weight, // TODO
+            purity: product.purity,
+            purity_rate: product.purity_rate, // TODO
+            category: product.category,
+            making_charge: product.making_charge,
+            retail_making_charge: product.retail_making_charge,
+            tax: product.tax,
+            tax_amount: item.tax_amount,
+            gross_weight: product.weight,
+            line_total_amount: item.line_total_amount,
+            color: product.color,
+            size: product.size,
+            name: product.name,
+            designer: product.designer,
+            country: product.country, // Change to id
+            description: product.description,
+            stones: product.stones?.map((stone: any) => {
+              return this.cleanObject({
+                stone_id: stone.stone_id,
+                value: stone.value?.toString(),
+                weight: stone.weight?.toString(),
+                retail_value: stone.retail_value?.toString(),
+                stone_name: stone?.stone_name
+              });
+            }).filter((stone: any) => stone !== null),
+          };
+          this.purchases.push(refinedItem);
+        });
       }
 
       // Handle payments
       this.paymentsArray.clear();
-      if (expense.payments && expense.payments.length > 0) {
-        expense.payments.forEach((payment: any) => {
+      this.stonesArray.clear();
+
+      if (purchase.payments && !!purchase.payments.length) {
+        purchase.payments.forEach((payment: any) => {
+          const paymentItem = (payment.items && payment.items.length) ? payment.items[0] : {};
+
           const paymentGroup = this.createPayment();
           paymentGroup.patchValue({
-            amount: payment.amount,
-            payment_method: payment.payment_method
+            purchase_order: payment.purchase_order,
+            payment_method: paymentItem.payment_method,
+            amount: payment.total_amount,
+            payment_date: payment.payment_date ? new Date(payment.payment_date) : new Date()
           });
+
           this.paymentsArray.push(paymentGroup);
         });
       }
     });
   }
+
   editingIndex: number | null = null;
 
   editPurchaseRow(item: any, index: number): void {
@@ -586,7 +631,7 @@ export class AddEditPurchaseComponent implements OnInit {
     this.editingIndex = index;
 
     // Patch the form values with the selected item
-    this.addEditExpenseForm.patchValue({
+    this.addEditPurchaseForm.patchValue({
       tag_number: item.tag_number,
       metal_rate: item.metal_rate,
       metal_value: item.metal_value,
@@ -606,6 +651,23 @@ export class AddEditPurchaseComponent implements OnInit {
       country: item.country,
       description: item.description
     });
+
+    this.stonesArray.clear();
+
+    if (item.stones && !!item.stones.length) {
+      item.stones.forEach((stone: any) => {
+        let stoneGroup = this.createStone();
+        stoneGroup.patchValue({
+          stone_id: stone.stone_id,
+          stone_name: stone.stone_name,
+          retail_value: stone.retail_value,
+          value: stone.value,
+          weight: stone.weight
+        })
+        this.stonesArray.push(stoneGroup);
+        this.watchStoneControls(); // Watch the new one
+      })
+    }
   }
 
   getTotalLineAmount(): number {
@@ -663,12 +725,12 @@ export class AddEditPurchaseComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.addEditExpenseForm.invalid) {
-      this.addEditExpenseForm.markAllAsTouched();
+    if (this.addEditPurchaseForm.invalid) {
+      this.addEditPurchaseForm.markAllAsTouched();
       return;
     }
 
-    const formValue = this.addEditExpenseForm.value;
+    const formValue = this.addEditPurchaseForm.value;
 
     // Format dates
     // const formattedDeliveryDate = formValue.expected_delivery_date ?
@@ -679,6 +741,8 @@ export class AddEditPurchaseComponent implements OnInit {
     // Get related entity names
     const selectedSupplier = this.suppliers.find(s => s.id === formValue.supplier);
     const selectedBranch = this.branches.find(b => b.id === formValue.branch);
+
+    let totalStonesAmount = 0
 
     // Build items array from purchases
     const items = this.purchases.map(item => {
@@ -709,16 +773,7 @@ export class AddEditPurchaseComponent implements OnInit {
         color_name: selectedColor?.name || "",
         is_active: true,
         max_discount: 0,
-        stones: this.stonesArray.value.map((stone: any) => {
-          const selectedStone = this.stones.find(s => s.id === stone.stone_id);
-          return this.cleanObject({
-            stone_id: stone.stone_id,
-            value: stone.value?.toString(),
-            weight: stone.weight?.toString(),
-            retail_value: stone.retail_value?.toString(),
-            stone_name: selectedStone?.name
-          });
-        }).filter((stone: any) => stone !== null),
+        stones: item.stones,
         stone_kr: "",
         description: item.description || "",
         purity: item.purity,
@@ -730,6 +785,10 @@ export class AddEditPurchaseComponent implements OnInit {
         color: item.color
       };
 
+      const stonesValue = +(productData.stones?.reduce((sum: number, stone: any) => sum + (Number(stone.value) || 0), 0).toString()) || 0;
+
+      totalStonesAmount += stonesValue;
+
       // Clean the product data
       const cleanedProduct = this.cleanObject(productData);
 
@@ -738,8 +797,7 @@ export class AddEditPurchaseComponent implements OnInit {
         line_total_amount: item.line_total_amount?.toString() || "0",
         product: cleanedProduct,
         metal_amount: item.metal_value?.toString() || "0",
-        stone_amount: this.stonesArray.value.reduce((sum: number, stone: any) =>
-          sum + (Number(stone.value) || 0), 0).toString(),
+        stone_amount: stonesValue,
         id: item.id,
         is_returned: false,
         metal_value: item.metal_value?.toString() || "0",
@@ -750,7 +808,6 @@ export class AddEditPurchaseComponent implements OnInit {
 
     // Build payments array - simplified structure for add operation
     const payments = this.paymentsArray.value
-
       // .filter((payment: any) => payment.amount && Number(payment.amount) > 0)
       .map((payment: any) => {
         const paymentData = {
@@ -775,8 +832,6 @@ export class AddEditPurchaseComponent implements OnInit {
       sum + Number(item.tax_amount || 0), 0);
     const totalMetalAmount = this.purchases.reduce((sum, item) =>
       sum + Number(item.metal_value || 0), 0);
-    const totalStoneAmount = this.stonesArray.value.reduce((sum: number, stone: any) =>
-      sum + (Number(stone.value) || 0), 0);
     const totalMetalWeight = this.purchases.reduce((sum, item) =>
       sum + Number(item.metal_weight || 0), 0);
     const totalItems = this.purchases.length;
@@ -803,7 +858,7 @@ export class AddEditPurchaseComponent implements OnInit {
       metal_making_charge: this.purchases.reduce((sum, item) => sum + Number(item.making_charge || 0), 0).toString(),
       attachment: formValue.attachment || "",
       total_metal_amount: totalMetalAmount.toString(),
-      total_stone_amount: totalStoneAmount.toString(),
+      total_stone_amount: totalStonesAmount.toString(),
       reference_number: formValue.reference_number || "",
       total_due_amount: totalDueAmount.toString(),
       total_paid_amount: totalPaidAmount.toString(),
@@ -821,8 +876,8 @@ export class AddEditPurchaseComponent implements OnInit {
     // Convert to FormData
     const formDataPayload = this.toFormData(cleanedPayload);
 
-    const request$ = this.productId && this.isEditMode
-      ? this._accService.updatePurchase(this.productId, formDataPayload)
+    const request$ = this.purchaseId && this.isEditMode
+      ? this._accService.updatePurchase(this.purchaseId, formDataPayload)
       : this._accService.addPurchase(formDataPayload);
 
     request$.subscribe({

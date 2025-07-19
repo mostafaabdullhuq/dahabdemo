@@ -2,3 +2,4 @@ name,email,phone,land_line,tax_number,cpr,address,opening_balance_weight,opening
 Gold Supplier,gold.supplier@email.com,1234567890,1234567,TAX123,123456789,123 Gold St,100.50,debit,5000.00,2024-03-20
 Silver Co,silver.co@email.com,9876543210,7654321,TAX456,987654321,456 Silver Ave,50.25,credit,2500.00,2024-03-20
 Diamond Inc,diamond.inc@email.com,5551234567,5551234,TAX789,456789123,789 Diamond Rd,75.75,debit,7500.00,2024-03-20
+

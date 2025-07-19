@@ -45,7 +45,7 @@ export class TransactionsComponent {
   customers: any = [];
   branches: any = [];
   paymentStatusOptions = [
-    { id: 'pending', name: 'Pending' },
+    { id: 'due', name: 'Due' },
     { id: 'paid', name: 'Paid' },
     { id: 'partially_paid', name: 'Partially Paid' }
   ];
@@ -78,7 +78,7 @@ export class TransactionsComponent {
           let label = status?.replace('_', ' ') ?? 'Unknown';
 
           switch (status) {
-            case 'pending':
+            case 'due':
               className = 'badge rounded-pill text-bg-warning'; break;
             case 'paid':
               className = 'badge rounded-pill text-bg-success'; break;
@@ -90,11 +90,13 @@ export class TransactionsComponent {
         },
         escape: false
       },
-      { field: "amount", header: "Amount", body: (row: any) => +row.amount },
+      { field: "amount", header: "Total Amount", body: (row: any) => +row.amount },
       { field: "sub_total", header: "SubTotal", body: (row: any) => +row.sub_total },
+      { field: "tax", header: "Tax", body: (row: any) => +row.tax },
       { field: "total_paid", header: "Total Paid", body: (row: any) => +row.total_paid },
       { field: "remaining_amount", header: "Remaining", body: (row: any) => +row.remaining_amount },
       { field: "salesman_name", header: "Salesman" },
+      { field: "customer_name", header: "Customer" },
       { field: "orderproduct_count", header: "Total Items" },
       { field: "total_weight", header: "Total Weight" },
       { field: "transaction_type", header: "Transaction Type" },

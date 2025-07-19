@@ -4,7 +4,7 @@
 </div>
 
 <div class="add-form">
-  <form [formGroup]="addEditExpenseForm" class="container" (ngSubmit)="onSubmit()">
+  <form [formGroup]="addEditPurchaseForm" class="container" (ngSubmit)="onSubmit()">
     <section class="form-section">
       <!-- 🔹 Product Info -->
       <h6 class="section-form-header">purchase Info</h6>
@@ -64,19 +64,20 @@
             <tr>
               <th>Tag Number</th>
               <th>Name</th>
-              <th>designer</th>
-              <th>size</th>
+              <th>Designer</th>
+              <th>Size</th>
+              <th>Stones Number</th>
               <th>Category</th>
               <th>Color</th>
               <th>Metal Rate</th>
               <th>Metal Value</th>
-              <th>Metal weight</th>
-              <th>Gross weight</th>
-              <th>making charge</th>
-              <th>retail making charge</th>
-              <th>tax amount</th>
+              <th>Metal Weight</th>
+              <th>Gross Weight</th>
+              <th>Making Charge</th>
+              <th>Retail Making Charge</th>
+              <th>Tax Amount</th>
               <th>Purity</th>
-              <th>line total amount</th>
+              <th>Line Total Amount</th>
               <th>Actions</th>
             </tr>
           </ng-template>
@@ -84,10 +85,11 @@
             <tr>
               <td>{{ item.tag_number }}</td>
               <td>{{ item.name }}</td>
-              <td>{{ item.designer }}</td>
-              <td>{{ item.size }}</td>
-              <td>{{ item.category }}</td>
-              <td>{{ item.color }}</td>
+              <td>{{ getDesignerName(item.designer) }}</td>
+              <td>{{ getSizeName(item.size) }}</td>
+              <td>{{ item.stones.length }}</td>
+              <td>{{ getCategoryName(item.category) }}</td>
+              <td>{{ getColorName(item.color) }}</td>
               <td>{{ item.metal_rate }}</td>
               <td>{{ item.metal_value }}</td>
               <td>{{ item.metal_weight }}</td>
@@ -95,7 +97,7 @@
               <td>{{ item.making_charge }}</td>
               <td>{{ item.retail_making_charge }}</td>
               <td>{{ item.tax_amount }}</td>
-              <td>{{ item.purity }}</td>
+              <td>{{ getPurityName(item.purity) }}</td>
               <td>{{ item.line_total_amount }}</td>
               <td class="d-flex g-1">
                 <button class="edit-btn btn-sm mx-2" type="button" (click)="editPurchaseRow(item, i)">
@@ -240,7 +242,7 @@
       </div>
       <div class="header-btns my-4">
         <button class="add-btn" type="button" (click)="addPurchaseRow()"
-          [disabled]="!this.addEditExpenseForm.get('line_total_amount')?.value || !this.addEditExpenseForm.get('name')?.value || !this.addEditExpenseForm.get('category')?.value || !this.addEditExpenseForm.get('purity')?.value"><i
+          [disabled]="!this.addEditPurchaseForm.get('line_total_amount')?.value || !this.addEditPurchaseForm.get('name')?.value || !this.addEditPurchaseForm.get('category')?.value || !this.addEditPurchaseForm.get('purity')?.value"><i
             class="pi pi-plus  px-2">
           </i>Add Purchase Row</button>
       </div>
@@ -282,7 +284,7 @@
 
     <div class="btns-group">
       <button type="submit" class="my-4 submit-btn"
-        [disabled]="addEditExpenseForm.invalid || !purchases || purchases.length === 0 || isPaymentEmpty()">{{isEditMode?
+        [disabled]="addEditPurchaseForm.invalid || !purchases || purchases.length === 0 || isPaymentEmpty()">{{isEditMode?
         'Update' : 'Submit'}}</button>
     </div>
   </form>

@@ -142,7 +142,7 @@ export class TransferBranchesComponent implements OnInit, OnChanges {
   }
 
   getProductsByBranch(branchId: string | number) {
-    this._dropdownService.getProducts(true, `branch=${branchId}`).subscribe(data => {
+    this._dropdownService.getProducts(true, `branch=${branchId}&page_size=10000000`).subscribe(data => {
       this.products = data?.results;
       this.filterProducts();
     });

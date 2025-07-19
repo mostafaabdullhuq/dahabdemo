@@ -1,80 +1,80 @@
 <p-confirmdialog />
 
 <section>
-    <div class="header-container">
-        <h3>Accounting Dashboard</h3>
-        <hr>
-    </div>
-    <div class="filter-container container">
-        <app-filter-collapse>
-            <form class="container" [formGroup]="filterForm">
-                <div class="row">
-                    <div class="col-md-12">
-                        <app-input-text formControlName="search" placeholder="Global Search" type="text"
-                            inputName="Search"></app-input-text>
-                    </div>
-                    <div class="col-md-6">
-                        <app-dropdowns label=" Baranch" id="Baranch" formControlName="branch" [options]="branches"
-                            optionLabel="name" optionValue="id" placeholder="Select a Baranch">
-                        </app-dropdowns>
-                    </div>
-                    <div class="col-md-6 d-flex flex-column">
-                        <label for="">Date Range</label>
-                        <p-datepicker [size]="'small'" formControlName="lines__journal_entry__date__range" selectionMode="range"
-                            [readonlyInput]="false" />
-                    </div>
-                </div>
-                <div class="btns-group">
-                    <button class=" submit-btn" (click)="onSearch()">Search</button>
-                </div>
-            </form>
-        </app-filter-collapse>
-    </div>
-
-    <div class="table-container">
-        <app-data-table (rowSelected)="selectedProduct = $event" [hasContext]="false" [data]="colors" [cols]="cols"
-            [totalRecords]="totalRecords" [first]="first" [rows]="pageSize" (pageChange)="loadAcc($event)">
-        </app-data-table>
-    </div>
-<hr>
-    <div class="container charts">
-        <div class="header-container">
-        <h4>Charts</h4>
-        <hr>
-    </div>
+  <div class="header-container">
+    <h3>Accounting Dashboard</h3>
+    <hr>
+  </div>
+  <div class="filter-container container">
+    <app-filter-collapse>
+      <form class="container" [formGroup]="filterForm">
         <div class="row">
-            <div class="col-md-12 m-auto">
-                <section class="form-section">
-                    <h6 class="section-form-header">Assets</h6>
-                    <div class="m-auto">
-                        <app-assets />
-                    </div>
-                </section>
-            </div>
-            <div class="col-md-12">
-                <section class="form-section">
-                    <h6 class="section-form-header">expenses</h6>
-                    <div class="m-auto">
-                    <app-expenses />
-                    </div>
-                </section>
-            </div>
-            <div class="col-md-12">
-                <section class="form-section">
-                    <h6 class="section-form-header">Liabilities</h6>
-                    <div class="m-auto">
-                        <app-liabilities />
-                    </div>
-                </section>
-            </div>
-            <div class="col-md-12">
-                <section class="form-section">
-                    <h6 class="section-form-header">revenue</h6>
-                    <div class="m-auto">
-                        <app-revenue />
-                    </div>
-                </section>
-            </div>
+          <div class="col-md-12">
+            <app-input-text formControlName="search" placeholder="Global Search" type="text"
+              inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-6">
+            <app-dropdowns label=" Baranch" id="Baranch" formControlName="branch" [options]="branches"
+              optionLabel="name" optionValue="id" placeholder="Select a Baranch">
+            </app-dropdowns>
+          </div>
+          <div class="col-md-6 d-flex flex-column">
+            <label for="">Date Range</label>
+            <p-datepicker [size]="'small'" formControlName="lines__journal_entry__date__range" selectionMode="range"
+              [readonlyInput]="false" />
+          </div>
         </div>
+        <div class="btns-group">
+          <button class=" submit-btn" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </app-filter-collapse>
+  </div>
+
+  <div class="table-container">
+    <app-data-table (rowSelected)="selectedProduct = $event" [hasContext]="false" [data]="colors" [cols]="cols"
+      [totalRecords]="totalRecords" [first]="first" [rows]="pageSize" (pageChange)="loadAcc($event)">
+    </app-data-table>
+  </div>
+  <hr>
+  <div class="container charts">
+    <div class="header-container">
+      <h4>Charts</h4>
+      <hr>
     </div>
+    <div class="row">
+      <div class="col-md-6">
+        <section class="form-section">
+          <h6 class="section-form-header">Assets</h6>
+          <div class="m-auto">
+            <app-assets />
+          </div>
+        </section>
+      </div>
+      <div class="col-md-6">
+        <section class="form-section">
+          <h6 class="section-form-header">expenses</h6>
+          <div class="m-auto">
+            <app-expenses />
+          </div>
+        </section>
+      </div>
+      <div class="col-md-6">
+        <section class="form-section">
+          <h6 class="section-form-header">Liabilities</h6>
+          <div class="m-auto">
+            <app-liabilities />
+          </div>
+        </section>
+      </div>
+      <div class="col-md-6">
+        <section class="form-section">
+          <h6 class="section-form-header">revenue</h6>
+          <div class="m-auto">
+            <app-revenue />
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
 </section>

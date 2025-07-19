@@ -40,7 +40,8 @@ export class SuppliersComponent implements OnInit {
       { field: "tax_number", header: "Tax Number" },
       { field: "cpr", header: "CPR" },
       { field: "address", header: "Address" },
-      { field: "opening_balance", header: "Opening Balance" },
+      { field: "opening_balance_amount", header: "Opening Balance Amount" },
+      { field: "opening_balance_weight", header: "Opening Balance Weight" },
       { field: "opening_balance_date", header: "Opening Balance Date" },
     ];
     this.filterForm = this._formBuilder.group({
@@ -76,6 +77,8 @@ export class SuppliersComponent implements OnInit {
 
     // Correct pagination parameters and make API call
     this._contactService.getSuppliers(this.filterForm?.value?.search || '', page, pageSize).subscribe(res => {
+      console.log("res: ", res.results);
+
       this.suppliers = res?.results;
       this.totalRecords = res?.count;  // Ensure the total count is updated
     });

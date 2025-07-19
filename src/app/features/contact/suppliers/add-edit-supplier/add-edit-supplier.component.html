@@ -1,98 +1,100 @@
 <section class="form-container">
-    <div class="header-container">
-        <h3>{{isEditMode ? 'Edit' : 'Add'}} Supplier</h3>
-        <hr />
-    </div>
+  <div class="header-container">
+    <h3>{{isEditMode ? 'Edit' : 'Add'}} Supplier</h3>
+    <hr />
+  </div>
 
-    <div class="add-form">
-        <form [formGroup]="addEditSupplierForm" class="container" (ngSubmit)="onSubmit()">
-            <section class="form-section">
-                <!-- 🔹 customer Info -->
-                <h6 class="section-form-header">supplier Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <app-input-text formControlName="name" inputName="supplier Name" [required]="true"
-                                placeholder="Enter supplier name">
-                                @if (addEditSupplierForm.get('name')?.hasError('required') &&
-                                addEditSupplierForm.get('name')?.touched) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>Name is required</small>
-                                </div>
-                                }
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-text formControlName="phone" inputName="phone" [required]="true"
-                                placeholder="Enter phone">
-                                @if (addEditSupplierForm.get('phone')?.hasError('required') &&
-                                addEditSupplierForm.get('phone')?.touched) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>phone is required</small>
-                                </div>
-                                }
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-text formControlName="email" inputName="Email" type="email" [required]="true"
-                                placeholder="Enter your email">
-                                @if ((addEditSupplierForm.get('email')?.errors?.['required'] &&
-                                addEditSupplierForm.get('email')?.touched)) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>Email is required</small>
-                                </div>
-                                }
-                            </app-input-text>
-                        </div>
-
-                        <div class="col-md-6">
-                            <app-input-text formControlName="address" inputName="Address"
-                                placeholder="Enter address">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-text formControlName="land_line" [required]="true" inputName="land line"
-                                placeholder="Enter land line">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-text formControlName="tax_number" [required]="true" inputName="tax number"
-                                placeholder="Enter tax number">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-text formControlName="cpr" inputName="CPR"
-                                placeholder="Enter CPR">
-                            </app-input-text>
-                        </div>
-                    </div>
+  <div class="add-form">
+    <form [formGroup]="addEditSupplierForm" class="container" (ngSubmit)="onSubmit()">
+      <section class="form-section">
+        <!-- 🔹 customer Info -->
+        <h6 class="section-form-header">supplier Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-6">
+              <app-input-text formControlName="name" inputName="supplier Name" [required]="true"
+                placeholder="Enter supplier name">
+                @if (addEditSupplierForm.get('name')?.hasError('required') &&
+                addEditSupplierForm.get('name')?.touched) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>Name is
+                    required</small>
                 </div>
-                <!-- 🔹 Balance Info -->
-                <h6 class="section-form-header mt-4">Balance Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <app-input-text [required]="true" formControlName="opening_balance_amount" inputName="Opening Balance"
-                                placeholder="Enter Opening Balance">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-6">
-                            <app-input-date [required]="true" formControlName="opening_balance_date" inputName="Opening Balance date"
-                                placeholder="Enter Opening Balance date">
-                            </app-input-date>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-
-            <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn">{{isEditMode?
-                    'Update' : 'Submit'}}</button>
+                }
+              </app-input-text>
             </div>
-        </form>
-    </div>
+            <div class="col-md-6">
+              <app-input-text formControlName="phone" inputName="phone" [required]="true" placeholder="Enter phone">
+                @if (addEditSupplierForm.get('phone')?.hasError('required') &&
+                addEditSupplierForm.get('phone')?.touched) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>phone is
+                    required</small>
+                </div>
+                }
+              </app-input-text>
+            </div>
+            <div class="col-md-6">
+              <app-input-text formControlName="email" inputName="Email" type="email" [required]="true"
+                placeholder="Enter your email">
+                @if ((addEditSupplierForm.get('email')?.errors?.['required'] &&
+                addEditSupplierForm.get('email')?.touched)) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>Email is
+                    required</small>
+                </div>
+                }
+              </app-input-text>
+            </div>
+
+            <div class="col-md-6">
+              <app-input-text formControlName="address" inputName="Address" placeholder="Enter address">
+              </app-input-text>
+            </div>
+            <div class="col-md-6">
+              <app-input-text formControlName="land_line" [required]="true" inputName="land line"
+                placeholder="Enter land line">
+              </app-input-text>
+            </div>
+            <div class="col-md-6">
+              <app-input-text formControlName="tax_number" [required]="true" inputName="tax number"
+                placeholder="Enter tax number">
+              </app-input-text>
+            </div>
+            <div class="col-md-6">
+              <app-input-text formControlName="cpr" inputName="CPR" placeholder="Enter CPR">
+              </app-input-text>
+            </div>
+          </div>
+        </div>
+        <!-- 🔹 Balance Info -->
+        <h6 class="section-form-header mt-4">Balance Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-4">
+              <app-input-text formControlName="opening_balance_amount" inputName="Opening Balance Amount"
+                placeholder="Enter Opening Balance">
+              </app-input-text>
+            </div>
+            <div class="col-md-4">
+              <app-input-date formControlName="opening_balance_date" inputName="Opening Balance date"
+                placeholder="Enter Opening Balance date">
+              </app-input-date>
+            </div>
+            <div class="col-md-4">
+              <app-input-text formControlName="opening_balance_weight" inputName="Opening Balance Weight"
+                placeholder="Enter Opening Balance Weight">
+              </app-input-text>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <div class="btns-group">
+        <button type="submit" class="my-4 submit-btn">{{isEditMode?
+          'Update' : 'Submit'}}</button>
+      </div>
+    </form>
+  </div>
 </section>

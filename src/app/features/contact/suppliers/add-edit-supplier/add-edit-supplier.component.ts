@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ContactService } from '../../@services/contact.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 
 @Component({
@@ -23,12 +23,12 @@ export class AddEditSupplierComponent {
   constructor(
     private _contactService: ContactService,
     private _formBuilder: FormBuilder,
-    private _activeRoute: ActivatedRoute
+    private _activeRoute: ActivatedRoute,
+    private _router: Router
   ) { }
 
   ngOnInit(): void {
     const supplierId = this._activeRoute.snapshot.paramMap.get('id');
-
     if (supplierId)
       this.supplierId = supplierId;
     this.initForm();
@@ -45,8 +45,9 @@ export class AddEditSupplierComponent {
       address: [''],
       tax_number: ['', Validators.required],
       land_line: ['', Validators.required],
-      opening_balance_amount: ['', Validators.required],
-      opening_balance_date: ['', Validators.required],
+      opening_balance_amount: [''],
+      opening_balance_weight: [''],
+      opening_balance_date: [''],
       phone: ['', Validators.required],
       cpr: ['', Validators.required],
     });
@@ -59,6 +60,7 @@ export class AddEditSupplierComponent {
         email: supplier?.email,
         address: supplier?.address,
         opening_balance_amount: supplier?.opening_balance_amount,
+        opening_balance_weight: supplier?.opening_balance_weight,
         opening_balance_date: new Date(supplier?.opening_balance_date),
         tax_number: supplier?.tax_number,
         land_line: supplier?.land_line,
@@ -75,12 +77,12 @@ export class AddEditSupplierComponent {
 
     if (this.isEditMode && this.supplierId) {
       this._contactService.updateSupplier(this.supplierId, formData).subscribe({
-        next: res => console.log('User updated successfully', res),
+        next: res => this._router.navigate(['/contact/suppliers']),
         error: err => console.error('Error updating user', err)
       });
     } else {
       this._contactService.addSupplier(formData).subscribe({
-        next: res => console.log('User created successfully', res),
+        next: res => this._router.navigate(['/contact/suppliers']),
         error: err => console.error('Error creating user', err)
       });
     }
