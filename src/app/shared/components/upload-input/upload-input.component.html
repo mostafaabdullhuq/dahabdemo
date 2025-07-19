@@ -1,13 +1,14 @@
 <div class="image-uploader">
   <div class="controls">
     <label class="upload-label">
-      <input type="file" #fileInput [accept]="accept || 'image/*'" (change)="handleFileInput($event)" />
+      <input type="file" #fileInput [accept]="accept || 'image/*'" (change)="handleFileInput($event)"
+        [disabled]="disabled" />
       <span class="upload-button">
         <i class="pi pi-upload"></i> {{ label }}
       </span>
     </label>
 
-    <span class="reset-btn " *ngIf="reset" (click)="reset()">
+    <span class="reset-btn " *ngIf="showDelete" (click)="reset()">
       <i class="pi pi-trash text-white"></i>
     </span>
   </div>

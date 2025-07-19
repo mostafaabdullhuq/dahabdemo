@@ -66,11 +66,6 @@ export class AddEditPurchaseComponent implements OnInit {
 
     this.initForm();
 
-    if (this.purchaseId) {
-      this.loadPurchaseData();
-      this.isEditMode = true
-    }
-
     this.getLookupData();
 
     this.addEditPurchaseForm.get('branch')?.valueChanges.subscribe(branchId => {
@@ -157,6 +152,13 @@ export class AddEditPurchaseComponent implements OnInit {
       this.calculateTax();
       this.watchStoneControls(); // Keep updating as stones are added
     });
+
+
+    if (this.purchaseId) {
+      this.loadPurchaseData();
+      this.isEditMode = true;
+      this.paymentsArray.disable();
+    }
   }
 
   getCategoryName(categoryId: number) {
@@ -569,24 +571,24 @@ export class AddEditPurchaseComponent implements OnInit {
           const product = item.product;
           const refinedItem = {
             id: item.id,
-            tag_number: product.tag_number, // TODO
+            tag_number: product.tag_number,
             metal_rate: item.metal_rate,
             metal_value: item.metal_value,
-            metal_weight: product.metal_weight, // TODO
+            metal_weight: product.weight,
             purity: product.purity,
-            purity_rate: product.purity_rate, // TODO
+            purity_rate: product.purity_rate,
             category: product.category,
             making_charge: product.making_charge,
             retail_making_charge: product.retail_making_charge,
-            tax: product.tax,
+            // tax: product.tax, // todo
             tax_amount: item.tax_amount,
-            gross_weight: product.weight,
+            gross_weight: product.gross_weight,
             line_total_amount: item.line_total_amount,
             color: product.color,
             size: product.size,
             name: product.name,
             designer: product.designer,
-            country: product.country, // Change to id
+            country: this.countries.find(country => country.name === product.country)?.id, // Change to id
             description: product.description,
             stones: product.stones?.map((stone: any) => {
               return this.cleanObject({
@@ -621,6 +623,8 @@ export class AddEditPurchaseComponent implements OnInit {
           this.paymentsArray.push(paymentGroup);
         });
       }
+
+      this.paymentsArray.disable();
     });
   }
 
@@ -668,6 +672,13 @@ export class AddEditPurchaseComponent implements OnInit {
         this.watchStoneControls(); // Watch the new one
       })
     }
+
+    if (this.isEditMode) {
+      this.stonesArray.disable();
+    } else {
+      this.stonesArray.enable();
+    }
+
   }
 
   getTotalLineAmount(): number {
@@ -735,139 +746,153 @@ export class AddEditPurchaseComponent implements OnInit {
     // Format dates
     // const formattedDeliveryDate = formValue.expected_delivery_date ?
     //   new Date(formValue.expected_delivery_date).toISOString().slice(0, 10) : '';
-    const orderDate = formValue.order_date ?
-      new Date(formValue.order_date).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+    const orderDate = (formValue.order_date ? new Date(formValue.order_date) : new Date()).toISOString().split('T')[0];
 
     // Get related entity names
     const selectedSupplier = this.suppliers.find(s => s.id === formValue.supplier);
     const selectedBranch = this.branches.find(b => b.id === formValue.branch);
+    let payload;
 
-    let totalStonesAmount = 0
+    if (this.isEditMode) {
+      payload = {
+        supplier_name: selectedSupplier?.name || "",
+        order_date: orderDate,
+        branch_name: selectedBranch?.name || "",
+        branch: formValue.branch,
+        supplier: formValue.supplier,
+        type: formValue.type || "fixed",
+        status: formValue.status || "pending",
+        attachment: formValue.attachment || "",
+        reference_number: formValue.reference_number || "",
+      }
+    } else {
+      let totalStonesAmount = 0
 
-    // Build items array from purchases
-    const items = this.purchases.map(item => {
-      // Get related entity names for product
-      const selectedPurity = this.purities.find(p => p.id === item.purity);
-      const selectedCategory = this.categories.find(c => c.id === item.category);
-      const selectedBrand = this.brands.find(b => b.id === item.brand);
-      const selectedUnit = this.units.find(u => u.id === item.unit);
-      const selectedSize = this.sizes.find(s => s.id === item.size);
-      const selectedDesigner = this.designers.find(d => d.id === item.designer);
-      const selectedColor = this.colors.find(c => c.id === item.color);
-      const selectedCountry = this.countries?.find(c => c.id === item.country);
+      // Build items array from purchases
+      const items = this.purchases.map(item => {
+        // Get related entity names for product
+        const selectedPurity = this.purities.find(p => p.id === item.purity);
+        const selectedCategory = this.categories.find(c => c.id === item.category);
+        const selectedBrand = this.brands.find(b => b.id === item.brand);
+        const selectedUnit = this.units.find(u => u.id === item.unit);
+        const selectedSize = this.sizes.find(s => s.id === item.size);
+        const selectedDesigner = this.designers.find(d => d.id === item.designer);
+        const selectedColor = this.colors.find(c => c.id === item.color);
+        const selectedCountry = this.countries?.find(c => c.id === item.country);
 
-      const productData = {
-        name: item.name || "",
-        making_charge: item.making_charge?.toString() || "0",
-        retail_making_charge: item.retail_making_charge?.toString() || "0",
-        weight: item.metal_weight?.toString() || "0",
-        branch: selectedBranch?.name || "",
-        branch_id: formValue.branch,
-        country: selectedCountry?.name || "",
-        purity_name: selectedPurity?.name || "",
-        category_name: selectedCategory?.name || "",
-        brand_name: selectedBrand?.name || "",
-        unit_name: selectedUnit?.name || "",
-        size_name: selectedSize?.name || "",
-        designer_name: selectedDesigner?.name || "",
-        color_name: selectedColor?.name || "",
-        is_active: true,
-        max_discount: 0,
-        stones: item.stones,
-        stone_kr: "",
-        description: item.description || "",
-        purity: item.purity,
-        category: item.category,
-        brand: item.brand,
-        unit: item.unit,
-        size: item.size,
-        designer: item.designer,
-        color: item.color
-      };
-
-      const stonesValue = +(productData.stones?.reduce((sum: number, stone: any) => sum + (Number(stone.value) || 0), 0).toString()) || 0;
-
-      totalStonesAmount += stonesValue;
-
-      // Clean the product data
-      const cleanedProduct = this.cleanObject(productData);
-
-      return this.cleanObject({
-        quantity: item.quantity || 1,
-        line_total_amount: item.line_total_amount?.toString() || "0",
-        product: cleanedProduct,
-        metal_amount: item.metal_value?.toString() || "0",
-        stone_amount: stonesValue,
-        id: item.id,
-        is_returned: false,
-        metal_value: item.metal_value?.toString() || "0",
-        metal_rate: item.metal_rate?.toString() || "0",
-        tax_amount: item.tax_amount?.toString() || "0"
-      });
-    }).filter(item => item !== null);
-
-    // Build payments array - simplified structure for add operation
-    const payments = this.paymentsArray.value
-      // .filter((payment: any) => payment.amount && Number(payment.amount) > 0)
-      .map((payment: any) => {
-        const paymentData = {
-          payment_date: payment.payment_date ? new Date(payment.payment_date).toISOString().slice(0, 10) : '',
-          items: [{
-            type: "Amount",
-            payment_method: payment.payment_method,
-            is_fixed: true,
-            amount: payment.amount?.toString() || "0"
-          }]
+        const productData = {
+          name: item.name || "",
+          making_charge: item.making_charge?.toString() || "0",
+          retail_making_charge: item.retail_making_charge?.toString() || "0",
+          weight: item.metal_weight?.toString() || "0",
+          branch: selectedBranch?.name || "",
+          branch_id: formValue.branch,
+          country: selectedCountry?.name || "",
+          purity_name: selectedPurity?.name || "",
+          category_name: selectedCategory?.name || "",
+          brand_name: selectedBrand?.name || "",
+          unit_name: selectedUnit?.name || "",
+          size_name: selectedSize?.name || "",
+          designer_name: selectedDesigner?.name || "",
+          color_name: selectedColor?.name || "",
+          is_active: true,
+          max_discount: 0,
+          stones: item.stones,
+          stone_kr: "",
+          description: item.description || "",
+          purity: item.purity,
+          category: item.category,
+          brand: item.brand,
+          unit: item.unit,
+          size: item.size,
+          designer: item.designer,
+          color: item.color
         };
 
-        return this.cleanObject(paymentData);
-      }).filter((payment: any) => payment !== null);
+        const stonesValue = +(productData.stones?.reduce((sum: number, stone: any) => sum + (Number(stone.value) || 0), 0).toString()) || 0;
 
-    // Calculate totals
-    const totalAmount = this.purchases.reduce((sum, item) =>
-      sum + Number(item.line_total_amount || 0), 0);
-    const totalWeight = this.purchases.reduce((sum, item) =>
-      sum + Number(item.gross_weight || 0), 0);
-    const taxAmount = this.purchases.reduce((sum, item) =>
-      sum + Number(item.tax_amount || 0), 0);
-    const totalMetalAmount = this.purchases.reduce((sum, item) =>
-      sum + Number(item.metal_value || 0), 0);
-    const totalMetalWeight = this.purchases.reduce((sum, item) =>
-      sum + Number(item.metal_weight || 0), 0);
-    const totalItems = this.purchases.length;
-    const totalPaidAmount = this.paymentsArray.value.reduce((sum: number, payment: any) =>
-      sum + (Number(payment.amount) || 0), 0);
-    const totalDueAmount = totalAmount - totalPaidAmount;
+        totalStonesAmount += stonesValue;
+
+        // Clean the product data
+        const cleanedProduct = this.cleanObject(productData);
+
+        return this.cleanObject({
+          quantity: item.quantity || 1,
+          line_total_amount: item.line_total_amount?.toString() || "0",
+          product: cleanedProduct,
+          metal_amount: item.metal_value?.toString() || "0",
+          stone_amount: stonesValue,
+          id: item.id,
+          is_returned: false,
+          metal_value: item.metal_value?.toString() || "0",
+          metal_rate: item.metal_rate?.toString() || "0",
+          tax_amount: item.tax_amount?.toString() || "0"
+        });
+      }).filter(item => item !== null);
+
+      // Build payments array - simplified structure for add operation
+      const payments = this.paymentsArray.value
+        // .filter((payment: any) => payment.amount && Number(payment.amount) > 0)
+        .map((payment: any) => {
+          const paymentData = {
+            payment_date: payment.payment_date ? new Date(payment.payment_date).toISOString().slice(0, 10) : '',
+            items: [{
+              type: "Amount",
+              payment_method: payment.payment_method,
+              is_fixed: true,
+              amount: payment.amount?.toString() || "0"
+            }]
+          };
+
+          return this.cleanObject(paymentData);
+        }).filter((payment: any) => payment !== null);
+
+      // Calculate totals
+      const totalAmount = this.purchases.reduce((sum, item) =>
+        sum + Number(item.line_total_amount || 0), 0);
+      const totalWeight = this.purchases.reduce((sum, item) =>
+        sum + Number(item.gross_weight || 0), 0);
+      const taxAmount = this.purchases.reduce((sum, item) =>
+        sum + Number(item.tax_amount || 0), 0);
+      const totalMetalAmount = this.purchases.reduce((sum, item) =>
+        sum + Number(item.metal_value || 0), 0);
+      const totalMetalWeight = this.purchases.reduce((sum, item) =>
+        sum + Number(item.metal_weight || 0), 0);
+      const totalItems = this.purchases.length;
+      const totalPaidAmount = this.paymentsArray.value.reduce((sum: number, payment: any) =>
+        sum + (Number(payment.amount) || 0), 0);
+      const totalDueAmount = totalAmount - totalPaidAmount;
 
 
-    // Build final payload for add operation
-    const payload = {
-      supplier_name: selectedSupplier?.name || "",
-      order_date: orderDate,
-      branch_name: selectedBranch?.name || "",
-      branch: formValue.branch,
-      supplier: formValue.supplier,
-      total_amount: totalAmount.toString(),
-      tax_amount: taxAmount.toString(),
-      total_weight: totalWeight.toString(),
-      type: formValue.type || "fixed",
-      status: formValue.status || "pending",
-      items: items,
-      metal_weight: totalMetalWeight.toString(),
-      total_items: totalItems.toString(),
-      metal_making_charge: this.purchases.reduce((sum, item) => sum + Number(item.making_charge || 0), 0).toString(),
-      attachment: formValue.attachment || "",
-      total_metal_amount: totalMetalAmount.toString(),
-      total_stone_amount: totalStonesAmount.toString(),
-      reference_number: formValue.reference_number || "",
-      total_due_amount: totalDueAmount.toString(),
-      total_paid_amount: totalPaidAmount.toString(),
-      total_paid_weight: "0"
-    };
+      // Build final payload for add operation
+      payload = {
+        supplier_name: selectedSupplier?.name || "",
+        order_date: orderDate,
+        branch_name: selectedBranch?.name || "",
+        branch: formValue.branch,
+        supplier: formValue.supplier,
+        total_amount: totalAmount.toString(),
+        tax_amount: taxAmount.toString(),
+        total_weight: totalWeight.toString(),
+        type: formValue.type || "fixed",
+        status: formValue.status || "pending",
+        items: items,
+        metal_weight: totalMetalWeight.toString(),
+        total_items: totalItems.toString(),
+        metal_making_charge: this.purchases.reduce((sum, item) => sum + Number(item.making_charge || 0), 0).toString(),
+        attachment: formValue.attachment || "",
+        total_metal_amount: totalMetalAmount.toString(),
+        total_stone_amount: totalStonesAmount.toString(),
+        reference_number: formValue.reference_number || "",
+        total_due_amount: totalDueAmount.toString(),
+        total_paid_amount: totalPaidAmount.toString(),
+        total_paid_weight: "0"
+      };
 
-    // Only include payments if there are valid payments
-    if (payments.length > 0) {
-      (payload as any).payments = payments;
+      // Only include payments if there are valid payments
+      if (payments.length > 0) {
+        (payload as any).payments = payments;
+      }
     }
 
     // Clean the entire payload

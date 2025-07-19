@@ -18,6 +18,8 @@ export class UploadInputComponent {
   @Input() label: string = 'Choose Image';
   @Input() accept: string = 'image/*';
   @Input() maxFileSize: number = 1000000;
+  @Input() disabled: boolean = false;
+  @Input() showDelete: boolean = true;
   @ViewChild('fileInput') fileInput: any;
 
   file: File | null = null;
