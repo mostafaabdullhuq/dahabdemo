@@ -826,7 +826,8 @@ export class AddEditPurchaseComponent implements OnInit {
           is_returned: false,
           metal_value: item.metal_value?.toString() || "0",
           metal_rate: item.metal_rate?.toString() || "0",
-          tax_amount: item.tax_amount?.toString() || "0"
+          tax_amount: item.tax_amount?.toString() || "0",
+          tax: this.taxRates.find((taxItem: any) => taxItem.rate === item.tax)?.id
         });
       }).filter(item => item !== null);
 

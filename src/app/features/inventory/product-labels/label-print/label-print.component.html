@@ -1,35 +1,36 @@
 <p-dialog header="Print Label Preview" [modal]="true" [(visible)]="visible" [style]="{ width: '70rem' }">
 
-    <div id="print-area">
-        <ng-container class="d-flex w-100" *ngFor="let product of products">
-            <div class="label border col-md-4 border-1 rounded-3 labelElement" [ngClass]="printType === 'Synthetic coated' ? 'synthetic' : 'butterfly'"  *ngFor="let i of [].constructor(+product.label_count)">
-                <div class="content-data">
-                    <div *ngIf="formData.show_product_name">{{ product.name }}</div>
-                    <div class="details">
-                        <div *ngIf="formData.color"> {{ product.color }}</div>
-                        <div *ngIf="formData.category"> {{ product.category }}</div>
-                    </div>
-                    <div class="details">
-                        <div *ngIf="formData.weight">{{ product.weight }} {{product?.unit}}</div>
-                        <div *ngIf="formData.brand">{{ product.brand }}</div>
-                    </div>
-                    <div class="details">
-                        <div *ngIf="formData.designer"> {{ product.designer }}</div>
-                        <div class="ms-1" *ngIf="formData.size">{{ product.size }}</div>
-                    </div>
+  <div id="print-area">
+    <ng-container class="d-flex w-100" *ngFor="let product of products">
+      <div class="label border col-md-4 border-1 rounded-3 labelElement"
+        [ngClass]="printType === 'Synthetic coated' ? 'synthetic' : 'butterfly'"
+        *ngFor="let i of [].constructor(+product.label_count)">
+        <div class="content-data">
+          <div *ngIf="formData.show_product_name">{{ product.name }}</div>
+          <div class="details">
+            <div *ngIf="formData.color"> {{ product.color }}</div>
+            <div *ngIf="formData.category"> {{ product.category }}</div>
+          </div>
+          <div class="details">
+            <div *ngIf="formData.weight">{{ product.weight }} {{product?.unit}}</div>
+            <div *ngIf="formData.brand">{{ product.brand }}</div>
+          </div>
+          <div class="details">
+            <div *ngIf="formData.designer"> {{ product.designer }}</div>
+            <div class="ms-1" *ngIf="formData.size">{{ product.size }}</div>
+          </div>
 
-                    <div *ngIf="formData.purity">{{ product.purity }}</div>
-                </div>
-                <div class="empty opacity-0" style="opacity: 0 !important;"><label>test</label></div>
-                <div class="barcode">
-                    <img
-                        [src]="'https://barcode.tec-it.com/barcode.ashx?data=' + product.product_id + '&code=Code128'" />
-                </div>
-            </div>
-        </ng-container>
-        
-    </div>
-    <div class="d-flex justify-content-end align-items-end">
-        <button type="button" (click)="print()" class="d-print-none">Print</button>
-    </div>
+          <div *ngIf="formData.purity">{{ product.purity }}</div>
+        </div>
+        <div class="empty opacity-0" style="opacity: 0 !important;"><label>test</label></div>
+        <div class="barcode">
+          <img [src]="'https://barcode.tec-it.com/barcode.ashx?data=' + product.product_id + '&code=Code128'" />
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+  <div class="d-flex justify-content-end align-items-end">
+    <button type="button" (click)="print()" class="d-print-none">Print</button>
+  </div>
 </p-dialog>

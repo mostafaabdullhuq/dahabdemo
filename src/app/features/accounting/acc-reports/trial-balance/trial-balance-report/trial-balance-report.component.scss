@@ -97,6 +97,102 @@
   }
 }
 
+// Target parent account rows by their content
+::ng-deep .p-datatable .p-datatable-tbody > tr:has(.parent-account) {
+  background-color: #ffff99 !important;
+  font-weight: bold;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr:has(.parent-account) td {
+  background-color: #ffff99 !important;
+  font-weight: bold;
+}
+
+// Alternative approach for browsers that don't support :has()
+::ng-deep .parent-account {
+  font-weight: bold;
+}
+
+// Style parent rows by targeting specific patterns
+::ng-deep
+  .p-datatable
+  .p-datatable-tbody
+  > tr
+  td:first-child:contains("ASSETS"),
+::ng-deep
+  .p-datatable
+  .p-datatable-tbody
+  > tr
+  td:first-child:contains("LIABILITIES"),
+::ng-deep
+  .p-datatable
+  .p-datatable-tbody
+  > tr
+  td:first-child:contains("REVENUE"),
+::ng-deep
+  .p-datatable
+  .p-datatable-tbody
+  > tr
+  td:first-child:contains("EXPENSES") {
+  background-color: #ffff99 !important;
+}
+
+.trial-balance-table {
+  .p-datatable-thead > tr > th {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    font-weight: 600;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .p-datatable-tbody > tr > td {
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .p-datatable-tbody > tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+}
+
+// Ensure proper table layout
+::ng-deep .p-datatable .p-datatable-table {
+  table-layout: auto;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  border: 1px solid #dee2e6;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  text-align: right;
+  vertical-align: middle;
+  border: 1px solid #dee2e6;
+}
+
+// Description column should be left-aligned
+::ng-deep .p-datatable .p-datatable-tbody > tr > td:nth-child(2) {
+  text-align: left;
+}
+
+// Code column should be left-aligned
+::ng-deep .p-datatable .p-datatable-tbody > tr > td:first-child {
+  text-align: left;
+}
+
+// FC Currency column should be center-aligned
+::ng-deep .p-datatable .p-datatable-tbody > tr > td:nth-child(3) {
+  text-align: center;
+}
+
 .table-container {
   background: #fff;
   border-radius: 8px;

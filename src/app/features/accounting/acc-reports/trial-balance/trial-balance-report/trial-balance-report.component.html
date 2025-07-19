@@ -62,7 +62,7 @@
     <!-- Trial Balance Table -->
     <div class="table-container">
         <app-data-table [data]="trialBalanceTableData" [cols]="columns" [totalRecords]="trialBalanceTableData.length"
-            [hasContext]="false" [paginator]="false">
+            [hasContext]="false" [paginator]="false" styleClass="trial-balance-table">
 
             <ng-container table-empty-message *ngIf="trialBalanceTableData.length === 0">
                 No trial balance data found for the selected criteria. Try adjusting your filter options.

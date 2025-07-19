@@ -15,30 +15,31 @@ export class LabelPrintComponent {
 
   constructor(private _inventoryService: InventoryService) { }
   ngOnInit(): void {
-   
+
   }
- preparePayload() {
-  const layout = this.printType.toLowerCase(); // 'butterfly' or 'synthetic coated'
+  preparePayload() {
+    const layout = this.printType.toLowerCase(); // 'butterfly' or 'synthetic coated'
 
-  const dimensions = layout === 'butterfly'
-    ? { label_width: 2.2, label_height: 0.5 }
-    : { label_width: 3.27, label_height: 1.46 };
+    const dimensions = layout === 'butterfly'
+      ? { label_width: 2.2, label_height: 0.5 }
+      : { label_width: 8.3, label_height: 3.7 };
 
-  const selectedFields: string[] = [];
+    const selectedFields: string[] = [];
 
-  selectedFields.push('name');
-  if (this.formData.purity) selectedFields.push('purity');
-  if (this.formData.weight) selectedFields.push('weight');
-   selectedFields.push('tag_number');
-  selectedFields.push('barcode'); // Always include barcode
+    selectedFields.push('name');
+    if (this.formData.purity) selectedFields.push('purity');
+    if (this.formData.weight) selectedFields.push('weight');
+    selectedFields.push('tag_number');
+    selectedFields.push('barcode'); // Always include barcode
 
-  return {
-    printer_name: this.formData.printer_name,
-    layout,
-    ...dimensions,
-    fields: selectedFields
-  };
-}
+    return {
+      printer_name: this.formData.printer_name,
+      layout,
+      ...dimensions,
+      fields: selectedFields
+    };
+  }
+
   visible: boolean = false;
   showDialog() {
     this.visible = true;
@@ -145,60 +146,61 @@ export class LabelPrintComponent {
   //     popupWin.document.close();
   //   }
   // }
-print(): void {
-  this.printLabelsAndThenPrint();
-}
-
-printLabelsAndThenPrint(): void {
-  const payload = this.preparePayload();
-
-  if (this.products.length === 1) {
-    const productId = this.products[0].product_id;
-
-    this._inventoryService.addOnlyOneProductLabel(productId, payload).subscribe({
-      next: () => {
-        this.triggerPrintPopup();
-      },
-      error: (err) => {
-        console.error(err);
-        this.triggerPrintPopup(); // Still trigger print even on error
-      }
-    });
-
-  } else if (this.products.length > 1) {
-    const productIds = this.products.map(p => p.product_id);
-    const bulkPayload = {
-      ...payload,
-      product_ids: productIds
-    };
-
-    this._inventoryService.addBulkOfProductLabel(bulkPayload).subscribe({
-      next: () => {
-        this.triggerPrintPopup();
-      },
-      error: (err) => {
-        console.error(err);
-        this.triggerPrintPopup(); // Still trigger print even on error
-      }
-    });
-  } else {
-    this.triggerPrintPopup(); // fallback
+  print(): void {
+    this.printLabelsAndThenPrint();
   }
-}
 
-triggerPrintPopup(): void {
-  const labelElements = document.querySelectorAll('.labelElement');
-  if (!labelElements.length) return;
+  printLabelsAndThenPrint(): void {
+    const payload = this.preparePayload();
 
-  let printContents = '';
-  labelElements.forEach(el => {
-    printContents += el.outerHTML;
-  });
+    if (this.products.length === 1) {
+      const productId = this.products[0].product_id;
 
-  const syntheticCoated = this.printType === 'Synthetic coated';
+      this._inventoryService.addOnlyOneProductLabel(productId, payload).subscribe({
+        next: () => {
+          this.triggerPrintPopup();
+        },
+        error: (err) => {
+          console.error(err);
+          this.triggerPrintPopup(); // Still trigger print even on error
+        }
+      });
 
- // const popupWin = window.open('', '_blank', 'width=800,height=600');
-//  if (popupWin) {
+    } else if (this.products.length > 1) {
+      const productIds = this.products.map(p => p.product_id);
+      const bulkPayload = {
+        ...payload,
+        product_ids: productIds
+      };
+
+      this._inventoryService.addBulkOfProductLabel(bulkPayload).subscribe({
+        next: () => {
+          this.triggerPrintPopup();
+        },
+        error: (err) => {
+          console.error(err);
+          this.triggerPrintPopup(); // Still trigger print even on error
+        }
+      });
+    } else {
+      this.triggerPrintPopup(); // fallback
+    }
+  }
+
+  triggerPrintPopup(): void {
+    const labelElements = document.querySelectorAll('.labelElement');
+
+    if (!labelElements.length) return;
+
+    let printContents = '';
+    labelElements.forEach(el => {
+      printContents += el.outerHTML;
+    });
+
+    const syntheticCoated = this.printType === 'Synthetic coated';
+
+    // const popupWin = window.open('', '_blank', 'width=800,height=600');
+    //  if (popupWin) {
     // popupWin.document.open();
     // popupWin.document.write(`
     //   <html>
@@ -285,10 +287,10 @@ triggerPrintPopup(): void {
     //   </html>
     // `);
     // popupWin.document.close();
-  //}
-}
-printLabels(){
-   if (this.products.length === 1) {
+    //}
+  }
+  printLabels() {
+    if (this.products.length === 1) {
       const productId = this.products[0].product_id;
       const payload = this.preparePayload();
 
@@ -300,7 +302,7 @@ printLabels(){
         }
       });
     }
-}
+  }
 
 
 }
