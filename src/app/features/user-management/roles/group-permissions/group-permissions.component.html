@@ -2,53 +2,42 @@
   <div class="header-container">
     <h3>Roles</h3>
     <hr>
-</div>
-  <form  class="container" [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="col-md-6">
-      <app-input-text formControlName="role_name" placeholder="Enter your role name" type="text" inputName="role name"></app-input-text>
   </div>
-  
+  <form class="container" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="col-md-6">
+      <app-input-text formControlName="role_name" placeholder="Enter your role name" type="text"
+        inputName="role name"></app-input-text>
+    </div>
+
     <div *ngFor="let group of groupedPermissions">
-      <h6 class="mt-3">{{ group.entity.replace('.', ' ') }}</h6>
+      <h6 class="mt-3">{{ group.entity.replace('.', ' ')?.replace('_', ' ') }}</h6>
       <div class="row">
         <div class="col-md-3" *ngIf="group.actions['add']">
-          <app-check-box
-            [inputId]="group.actions['add']"
-            label="Add"
+          <app-check-box [inputId]="group.actions['add']" label="Add"
             [checked]="selectedPermissions.has(group.actions['add'])"
-            (change)="togglePermission(group.actions['add'])"
-          ></app-check-box>
+            (change)="togglePermission(group.actions['add'])"></app-check-box>
         </div>
         <div class="col-md-3" *ngIf="group.actions['edit']">
-          <app-check-box
-            [inputId]="group.actions['edit']"
-            label="Edit"
+          <app-check-box [inputId]="group.actions['edit']" label="Edit"
             [checked]="selectedPermissions.has(group.actions['edit'])"
-            (change)="togglePermission(group.actions['edit'])"
-          ></app-check-box>
+            (change)="togglePermission(group.actions['edit'])"></app-check-box>
         </div>
         <div class="col-md-3" *ngIf="group.actions['view']">
-          <app-check-box
-            [inputId]="group.actions['view']"
-            label="View"
+          <app-check-box [inputId]="group.actions['view']" label="View"
             [checked]="selectedPermissions.has(group.actions['view'])"
-            (change)="togglePermission(group.actions['view'])"
-          ></app-check-box>
+            (change)="togglePermission(group.actions['view'])"></app-check-box>
         </div>
         <div class="col-md-3" *ngIf="group.actions['delete']">
-          <app-check-box
-            [inputId]="group.actions['delete']"
-            label="Delete"
+          <app-check-box [inputId]="group.actions['delete']" label="Delete"
             [checked]="selectedPermissions.has(group.actions['delete'])"
-            (change)="togglePermission(group.actions['delete'])"
-          ></app-check-box>
+            (change)="togglePermission(group.actions['delete'])"></app-check-box>
         </div>
       </div>
     </div>
-  
+
     <div class="btns-group">
       <button type="submit" class="my-4 submit-btn" [disabled]="form.invalid">{{isEditMode?
-          'Update' : 'Submit'}}</button>
-  </div>
+        'Update' : 'Submit'}}</button>
+    </div>
   </form>
 </div>

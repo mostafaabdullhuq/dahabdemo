@@ -1,74 +1,72 @@
+#print-area {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.2in;
+  padding: 0.2in;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  font-size: 5pt !important;
+}
 
+.label {
+  padding: 1mm;
+  box-sizing: border-box;
+  border: 1mm dashed black;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  white-space: nowrap;
+  page-break-inside: avoid;
+}
 
-  #print-area {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 0.2in;
-    padding: 0.2in;
-    justify-content: flex-start;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    font-size: 5pt !important;
-  }
+.label.synthetic {
+  width: 83mm;
+  height: 37mm;
+  flex-direction: column !important;
+}
 
-  .label {
-    padding: 1mm;
-    box-sizing: border-box;
-    border: 1mm dashed black;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    white-space: nowrap;
-    page-break-inside: avoid;
-  }
+.label.butterfly {
+  width: 2.2in;
+  height: 0.5in;
+  flex-direction: row !important;
+}
 
-  .label.synthetic {
-    width: 83mm;
-    height: 37mm;
-    flex-direction: column !important;
-  }
+.content-data {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
-  .label.butterfly {
-    width: 2.2in;
-    height: 0.5in;
-    flex-direction: row !important;
-  }
+.label.butterfly .content-data {
+  width: 0.7333in;
+}
 
-  .content-data {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
+.details {
+  display: flex;
+  flex-direction: row;
+}
 
-  .label.butterfly .content-data {
-    width: 0.7333in;
-  }
+.barcode {
+  display: flex !important;
+  align-items: center !important;
+}
 
-  .details {
-    display: flex;
-    flex-direction: row;
-  }
+.label.synthetic .barcode {
+  width: 100%;
+  height: 40%;
+  justify-content: flex-start !important;
+}
 
-  .barcode {
-    display: flex !important;
-    align-items: center !important;
-  }
+.label.butterfly .barcode {
+  width: 0.7333in;
+  height: 100%;
+  justify-content: flex-end !important;
+}
 
-  .label.synthetic .barcode {
-    width: 100%;
-    height: 40%;
-    justify-content: flex-start !important;
-  }
-
-  .label.butterfly .barcode {
-    width: 0.7333in;
-    height: 100%;
-    justify-content: flex-end !important;
-  }
-
-  .barcode img {
-    height: 100%;
-    width: auto;
-    object-fit: contain;
-  }
+.barcode img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+}

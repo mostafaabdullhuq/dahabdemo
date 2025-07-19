@@ -48,6 +48,10 @@ export class GroupPermissionsComponent implements OnChanges, OnInit {
 
     for (const perm of this.permissions) {
       const parts = perm.name.split('.');
+      if (parts.includes("pos")) {
+        parts.unshift("")
+      }
+
       if (parts.length !== 3) continue;
 
       const [module, entity, rawAction] = parts;
@@ -62,6 +66,7 @@ export class GroupPermissionsComponent implements OnChanges, OnInit {
       if (!action) continue;
 
       if (!groups[key]) groups[key] = {};
+
       groups[key][action] = perm.id;
     }
 
@@ -84,6 +89,7 @@ export class GroupPermissionsComponent implements OnChanges, OnInit {
       }
     }
   }
+
   private loadRoleData(roleId: string | number): void {
     this._userManagmentService.getRoleById(roleId).subscribe((role: any) => {
       const permissionIds = role.permissions;
@@ -101,7 +107,6 @@ export class GroupPermissionsComponent implements OnChanges, OnInit {
     });
   }
 
-
   submit(): void {
     const payload = {
       role_name: this.form.value.role_name,
@@ -112,6 +117,7 @@ export class GroupPermissionsComponent implements OnChanges, OnInit {
 
     // })
   }
+
   onSubmit(): void {
     if (this.form.invalid) return;
 

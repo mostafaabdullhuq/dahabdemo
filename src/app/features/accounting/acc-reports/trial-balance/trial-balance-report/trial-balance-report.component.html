@@ -2,71 +2,85 @@
 <ng-container #container></ng-container>
 
 <section>
-    <!-- Control buttons -->
-    <div class="header-container">
-        <div class="header-btns">
-            <p-splitButton label="Export" icon="pi pi-file-export" [model]="exportItems">
-            </p-splitButton>
-            <button class="add-btn text-center px-4 py-2" (click)="printReport()">
-                <i class="pi pi-print pr-2"></i>Print
-            </button>
+  <!-- Control buttons -->
+  <div class="header-container">
+    <div class="header-btns">
+      <p-splitButton label="Export" icon="pi pi-file-export" [model]="exportItems">
+      </p-splitButton>
+      <button class="add-btn text-center px-4 py-2" (click)="printReport()">
+        <i class="pi pi-print pr-2"></i>Print
+      </button>
+    </div>
+  </div>
+
+  <!-- filter collapse form -->
+  <div class="filter-container container">
+    <app-filter-collapse>
+      <form class="container" [formGroup]="filterForm">
+        <!-- Date range validation error -->
+        <div *ngIf="filterForm.errors?.['dateRangeInvalid'] && filterForm.touched" class="alert alert-danger mt-2">
+          <i class="pi pi-exclamation-triangle mr-2"></i> From Date cannot be later than To Date.
         </div>
+        <div class="row">
+          <div class="col-md-8">
+            <app-input-text formControlName="search" placeholder="Global Search" type="text"
+              inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label=" Branch" id="Branch" formControlName="branch" [options]="branches" [showClear]="true"
+              optionLabel="name" optionValue="id" placeholder="Select a Branch">
+            </app-dropdowns>
+          </div>
+
+          <div class="col-md-6">
+            <app-input-text formControlName="created_from" placeholder="YYYY-MM-DD" type="date" inputName="From Date">
+            </app-input-text>
+            <div *ngIf="filterForm.get('created_from')?.invalid && filterForm.get('created_from')?.touched"
+              class="text-danger small mt-1">
+              From Date is required
+            </div>
+          </div>
+          <div class="col-md-6">
+            <app-input-text formControlName="created_to" placeholder="YYYY-MM-DD" type="date" inputName="To Date">
+            </app-input-text>
+            <div *ngIf="filterForm.get('created_to')?.invalid && filterForm.get('created_to')?.touched"
+              class="text-danger small mt-1">
+              To Date is required
+            </div>
+          </div>
+        </div>
+        <div class="btns-group">
+          <button class="btn submit-btn" [disabled]="filterForm.invalid" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </app-filter-collapse>
+  </div>
+
+  <!-- Trial Balance Table -->
+  <div class="table-container">
+    <app-data-table [data]="trialBalanceTableData" [cols]="columns" [totalRecords]="trialBalanceTableData.length"
+      [hasContext]="false" [paginator]="false" styleClass="trial-balance-table">
+
+      <ng-container table-empty-message *ngIf="trialBalanceTableData.length === 0">
+        No trial balance data found for the selected criteria. Try adjusting your filter options.
+      </ng-container>
+    </app-data-table>
+  </div>
+
+  <!-- Totals Section -->
+  <div class="totals-section">
+    <h4>Summary</h4>
+    <div class="totals-grid">
+      <div class="total-item">
+        <strong>Total:</strong>
+        <span *ngIf="trialBalanceData?.total">{{trialBalanceData?.total | number:'1.3-3'}} {{currency}}</span>
+        <span *ngIf="!trialBalanceData?.total">N/A</span>
+      </div>
+      <div class="total-item">
+        <strong>Difference:</strong>
+        <span *ngIf="trialBalanceData?.difference">{{trialBalanceData?.difference | number:'1.3-3'}} {{currency}}</span>
+        <span *ngIf="!trialBalanceData?.difference">N/A</span>
+      </div>
     </div>
-
-    <!-- filter collapse form -->
-    <div class="filter-container container">
-        <app-filter-collapse>
-            <form class="container" [formGroup]="filterForm">
-                <!-- Date range validation error -->
-                <div *ngIf="filterForm.errors?.['dateRangeInvalid'] && filterForm.touched"
-                    class="alert alert-danger mt-2">
-                    <i class="pi pi-exclamation-triangle mr-2"></i> From Date cannot be later than To Date.
-                </div>
-                <div class="row">
-                    <div class="col-md-8">
-                        <app-input-text formControlName="search" placeholder="Global Search" type="text"
-                            inputName="Search"></app-input-text>
-                    </div>
-                    <div class="col-md-4">
-                        <app-dropdowns label=" Branch" id="Branch" formControlName="branch" [options]="branches"
-                            [showClear]="true" optionLabel="name" optionValue="id" placeholder="Select a Branch">
-                        </app-dropdowns>
-                    </div>
-
-                    <div class="col-md-6">
-                        <app-input-text formControlName="created_from" placeholder="YYYY-MM-DD" type="date"
-                            inputName="From Date">
-                        </app-input-text>
-                        <div *ngIf="filterForm.get('created_from')?.invalid && filterForm.get('created_from')?.touched"
-                            class="text-danger small mt-1">
-                            From Date is required
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <app-input-text formControlName="created_to" placeholder="YYYY-MM-DD" type="date"
-                            inputName="To Date">
-                        </app-input-text>
-                        <div *ngIf="filterForm.get('created_to')?.invalid && filterForm.get('created_to')?.touched"
-                            class="text-danger small mt-1">
-                            To Date is required
-                        </div>
-                    </div>
-                </div>
-                <div class="btns-group">
-                    <button class="btn submit-btn" [disabled]="filterForm.invalid" (click)="onSearch()">Search</button>
-                </div>
-            </form>
-        </app-filter-collapse>
-    </div>
-
-    <!-- Trial Balance Table -->
-    <div class="table-container">
-        <app-data-table [data]="trialBalanceTableData" [cols]="columns" [totalRecords]="trialBalanceTableData.length"
-            [hasContext]="false" [paginator]="false" styleClass="trial-balance-table">
-
-            <ng-container table-empty-message *ngIf="trialBalanceTableData.length === 0">
-                No trial balance data found for the selected criteria. Try adjusting your filter options.
-            </ng-container>
-        </app-data-table>
-    </div>
+  </div>
 </section>

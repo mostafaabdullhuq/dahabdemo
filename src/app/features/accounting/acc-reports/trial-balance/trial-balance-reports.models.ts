@@ -2,6 +2,8 @@ import { BaseReportResponse } from "../reports.models";
 
 export interface TrialBalanceReportResponse extends BaseReportResponse {
   report_type: string;
+  total: number;
+  difference: number;
   trial_balance: TrialBalanceNodeMap;
 }
 

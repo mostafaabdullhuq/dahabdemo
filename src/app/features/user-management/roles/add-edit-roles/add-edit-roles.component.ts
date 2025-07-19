@@ -9,8 +9,8 @@ import { UserManagmentService } from '../../@services/user-managment.service';
   styleUrl: './add-edit-roles.component.scss'
 })
 export class AddEditRolesComponent implements OnInit {
-  constructor(private _userManageService:UserManagmentService){}
-  permissionList:any = [];
+  constructor(private _userManageService: UserManagmentService) { }
+  permissionList: any = [];
 
   ngOnInit(): void {
     this._userManageService.getRolesPermissions().subscribe(res => {
