@@ -53,47 +53,60 @@ export class AddEditProductComponent {
     this._dropdownService.getBrands().subscribe(data => {
       this.brands = data?.results;
     });
+
     this._dropdownService.getColor().subscribe(data => {
       this.colors = data?.results;
     });
+
     this._dropdownService.getAllCountries().subscribe(data => {
       this.counties = data?.results;
     });
-    this._dropdownService.getCategories().subscribe(data => {
+
+    this._dropdownService.getMinimalCategories().subscribe(data => {
       this.categories = data?.results;
     });
+
     this._dropdownService.getPurities().subscribe(data => {
       this.purities = data?.results;
     });
+
     this._dropdownService.getBranches().subscribe(data => {
       this.branches = data?.results;
     });
+
     this._dropdownService.getSizes().subscribe(data => {
       this.sizes = data?.results;
     });
+
     this._dropdownService.getStones().subscribe(data => {
       this.stones = data?.results;
     });
+
     this._dropdownService.getDesigners().subscribe(data => {
       this.designers = data?.results;
     });
+
     this._dropdownService.getUnits().subscribe(data => {
       this.units = data?.results;
     });
+
     this._dropdownService.getStockPoints().subscribe(data => {
       this.stockPoints = data?.results;
     });
+
     this._inventoryService.getProductsCustomFields().subscribe(res => {
       this.customFields = res;
       this.addCustomFields();
-
     });
+
     this.addEditProductForm.get('purity_id')?.valueChanges.subscribe((id) => {
       const selected = this.purities.find(p => p.id === id);
       this.selectedPurityValue = selected?.purity_value ?? null;
     });
   }
+
   selectedPurityValue: number | null = null;
+
   private initForm(): void {
     this.addEditProductForm = this._formBuilder.group({
       //    stock_point: [''],

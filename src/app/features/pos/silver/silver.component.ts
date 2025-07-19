@@ -233,7 +233,7 @@ export class SilverComponent implements OnInit, OnDestroy {
       const form = this._formBuilder.group({
         vat_amount: [vatAmount]
       });
-      this._posService.setProductDiscount(pId, form.value).subscribe();
+      this._posService.updateProductItem(pId, form.value).subscribe();
     }
   }
 

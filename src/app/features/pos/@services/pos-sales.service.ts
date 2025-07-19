@@ -33,6 +33,7 @@ export class PosSalesService {
       }
     });
   }
+
   _salesReciepts$ = new BehaviorSubject<any[]>([]);
 
   getSalesOrdersFromServer() {
@@ -40,5 +41,5 @@ export class PosSalesService {
       this._salesReciepts$.next(res || []);
     });
   }
-  
+
 }

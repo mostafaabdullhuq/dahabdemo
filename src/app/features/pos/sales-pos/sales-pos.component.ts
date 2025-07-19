@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ComponentRef, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PosService } from '../@services/pos.service';
@@ -51,9 +51,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     this.getProductList()
 
-    // this._posService.getProductSalesList().subscribe((res) => {
-    //   this.products = res?.results;
-    // });
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results || [];
       this.selectedVatId = this.taxes[0]?.id; // Set first VAT as default
@@ -74,11 +71,9 @@ export class SalesPosComponent implements OnInit, OnDestroy {
                 this.selectedCurrency = currency;
                 this.getSalesOrder()
               });
-
           });
         }
       });
-
 
     this.productForm.get('product_id')?.valueChanges
       .pipe(
@@ -115,6 +110,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         }
       }
     ];
+
     this._posStatusService.shiftActive$
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
@@ -161,6 +157,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
           this._posSharedService.setSalesTotalPrice(0);
           this._posSharedService.setDiscountAmount(0);
         }
+
         this.productForm.get('product_id')?.patchValue(null)
       });
 
@@ -185,12 +182,12 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       error: () => { },
       complete: () => {
         this.getProductList();
-
       }
     })
   }
 
   calculateInitialGoldPriceBasedOnPurity(group: any): number {
+
     if (
       !this.manualGoldPrice ||
       !(group?.purity || group?.purity_value) ||
@@ -225,7 +222,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       }
     }
 
-
     const goldPrice = baseValue * purityFactor;
 
     // Format based on selected currency decimal point
@@ -235,7 +231,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   }
 
   onGoldPriceChange(order: any) {
-
     const newPrice = order.gold_price
 
     if (!newPrice || isNaN(newPrice)) {
@@ -296,7 +291,9 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     // Format based on selected currency decimal point
     const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+
     this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
+
     return +goldPrice.toFixed(decimalPlaces);
   }
 
@@ -364,7 +361,8 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         vat_amount: [vatAmount]
       });
 
-      this._posService.setProductDiscount(pId, form.value).subscribe();
+      this._posService.updateProductItem(pId, form.value).subscribe(result => {
+      });
     }
   }
 

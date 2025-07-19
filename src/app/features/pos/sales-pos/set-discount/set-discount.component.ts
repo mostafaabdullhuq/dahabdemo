@@ -52,7 +52,7 @@ export class SetDiscountComponent implements OnInit {
     console.log("data: ", postData);
 
 
-    this._posService.setProductDiscount(this.selectedRow.id, postData).subscribe(res => {
+    this._posService.updateProductItem(this.selectedRow.id, postData).subscribe(res => {
       this.visible = false;
 
       if (res) {

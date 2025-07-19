@@ -98,6 +98,11 @@ export class DropdownsService {
     return this._http.getRequest<any>(url);
   }
 
+  getMinimalCategories(nextPageUrl: string | null = null): Observable<any> {
+    const url = nextPageUrl || `${this.API}product/category/?minimal=true&page_size=100000000`;
+    return this._http.getRequest<any>(url);
+  }
+
   getBrands(nextPageUrl: string | null = null): Observable<any> {
     const url = nextPageUrl || `${this.API}product/brand/`;
     return this._http.getRequest<any>(url);
