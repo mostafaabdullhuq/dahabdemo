@@ -6,6 +6,7 @@ import { AccService } from '../../@services/acc.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { forkJoin } from 'rxjs';
 import { ToasterMsgService } from '../../../../core/services/toaster-msg.service';
+import { Decimal } from 'decimal.js'
 
 @Component({
   selector: 'app-add-edit-purchase',
@@ -34,19 +35,18 @@ export class AddEditPurchaseComponent implements OnInit {
   payments: any[] = [];
   paymentMethods: any = [];
   taxRates: any = [];
-
   status: any = [
     { id: 'pending', name: 'pending' },
     { id: 'completed', name: 'completed' },
     { id: 'cancelled', name: 'canceled' }
   ]
-
+  private subscribedStones = new WeakSet<AbstractControl>();
   manualGoldPrice: any = 0
-
   nextPageUrl: string | null = null;
   isLoading = false;
   selectedBranches = [];
   selectedPurityValue: number = 1;
+  editingIndex: number | null = null;
 
   constructor(
     private _accService: AccService,
@@ -68,6 +68,16 @@ export class AddEditPurchaseComponent implements OnInit {
 
     this.getLookupData();
 
+    this.subscribeToFormChanges();
+
+    if (this.purchaseId) {
+      this.loadPurchaseData();
+      this.isEditMode = true;
+      this.paymentsArray.disable();
+    }
+  }
+
+  private subscribeToFormChanges() {
     this.addEditPurchaseForm.get('branch')?.valueChanges.subscribe(branchId => {
       if (!branchId) return;
 
@@ -76,10 +86,20 @@ export class AddEditPurchaseComponent implements OnInit {
         taxRate: this._accService.getBranchTax(branchId)
       }).subscribe(({ goldPrice, taxRate }) => {
         this.manualGoldPrice = goldPrice?.manual_gold_price
+
+
         this.addEditPurchaseForm.patchValue({
           // manual_gold_price: goldPrice,
           tax: taxRate?.tax_rate
         });
+
+        if (!this.isEditMode) {
+          this.paymentsArray.controls.forEach(control => {
+            control.patchValue({
+              gold_price: +this.manualGoldPrice
+            })
+          })
+        }
 
         this.updateMetalRate(); // uses gold price & purity
         this.calculateMetalValue();
@@ -118,7 +138,6 @@ export class AddEditPurchaseComponent implements OnInit {
       this.calculateLineTotal();
     })
 
-
     this.addEditPurchaseForm.get('metal_value')?.valueChanges.subscribe(() => {
       this.calculateMetalValue();
       this.calculateGrossWeight();
@@ -152,13 +171,6 @@ export class AddEditPurchaseComponent implements OnInit {
       this.calculateTax();
       this.watchStoneControls(); // Keep updating as stones are added
     });
-
-
-    if (this.purchaseId) {
-      this.loadPurchaseData();
-      this.isEditMode = true;
-      this.paymentsArray.disable();
-    }
   }
 
   getCategoryName(categoryId: number) {
@@ -231,7 +243,6 @@ export class AddEditPurchaseComponent implements OnInit {
     });
   }
 
-
   updateMetalRate() {
     const goldPrice = this.manualGoldPrice || 0;
     const purity = this.selectedPurityValue || 1;
@@ -265,8 +276,6 @@ export class AddEditPurchaseComponent implements OnInit {
       tax_amount: +taxAmount.toFixed(this.decimalInputs)
     });
   }
-
-  private subscribedStones = new WeakSet<AbstractControl>();
 
   private watchStoneControls() {
     const stones = this.addEditPurchaseForm.get('stones') as FormArray;
@@ -403,6 +412,7 @@ export class AddEditPurchaseComponent implements OnInit {
       salesman: [0],
       branch: [0],
       amount: [0],
+      gold_price: [(+this.manualGoldPrice || 0), Validators.required],
       items: this._formBuilder.array([this.createPaymentItem()])
     });
   }
@@ -544,7 +554,6 @@ export class AddEditPurchaseComponent implements OnInit {
   }
 
   private loadPurchaseData(): void {
-
     if (!this.purchaseId) return;
 
     this._accService.getPurchaseById(this.purchaseId).subscribe((purchase: any) => {
@@ -600,6 +609,7 @@ export class AddEditPurchaseComponent implements OnInit {
               });
             }).filter((stone: any) => stone !== null),
           };
+
           this.purchases.push(refinedItem);
         });
       }
@@ -617,7 +627,8 @@ export class AddEditPurchaseComponent implements OnInit {
             purchase_order: payment.purchase_order,
             payment_method: paymentItem.payment_method,
             amount: payment.total_amount,
-            payment_date: payment.payment_date ? new Date(payment.payment_date) : new Date()
+            payment_date: payment.payment_date ? new Date(payment.payment_date) : new Date(),
+            gold_price: payment.gold_price || 0
           });
 
           this.paymentsArray.push(paymentGroup);
@@ -627,8 +638,6 @@ export class AddEditPurchaseComponent implements OnInit {
       this.paymentsArray.disable();
     });
   }
-
-  editingIndex: number | null = null;
 
   editPurchaseRow(item: any, index: number): void {
     // Store the index of the item being edited
@@ -678,7 +687,6 @@ export class AddEditPurchaseComponent implements OnInit {
     } else {
       this.stonesArray.enable();
     }
-
   }
 
   getTotalLineAmount(): number {
@@ -837,33 +845,41 @@ export class AddEditPurchaseComponent implements OnInit {
         .map((payment: any) => {
           const paymentData = {
             payment_date: payment.payment_date ? new Date(payment.payment_date).toISOString().slice(0, 10) : '',
+            gold_price: payment.gold_price,
             items: [{
               type: "Amount",
               payment_method: payment.payment_method,
               is_fixed: true,
-              amount: payment.amount?.toString() || "0"
+              amount: payment.amount?.toString() || "0",
             }]
           };
 
           return this.cleanObject(paymentData);
         }).filter((payment: any) => payment !== null);
 
-      // Calculate totals
+      // Calculate totals with Decimal
       const totalAmount = this.purchases.reduce((sum, item) =>
-        sum + Number(item.line_total_amount || 0), 0);
-      const totalWeight = this.purchases.reduce((sum, item) =>
-        sum + Number(item.gross_weight || 0), 0);
-      const taxAmount = this.purchases.reduce((sum, item) =>
-        sum + Number(item.tax_amount || 0), 0);
-      const totalMetalAmount = this.purchases.reduce((sum, item) =>
-        sum + Number(item.metal_value || 0), 0);
-      const totalMetalWeight = this.purchases.reduce((sum, item) =>
-        sum + Number(item.metal_weight || 0), 0);
-      const totalItems = this.purchases.length;
-      const totalPaidAmount = this.paymentsArray.value.reduce((sum: number, payment: any) =>
-        sum + (Number(payment.amount) || 0), 0);
-      const totalDueAmount = totalAmount - totalPaidAmount;
+        sum.plus(new Decimal(item.line_total_amount || 0)), new Decimal(0));
 
+      const totalWeight = this.purchases.reduce((sum, item) =>
+        sum.plus(new Decimal(item.gross_weight || 0)), new Decimal(0));
+
+      const taxAmount = this.purchases.reduce((sum, item) =>
+        sum.plus(new Decimal(item.tax_amount || 0)), new Decimal(0));
+
+      const totalMetalAmount = this.purchases.reduce((sum, item) =>
+        sum.plus(new Decimal(item.metal_value || 0)), new Decimal(0));
+
+      const totalMetalWeight = this.purchases.reduce((sum, item) =>
+        sum.plus(new Decimal(item.metal_weight || 0)), new Decimal(0));
+
+      const totalItems = this.purchases.length;
+
+      const totalPaidAmount = this.paymentsArray.value.reduce((sum: Decimal, payment: any) =>
+        sum.plus(new Decimal(payment.amount || 0)), new Decimal(0));
+
+      // totalAmount - totalPaidAmount
+      const totalDueAmount = totalAmount.minus(totalPaidAmount);
 
       // Build final payload for add operation
       payload = {

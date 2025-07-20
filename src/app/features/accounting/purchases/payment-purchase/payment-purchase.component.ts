@@ -3,7 +3,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AccService } from '../../@services/acc.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { filter, Subscription, take } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { SettingsService } from '../../../settings/@services/settings.service';
 
 @Component({

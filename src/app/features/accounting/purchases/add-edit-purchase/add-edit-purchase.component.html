@@ -120,6 +120,7 @@
           </ng-template>
         </p-table>
       </div>
+
       <!-- 🔹Add row -->
       @if(manualGoldPrice) {
       <h6 class="section-form-header mt-4">Add Row</h6>
@@ -249,7 +250,6 @@
             class="pi pi-plus  px-2">
           </i>Add Purchase Row</button>
       </div>
-      }
 
       <!-- 🔹 payment -->
       <div class="d-flex justify-content-between align-items-center">
@@ -258,23 +258,29 @@
           <button class="add-btn" type="button" (click)="addPayment()"><i class="pi pi-plus  px-2"></i></button>
         </div>
       </div>
+
       <div class="container section-form">
         <div formArrayName="payments">
           <div class="row mb-3" *ngFor="let payment of paymentsArray.controls; let i = index" [formGroupName]="i">
-            <div class="col-md-4">
-              <app-input-text formControlName="amount" inputName="Amount" placeholder="Enter Amount">
+            <div class="col-md-6">
+              <app-input-text formControlName="amount" inputName="Amount" placeholder="Enter Amount" type="number">
               </app-input-text>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
               <app-dropdowns label="Payment Method" formControlName="payment_method" [options]="paymentMethods"
                 [disabled]="isEditMode" optionLabel="name" optionValue="id" placeholder="Select method">
               </app-dropdowns>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
+              <app-input-text formControlName="gold_price" inputName="Gold Price" placeholder="Enter Gold Price"
+                type="number" [required]="true">
+              </app-input-text>
+            </div>
+            <div class="col-md-5">
               <app-input-date formControlName="payment_date" inputName="payment date" placeholder="Enter payment date">
               </app-input-date>
             </div>
-            <div class="col-md-1 d-flex justify-content-end align-items-end">
+            <div class="col-md-1 d-flex justify-content-end align-items-end mt-md-0 mt-2">
               <div class="col-md-6"></div>
               <button class=" delete-btn mx-3" type="button" (click)="removePayment(i)" *ngIf="!isEditMode"><i
                   class="pi pi-trash  px-2"></i></button>
@@ -282,8 +288,8 @@
           </div>
         </div>
       </div>
+      }
     </section>
-
 
     <div class="btns-group">
       <button type="submit" class="my-4 submit-btn"

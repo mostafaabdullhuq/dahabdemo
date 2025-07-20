@@ -22,6 +22,7 @@
     "@primeng/themes": "^19.1.2",
     "bootstrap": "^5.3.5",
     "chart.js": "^4.4.9",
+    "decimal.js": "^10.6.0",
     "file-saver": "^2.0.5",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
