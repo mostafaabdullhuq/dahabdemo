@@ -89,7 +89,7 @@ export class DropdownsService {
   }
 
   getScraps(nextPageUrl: string | null = null, params: string = ""): Observable<any> {
-    const url = nextPageUrl || `${this.API}purchases/payment/scrap/${params}`;
+    const url = nextPageUrl || `${this.API}purchases/payment/scrap/?${params}`;
     return this._http.getRequest<any>(url);
   }
 
@@ -150,7 +150,7 @@ export class DropdownsService {
   }
 
   getTTBs(nextPageUrl: string | null = null, params: string = ""): Observable<any> {
-    const url = nextPageUrl || `${this.API}purchases/payment/ttb/${params}`;
+    const url = nextPageUrl || `${this.API}purchases/payment/ttb/?${params}`;
     return this._http.getRequest<any>(url);
   }
 
@@ -199,7 +199,7 @@ export class DropdownsService {
     return this._http.getRequest<any>(url);
   }
 
-  getPaymentMethods(params?: string): Observable<any> {
+  getPaymentMethods(params: string = ""): Observable<any> {
     return this._http.getRequest(`${environment.api_url}business/settings/payment-methods/?${params}`);
   }
 }
