@@ -412,7 +412,7 @@ export class AddEditPurchaseComponent implements OnInit {
       salesman: [0],
       branch: [0],
       amount: [0],
-      gold_price: [(+this.manualGoldPrice || 0), Validators.required],
+      gold_price: [(+this.manualGoldPrice || 0)],
       items: this._formBuilder.array([this.createPaymentItem()])
     });
   }
