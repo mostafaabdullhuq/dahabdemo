@@ -176,7 +176,6 @@ export class PurchasesComponent implements OnInit {
       icon: 'pi pi-fw pi-trash',
       command: () => this.showConfirmDelete(this.selectedTransaction)
     }
-
   ];
 
   @ViewChild('paymentContainer', { read: ViewContainerRef }) container!: ViewContainerRef;
@@ -187,6 +186,11 @@ export class PurchasesComponent implements OnInit {
     this.componentRef = this.container.createComponent(PaymentPurchaseComponent);
     this.componentRef.instance.paymentData = data;
     this.componentRef.instance.showDialog();
+    this.componentRef.instance.visibility$.subscribe(value => {
+      if (!value) {
+        this.getPurchases();
+      }
+    })
   }
 
   editPurchase(user: any) {

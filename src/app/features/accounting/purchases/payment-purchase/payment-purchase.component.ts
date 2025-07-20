@@ -3,7 +3,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AccService } from '../../@services/acc.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { Subscription, take } from 'rxjs';
+import { BehaviorSubject, Subscription, take } from 'rxjs';
 import { SettingsService } from '../../../settings/@services/settings.service';
 
 @Component({
@@ -28,9 +28,11 @@ export class PaymentPurchaseComponent implements OnInit {
     { id: 'TTB', name: 'TTB' },
     { id: 'Amount', name: 'Amount' },
     { id: 'Scrap', name: 'Scrap' },
-  ]
+  ];
 
-  visible: boolean = false;
+  visibility = new BehaviorSubject<boolean>(false);
+
+  visibility$ = this.visibility.asObservable();
 
   constructor(
     private _formBuilder: FormBuilder,
@@ -40,7 +42,7 @@ export class PaymentPurchaseComponent implements OnInit {
   ) { }
 
   showDialog() {
-    this.visible = true;
+    this.visibility.next(true);
   }
 
   ngOnInit(): void {
@@ -459,7 +461,7 @@ export class PaymentPurchaseComponent implements OnInit {
     this._accService.addPurchasePayment(payload).subscribe({
       next: (res) => {
         this.paymentForm.reset();
-        this.visible = false;
+        this.visibility.next(false);
       },
       error: (err) => {
         console.error(err);
