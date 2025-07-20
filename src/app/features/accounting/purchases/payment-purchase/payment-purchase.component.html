@@ -186,7 +186,7 @@
       <button type="button" class="add-btn" (click)="addItem()"> <i class="pi pi-plus"></i></button>
     </div>
     <div class="btns-group">
-      <button type="submit" class="submit-btn">Submit</button>
+      <button type="submit" [disabled]="paymentForm.invalid" class="submit-btn">Submit</button>
     </div>
   </form>
 

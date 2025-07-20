@@ -315,7 +315,7 @@ export class PaymentPurchaseComponent implements OnInit {
           product_id: this.selectedProduct?.id || 0,
           weight: this.selectedProduct?.total_weight || '0',
           purity_rate: this.selectedProduct?.purity_value || 0,
-          quantity: this.selectedProduct?.stock_quantity || 1,
+          quantity: this.selectedProduct?.stock_quantity || 0,
         })
       } else if (type === 'Scrap') {
         this.selectedProduct = this.scrap.find((s: { id: number; }) => s.id === selectedId);
@@ -341,13 +341,15 @@ export class PaymentPurchaseComponent implements OnInit {
 
       if (type === "TTB") {
         subscription = quantityControl?.valueChanges.subscribe(value => {
-          console.log("quantity changed to: ", value);
-
           group.patchValue({
             weight: +this.selectedProduct?.weight * +value || 0
           })
         })
+        quantityControl?.setValidators([Validators.min(0), Validators.max(+this.selectedProduct?.stock_quantity || 0)]);
+        quantityControl?.updateValueAndValidity();
       } else {
+        quantityControl?.setValidators(Validators.min(1));
+        quantityControl?.updateValueAndValidity();
         subscription?.unsubscribe();
       }
     });
@@ -399,9 +401,6 @@ export class PaymentPurchaseComponent implements OnInit {
 
     const formValue = this.paymentForm.getRawValue();
     const formattedDate = new Date(formValue.payment_date).toISOString().slice(0, 10);
-
-    console.log("gold_price: ", formValue.gold_price);
-
 
     const payload = {
       purchase_order: this.paymentData?.id,
