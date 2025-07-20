@@ -61,7 +61,7 @@ export class PaymentPurchaseComponent implements OnInit {
       this.addItem(); // add an empty item
     }
 
-    this._dropdownService.getScraps().subscribe(res => {
+    this._dropdownService.getScraps(null, `?branch=${this.paymentData?.branch}`).subscribe(res => {
       this.scrap = res;
     });
 
@@ -69,7 +69,7 @@ export class PaymentPurchaseComponent implements OnInit {
       this.products = res?.results;
     });
 
-    this._dropdownService.getTTBs().subscribe(res => {
+    this._dropdownService.getTTBs(null, `?branch=${this.paymentData?.branch}`).subscribe(res => {
       this.products = res?.results;
     });
 

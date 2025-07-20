@@ -88,8 +88,8 @@ export class DropdownsService {
     return this._http.getRequest<any>(url);
   }
 
-  getScraps(nextPageUrl: string | null = null): Observable<any> {
-    const url = nextPageUrl || `${this.API}purchases/payment/scrap/`;
+  getScraps(nextPageUrl: string | null = null, params: string = ""): Observable<any> {
+    const url = nextPageUrl || `${this.API}purchases/payment/scrap/${params}`;
     return this._http.getRequest<any>(url);
   }
 
@@ -149,8 +149,8 @@ export class DropdownsService {
     return this._http.getRequest<any>(url);
   }
 
-  getTTBs(nextPageUrl: string | null = null, params?: string): Observable<any> {
-    const url = nextPageUrl || `${this.API}purchases/payment/ttb/`;
+  getTTBs(nextPageUrl: string | null = null, params: string = ""): Observable<any> {
+    const url = nextPageUrl || `${this.API}purchases/payment/ttb/${params}`;
     return this._http.getRequest<any>(url);
   }
 
