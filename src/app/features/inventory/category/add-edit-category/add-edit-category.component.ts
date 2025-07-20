@@ -38,6 +38,7 @@ export class AddEditCategoryComponent {
       this.loadCategoryData(this.categoryId);
       this.isEditMode = true
     }
+
     this._dropdownService.getCategories().subscribe(data => {
       this.categories = data?.results;
     });

@@ -117,7 +117,7 @@ export class ProductListComponent {
       this.brands = data?.results;
     });
 
-    this._dropdownService.getCategories().subscribe(data => {
+    this._dropdownService.getMinimalCategories().subscribe(data => {
       this.categories = data?.results;
     });
 

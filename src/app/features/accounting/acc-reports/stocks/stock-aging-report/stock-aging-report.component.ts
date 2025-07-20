@@ -91,7 +91,7 @@ export class StockAgingReportComponent implements OnInit {
   loadDropdowns() {
     this._dropdownService.getBranches().subscribe((res: any) => { this.branches = res.results; });
     if (this._dropdownService.getBrands) this._dropdownService.getBrands().subscribe((res: any) => { this.brands = res.results; });
-    if (this._dropdownService.getCategories) this._dropdownService.getCategories().subscribe((res: any) => { this.categories = res.results; });
+    if (this._dropdownService.getMinimalCategories) this._dropdownService.getMinimalCategories().subscribe((res: any) => { this.categories = res.results; });
     if (this._dropdownService.getColor) this._dropdownService.getColor().subscribe((res: any) => { this.colors = res.results; });
     if (this._dropdownService.getDesigners) this._dropdownService.getDesigners().subscribe((res: any) => { this.designs = res.results; });
     if (this._dropdownService.getPurities) this._dropdownService.getPurities().subscribe((res: any) => { this.purities = res.results; });

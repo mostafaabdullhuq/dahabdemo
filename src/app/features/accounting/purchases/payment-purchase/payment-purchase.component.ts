@@ -61,15 +61,15 @@ export class PaymentPurchaseComponent implements OnInit {
       this.addItem(); // add an empty item
     }
 
-    this._dropdownService.getScraps(null, `branch=${this.paymentData?.branch || ""}`).subscribe(res => {
+    this._dropdownService.getPurchasePaymentScraps(null, `branch=${this.paymentData?.branch || ""}`).subscribe(res => {
       this.scrap = res;
     });
 
-    this._dropdownService.getProducts().subscribe(res => {
+    this._dropdownService.getPurchasePaymentProducts(null, `branch=${this.paymentData?.branch || ""}`).subscribe(res => {
       this.products = res?.results;
     });
 
-    this._dropdownService.getTTBs(null, `branch=${this.paymentData?.branch || ""}`).subscribe(res => {
+    this._dropdownService.getPurchasePaymentTTBs(null, `branch=${this.paymentData?.branch || ""}`).subscribe(res => {
       this.ttbs = res;
     });
 
@@ -298,22 +298,24 @@ export class PaymentPurchaseComponent implements OnInit {
 
   attachValueListener(group: FormGroup, type: string): void {
     const valueControl = group.get('value');
-
+    const quantityControl = group.get("quantity");
+    let subscription: Subscription | undefined;
     // Remove previous listener by resetting (will only trigger one-time setup here)
     valueControl?.valueChanges?.pipe(take(1)).subscribe((selectedId: number) => {
       if (type === 'Tag No') {
         this.selectedProduct = this.products.find((p: { id: number; }) => p.id === selectedId);
         group.patchValue({
           product_id: this.selectedProduct?.id || 0,
-          weight: this.selectedProduct?.gross_weight || '0',
+          weight: this.selectedProduct?.weight || '0',
           purity_rate: this.selectedProduct?.purity_value || 0,
         });
       } else if (type === 'TTB') {
         this.selectedProduct = this.ttbs.find((p: { id: number; }) => p.id === selectedId);
         group.patchValue({
           product_id: this.selectedProduct?.id || 0,
-          weight: this.selectedProduct?.gross_weight || '0',
+          weight: this.selectedProduct?.total_weight || '0',
           purity_rate: this.selectedProduct?.purity_value || 0,
+          quantity: this.selectedProduct?.stock_quantity || 1,
         })
       } else if (type === 'Scrap') {
         this.selectedProduct = this.scrap.find((s: { id: number; }) => s.id === selectedId);
@@ -335,6 +337,18 @@ export class PaymentPurchaseComponent implements OnInit {
         group.patchValue({
           purity: this.selectedProduct.purity
         })
+      }
+
+      if (type === "TTB") {
+        subscription = quantityControl?.valueChanges.subscribe(value => {
+          console.log("quantity changed to: ", value);
+
+          group.patchValue({
+            weight: +this.selectedProduct?.weight * +value || 0
+          })
+        })
+      } else {
+        subscription?.unsubscribe();
       }
     });
   }
@@ -423,7 +437,7 @@ export class PaymentPurchaseComponent implements OnInit {
         }
 
         // Conditionally include product_id or payment_method
-        if (item.type === 'Tag No' || item.type === 'Scrap') {
+        if (item.type === 'Tag No' || item.type === 'Scrap' || item.type === "TTB") {
           return {
             ...base,
             product_id: item.value
