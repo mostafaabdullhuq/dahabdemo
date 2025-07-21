@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { BehaviorSubject } from 'rxjs';
 import { SettingsService } from '../../../settings/@services/settings.service';
+import { AccService } from '../../@services/acc.service';
+import { ToasterMsgService } from '../../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-view-purchase-payments',
@@ -25,7 +27,9 @@ export class ViewPurchasePaymentsComponent implements OnInit {
   visibility$ = this.visibility.asObservable();
 
   constructor(
-    private _settingService: SettingsService
+    private _settingService: SettingsService,
+    private _accService: AccService,
+    private _toaster: ToasterMsgService
   ) { }
 
   showDialog() {
@@ -56,8 +60,6 @@ export class ViewPurchasePaymentsComponent implements OnInit {
     }
   }
 
-
-
   // Methods for payment table actions
   viewPaymentDetails(payment: any) {
     this.selectedPaymentItems = payment.items || [];
@@ -72,8 +74,12 @@ export class ViewPurchasePaymentsComponent implements OnInit {
   }
 
   deletePayment(payment: any) {
-    // Placeholder for delete functionality - to be implemented later
     console.log('Delete payment:', payment);
+    // Placeholder for delete functionality - to be implemented later
+    this._accService.deletePurchasePayment(payment.id).subscribe(res => {
+      this._toaster.showSuccess("Payment Deleted Successfully")
+      this.paymentsTableData = this.paymentsTableData.filter(paymentItem => paymentItem.id !== payment.id)
+    })
   }
 
   closePaymentDetails() {

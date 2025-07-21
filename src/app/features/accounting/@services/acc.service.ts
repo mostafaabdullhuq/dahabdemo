@@ -40,6 +40,10 @@ export class AccService {
     return this._http.postRequest(`${environment.api_url}transactions/payment/${id}/`, form);
   }
 
+  deletePurchasePayment(paymentId: number) {
+    return this._http.delete(`purchases/payment/${paymentId}/`)
+  }
+
   deleteTransaction(id: number) {
     return this._http.deleteRequest(`${environment.api_url}transactions/${id}/`);
   }

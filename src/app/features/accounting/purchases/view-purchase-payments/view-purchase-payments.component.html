@@ -255,4 +255,10 @@
     </div>
   </div>
 
+  <div class="mt-4 text-center" *ngIf="paymentsTableData && paymentsTableData.length === 0">
+    <hr>
+    <p class="text-muted">No payments found for this purchase.</p>
+    <hr>
+  </div>
+
 </p-dialog>
