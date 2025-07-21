@@ -123,21 +123,21 @@
         <div class="container section-form">
           <div formArrayName="stones">
             <div class="row" *ngFor="let stone of stonesArray.controls; let i = index" [formGroupName]="i">
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <app-dropdowns label="Stone" formControlName="stone_id" [options]="stones" optionLabel="name"
                   optionValue="id" placeholder="Select Stone"></app-dropdowns>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-6">
                 <app-input-text formControlName="value" inputName="Value" placeholder="Enter Value"></app-input-text>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-6">
                 <app-input-text formControlName="weight" inputName="Weight" placeholder="Enter Weight"></app-input-text>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-5">
                 <app-input-text formControlName="retail_value" inputName="retail value"
                   placeholder="Enter retail value"></app-input-text>
               </div>
-              <div class="col-md-2 d-flex align-items-center mt-3 justify-content-center">
+              <div class="col-md-1 d-flex align-items-center mt-3 justify-content-center">
                 <button type="button" class="btn btn-danger text-end mt-5 delete-btn btn-sm" (click)="removeStone(i)">
                   <i class="pi pi-trash"></i>
                 </button>
@@ -164,20 +164,25 @@
         </div>
         <div formArrayName="branches">
           <div *ngFor="let stock of stockInfoArray.controls; let i = index" [formGroupName]="i" class="row mb-3">
-            <div class="col-md-4">
+            <div class="col-md-6">
               <app-dropdowns label="Branch" [options]="branches" optionLabel="name" optionValue="id"
                 formControlName="branch_id" placeholder="Select Branch">
               </app-dropdowns>
             </div>
-            <div class="col-md-3">
-              <app-input-text formControlName="stock_quantity" inputName="Stock Quantity" placeholder="Enter quantity">
+            <div class="col-md-6">
+              <app-input-text formControlName="stock_quantity" inputName="Stock Quantity" placeholder="Enter quantity"
+                type="number">
               </app-input-text>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
+              <app-input-text formControlName="weight" inputName="Weight" placeholder="Enter weight">
+              </app-input-text>
+            </div>
+            <div class="col-md-6">
               <app-dropdowns label="Stock Point" formControlName="stock_point" [options]="stockPoints"
                 optionLabel="name" optionValue="id" placeholder="Select stock point"></app-dropdowns>
             </div>
-            <div class="col-md-3 mt-2">
+            <div class="col-md-10 mt-2">
               <app-check-box formControlName="is_active" [inputId]="'isActive'+i" label="is active?"></app-check-box>
             </div>
             <div class="col-md-2 d-flex align-items-center mt-3 justify-content-center">

@@ -54,7 +54,7 @@
   </div>
 
   <div class="table-container">
-    <app-data-table [contextMenuItems]="transactionsMenuItems" (rowSelected)="selectedTransaction = $event"
+    <app-data-table [contextMenuItems]="transactionsMenuItems" (rowSelected)="selectedPurchase = $event"
       [data]="transactions" [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize"
       [rowsPerPageOptions]="rowsPerPage" (pageChange)="loadPurchases($event)">
     </app-data-table>

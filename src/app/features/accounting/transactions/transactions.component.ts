@@ -50,6 +50,10 @@ export class TransactionsComponent {
     { id: 'partially_paid', name: 'Partially Paid' }
   ];
   paymentMethods: any = [];
+  componentRef!: ComponentRef<any>;
+  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
+
+
   constructor(
     private _accService: AccService,
     private _formBuilder: FormBuilder,
@@ -267,11 +271,13 @@ export class TransactionsComponent {
   editTransaction(user: any) {
     this._router.navigate([`acc/transaction/edit/${user?.id}`]);
   }
+
   deleteTransaction(user: any) {
     this._accService.deleteTransaction(user?.id).subscribe(res => {
       this.getTransactions()
     })
   }
+
   showConfirmDelete(user: any) {
     this._confirmPopUp.confirm({
       message: 'Do you want to delete this item?',
@@ -282,6 +288,7 @@ export class TransactionsComponent {
       target: user?.id
     });
   }
+
   onSearch(): void {
     const formValues = this.filterForm.value;
 
@@ -300,8 +307,6 @@ export class TransactionsComponent {
 
     this.getTransactions(queryParams, 1, 10);
   }
-  componentRef!: ComponentRef<any>;
-  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
   openViewPayment(id: any) {
     this.container.clear();
@@ -309,6 +314,7 @@ export class TransactionsComponent {
     this.componentRef.instance.showDialog();
     this.componentRef.instance.transId = id
   }
+
   openAddPayment(id: any) {
     this.container.clear();
     this.componentRef = this.container.createComponent(AddTransPaymentComponent);

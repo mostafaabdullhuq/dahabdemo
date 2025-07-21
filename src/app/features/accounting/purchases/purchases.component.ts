@@ -7,6 +7,7 @@ import { MenuItem } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared.module';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PaymentPurchaseComponent } from './payment-purchase/payment-purchase.component';
+import { ViewPurchasePaymentsComponent } from './view-purchase-payments/view-purchase-payments.component';
 
 @Component({
   selector: 'app-purchases',
@@ -40,11 +41,39 @@ export class PurchasesComponent implements OnInit {
     { id: 'fixed', name: 'fixed' },
     { id: 'unfixed', name: 'unfixed' },
   ]
+
   cols: any[] = [];
   filterForm!: FormGroup;
   totalRecords: number = 0;
   pageSize: number = this.rowsPerPage[0];
   first: number = 0;
+  selectedPurchase: any;
+  transactionsMenuItems: MenuItem[] = [
+    {
+      label: 'Edit',
+      icon: 'pi pi-fw pi-pen-to-square',
+      command: () => this.editPurchase(this.selectedPurchase)
+    },
+    {
+      label: 'Add Payment',
+      icon: 'pi pi-credit-card',
+      command: () => this.addPayment(this.selectedPurchase)
+    },
+    {
+      label: 'View Payments',
+      icon: 'pi pi-eye',
+      command: () => this.viewPayments(),
+    },
+    {
+      label: 'Delete',
+      icon: 'pi pi-fw pi-trash',
+      command: () => this.showConfirmDelete(this.selectedPurchase)
+    }
+  ];
+
+  @ViewChild('paymentContainer', { read: ViewContainerRef }) container!: ViewContainerRef;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  private componentRef!: ComponentRef<PaymentPurchaseComponent>;
 
   constructor(
     private _accService: AccService,
@@ -158,28 +187,6 @@ export class PurchasesComponent implements OnInit {
         this.totalRecords = res.count;
       });
   }
-  selectedTransaction: any;
-
-  transactionsMenuItems: MenuItem[] = [
-    {
-      label: 'Edit',
-      icon: 'pi pi-fw pi-pen-to-square',
-      command: () => this.editPurchase(this.selectedTransaction)
-    },
-    {
-      label: 'Add Payment',
-      icon: 'pi pi-fw pi-payment',
-      command: () => this.addPayment(this.selectedTransaction)
-    },
-    {
-      label: 'Delete',
-      icon: 'pi pi-fw pi-trash',
-      command: () => this.showConfirmDelete(this.selectedTransaction)
-    }
-  ];
-
-  @ViewChild('paymentContainer', { read: ViewContainerRef }) container!: ViewContainerRef;
-  private componentRef!: ComponentRef<PaymentPurchaseComponent>;
 
   addPayment(data: any) {
     this.container.clear();
@@ -192,6 +199,19 @@ export class PurchasesComponent implements OnInit {
       }
     })
   }
+
+  viewPayments() {
+    this.container.clear();
+    const viewComponentRef = this.container.createComponent(ViewPurchasePaymentsComponent);
+    viewComponentRef.instance.paymentData = this.selectedPurchase;
+    viewComponentRef.instance.showDialog();
+    viewComponentRef.instance.visibility$.subscribe(value => {
+      if (!value) {
+        this.getPurchases();
+      }
+    })
+  }
+
 
   editPurchase(user: any) {
     this._router.navigate([`acc/purchase/edit/${user?.id}`]);
@@ -232,9 +252,6 @@ export class PurchasesComponent implements OnInit {
 
     this.getPurchases(queryParams, 1, 5);
   }
-
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;

@@ -47,6 +47,7 @@ export class AddEditProductComponent {
       this.loadProductData(this.productId);
       this.isEditMode = true
     }
+
     this.addStockItem();
     this.addStone()
 
@@ -135,6 +136,8 @@ export class AddEditProductComponent {
   }
   private loadProductData(productId: number | string): void {
     this._inventoryService.getProductById(productId).subscribe((product: any) => {
+      console.log("product: ", product);
+
       // Patch the main form fields
       this.addEditProductForm.patchValue({
         // stock_point: product.stock_point,
@@ -173,17 +176,12 @@ export class AddEditProductComponent {
         product.branches.forEach((stock: any) => {
           this.addStockItem({
             branch_id: stock.branch_id,
-            stock_quantity: stock.stock_quantity,
+            stock_quantity: +stock.stock_quantity,
+            weight: stock.weight,
             stock_point: stock.stock_point,
             is_active: stock.is_active,
           });
         });
-        // fetch(product?.image)
-        // .then(res => res.blob())
-        // .then(blob => {
-        //   const file = new File([blob], "image.jpg", { type: blob.type });
-        //   this.addEditProductForm.patchValue({ image: file });
-        // });
       }
 
       // Add custom fields dynamically if available
@@ -271,17 +269,17 @@ export class AddEditProductComponent {
     });
   }
 
-
-
   private createStockGroup(data: any = {}): FormGroup {
     return this._formBuilder.group({
       branch_id: [data.branch_id || ''],
-      stock_quantity: [data.stock_quantity || 0],
+      stock_quantity: [+data.stock_quantity || 0],
+      weight: [data.weight || 0],
       is_active: [data.is_active || false,],
       stock_point: [data.stock_point || '',],
 
     });
   }
+
   get stockInfoArray(): FormArray {
     return this.addEditProductForm.get('branches') as FormArray;
   }
