@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { ContactService } from '../../../@services/contact.service';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { MenuItem } from 'primeng/api';
+import { ToasterMsgService } from '../../../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-payments',
@@ -18,7 +19,12 @@ export class PaymentsComponent {
   pageSize: number = 10;
   first: number = 0;
   filterForm!: FormGroup;
-  constructor(private _contactService: ContactService, private _formBuilder: FormBuilder) { }
+  constructor(
+    private _contactService: ContactService,
+    private _formBuilder: FormBuilder,
+    private _toaster: ToasterMsgService
+  ) { }
+
   ngOnInit(): void {
     if (this.customerId) {
       this.getPayments(this.customerId)
@@ -58,26 +64,46 @@ export class PaymentsComponent {
       this.totalRecords = res.count;
     })
   }
-  selectedProduct: any;
+  selectedPayment: any;
 
   customersMenuItems: MenuItem[] = [
     {
       label: 'Edit',
       icon: 'pi pi-fw pi-pen-to-square',
-      command: () => console.log('gdfg')
+      command: () => this.editPayment()
 
     },
     {
       label: 'View',
       icon: 'pi pi-fw pi-eye',
-      command: () => console.log('gdfg')
+      command: () => this.viewPayment()
     },
     {
       label: 'Delete',
       icon: 'pi pi-fw pi-trash',
-      command: () => console.log('gdfg')
+      command: () => this.deletePayment()
     }
   ];
+
+
+  private editPayment() {
+    console.log("selected: ", this.selectedPayment);
+  }
+
+  private viewPayment() {
+    console.log("selected: ", this.selectedPayment);
+  }
+
+  private deletePayment() {
+    if (!this.selectedPayment?.id) return
+
+    this._contactService.deletePurchasePayment(this.selectedPayment.id).subscribe(res => {
+      this._toaster.showSuccess("Payment deleted successfully");
+      this.onSearch();
+    })
+  }
+
+
 
   onSearch(): void {
     this.getPayments(this.customerId, this.getQueryParams(), 1, this.pageSize);

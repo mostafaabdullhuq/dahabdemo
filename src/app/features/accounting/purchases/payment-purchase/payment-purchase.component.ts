@@ -135,7 +135,7 @@ export class PaymentPurchaseComponent implements OnInit {
   initForm() {
     return this.paymentForm = this._formBuilder.group({
       purchase_order: [0],
-      payment_date: [''],
+      payment_date: ['', Validators.required],
       total_amount: ['', Validators.required],
       payment_method: [0],
       purity: [0],
@@ -144,8 +144,17 @@ export class PaymentPurchaseComponent implements OnInit {
       total_weight: [''],
       branch: [''],
       items: this._formBuilder.array([]),
-      gold_price: [this.manualGoldPrice]
-    });
+      gold_price: [this.manualGoldPrice, Validators.required]
+    }, { validators: this.atLeastOneItem });
+  }
+
+  private atLeastOneItem(form: FormGroup) {
+    let itemsArray = form.get('items') as FormArray;
+    if (!itemsArray?.controls?.length) {
+      return { atLeastOneItem: true }
+    }
+
+    return null;
   }
 
   get items(): FormArray {

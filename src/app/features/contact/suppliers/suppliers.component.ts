@@ -77,8 +77,6 @@ export class SuppliersComponent implements OnInit {
 
     // Correct pagination parameters and make API call
     this._contactService.getSuppliers(this.filterForm?.value?.search || '', page, pageSize).subscribe(res => {
-      console.log("res: ", res.results);
-
       this.suppliers = res?.results;
       this.totalRecords = res?.count;  // Ensure the total count is updated
     });
