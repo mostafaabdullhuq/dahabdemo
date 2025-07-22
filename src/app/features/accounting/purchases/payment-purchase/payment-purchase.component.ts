@@ -251,8 +251,6 @@ export class PaymentPurchaseComponent implements OnInit {
   }
 
   attachGroupListeners(group: FormGroup) {
-
-
     // Calculate pure weight dynamically
     group.get('weight')?.valueChanges.subscribe(() => this.calculatePureWeight(group));
     group.get('value')?.valueChanges.subscribe((res) => {
