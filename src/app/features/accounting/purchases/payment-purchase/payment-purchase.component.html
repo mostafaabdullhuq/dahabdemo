@@ -1,16 +1,16 @@
-<p-dialog header="Add Payment" [modal]="true" [style]="{ width: '70rem' }" (onHide)="visibility.next(false)"
-  [visible]="visibility.value" (visibleChange)="visibility.next($event)">
+<p-dialog [header]="editMode && paymentId ? 'Edit Payment' : 'Add Payment'" [modal]="true" [style]="{ width: '70rem' }"
+  (onHide)="visibility.next(false)" [visible]="visibility.value" (visibleChange)="visibility.next($event)">
   <div class="row">
     <div class="col-md-4">
       <div class="card-body">
         <a class="card1 d-flex flex-column justify-content-between h-full">
           <p class=" d-flex flex-column">
             <strong>Reference Number : </strong>
-            {{paymentData?.reference_number ?? '-' }}
+            {{purchaseData?.reference_number ?? '-' }}
           </p>
           <p class=" d-flex flex-column">
             <strong>Supplier : </strong>
-            {{paymentData?.supplier_name ?? '-' }}
+            {{purchaseData?.supplier_name ?? '-' }}
           </p>
           <p class=" d-flex flex-column">
             <strong>VAT Number : </strong>
@@ -34,19 +34,19 @@
         <a class="card1 d-flex flex-column justify-content-between">
           <p class=" d-flex flex-column">
             <strong>Status : </strong>
-            {{paymentData?.status ?? '-'}}
+            {{purchaseData?.status ?? '-'}}
           </p>
           <p class=" d-flex flex-column">
             <strong>Total Tax And Making Charge Payment Status : </strong>
-            {{paymentData?.total_tax_and_making_charge_payment_status ?? '-'}}
+            {{purchaseData?.total_tax_and_making_charge_payment_status ?? '-'}}
           </p>
           <p class=" d-flex flex-column">
             <strong>Purchase Type : </strong>
-            {{paymentData?.type ?? '-'}}
+            {{purchaseData?.type ?? '-'}}
           </p>
           <p class=" d-flex flex-column">
             <strong>Branch : </strong>
-            {{paymentData?.branch_name ?? '-'}}
+            {{purchaseData?.branch_name ?? '-'}}
           </p>
           <div class="go-corner">
             <div class="go-arrow">
@@ -62,27 +62,27 @@
         <a class="card1 d-flex flex-column justify-content-between">
           <p class=" d-flex flex-column">
             <strong>Total Amount : </strong>
-            {{paymentData?.total_amount ?? '-'}}
+            {{purchaseData?.total_amount ?? '-'}}
           </p>
           <p class=" d-flex flex-column">
             <strong>Total Tax And Making Charge : </strong>
-            {{paymentData?.total_tax_and_making_charge ?? '-'}}
+            {{purchaseData?.total_tax_and_making_charge ?? '-'}}
           </p>
           <p class=" d-flex flex-column">
             <strong>Total Due Amount : </strong>
-            {{paymentData?.total_due_amount ?? '-'}}
+            {{purchaseData?.total_due_amount ?? '-'}}
           </p>
           <p class=" d-flex flex-column">
             <strong>Total Due Amount Charges : </strong>
-            {{paymentData?.total_due_amount_charges ?? '-'}}
+            {{purchaseData?.total_due_amount_charges ?? '-'}}
           </p>
           <p class=" d-flex flex-column">
             <strong>Total Weight : </strong>
-            {{paymentData?.total_weight ?? '-'}}
+            {{purchaseData?.total_weight ?? '-'}}
           </p>
           <p class=" d-flex flex-column">
             <strong>Total Due Weight : </strong>
-            {{paymentData?.total_due_weight ?? '-'}}
+            {{purchaseData?.total_due_weight ?? '-'}}
           </p>
           <div class="go-corner">
             <div class="go-arrow">
@@ -124,7 +124,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+        <tr *ngFor="let item of paymentItemsArray.controls; let i = index" [formGroupName]="i">
           <td>
             <app-dropdowns formControlName="type" [options]="paymentTypeOptions" optionLabel="id" optionValue="id"
               placeholder="Select type"></app-dropdowns>

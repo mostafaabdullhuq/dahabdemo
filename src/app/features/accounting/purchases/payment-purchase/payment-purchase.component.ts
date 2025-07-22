@@ -5,6 +5,7 @@ import { AccService } from '../../@services/acc.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { BehaviorSubject, Subscription, take } from 'rxjs';
 import { SettingsService } from '../../../settings/@services/settings.service';
+import { PurchasePayment, PurchasePaymentItem } from './payment-purchase.models';
 
 @Component({
   selector: 'app-payment-purchase',
@@ -13,7 +14,7 @@ import { SettingsService } from '../../../settings/@services/settings.service';
   styleUrl: './payment-purchase.component.scss'
 })
 export class PaymentPurchaseComponent implements OnInit {
-  paymentData: any = [];
+  purchaseData: any = [];
   scrap: any = [];
   paymentMethod: any = [];
   paymentBranch: any;
@@ -23,6 +24,7 @@ export class PaymentPurchaseComponent implements OnInit {
   ttbs: any = []
   branches: any = []
   selectedProduct: any;
+
   paymentTypeOptions: any = [
     { id: 'Tag No', name: 'Tag NO' },
     { id: 'TTB', name: 'TTB' },
@@ -30,8 +32,12 @@ export class PaymentPurchaseComponent implements OnInit {
     { id: 'Scrap', name: 'Scrap' },
   ];
 
-  visibility = new BehaviorSubject<boolean>(false);
+  purchaseOrderId!: number;
 
+  paymentId?: number;
+  editMode: boolean = false;
+
+  visibility = new BehaviorSubject<boolean>(false);
   visibility$ = this.visibility.asObservable();
 
   constructor(
@@ -48,44 +54,59 @@ export class PaymentPurchaseComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
 
-    if (this.paymentData && Object.keys(this.paymentData).length > 0) {
-      if (this.paymentData.branch) {
-        this._settingService.getBranchById(this.paymentData.branch).subscribe(res => {
-          this.paymentBranch = res;
-        })
-      }
-
-      this.patchForm(this.paymentData); // patch main controls
-      if (this.paymentData.items?.length > 0) {
-        // this.patchPaymentData(this.paymentData.items); // patch items array
-      }
+    if (this.editMode && !!this.paymentId) {
+      this._accService.getPurchasePaymentById(this.paymentId).subscribe((payment: PurchasePayment) => {
+        const branchId = (+payment.branch) || null;
+        this.purchaseOrderId = payment.purchase_order;
+        if (branchId) {
+          this.getBranchLookupData(branchId);
+        }
+        this.loadFormData(payment);
+        this.loadPaymentItems(payment);
+      });
     } else {
-      this.addItem(); // add an empty item
+      this.getBranchLookupData(this.purchaseData?.branch);
+
+      if (this.purchaseData && Object.keys(this.purchaseData).length > 0) {
+        this.purchaseOrderId = this.purchaseData.id;
+        this.patchPurchaseDataToForm(this.purchaseData); // patch main controls
+      } else {
+        this.addItem(); // add an empty item
+      }
     }
-
-    this._dropdownService.getPurchasePaymentScraps(null, `branch=${this.paymentData?.branch || ""}`).subscribe(res => {
-      this.scrap = res;
-    });
-
-    this._dropdownService.getPurchasePaymentProducts(null, `branch=${this.paymentData?.branch || ""}`).subscribe(res => {
-      this.products = res?.results;
-    });
-
-    this._dropdownService.getPurchasePaymentTTBs(null, `branch=${this.paymentData?.branch || ""}`).subscribe(res => {
-      this.ttbs = res;
-    });
 
     this._dropdownService.getBranches().subscribe(res => {
       this.branches = res?.results;
     });
+  }
 
-    this._dropdownService.getPaymentMethods(`branch=${this.paymentData?.branch || ""}`).subscribe(res => {
+  getBranchLookupData(branchId: number) {
+    this._settingService.getBranchById(branchId).subscribe(res => {
+      this.paymentBranch = res;
+    });
+
+    this._dropdownService.getPurchasePaymentScraps(null, `branch=${branchId || ""}`).subscribe(res => {
+      this.scrap = res;
+    });
+
+    this._dropdownService.getPurchasePaymentProducts(null, `branch=${branchId || ""}`).subscribe(res => {
+      this.products = res?.results;
+    });
+
+    this._dropdownService.getPurchasePaymentTTBs(null, `branch=${branchId || ""}`).subscribe(res => {
+      this.ttbs = res;
+    });
+
+    this._dropdownService.getPaymentMethods(`branch=${branchId || ""}`).subscribe(res => {
       this.paymentMethod = res?.results;
     });
 
-    this._accService.getGoldPrice(this.paymentData?.branch)?.subscribe(res => {
+    this._accService.getGoldPrice(branchId)?.subscribe(res => {
       this.manualGoldPrice = +((+(res?.manual_gold_price ?? 0)).toFixed(3));
-      this.paymentForm.get("gold_price")?.setValue(this.manualGoldPrice);
+
+      if (!this.editMode || !this.paymentId) {
+        this.paymentForm.get("gold_price")?.setValue(this.manualGoldPrice);
+      }
     });
   }
 
@@ -94,7 +115,7 @@ export class PaymentPurchaseComponent implements OnInit {
   }
 
   updateAllAmountsBasedOnGoldPrice() {
-    this.items.controls.forEach(group => this.calculateGroupAmount(group));
+    this.paymentItemsArray.controls.forEach(group => this.calculateGroupAmount(group));
   }
 
   calculateGroupAmount(group: any) {
@@ -118,33 +139,21 @@ export class PaymentPurchaseComponent implements OnInit {
     group.get('amount')?.setValue(amount.toFixed(3));
   }
 
-  patchForm(data: any) {
+  patchPurchaseDataToForm(data: any) {
     this.paymentForm.patchValue({
-      purchase_order: data.purchase_order ?? 0,
-      payment_date: data.payment_date ?? new Date(),
-      total_amount: data.total_amount ?? '',
-      payment_method: data.payment_method ?? 0,
-      purity: data.purity ?? 0,
-      value: data.value ?? 0,
-      purity_rate: data.purity_rate ?? 0,
+      purchase_order: data.id ?? 0,
+      payment_date: new Date(data.order_date) || new Date(),
       branch: data.branch ?? 0,
-      total_weight: data.total_weight ?? '',
     });
   }
 
   initForm() {
-    return this.paymentForm = this._formBuilder.group({
-      purchase_order: [0],
-      payment_date: ['', Validators.required],
-      total_amount: ['', Validators.required],
-      payment_method: [0],
-      purity: [0],
-      value: [0],
-      purity_rate: [0],
-      total_weight: [''],
-      branch: [''],
+    this.paymentForm = this._formBuilder.group({
+      purchase_order: [null],
+      payment_date: [new Date(), Validators.required],
+      branch: [null],
+      gold_price: [0, Validators.required],
       items: this._formBuilder.array([]),
-      gold_price: [this.manualGoldPrice, Validators.required]
     }, { validators: this.atLeastOneItem });
   }
 
@@ -157,30 +166,56 @@ export class PaymentPurchaseComponent implements OnInit {
     return null;
   }
 
-  get items(): FormArray {
+  get paymentItemsArray(): FormArray {
     return this.paymentForm.get('items') as FormArray;
   }
 
-  patchPaymentData(data: any[]) {
-    this.items.clear();
-    data.forEach((item) => {
-      const product = item.product || {};
-      const group = this.createItem({
-        purchase_payment: item.purchase_payment || 0,
-        type: item.type || 'fixed',
-        is_fixed: item.is_fixed ?? true,
-        amount: item.metal_amount || item.amount || '0',
-        description: product.description || '',
-        product_id: product.id || 0,
-        quantity: item.quantity || 1,
-        weight: product.weight || '0',
-        purity: product.purity || 0,
-        value: this.calculateValueFromStones(product.stones),
-        purity_rate: this.getPurityRate(product.purity), // Adjust this based on your logic
+  loadFormData(payment: PurchasePayment) {
+    this.paymentForm.patchValue({
+      purchase_order: payment.purchase_order,
+      payment_date: new Date(payment.payment_date),
+      branch: payment.branch,
+      gold_price: payment.gold_price,
+    })
+  }
+
+  loadPaymentItems(payment: PurchasePayment) {
+    this.paymentItemsArray.clear();
+
+    payment?.items?.forEach((item: PurchasePaymentItem) => {
+      const product = item.product;
+
+      let itemData = {
+        purchase_payment: item.purchase_payment || null,
+        is_fixed: item.is_fixed,
+        amount: item.amount ?? 0,
+        description: item.description,
+        product_id: item.product?.id || null,
+        payment_method: item.payment_method,
+        quantity: item.quantity ?? 0,
+        pure_weight: item.pure_weight ?? 0,
+        weight: item.weight ?? 0,
+        purity: product?.purity ?? 0,
+        purity_rate: product?.purity_value ?? 0,
+        purity_name: product?.purity_name ?? null,
+        value: item.type === "Amount" ? item.payment_method : (product?.id || null)
+      }
+
+      const group = this.createItem();
+
+      group.patchValue({
+        type: item.type,
       });
 
-      this.items.push(group);
-      this.calculatePureWeight(group); // optional calculation
+      if (item.type === "TTB") {
+        group.get("quantity")?.setValidators([Validators.min(0), Validators.max(this.selectedProduct?.stock_quantity ?? 9999)]);
+        group.get("quantity")?.updateValueAndValidity();
+      }
+
+      group.patchValue(itemData, { emitEvent: false })
+
+      this.paymentItemsArray.push(group);
+      // this.calculatePureWeight(group); // optional calculation
     });
   }
 
@@ -193,23 +228,29 @@ export class PaymentPurchaseComponent implements OnInit {
     return stones.reduce((total, stone) => total + parseFloat(stone.value || '0'), 0);
   }
 
-  createItem(data?: any): FormGroup {
+  createItem(): FormGroup {
     const group = this._formBuilder.group({
-      purchase_payment: [0],
-      type: ['', Validators.required],
+      purchase_payment: [null],
+      type: [null, Validators.required],
       is_fixed: [true],
-      amount: ['', Validators.required],
-      description: [''],
-      product_id: [0],
-      payment_method: [0],
+      amount: [0, Validators.required],
+      description: [null],
+      product_id: [null],
+      payment_method: [null],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      pure_weight: [{ value: '0', disabled: true }],
-      weight: ['0'],
+      pure_weight: [{ value: 0, disabled: true }],
+      weight: [0],
       purity: [{ value: 0, disabled: true }],
-      value: [''],
+      value: [null],
       purity_rate: [{ value: 0, disabled: true }],
-      purity_name: [{ value: '', disabled: true }]
+      purity_name: [{ value: null, disabled: true }]
     });
+
+    this.attachGroupListeners(group);
+    return group;
+  }
+
+  attachGroupListeners(group: FormGroup) {
 
 
     // Calculate pure weight dynamically
@@ -225,6 +266,7 @@ export class PaymentPurchaseComponent implements OnInit {
     // Attach value logic when type changes
     group.get('type')?.valueChanges.subscribe((type: string | null) => {
       group.get('value')?.reset();
+
       amountSubscription?.unsubscribe();
       amountSubscription = null;
 
@@ -282,7 +324,6 @@ export class PaymentPurchaseComponent implements OnInit {
       group?.get("purity_name")?.setValue(this.selectedProduct?.purity_name ?? '-')
     });
 
-    return group;
   }
 
   updateSingleAmount(group: FormGroup) {
@@ -311,8 +352,8 @@ export class PaymentPurchaseComponent implements OnInit {
     const valueControl = group.get('value');
     const quantityControl = group.get("quantity");
     let subscription: Subscription | undefined;
-    // Remove previous listener by resetting (will only trigger one-time setup here)
-    valueControl?.valueChanges?.pipe(take(1)).subscribe((selectedId: number) => {
+
+    valueControl?.valueChanges?.subscribe((selectedId: number) => {
       if (type === 'Tag No') {
         this.selectedProduct = this.products.find((p: { id: number; }) => p.id === selectedId);
         group.patchValue({
@@ -382,26 +423,26 @@ export class PaymentPurchaseComponent implements OnInit {
     this.calculateGroupAmount(group);
   }
 
-  addItem(data?: any) {
-    this.items.push(this.createItem(data));
+  addItem() {
+    this.paymentItemsArray.push(this.createItem());
   }
 
   removeItem(index: number) {
-    this.items.removeAt(index);
+    this.paymentItemsArray.removeAt(index);
   }
 
   get totalAmount(): number {
-    return this.items.controls.reduce((sum, group) => {
+    return this.paymentItemsArray.controls.reduce((sum, group) => {
       const amount = parseFloat(group.get('amount')?.value) || 0;
       return sum + amount;
     }, 0);
   }
 
   get totalWeight(): number {
-    return this.items.controls.reduce((sum, group) => {
+    return +this.paymentItemsArray.controls.reduce((sum, group) => {
       const weight = parseFloat(group.get('weight')?.value) || 0;
       return sum + weight;
-    }, 0);
+    }, 0).toFixed(3);
   }
 
   submit() {
@@ -414,7 +455,7 @@ export class PaymentPurchaseComponent implements OnInit {
     const formattedDate = new Date(formValue.payment_date).toISOString().slice(0, 10);
 
     const payload = {
-      purchase_order: this.paymentData?.id,
+      purchase_order: this.purchaseOrderId,
       payment_date: formattedDate,
       branch: formValue.branch,
       gold_price: formValue.gold_price,
@@ -433,7 +474,7 @@ export class PaymentPurchaseComponent implements OnInit {
         if (item?.type === 'Scrap') {
           const scrapBase = {
             type: item.type,
-            is_fixed: item.type === 'Amount',
+            is_fixed: false,
             description: item.description,
             quantity: item.quantity,
             pure_weight: (item.pure_weight).toString(),
@@ -467,7 +508,15 @@ export class PaymentPurchaseComponent implements OnInit {
       })
     };
 
-    this._accService.addPurchasePayment(payload).subscribe({
+    let request$;
+
+    if (this.editMode && this.paymentId) {
+      request$ = this._accService.updatePurchasePayment(this.paymentId, payload);
+    } else {
+      request$ = this._accService.addPurchasePayment(payload);
+    }
+
+    request$.subscribe({
       next: (res) => {
         this.paymentForm.reset();
         this.visibility.next(false);

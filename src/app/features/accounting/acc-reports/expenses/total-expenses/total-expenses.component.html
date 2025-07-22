@@ -59,10 +59,9 @@
 
   <!-- report table -->
   <div class="table-container">
-    <app-data-table (rowSelected)="selectedReportItem = $event" [rowsPerPageOptions]="tableOptions.rowsPerPageOptions"
-      [data]="expensesData.results" [cols]="columns" [totalRecords]="tableOptions.totalRecords"
-      [first]="tableOptions.firstIndex" [rows]="tableOptions.pageSize" [hasContext]="false"
-      (pageChange)="getPaginatedRows($event)">
+    <app-data-table (rowSelected)="selectedReportItem = $event" [paginator]="false" [data]="expensesData.results"
+      [cols]="columns" [totalRecords]="tableOptions.totalRecords" [first]="tableOptions.firstIndex"
+      [rows]="tableOptions.pageSize" [hasContext]="false" (pageChange)="getPaginatedRows($event)">
 
       <ng-container table-footer *ngIf="tableOptions.totalRecords > 0 && expensesData.results.length > 0">
         <tr>

@@ -30,7 +30,9 @@ export class TotalExpensesComponent implements OnInit {
     next: null,
     previous: null
   };
+
   tableOptions: DataTableOptions = new DataTableOptions();
+
   columns: DataTableColumn<TotalExpensesReportItem>[] = [
     { field: "name", header: "Expense Name", body: (row: TotalExpensesReportItem) => row.name || '-' },
     { field: "amount", header: "Amount", body: (row: TotalExpensesReportItem) => this.getRowAmount(row) }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { BehaviorSubject } from 'rxjs';
 import { SettingsService } from '../../../settings/@services/settings.service';
@@ -21,6 +21,9 @@ export class ViewPurchasePaymentsComponent implements OnInit {
   selectedPaymentId: number | null = null;
   selectedPaymentData: any = null;
   paymentsTableData: any[] = [];
+  private editPaymentSubject = new BehaviorSubject<number | null>(null);
+
+  paymentToBeEditedId$ = this.editPaymentSubject.asObservable();
 
   visibility = new BehaviorSubject<boolean>(false);
 
@@ -29,7 +32,7 @@ export class ViewPurchasePaymentsComponent implements OnInit {
   constructor(
     private _settingService: SettingsService,
     private _accService: AccService,
-    private _toaster: ToasterMsgService
+    private _toaster: ToasterMsgService,
   ) { }
 
   showDialog() {
@@ -37,8 +40,6 @@ export class ViewPurchasePaymentsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log("data: ", this.paymentData);
-
     if (this.paymentData && Object.keys(this.paymentData).length > 0) {
       if (this.paymentData.branch) {
         this._settingService.getBranchById(this.paymentData.branch).subscribe(res => {
@@ -71,6 +72,9 @@ export class ViewPurchasePaymentsComponent implements OnInit {
   editPayment(payment: any) {
     // Placeholder for edit functionality - to be implemented later
     console.log('Edit payment:', payment);
+    this.editPaymentSubject.next(payment?.id ?? null);
+    this.visibility.next(false);
+    // const componentRef =
   }
 
   deletePayment(payment: any) {

@@ -188,13 +188,30 @@ export class PurchasesComponent implements OnInit {
       });
   }
 
-  addPayment(data: any) {
+  addPayment(purchaseData: any) {
     this.container.clear();
     this.componentRef = this.container.createComponent(PaymentPurchaseComponent);
-    this.componentRef.instance.paymentData = data;
+    this.componentRef.instance.purchaseData = purchaseData;
     this.componentRef.instance.showDialog();
-    this.componentRef.instance.visibility$.subscribe(value => {
+    let subscription = this.componentRef.instance.visibility$.subscribe(value => {
       if (!value) {
+        subscription?.unsubscribe();
+        this.getPurchases();
+      }
+    })
+  }
+
+  editPayment(purchaseData: any, paymentId: number) {
+    this.container.clear();
+    this.componentRef = this.container.createComponent(PaymentPurchaseComponent);
+    this.componentRef.instance.purchaseData = purchaseData;
+    this.componentRef.instance.paymentId = paymentId;
+    this.componentRef.instance.editMode = true;
+
+    this.componentRef.instance.showDialog();
+    let subscription = this.componentRef.instance.visibility$.subscribe(value => {
+      if (!value) {
+        subscription?.unsubscribe();
         this.getPurchases();
       }
     })
@@ -205,11 +222,23 @@ export class PurchasesComponent implements OnInit {
     const viewComponentRef = this.container.createComponent(ViewPurchasePaymentsComponent);
     viewComponentRef.instance.paymentData = this.selectedPurchase;
     viewComponentRef.instance.showDialog();
-    viewComponentRef.instance.visibility$.subscribe(value => {
+
+    let editPaymentSubscription = viewComponentRef.instance.paymentToBeEditedId$.subscribe((value: number | null) => {
+      console.log("payment edit subscription received: ", value);
+
+      if (!!value) {
+        editPaymentSubscription?.unsubscribe();
+        this.editPayment(this.selectedPurchase, value);
+      }
+    });
+
+    let viewPaymentsSubscription = viewComponentRef.instance.visibility$.subscribe(value => {
       if (!value) {
+        viewPaymentsSubscription?.unsubscribe();
         this.getPurchases();
       }
-    })
+    });
+
   }
 
 

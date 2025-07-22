@@ -3,6 +3,7 @@ import { SingletonService } from '../../../core/services/singleton.service';
 import { environment } from '../../../../environments/environment.development';
 import { Observable } from 'rxjs';
 import { FormGroup } from '@angular/forms';
+import { PurchasePayment } from '../purchases/payment-purchase/payment-purchase.models';
 
 @Injectable({
   providedIn: 'root'
@@ -75,6 +76,10 @@ export class AccService {
     return this._http.getRequest(`${environment.api_url}purchases/${id}/`);
   }
 
+  getPurchasePaymentById(id: number | string): Observable<PurchasePayment> {
+    return this._http.get(`purchases/payment/${id}/`);
+  }
+
   deletePurchase(id: number) {
     return this._http.deleteRequest(`${environment.api_url}purchases/delete/${id}/`);
   }
@@ -145,6 +150,10 @@ export class AccService {
 
   addPurchasePayment(form: any) {
     return this._http.postRequest(`${environment.api_url}purchases/payment/`, form);
+  }
+
+  updatePurchasePayment(paymentId: number, form: any) {
+    return this._http.patch(`purchases/payment/${paymentId}/`, form);
   }
 
   addJournalEntry(form: any) {
