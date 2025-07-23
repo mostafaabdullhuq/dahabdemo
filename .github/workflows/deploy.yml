@@ -39,5 +39,6 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          pkill -f http-server
-          nohup http-server ${{ secrets.EC2_PATH }} -p 80 > http.log 2>&1 &
+          pkill -f http-server || true
+          nohup http-server ${{ secrets.EC2_PATH }}/dist/<your-app-name>/browser -p 80 > http.log 2>&1 & disown
+
