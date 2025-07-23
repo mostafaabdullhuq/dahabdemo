@@ -1,44 +1,45 @@
-name: Deploy Angular to EC2
+name: Deploy Angular Frontend to EC2
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Setup Node
+    - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm install
 
-    - name: Build Angular App
+    - name: Build Angular app
       run: npm run build -- --configuration production
 
     - name: Copy build files to EC2
-      uses: appleboy/scp-action@v0.1.4
+      uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
+        username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "dist/dahab2/browser/*"
-        target: ${{ secrets.EC2_PATH }}
+        source: dist/**/*
+        target: /home/ec2-user/DAHAB/dist/
 
-    - name: Restart HTTP server
+    - name: Move files to nginx root and restart nginx
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
+        username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          pkill -f http-server || true
-          nohup http-server ${{ secrets.EC2_PATH }} -p 80 > http.log 2>&1 &
-          echo "Deployed and running in background"
+          sudo rm -rf /usr/share/nginx/html/*
+          sudo cp -r /home/ec2-user/DAHAB/dist/* /usr/share/nginx/html/
+          sudo systemctl restart nginx
