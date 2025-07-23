@@ -33,7 +33,7 @@ jobs:
         source: dist/dahab2/**
         target: ~/DAHAB
 
-    - name: Restart http-server on port 8080
+    - name: Restart http-server on port 80
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
@@ -41,4 +41,4 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           pkill -f http-server || true
-          nohup http-server ~/DAHAB -p 8080 > ~/DAHAB.log 2>&1 &
+          nohup http-server ~/DAHAB -p 80 > ~/DAHAB.log 2>&1 &
