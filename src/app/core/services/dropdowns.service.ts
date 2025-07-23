@@ -150,6 +150,7 @@ export class DropdownsService {
   }
 
   getPurchasePaymentProducts(nextPageUrl: string | null = null, params: string = ""): Observable<any> {
+    params += "&page_size=1000000000000"
     const url = nextPageUrl || `${this.API}purchases/payment/product/?${params}`;
     return this._http.getRequest<any>(url);
   }

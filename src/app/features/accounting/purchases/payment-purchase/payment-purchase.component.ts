@@ -3,7 +3,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AccService } from '../../@services/acc.service';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
-import { BehaviorSubject, Subscription, take } from 'rxjs';
+import { BehaviorSubject, filter, Subscription, take, forkJoin, of } from 'rxjs';
 import { SettingsService } from '../../../settings/@services/settings.service';
 import { PurchasePayment, PurchasePaymentItem } from './payment-purchase.models';
 
@@ -32,6 +32,12 @@ export class PaymentPurchaseComponent implements OnInit {
     { id: 'Scrap', name: 'Scrap' },
   ];
 
+  weightPaidOptions = [
+    { name: 'All', value: false },
+    // { name: 'MC & Tax', value: false },
+    { name: 'Weight', value: true },
+  ]
+
   purchaseOrderId!: number;
 
   paymentId?: number;
@@ -59,20 +65,36 @@ export class PaymentPurchaseComponent implements OnInit {
         const branchId = (+payment.branch) || null;
         this.purchaseOrderId = payment.purchase_order;
         if (branchId) {
-          this.getBranchLookupData(branchId);
+          this.getBranchLookupData(branchId).subscribe((results: any) => {
+            this.paymentBranch = results.paymentBranch;
+            this.scrap = results.scrap;
+            this.products = results.products?.results || [];
+            this.ttbs = results.ttbs;
+            this.paymentMethod = results.paymentMethod;
+            this.manualGoldPrice = results.manualGoldPrice?.manual_gold_price ?? 0;
+            this.loadFormData(payment);
+            this.loadPaymentItems(payment);
+          });
+        } else {
+          this.loadFormData(payment);
+          this.loadPaymentItems(payment);
         }
-        this.loadFormData(payment);
-        this.loadPaymentItems(payment);
       });
     } else {
-      this.getBranchLookupData(this.purchaseData?.branch);
-
-      if (this.purchaseData && Object.keys(this.purchaseData).length > 0) {
-        this.purchaseOrderId = this.purchaseData.id;
-        this.patchPurchaseDataToForm(this.purchaseData); // patch main controls
-      } else {
-        this.addItem(); // add an empty item
-      }
+      this.getBranchLookupData(this.purchaseData?.branch).subscribe((results: any) => {
+        this.paymentBranch = results.paymentBranch;
+        this.scrap = results.scrap;
+        this.products = results.products?.results || [];
+        this.ttbs = results.ttbs;
+        this.paymentMethod = results.paymentMethod;
+        this.manualGoldPrice = results.manualGoldPrice?.manual_gold_price ?? 0;
+        if (this.purchaseData && Object.keys(this.purchaseData).length > 0) {
+          this.purchaseOrderId = this.purchaseData.id;
+          this.patchPurchaseDataToForm(); // patch main controls
+        } else {
+          this.addItem(); // add an empty item
+        }
+      });
     }
 
     this._dropdownService.getBranches().subscribe(res => {
@@ -81,32 +103,15 @@ export class PaymentPurchaseComponent implements OnInit {
   }
 
   getBranchLookupData(branchId: number) {
-    this._settingService.getBranchById(branchId).subscribe(res => {
-      this.paymentBranch = res;
-    });
-
-    this._dropdownService.getPurchasePaymentScraps(null, `branch=${branchId || ""}`).subscribe(res => {
-      this.scrap = res;
-    });
-
-    this._dropdownService.getPurchasePaymentProducts(null, `branch=${branchId || ""}`).subscribe(res => {
-      this.products = res?.results;
-    });
-
-    this._dropdownService.getPurchasePaymentTTBs(null, `branch=${branchId || ""}`).subscribe(res => {
-      this.ttbs = res;
-    });
-
-    this._dropdownService.getPaymentMethods(`branch=${branchId || ""}`).subscribe(res => {
-      this.paymentMethod = res?.results;
-    });
-
-    this._accService.getGoldPrice(branchId)?.subscribe(res => {
-      this.manualGoldPrice = +((+(res?.manual_gold_price ?? 0)).toFixed(3));
-
-      if (!this.editMode || !this.paymentId) {
-        this.paymentForm.get("gold_price")?.setValue(this.manualGoldPrice);
-      }
+    return forkJoin({
+      paymentBranch: this._settingService.getBranchById(branchId),
+      scrap: this._dropdownService.getPurchasePaymentScraps(null, `branch=${branchId || ""}`),
+      products: this._dropdownService.getPurchasePaymentProducts(null, `branch=${branchId || ""}`).pipe(
+        filter(res => !!res),
+      ),
+      ttbs: this._dropdownService.getPurchasePaymentTTBs(null, `branch=${branchId || ""}`),
+      paymentMethod: this._accService.getBranchPaymentMethods(branchId),
+      manualGoldPrice: this._accService.getGoldPrice(branchId)
     });
   }
 
@@ -139,11 +144,12 @@ export class PaymentPurchaseComponent implements OnInit {
     group.get('amount')?.setValue(amount.toFixed(3));
   }
 
-  patchPurchaseDataToForm(data: any) {
+  patchPurchaseDataToForm() {
     this.paymentForm.patchValue({
-      purchase_order: data.id ?? 0,
-      payment_date: new Date(data.order_date) || new Date(),
-      branch: data.branch ?? 0,
+      purchase_order: this.purchaseData.id ?? 0,
+      payment_date: new Date(this.purchaseData.order_date) || new Date(),
+      branch: this.purchaseData.branch ?? 0,
+      gold_price: this.manualGoldPrice
     });
   }
 
@@ -205,14 +211,32 @@ export class PaymentPurchaseComponent implements OnInit {
 
       group.patchValue({
         type: item.type,
+        is_weight_paid: item.is_weight_paid ?? false
       });
 
+      let quantityControl = group.get("quantity");
+
+      let referenceList = [];
+
       if (item.type === "TTB") {
-        group.get("quantity")?.setValidators([Validators.min(0), Validators.max(this.selectedProduct?.stock_quantity ?? 9999)]);
-        group.get("quantity")?.updateValueAndValidity();
+        referenceList = this.ttbs;
+      } else if (item.type === "Scrap") {
+        referenceList = this.scrap;
+      } else if (item.type === "Tag No") {
+        referenceList = this.products;
       }
 
-      group.patchValue(itemData, { emitEvent: false })
+      this.selectedProduct = referenceList.find((p: { id: number; }) => p.id === item.product?.id);
+
+      if (item.type === "TTB") {
+        quantityControl?.setValidators([Validators.min(0), Validators.max(+this.selectedProduct?.stock_quantity || 0)]);
+        quantityControl?.updateValueAndValidity();
+      } else {
+        quantityControl?.setValidators(Validators.min(1));
+        quantityControl?.updateValueAndValidity();
+      }
+
+      group.patchValue(itemData, { emitEvent: false });
 
       this.paymentItemsArray.push(group);
       // this.calculatePureWeight(group); // optional calculation
@@ -243,7 +267,8 @@ export class PaymentPurchaseComponent implements OnInit {
       purity: [{ value: 0, disabled: true }],
       value: [null],
       purity_rate: [{ value: 0, disabled: true }],
-      purity_name: [{ value: null, disabled: true }]
+      purity_name: [{ value: null, disabled: true }],
+      is_weight_paid: false,
     });
 
     this.attachGroupListeners(group);
@@ -347,11 +372,10 @@ export class PaymentPurchaseComponent implements OnInit {
   }
 
   attachValueListener(group: FormGroup, type: string): void {
-    const valueControl = group.get('value');
-    const quantityControl = group.get("quantity");
-    let subscription: Subscription | undefined;
 
-    valueControl?.valueChanges?.subscribe((selectedId: number) => {
+    const quantityControl = group.get("quantity");
+
+    group.get('value')?.valueChanges?.subscribe((selectedId: number) => {
       if (type === 'Tag No') {
         this.selectedProduct = this.products.find((p: { id: number; }) => p.id === selectedId);
         group.patchValue({
@@ -390,18 +414,18 @@ export class PaymentPurchaseComponent implements OnInit {
       }
 
       if (type === "TTB") {
-        subscription = quantityControl?.valueChanges.subscribe(value => {
-          group.patchValue({
-            weight: +this.selectedProduct?.weight * +value || 0
-          })
-        })
         quantityControl?.setValidators([Validators.min(0), Validators.max(+this.selectedProduct?.stock_quantity || 0)]);
         quantityControl?.updateValueAndValidity();
       } else {
         quantityControl?.setValidators(Validators.min(1));
         quantityControl?.updateValueAndValidity();
-        subscription?.unsubscribe();
       }
+    });
+
+    quantityControl?.valueChanges.pipe(filter(value => group.get("type")?.value === "TTB")).subscribe(value => {
+      group.patchValue({
+        weight: +this.selectedProduct?.weight * +value || 0
+      })
     });
   }
 
@@ -467,6 +491,7 @@ export class PaymentPurchaseComponent implements OnInit {
           quantity: item.quantity,
           pure_weight: item.pure_weight.toString(),
           weight: item.weight.toString(),
+          is_weight_paid: item.is_weight_paid
         };
 
         if (item?.type === 'Scrap') {
@@ -477,6 +502,7 @@ export class PaymentPurchaseComponent implements OnInit {
             quantity: item.quantity,
             pure_weight: (item.pure_weight).toString(),
             weight: item.weight.toString(),
+            is_weight_paid: item.is_weight_paid
           };
 
           return {
@@ -502,7 +528,6 @@ export class PaymentPurchaseComponent implements OnInit {
             ...base
           };
         }
-
       })
     };
 

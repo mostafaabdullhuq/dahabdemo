@@ -27,7 +27,7 @@ export interface PurchasePaymentItem {
   purchase_order: number | null;
   payment_method: number | null;
   payment_method_name?: string; // Optional because it's missing in this response
-
+  is_weight_paid: boolean;
   // Allow any extra fields
   [key: string]: any;
 }

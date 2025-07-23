@@ -1,4 +1,4 @@
-<p-dialog [header]="editMode && paymentId ? 'Edit Payment' : 'Add Payment'" [modal]="true" [style]="{ width: '70rem' }"
+<p-dialog [header]="editMode && paymentId ? 'Edit Payment' : 'Add Payment'" [modal]="true" [style]="{ width: '75rem' }"
   (onHide)="visibility.next(false)" [visible]="visibility.value" (visibleChange)="visibility.next($event)">
   <div class="row">
     <div class="col-md-4">
@@ -111,6 +111,9 @@
     <table class="table" formArrayName="items">
       <thead>
         <tr>
+          @if(purchaseData?.type === 'unfixed') {
+          <th>Weight Paid</th>
+          }
           <th>Method</th>
           <th>Type</th>
           <th>Amount</th>
@@ -125,6 +128,12 @@
       </thead>
       <tbody>
         <tr *ngFor="let item of paymentItemsArray.controls; let i = index" [formGroupName]="i">
+          @if(purchaseData?.type === 'unfixed') {
+          <td>
+            <app-dropdowns formControlName="is_weight_paid" [options]="weightPaidOptions" optionLabel="name"
+              optionValue="value" placeholder="Select type"></app-dropdowns>
+          </td>
+          }
           <td>
             <app-dropdowns formControlName="type" [options]="paymentTypeOptions" optionLabel="id" optionValue="id"
               placeholder="Select type"></app-dropdowns>
