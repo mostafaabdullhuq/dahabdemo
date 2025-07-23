@@ -1,44 +1,44 @@
-name: Deploy Angular to EC2
+name: Deploy Angular Frontend to EC2
 
 on:
   push:
-    branches: [master]
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Setup Node
-      uses: actions/setup-node@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
 
     - name: Install dependencies
       run: npm ci
 
-    - name: Build Angular App
+    - name: Build Angular app
       run: npm run build -- --configuration production
 
-    - name: Copy build files to EC2
-      uses: appleboy/scp-action@v0.1.4
+    - name: Upload build to EC2
+      uses: appleboy/scp-action@v0.1.6
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        source: "dist/dahab2/browser/*"
-        target: ${{ secrets.EC2_PATH }}
+        key: ${{ secrets.EC2_KEY }}
+        source: dist/**
+        target: ~/frontend
 
-    - name: Restart HTTP server
+    - name: Restart http-server on port 8080
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
+        key: ${{ secrets.EC2_KEY }}
         script: |
           pkill -f http-server || true
-          nohup http-server ${{ secrets.EC2_PATH }} -p 80 > http.log 2>&1 &
-          echo "Deployed and running in background"
+          nohup http-server ~/frontend -p 8080 > ~/frontend.log 2>&1 &
