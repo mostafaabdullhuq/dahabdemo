@@ -72,6 +72,7 @@ export class SuppliersReportComponent implements OnInit {
     }
   ];
 
+
   private toaster = inject(ToasterMsgService);
   private reportExportService = inject(ReportExportService);
 
