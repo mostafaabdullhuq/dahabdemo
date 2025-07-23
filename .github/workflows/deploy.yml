@@ -2,7 +2,7 @@ name: Deploy Angular to EC2
 
 on:
   push:
-    branches: [master]  
+    branches: [master]
 
 jobs:
   build-and-deploy:
@@ -32,12 +32,13 @@ jobs:
         source: "dist/dahab2/browser/*"
         target: ${{ secrets.EC2_PATH }}
 
-    - name: Restart HTTP server (optional)
+    - name: Restart HTTP server
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          pkill -f http-server
-          nohup http-server ${{ secrets.EC2_PATH }}/dist/<your-app-name>/browser -p 80 > http.log 2>&1 &
+          pkill -f http-server || true
+          nohup http-server ${{ secrets.EC2_PATH }} -p 80 > http.log 2>&1 &
+          echo "Deployed and running in background"
