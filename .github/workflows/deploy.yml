@@ -31,7 +31,7 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_KEY }}
         source: dist/**
-        target: ~/frontend
+        target: ~/DAHAB
 
     - name: Restart http-server on port 8080
       uses: appleboy/ssh-action@v1.0.0
@@ -41,4 +41,4 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         script: |
           pkill -f http-server || true
-          nohup http-server ~/frontend -p 8080 > ~/frontend.log 2>&1 &
+          nohup http-server ~/DAHAB -p 8080 > ~/DAHAB.log 2>&1 &
