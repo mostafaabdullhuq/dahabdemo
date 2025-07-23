@@ -40,5 +40,5 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           pkill -f http-server || true
-          nohup http-server ${{ secrets.EC2_PATH }}/dist/<your-app-name>/browser -p 80 > http.log 2>&1 & disown
+          nohup http-server ${{ secrets.EC2_PATH }}/dist/dahab2/browser -p 80 > http.log 2>&1 & disown
 
