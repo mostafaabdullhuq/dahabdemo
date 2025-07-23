@@ -239,7 +239,8 @@ export class PaymentPurchaseComponent implements OnInit {
       group.patchValue(itemData, { emitEvent: false });
 
       this.paymentItemsArray.push(group);
-      // this.calculatePureWeight(group); // optional calculation
+
+      this.calculatePureWeight(group); // optional calculation
     });
   }
 

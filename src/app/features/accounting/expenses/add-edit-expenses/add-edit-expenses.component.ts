@@ -218,7 +218,7 @@ export class AddEditExpensesComponent {
         category: expense.category,
         sub_category: expense.sub_category,
         payment: {
-          amount: expense.payment?.amount,
+          amount: expense.payment?.amount.toFixed(3),
           note: expense.payment?.note,
           paid_on: expense.payment?.paid_on,
           payment_account: expense.payment?.payment_account,
@@ -238,6 +238,14 @@ export class AddEditExpensesComponent {
 
   onSubmit(): void {
     if (this.addEditExpenseForm.invalid) return;
+
+    let paymentControl = this.addEditExpenseForm.get("payment");
+
+    let amountValue = paymentControl?.get("amount")?.value ?? 0;
+
+    paymentControl?.patchValue({
+      amount: (+amountValue).toFixed(3) ?? 0
+    })
 
     const formValue = this.addEditExpenseForm.value;
     if (formValue.sub_category) {

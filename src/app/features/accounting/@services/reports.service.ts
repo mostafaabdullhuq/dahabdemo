@@ -26,6 +26,7 @@ import { BalanceSheetReportResponse } from '../acc-reports/balance-sheets/balanc
 import { CashFlowReportResponse } from '../acc-reports/cash-flow/cash-flow-reports.models';
 import { ProfitAndLossReportResponse } from '../acc-reports/profit-and-loss/profit-and-loss-reports.models';
 import { TrialBalanceReportResponse } from '../acc-reports/trial-balance/trial-balance-reports.models';
+import { SuppliersReportResponse } from '../acc-reports/suppliers/suppliers.models';
 
 
 @Injectable({
@@ -48,7 +49,7 @@ export class ReportsService {
     cashFlow: "reporting/cash-flow",
     profitAndLoss: "reporting/profit-and-loss",
     trialBalance: "reporting/trail-balance",
-
+    suppliers: "reporting/suppliers",
   }
 
   constructor(private _http: SingletonService) {
@@ -84,6 +85,34 @@ export class ReportsService {
 
   getAssetsReport(filter: SearchFilter = {}) {
     return this._http.get<AssetsReportResponse>(this.endpoints.assets, filter);
+  }
+
+  getSuppliersReport(filter: SearchFilter = {}) {
+    // return this._http.get<SuppliersReportResponse>(this.endpoints.suppliers, filter);
+
+    return new Observable<SuppliersReportResponse>(observer => {
+      // TODO: change with api call when back is ready
+      observer.next({
+        id: 1,
+        name: "MTech 2",
+        logo: "https://dahabproject.s3.amazonaws.com/business_logos/PROFILE-2.png",
+        currency: "BHD",
+        date: new Date().toISOString(),
+        suppliers: {
+          count: 1,
+          next: null,
+          previous: null,
+          results: [{
+            name: "Supplier name",
+            referene_number: "Ref 13199414",
+            total_due_amount: "13193",
+            total_due_weight: "13",
+            amount_advance_balance: "33",
+            weight_advance_balance: "1"
+          }]
+        }
+      })
+    })
   }
 
   getStockAgingReport(filter: SearchFilter = {}) {

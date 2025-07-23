@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { SettingsService } from '../../../settings/@services/settings.service';
 import { AccService } from '../../@services/acc.service';
 import { ToasterMsgService } from '../../../../core/services/toaster-msg.service';
+import { ConfirmationPopUpService } from '../../../../shared/services/confirmation-pop-up.service';
 
 @Component({
   selector: 'app-view-purchase-payments',
@@ -33,6 +34,7 @@ export class ViewPurchasePaymentsComponent implements OnInit {
     private _settingService: SettingsService,
     private _accService: AccService,
     private _toaster: ToasterMsgService,
+    private _confirmPopUp: ConfirmationPopUpService
   ) { }
 
   showDialog() {
@@ -61,7 +63,6 @@ export class ViewPurchasePaymentsComponent implements OnInit {
     }
   }
 
-  // Methods for payment table actions
   viewPaymentDetails(payment: any) {
     this.selectedPaymentItems = payment.items || [];
     this.selectedPaymentId = payment.id;
@@ -70,16 +71,11 @@ export class ViewPurchasePaymentsComponent implements OnInit {
   }
 
   editPayment(payment: any) {
-    // Placeholder for edit functionality - to be implemented later
-    console.log('Edit payment:', payment);
     this.editPaymentSubject.next(payment?.id ?? null);
     this.visibility.next(false);
-    // const componentRef =
   }
 
   deletePayment(payment: any) {
-    console.log('Delete payment:', payment);
-    // Placeholder for delete functionality - to be implemented later
     this._accService.deletePurchasePayment(payment.id).subscribe(res => {
       this._toaster.showSuccess("Payment Deleted Successfully")
       this.paymentsTableData = this.paymentsTableData.filter(paymentItem => paymentItem.id !== payment.id)

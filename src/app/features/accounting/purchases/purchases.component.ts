@@ -224,8 +224,6 @@ export class PurchasesComponent implements OnInit {
     viewComponentRef.instance.showDialog();
 
     let editPaymentSubscription = viewComponentRef.instance.paymentToBeEditedId$.subscribe((value: number | null) => {
-      console.log("payment edit subscription received: ", value);
-
       if (!!value) {
         editPaymentSubscription?.unsubscribe();
         this.editPayment(this.selectedPurchase, value);

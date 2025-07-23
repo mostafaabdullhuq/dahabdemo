@@ -84,6 +84,7 @@ import { BalanceSheetReportsComponent } from '../accounting/acc-reports/balance-
 import { CashFlowReportsComponent } from '../accounting/acc-reports/cash-flow/cash-flow-reports.component';
 import { ProfitAndLossReportsComponent } from '../accounting/acc-reports/profit-and-loss/profit-and-loss-reports.component';
 import { TrialBalanceReportsComponent } from '../accounting/acc-reports/trial-balance/trial-balance-reports.component';
+import { SuppliersReportComponent } from '../accounting/acc-reports/suppliers/suppliers-report.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -217,7 +218,7 @@ export const routes: Routes = [
           { path: 'cash-flow', component: CashFlowReportsComponent },
           { path: 'profit-and-loss', component: ProfitAndLossReportsComponent },
           { path: 'trial-balance', component: TrialBalanceReportsComponent },
-
+          { path: 'suppliers', component: SuppliersReportComponent },
         ]
       },
     ]

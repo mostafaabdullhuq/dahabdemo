@@ -8,9 +8,9 @@ export class ConfirmationPopUpService {
   constructor(
     private confirmationService: ConfirmationService,
     private messageService: MessageService
-  ) {}
+  ) { }
 
- 
+
   confirm(options: {
     message: string;
     header: string;
