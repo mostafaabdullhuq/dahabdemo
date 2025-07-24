@@ -9,6 +9,8 @@ import { PosStatusService } from '../@services/pos-status.service';
 import { MenuItem } from 'primeng/api';
 import { SetDiscountComponent } from './set-discount/set-discount.component';
 import { Currency, Tax } from '../interfaces/pos.interfaces';
+import Decimal from 'decimal.js';
+import { ToasterMsgService } from '../../../core/services/toaster-msg.service';
 
 @Component({
   selector: 'app-sales-pos',
@@ -39,8 +41,14 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   selectedRowData: any = [];
   componentRef!: ComponentRef<SetDiscountComponent>;
 
-  constructor(private _formBuilder: FormBuilder, private _posSalesService: PosSalesService, private _posService: PosService,
-    private _dropdownService: DropdownsService, private _posSharedService: PosSharedService, private _posStatusService: PosStatusService
+  constructor(
+    private _formBuilder: FormBuilder,
+    private _posSalesService: PosSalesService,
+    private _posService: PosService,
+    private _dropdownService: DropdownsService,
+    private _posSharedService: PosSharedService,
+    private _posStatusService: PosStatusService,
+    private _toaster: ToasterMsgService
   ) { }
 
 
@@ -143,7 +151,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         this.salesDataOrders = res;
         this.salesDataOrders = this.salesDataOrders.map((order: any) => {
           // if the default manual gold price value, calculate it based on purity, otherwise it's already calculated before
-          if ((+order.gold_price)?.toFixed(3) === (+this.manualGoldPrice)?.toFixed(3)) {
+          if ((+order.gold_price)?.toFixed(this.decimalPlaces) === (+this.manualGoldPrice)?.toFixed(this.decimalPlaces)) {
             order.gold_price = this.calculateOrderGoldPriceBasedOnPurity(order);
             this.onGoldPriceChange(order)
           }
@@ -187,7 +195,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   }
 
   calculateInitialGoldPriceBasedOnPurity(group: any): number {
-
     if (
       !this.manualGoldPrice ||
       !(group?.purity || group?.purity_value) ||
@@ -224,18 +231,14 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     const goldPrice = baseValue * purityFactor;
 
-    // Format based on selected currency decimal point
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
-    this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
-    return +goldPrice.toFixed(decimalPlaces);
+    this._posSharedService.setGoldPrice(+goldPrice.toFixed(this.decimalPlaces));
+    return +goldPrice.toFixed(this.decimalPlaces);
   }
 
   onGoldPriceChange(order: any) {
     const newPrice = order.gold_price
 
-    if (!newPrice || isNaN(newPrice)) {
-      return;
-    }
+    if (!newPrice || isNaN(newPrice)) return;
 
     this.calcGrandTotalWithVat();
 
@@ -251,6 +254,109 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     }
 
     this._posService.updateOrderValues(order.id, updatedPrices).subscribe(res => {
+      updateOrderFromResponse(order, res);
+    });
+  }
+
+  onTotalPriceChange(order: any) {
+    const newTotalPrice = order.amount;
+
+    if (!newTotalPrice || isNaN(newTotalPrice)) return;
+
+
+    // Calculate the fixed components (metal value and stone values)
+    const metalValue = this.calcMetalValueAccordingToPurity(order);
+    const stoneValues = (order?.stones || [])
+      .slice(0, 3)
+      .reduce((sum: number, stone: any) => sum + (+stone?.retail_value || 0), 0);
+
+    // Calculate what the new making charge should be
+    const newMakingChargeWithDiscount = newTotalPrice - metalValue - stoneValues;
+
+    // Get the current discount percentage
+    const discountPercentage = +order?.discount || 0;
+
+    // Calculate the new retail making charge (before discount)
+    // If discountedMakingCharge = makingCharge * (1 - discount/100)
+    // Then makingCharge = discountedMakingCharge / (1 - discount/100)
+    const discountFactor = 1 - (discountPercentage / 100);
+    const newRetailMakingCharge = discountFactor > 0 ? newMakingChargeWithDiscount / discountFactor : newMakingChargeWithDiscount;
+
+    if (newRetailMakingCharge < 0) {
+      order.retail_making_charge = 0;
+      this._toaster.showError("Product price difference cannot exceed the product retail price")
+      return;
+    }
+
+    // Update the order object
+    order.retail_making_charge = +newRetailMakingCharge.toFixed(this.decimalPlaces);
+
+    // Recalculate discount amount based on new making charge
+    const newDiscountAmount = (discountPercentage / 100) * newRetailMakingCharge;
+
+    // Update shared service with new discount amount
+    this._posSharedService.setDiscountAmount(newDiscountAmount);
+
+    // Recalculate grand total with VAT
+    this.calcGrandTotalWithVat();
+
+    // Calculate VAT based on new total price
+    const vatAmount = this.calculateVat(newTotalPrice, order.selectedVatId ?? this.selectedVatId);
+
+    const updatedPrices = {
+      amount: +newTotalPrice,
+      vat_amount: +vatAmount,
+    }
+
+    this._posService.updateOrderValues(order.id, updatedPrices).subscribe(res => {
+      updateOrderFromResponse(order, res);
+    });
+  }
+
+  onRetailMakingChargeChange(order: any) {
+    const newRetailMakingCharge = order.retail_making_charge;
+
+    if (!newRetailMakingCharge || isNaN(newRetailMakingCharge) || newRetailMakingCharge < 0) {
+      return;
+    }
+
+    // Calculate the fixed components (metal value and stone values)
+    const metalValue = this.calcMetalValueAccordingToPurity(order);
+    const stoneValues = (order?.stones || [])
+      .slice(0, 3)
+      .reduce((sum: number, stone: any) => sum + (+stone?.retail_value || 0), 0);
+
+    // Get the current discount percentage
+    const discountPercentage = +order?.discount || 0;
+
+    // Calculate new discount amount based on new retail making charge
+    const newDiscountAmount = (discountPercentage / 100.000) * newRetailMakingCharge;
+
+    // Calculate discounted making charge
+    const discountedMakingCharge = newRetailMakingCharge - newDiscountAmount;
+
+    // Calculate new total price
+    const newTotalPrice = metalValue + discountedMakingCharge + stoneValues;
+
+    // Update the order object
+    order.amount = +newTotalPrice.toFixed(this.decimalPlaces);
+
+    // Update shared service with new discount amount
+    this._posSharedService.setDiscountAmount(newDiscountAmount);
+
+    // Recalculate grand total with VAT
+    this.calcGrandTotalWithVat();
+
+    // Calculate VAT based on new total price
+    const vatAmount = this.calculateVat(newTotalPrice, order.selectedVatId ?? this.selectedVatId);
+
+    const updatedPrices = {
+      retail_making_charge: +newRetailMakingCharge,
+      vat_amount: +vatAmount,
+    }
+
+    this._posService.updateOrderValues(order.id, updatedPrices).subscribe(res => {
+      updateOrderFromResponse(order, res);
     });
   }
 
@@ -290,16 +396,13 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const goldPrice = group.gold_price * purityFactor;
 
     // Format based on selected currency decimal point
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+    this._posSharedService.setGoldPrice(+goldPrice.toFixed(this.decimalPlaces));
 
-    this._posSharedService.setGoldPrice(+goldPrice.toFixed(decimalPlaces));
-
-    return +goldPrice.toFixed(decimalPlaces);
+    return +goldPrice.toFixed(this.decimalPlaces);
   }
 
   calcMetalValueAccordingToPurity(group: any) {
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
-    const metalValue = +(group.gold_price * group?.weight).toFixed(decimalPlaces);
+    const metalValue = +(group.gold_price * group?.weight).toFixed(this.decimalPlaces);
 
     this._posSharedService.setMetalValue(metalValue);
 
@@ -316,7 +419,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const discountPercentage = +group?.discount || 0;
 
     // Calculate discount amount
-    const discountAmount = (discountPercentage / 100) * makingCharge;
+    const discountAmount = (discountPercentage / 100.000) * makingCharge;
 
     // Share the discount amount with the service
     this._posSharedService.setDiscountAmount(discountAmount);
@@ -329,11 +432,9 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     const total = metalValue + discountedMakingCharge + stoneValues;
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+    this.priceOfProductToPatch = +total.toFixed(this.decimalPlaces);
 
-    this.priceOfProductToPatch = +total.toFixed(decimalPlaces);
-
-    return +total.toFixed(decimalPlaces);
+    return +total.toFixed(this.decimalPlaces);
   }
 
   onVatChange(vatId: number, group: any): void {
@@ -369,7 +470,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   calculateVat(totalPrice: number, selectedVatId: number) {
     const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === selectedVatId);
     const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
-    return +((vatRate / 100) * totalPrice).toFixed(3);
+    return +((vatRate / 100) * totalPrice).toFixed(this.decimalPlaces);
   }
 
   calcTotalPriceWithVat(group: any): number {
@@ -387,11 +488,10 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     }, 0);
 
     // Update shared VAT immediately
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
-    this._posSharedService.setSalesTax(+totalVat.toFixed(decimalPlaces));
+    this._posSharedService.setSalesTax(+totalVat.toFixed(this.decimalPlaces));
 
     const totalWithVat = baseTotal + vatAmount;
-    return +totalWithVat.toFixed(decimalPlaces);
+    return +totalWithVat.toFixed(this.decimalPlaces);
   }
 
   calcGrandTotalWithVat(): number {
@@ -401,10 +501,9 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       return sum + this.calcTotalPriceWithVat(group);
     }, 0);
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
-    this._posSharedService.setSalesTotalGrand(+total.toFixed(decimalPlaces));
+    this._posSharedService.setSalesTotalGrand(+total.toFixed(this.decimalPlaces));
 
-    return +total.toFixed(decimalPlaces);
+    return +total.toFixed(this.decimalPlaces);
   }
 
   onProductSelected(productId: number): void {
@@ -417,7 +516,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     if (!selectedProduct) return;
 
     this._posService.getBranchTax(this.shiftData?.branch).subscribe(res => {
-      const branchTaxNo = res?.tax_rate || 0;
       const tempGroup = {
         purity: selectedProduct.purity_name,
         price: selectedProduct.price,
@@ -450,7 +548,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
           this._posSalesService.getSalesOrdersFromServer(); // Refresh after post
         },
         error: err => {
-          console.error('Error posting product', err);
+          this._toaster.showError("Cannot add sales product")
         },
         complete: () => {
           this.getProductList()
@@ -459,24 +557,39 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     });
   }
 
-  get totalPrice(): number {
-    const total = this.salesDataOrders.reduce((sum: number, group: any) => {
-      return sum + this.calcTotalPrice(group);
-    }, 0);
+  get totalPrice(): string {
+    const total = this.salesDataOrders.reduce((sum: Decimal, group: any) => {
+      return sum.plus((group.amount || 0.000));
+    }, new Decimal(0.000));
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
+    // Truncate (not round) to 3 decimals, then format as string with 3 decimals
+    const truncated = total.toDecimalPlaces(this.decimalPlaces, Decimal.ROUND_DOWN);
+    const formattedTotal = truncated.toFixed(this.decimalPlaces);
 
-
-    const formattedTotal = +total.toFixed(decimalPlaces);
-    // Update the service with the calculated gold price
-    this._posSharedService.setSalesTotalPrice(formattedTotal);
+    this._posSharedService.setSalesTotalPrice(+formattedTotal);
 
     return formattedTotal;
+  }
+
+  get decimalPlaces() {
+    return +(this.selectedCurrency?.currency_decimal_point ?? 3)
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
+}
 
+// Helper function to update order from response
+function updateOrderFromResponse(order: any, res: any) {
+  if (!res) return;
+  if ('amount' in res) order.amount = +res.amount;
+  if ('vat_amount' in res) order.vat_amount = +res.vat_amount;
+  if ('metal_value' in res) order.metal_value = +res.metal_value;
+  if ('gold_price' in res) order.gold_price = +res.gold_price;
+  if ('retail_making_charge' in res) order.retail_making_charge = +res.retail_making_charge;
+  if ('discount' in res) order.discount = +res.discount;
+  if ('max_discount' in res) order.max_discount = +res.max_discount;
+  // Add more fields as needed
 }

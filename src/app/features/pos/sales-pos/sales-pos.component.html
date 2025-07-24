@@ -64,13 +64,19 @@
                   </td>
                   <td>
                     <input style="font-size: 14px; min-width: 100px;" type="number" class="form-control"
-                      [(ngModel)]="group.gold_price" (ngModelChange)="onGoldPriceChange(group)" />
+                      [(ngModel)]="group.gold_price" (blur)="onGoldPriceChange(group)" />
                   </td>
-                  <td>{{ group.retail_making_charge }}</td>
+                  <td>
+                    <input style="font-size: 14px; min-width: 100px;" type="number" class="form-control"
+                      [(ngModel)]="group.retail_making_charge" (blur)="onRetailMakingChargeChange(group)" />
+                  </td>
                   <td>{{ group.discount }}</td>
                   <td>{{ group.max_discount }}</td>
                   <td>{{ calcMetalValueAccordingToPurity(group) }}</td>
-                  <td>{{ calcTotalPrice(group) }}</td>
+                  <td>
+                    <input style="font-size: 14px; min-width: 100px;" type="number" class="form-control"
+                      [(ngModel)]="group.amount" (blur)="onTotalPriceChange(group)" />
+                  </td>
                   <td>
                     <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'" [model]="menuItem"
                       dropdownIcon="pi pi-cog" appendTo="body">
