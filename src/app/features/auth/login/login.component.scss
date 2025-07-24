@@ -1,12 +1,13 @@
-@use 'variables' as *;
+@use "variables" as *;
 
 .login-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, $stone-100, $stone-300);
+  // background: linear-gradient(135deg, $stone-100, $stone-300);
   font-family: $font-family-base;
+  background-color: red;
 }
 
 .login-card {
@@ -41,5 +42,3 @@
     border-color: $btn-primary-hover !important;
   }
 }
-
-
