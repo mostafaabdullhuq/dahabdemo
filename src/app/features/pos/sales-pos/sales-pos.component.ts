@@ -496,7 +496,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   calculateVat(totalPrice: number, selectedVatId: number) {
     const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === selectedVatId);
     const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
-    return +((vatRate / 100) * totalPrice).toFixed(this.decimalPlaces);
+    return +((vatRate / 100) * totalPrice).toFixed(this.defaultDecimalPlaces);
   }
 
   calcTotalPriceWithVat(group: any): number {
@@ -517,7 +517,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     this._posSharedService.setSalesTax(+totalVat.toFixed(this.decimalPlaces));
 
     const totalWithVat = baseTotal + vatAmount;
-    return +totalWithVat.toFixed(this.decimalPlaces);
+    return +totalWithVat.toFixed(this.defaultDecimalPlaces);
   }
 
   calcGrandTotalWithVat(): number {
