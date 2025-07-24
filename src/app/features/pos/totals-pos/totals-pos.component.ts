@@ -43,13 +43,10 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
   paymnetMethods: PaymentMethod[] = [];
 
   //Prices
-  goldPrice: number = 0;
-  metalValue: number = 0;
   totalPrice: number = 0;
   discountAmount: number = 0;
   totalWithVat: number = 0;
   totalVat: number = 0;
-  salesDataOrders: any = [];
   branchTax: BranchTax | null = null;
 
   constructor(private _formBuilder: FormBuilder,
@@ -114,8 +111,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
   }
 
   private setupServiceSubscriptions(): void {
-    // this.restoreSessionData();
-
     this._posStatusService.shiftData$
       .pipe(
         takeUntil(this.destroy$),
@@ -157,28 +152,18 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
       this.paymnetMethods = res || [];
     });
 
-    const decimalPlaces = this.selectedCurrency?.currency_decimal_point ?? 3;
-
-    this._posSharedService.goldPrice$.subscribe(price => {
-      this.goldPrice = +price;
-    });
-
-    this._posSharedService.metalValue$.subscribe(value => {
-      this.metalValue = +value.toFixed(decimalPlaces);
-    });
-
-    this._posSharedService.totalPrice$.subscribe(price => {
-      this.totalPrice = +price;
+    this._posSharedService.totalPrice$.subscribe(totalPrice => {
+      this.totalPrice = +totalPrice;
       this.totalForm.get('amount')?.patchValue(this.totalPrice)
     });
 
-    this._posSharedService.discountAmount$.subscribe(disc => {
-      this.discountAmount = +disc;
+    this._posSharedService.discountAmount$.subscribe(discount => {
+      this.discountAmount = +discount;
       this.totalForm.get('discount')?.patchValue(this.discountAmount)
     });
 
-    this._posSharedService.grandTotalWithVat$.subscribe(vat => {
-      this.totalWithVat = +(vat.toFixed(3));
+    this._posSharedService.grandTotalWithVat$.subscribe(totalWithVat => {
+      this.totalWithVat = +totalWithVat;
     });
 
     this._posSharedService.vat$.subscribe(vat => {
@@ -190,12 +175,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
         this.isShiftActive = status;
-      });
-
-    this._posSalesService._salesReciepts$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((res: any) => {
-        this.salesDataOrders = res;
       });
   }
 
@@ -255,7 +234,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
   }
 
   private handleCurrencyChange(currencyValue: number | string): void {
-
     if (currencyValue) {
       sessionStorage.setItem('currency', currencyValue.toString());
       if (this.currencies?.length) {
@@ -376,7 +354,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
   }
 
   onPlaceOrder(form?: any, isPopup: boolean = false) {
-
     if (this.totalForm?.invalid) {
       this.totalForm.markAllAsTouched();
       return;
@@ -404,8 +381,12 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
     this._posService.getOrderId().subscribe(res => {
       if (res?.order_id) {
         if (this.totalForm.get("discount")?.value == null) {
-          this.totalForm.get("discount")?.setValue(0)
+          this.totalForm.get("discount")?.setValue(0);
         }
+
+        console.log("form value: ", this.totalForm.value);
+
+
         this._posService.addOrder(res.order_id, form ?? this.totalForm.value).subscribe({
           next: res => {
             this.totalPrice = 0;

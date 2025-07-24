@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PosService } from '../@services/pos.service';
 import { PosSalesService } from '../@services/pos-sales.service';
-import { distinctUntilChanged, filter, Subject, take, takeUntil } from 'rxjs';
+import { distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
 import { PosSharedService } from '../@services/pos-shared.service';
 import { PosStatusService } from '../@services/pos-status.service';
 import { MenuItem } from 'primeng/api';
@@ -49,7 +49,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       product_id: ['', Validators.required]
     })
 
-    this.getProductList()
+    this.getProductList();
 
     this._dropdownService.getTaxes().subscribe((res) => {
       this.taxes = res?.results || [];

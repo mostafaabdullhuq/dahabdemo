@@ -25,14 +25,9 @@ export class PlaceOrderInvoiceComponent {
     this.visible = true;
   }
 
-
-
-
   getInvoiceData() {
     this._posService.getOrderInvoice().subscribe(res => {
       this.invoiceData = res
-      console.log("invoice data: ", res);
-
     })
   }
 
@@ -134,6 +129,10 @@ export class PlaceOrderInvoiceComponent {
         printWindow.close();
       }, 100);
     };
+  }
+
+  get currencyExchangeRate() {
+    return (this.invoiceData?.currency_exchange_rate) ?? 1
   }
 
   hideDialog() {

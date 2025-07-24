@@ -80,19 +80,6 @@ export class PosSharedService {
   diamondTotalTax$ = this.diamondTotalTaxSubject.asObservable();
 
   constructor() {
-    // Grand total (including repair)
-    // combineLatest([
-    //   this.salesTotalGrand$,
-    //   this.purchaseTotalGrand$,
-    //   this.repairTotalGrand$,
-    //   this.goldReceiptTotalGrand$,
-    //   this.returnTotalGrand$,
-    //   this.silverTotalGrand$,
-    //   this.diamondTotalGrand$,
-    // ]).subscribe(([diamondTotalGrand,silverTotalGrand, salesTotal, purchaseTotal, repairTotal ,goldReceiptTotalGrand ,returnTotalGrand]) => {
-    //   const grandTotal = (salesTotal + repairTotal + goldReceiptTotalGrand + silverTotalGrand + diamondTotalGrand) - purchaseTotal - returnTotalGrand;
-    //   this.grandTotalWithVatSubject.next(grandTotal);
-    // });
     combineLatest([
       this.salesTotalGrand$,
       this.purchaseTotalGrand$,
@@ -109,21 +96,9 @@ export class PosSharedService {
         grandTotal = -Math.abs(purchase + ret); // Only return or purchase exists
       }
 
-      this.grandTotalWithVatSubject.next(+grandTotal.toFixed(3));
+      this.grandTotalWithVatSubject.next(+(+grandTotal * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
     });
-    // Total price (including repair)
-    // combineLatest([
-    //   this.salesTotalPrice$,
-    //   this.purchaseTotalPrice$,
-    //   this.repairTotalPrice$,
-    //   this.goldReceiptTotalPrice$,
-    //   this.returnTotalPrice$,
-    //   this.silverTotalPrice$,
-    //   this.diamondTotalPrice$,
-    // ]).subscribe(([diamondTotalPrice ,silverTotalPrice , salesTotalPrice, purchaseTotalPrice, repairTotalPrice , goldReceiptTotalPrice ,returnTotalPrice]) => {
-    //   const totalPrice = (salesTotalPrice  + repairTotalPrice + goldReceiptTotalPrice + silverTotalPrice + diamondTotalPrice) - purchaseTotalPrice - returnTotalPrice;
-    //   this.totalPriceSubject.next(+totalPrice.toFixed(3));
-    // });
+
     combineLatest([
       this.salesTotalPrice$,
       this.purchaseTotalPrice$,
@@ -140,7 +115,7 @@ export class PosSharedService {
         totalPrice = -Math.abs(purchase + ret); // Only return or purchase exists
       }
 
-      this.totalPriceSubject.next(+totalPrice.toFixed(3));
+      this.totalPriceSubject.next(+(+totalPrice * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
     });
 
     // Total price (including repair)
@@ -153,7 +128,7 @@ export class PosSharedService {
       this.returnTotalTax$,
     ]).subscribe(([salesTotalTax, repairTotalTax, goldReceiptTotalTax, silverTotalTax, diamondTotalTax, returnTotalTax]) => {
       const totalVat = (salesTotalTax + repairTotalTax + goldReceiptTotalTax + silverTotalTax + diamondTotalTax) - returnTotalTax;
-      this.vatValue.next(+totalVat.toFixed(3));
+      this.vatValue.next(+(+totalVat * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
     });
   }
 
@@ -164,7 +139,6 @@ export class PosSharedService {
   notifyReturnsOrderPlaced() {
     this.returnOrderPlacedSource.next();
   }
-
 
   // Setters
   setGoldPrice(price: number): void {
@@ -180,7 +154,7 @@ export class PosSharedService {
   }
 
   setDiscountAmount(value: number): void {
-    this.discountAmountSubject.next(value);
+    this.discountAmountSubject.next(+(+value * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
   }
 
   setGrandTotalWithVat(value: number): void {
@@ -281,6 +255,14 @@ export class PosSharedService {
 
   triggerRefreshCurrency() {
     this.refreshCurrencySource.next();
+  }
+
+  get selectedCurrencyDecimalPlaces() {
+    return +(this.currencySource.value?.currency_decimal_point ?? 3);
+  }
+
+  get selectedCurrencyExchangeRate() {
+    return +(this.currencySource.value?.exchange_rate ?? 1.000);
   }
 
   resetAllValues() {
