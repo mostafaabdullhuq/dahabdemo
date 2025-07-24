@@ -165,7 +165,7 @@ export class DropdownsService {
     return this._http.getRequest<any>(url);
   }
 
-  getCustomers(nextPageUrl: string | null = null, params?: string): Observable<any> {
+  getCustomers(nextPageUrl: string | null = null, params: string = ""): Observable<any> {
     const url = nextPageUrl || `${this.API}customer/?${params}`;
     return this._http.getRequest<any>(url);
   }

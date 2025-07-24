@@ -306,7 +306,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
   }
 
   getCustomers(callback: Function | null = null) {
-    this._dropDownsService.getCustomers().subscribe(res => {
+    this._dropDownsService.getCustomersSearch().subscribe(res => {
       this.customers = res?.results || [];
 
       this.customers.map(customer => {
