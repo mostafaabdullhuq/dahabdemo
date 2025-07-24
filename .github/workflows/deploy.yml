@@ -41,5 +41,5 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo rm -rf /usr/share/nginx/html/*
-            sudo cp -r /home/ec2-user/DAHAB/dist/dahab2/browser/* /usr/share/nginx/html/
+            sudo cp -r /home/ec2-user/dahab-deploy-temp/* /usr/share/nginx/html/
             sudo systemctl restart nginx
