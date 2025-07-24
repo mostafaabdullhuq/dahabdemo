@@ -30,8 +30,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: dist/dahab2/browser/*
-          target: /home/ec2-user/DAHAB/dist/
+          source: dist/dahab2/browser/**
+          target: /home/ec2-user/dahab-deploy-temp/
 
       - name: Move files to nginx root and restart nginx
         uses: appleboy/ssh-action@v1.0.0
@@ -41,5 +41,5 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo rm -rf /usr/share/nginx/html/*
-            sudo cp -r /home/ec2-user/DAHAB/dist/* /usr/share/nginx/html/
+            sudo cp -r /home/ec2-user/DAHAB/dist/dahab2/browser/* /usr/share/nginx/html/
             sudo systemctl restart nginx
