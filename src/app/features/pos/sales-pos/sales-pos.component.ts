@@ -151,7 +151,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
         this.salesDataOrders = res;
         this.salesDataOrders = this.salesDataOrders.map((order: any) => {
           // if the default manual gold price value, calculate it based on purity, otherwise it's already calculated before
-          if ((+order.gold_price)?.toFixed(this.decimalPlaces) === (+this.manualGoldPrice)?.toFixed(this.decimalPlaces)) {
+          if ((+order.gold_price)?.toFixed(this.defaultDecimalPlaces) === (+this.manualGoldPrice)?.toFixed(this.defaultDecimalPlaces)) {
             order.gold_price = this.calculateOrderGoldPriceBasedOnPurity(order);
             this.onGoldPriceChange(order)
           }
@@ -231,8 +231,8 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     const goldPrice = baseValue * purityFactor;
 
-    this._posSharedService.setGoldPrice(+goldPrice.toFixed(this.decimalPlaces));
-    return +goldPrice.toFixed(this.decimalPlaces);
+    this._posSharedService.setGoldPrice(+goldPrice.toFixed(this.defaultDecimalPlaces));
+    return +goldPrice.toFixed(this.defaultDecimalPlaces);
   }
 
   onGoldPriceChange(order: any) {
@@ -299,7 +299,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     }
 
     // Update the order object
-    order.retail_making_charge = +newRetailMakingCharge.toFixed(this.decimalPlaces);
+    order.retail_making_charge = +newRetailMakingCharge.toFixed(this.defaultDecimalPlaces);
 
     // Recalculate discount amount based on new making charge
     const newDiscountAmount = (discountPercentage / 100) * newRetailMakingCharge;
@@ -351,14 +351,12 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     // Calculate new discount amount based on new retail making charge
     const newDiscountAmount = (discountPercentage / 100.000) * newRetailMakingCharge;
 
-    // Calculate discounted making charge
-    const discountedMakingCharge = newRetailMakingCharge - newDiscountAmount;
+    const diff = order._lastValidMakingCharge - order.retail_making_charge;
 
-    // Calculate new total price
-    const newTotalPrice = metalValue + discountedMakingCharge + stoneValues;
+    const newTotalPrice = order.amount - diff;
 
     // Update the order object
-    order.amount = +newTotalPrice.toFixed(this.decimalPlaces);
+    order.amount = +newTotalPrice.toFixed(this.defaultDecimalPlaces);
 
     // Update shared service with new discount amount
     this._posSharedService.setDiscountAmount(newDiscountAmount);
@@ -370,7 +368,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const vatAmount = this.calculateVat(newTotalPrice, order.selectedVatId ?? this.selectedVatId);
 
     const updatedPrices = {
-      retail_making_charge: +newRetailMakingCharge,
+      making_charge: +newRetailMakingCharge,
       vat_amount: +vatAmount,
     }
 
@@ -422,13 +420,13 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const goldPrice = group.gold_price * purityFactor;
 
     // Format based on selected currency decimal point
-    this._posSharedService.setGoldPrice(+goldPrice.toFixed(this.decimalPlaces));
+    this._posSharedService.setGoldPrice(+goldPrice.toFixed(this.defaultDecimalPlaces));
 
-    return +goldPrice.toFixed(this.decimalPlaces);
+    return +goldPrice.toFixed(this.defaultDecimalPlaces);
   }
 
   calcMetalValueAccordingToPurity(group: any) {
-    const metalValue = +(group.gold_price * group?.weight).toFixed(this.decimalPlaces);
+    const metalValue = +(group.gold_price * group?.weight).toFixed(this.defaultDecimalPlaces);
 
     this._posSharedService.setMetalValue(metalValue);
 
@@ -439,6 +437,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     this.priceOfProductToPatch = 0;
 
     const metalValue = this.calcMetalValueAccordingToPurity(group);
+
 
     const makingCharge = +group?.retail_making_charge || 0;
 
@@ -456,11 +455,12 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       .slice(0, 3)
       .reduce((sum: number, stone: any) => sum + (+stone?.retail_value || 0), 0);
 
-    const total = metalValue + discountedMakingCharge + stoneValues;
+    // const total = metalValue + discountedMakingCharge + stoneValues;
+    const total = +(group?.amount ?? group.price ?? (metalValue + discountedMakingCharge + stoneValues));
 
-    this.priceOfProductToPatch = +total.toFixed(this.decimalPlaces);
+    this.priceOfProductToPatch = +total.toFixed(this.defaultDecimalPlaces);
 
-    return +total.toFixed(this.decimalPlaces);
+    return +total.toFixed(this.defaultDecimalPlaces);
   }
 
   onVatChange(vatId: number, group: any): void {
@@ -502,11 +502,14 @@ export class SalesPosComponent implements OnInit, OnDestroy {
   calcTotalPriceWithVat(group: any): number {
     this.priceOfProductToPatch = 0
     const baseTotal = this.calcTotalPrice(group);
+
     const selectedTax = this.taxes.find((tax: { id: any; }) => tax.id === group.selectedVat);
     const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
     const vatAmount = (vatRate / 100) * baseTotal;
+
     const totalVat = this.salesDataOrders.reduce((acc: number, group: any) => {
       const baseTotal = this.calcTotalPrice(group); // your existing method
+
       const selectedTax = this.taxes.find((tax: { id: any }) => tax.id === group.selectedVat);
       const vatRate = selectedTax?.rate ? +selectedTax.rate : 0;
       const vatAmount = (vatRate / 100) * baseTotal;
@@ -514,7 +517,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     }, 0);
 
     // Update shared VAT immediately
-    this._posSharedService.setSalesTax(+totalVat.toFixed(this.decimalPlaces));
+    this._posSharedService.setSalesTax(+totalVat.toFixed(this.defaultDecimalPlaces));
 
     const totalWithVat = baseTotal + vatAmount;
     return +totalWithVat.toFixed(this.defaultDecimalPlaces);
@@ -527,9 +530,9 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       return sum + this.calcTotalPriceWithVat(group);
     }, 0);
 
-    this._posSharedService.setSalesTotalGrand(+total.toFixed(this.decimalPlaces));
+    this._posSharedService.setSalesTotalGrand(+total.toFixed(this.defaultDecimalPlaces));
 
-    return +total.toFixed(this.decimalPlaces);
+    return +total.toFixed(this.defaultDecimalPlaces);
   }
 
   onProductSelected(productId: number): void {
