@@ -258,11 +258,21 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     });
   }
 
+  storeLastValidAmount(order: any) {
+    order._lastValidAmount = order.amount;
+  }
+
+  storeLastValidMakingCharge(order: any) {
+    order._lastValidMakingCharge = order.retail_making_charge;
+  }
+
   onTotalPriceChange(order: any) {
     const newTotalPrice = order.amount;
-
-    if (!newTotalPrice || isNaN(newTotalPrice)) return;
-
+    if (!newTotalPrice || isNaN(newTotalPrice)) {
+      order.amount = order._lastValidAmount;
+      this._toaster.showError("Invalid price value");
+      return;
+    }
 
     // Calculate the fixed components (metal value and stone values)
     const metalValue = this.calcMetalValueAccordingToPurity(order);
@@ -283,7 +293,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const newRetailMakingCharge = discountFactor > 0 ? newMakingChargeWithDiscount / discountFactor : newMakingChargeWithDiscount;
 
     if (newRetailMakingCharge < 0) {
-      order.retail_making_charge = 0;
+      order.amount = order._lastValidAmount;
       this._toaster.showError("Product price difference cannot exceed the product retail price")
       return;
     }
@@ -308,8 +318,15 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       vat_amount: +vatAmount,
     }
 
-    this._posService.updateOrderValues(order.id, updatedPrices).subscribe(res => {
-      updateOrderFromResponse(order, res);
+    this._posService.updateOrderValues(order.id, updatedPrices).subscribe({
+      next: res => {
+        updateOrderFromResponse(order, res);
+        order._lastValidAmount = order.amount;
+      },
+      error: () => {
+        order.amount = order._lastValidAmount;
+        this._toaster.showError("Failed to update price");
+      }
     });
   }
 
@@ -317,6 +334,8 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const newRetailMakingCharge = order.retail_making_charge;
 
     if (!newRetailMakingCharge || isNaN(newRetailMakingCharge) || newRetailMakingCharge < 0) {
+      order.retail_making_charge = order._lastValidMakingCharge;
+      this._toaster.showError("Invalid making charge value");
       return;
     }
 
@@ -355,8 +374,15 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       vat_amount: +vatAmount,
     }
 
-    this._posService.updateOrderValues(order.id, updatedPrices).subscribe(res => {
-      updateOrderFromResponse(order, res);
+    this._posService.updateOrderValues(order.id, updatedPrices).subscribe({
+      next: res => {
+        updateOrderFromResponse(order, res);
+        order._lastValidMakingCharge = order.retail_making_charge;
+      },
+      error: () => {
+        order.retail_making_charge = order._lastValidMakingCharge;
+        this._toaster.showError("Failed to update making charge");
+      }
     });
   }
 
@@ -563,8 +589,8 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     }, new Decimal(0.000));
 
     // Truncate (not round) to 3 decimals, then format as string with 3 decimals
-    const truncated = total.toDecimalPlaces(this.decimalPlaces, Decimal.ROUND_DOWN);
-    const formattedTotal = truncated.toFixed(this.decimalPlaces);
+    const truncated = total.toDecimalPlaces(this.defaultDecimalPlaces, Decimal.ROUND_DOWN);
+    const formattedTotal = truncated.toFixed(this.defaultDecimalPlaces);
 
     this._posSharedService.setSalesTotalPrice(+formattedTotal);
 
@@ -573,6 +599,10 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
   get decimalPlaces() {
     return +(this.selectedCurrency?.currency_decimal_point ?? 3)
+  }
+
+  get defaultDecimalPlaces() {
+    return 3;
   }
 
   ngOnDestroy(): void {

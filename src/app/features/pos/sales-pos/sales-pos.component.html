@@ -68,14 +68,16 @@
                   </td>
                   <td>
                     <input style="font-size: 14px; min-width: 100px;" type="number" class="form-control"
-                      [(ngModel)]="group.retail_making_charge" (blur)="onRetailMakingChargeChange(group)" />
+                      [(ngModel)]="group.retail_making_charge" (focus)="storeLastValidMakingCharge(group)"
+                      (blur)="onRetailMakingChargeChange(group)" />
                   </td>
                   <td>{{ group.discount }}</td>
                   <td>{{ group.max_discount }}</td>
                   <td>{{ calcMetalValueAccordingToPurity(group) }}</td>
                   <td>
                     <input style="font-size: 14px; min-width: 100px;" type="number" class="form-control"
-                      [(ngModel)]="group.amount" (blur)="onTotalPriceChange(group)" />
+                      [(ngModel)]="group.amount" (focus)="storeLastValidAmount(group)"
+                      (blur)="onTotalPriceChange(group)" />
                   </td>
                   <td>
                     <p-splitbutton (onDropdownClick)="onRowClick(group)" [size]="'small'" [model]="menuItem"
