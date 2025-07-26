@@ -232,6 +232,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
     const goldPrice = baseValue * purityFactor;
 
     this._posSharedService.setGoldPrice(+goldPrice.toFixed(this.defaultDecimalPlaces));
+
     return +goldPrice.toFixed(this.defaultDecimalPlaces);
   }
 
@@ -248,9 +249,6 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     const updatedPrices = {
       gold_price: newPrice,
-      metal_value: metalValue,
-      amount: totalValue,
-      vat: order.selectedVatId ?? this.selectedVatId
     }
 
     this._posService.updateOrderValues(order.id, updatedPrices).subscribe(res => {
@@ -483,12 +481,14 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       group._vatSelectedOnce = true; // first time, don't send
     } else {
       // second time or more, send to backend
-      const pId = group?.id;
-      const form = this._formBuilder.group({
-        vat: vatId
-      });
+      const orderId = group?.id;
 
-      this._posService.updateProductItem(pId, form.value).subscribe(result => {
+      const updatedData = {
+        vat: vatId
+      }
+
+      this._posService.updateOrderValues(orderId, updatedData).subscribe(result => {
+        updateOrderFromResponse(group, result);
       });
     }
   }
@@ -566,10 +566,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
       const payload = {
         product: selectedProduct.id,
-        amount: +selectedProduct.price || totalPrice,
         vat: this.selectedVatId,
-        metal_value: metalValue,
-        gold_price: selectedProduct.gold_price
       };
 
       this._posService.addProductSale(payload).subscribe({
