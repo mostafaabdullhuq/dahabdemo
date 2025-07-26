@@ -7,10 +7,12 @@ import { MenuItem } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared.module';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { PaymentExpenseComponent } from './payment-expense/payment-expense.component';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-expenses',
   imports: [SharedModule, RouterLink],
+  providers: [DatePipe],
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.scss'
 })
@@ -54,12 +56,17 @@ export class ExpensesComponent {
     private _formBuilder: FormBuilder,
     private _router: Router,
     private _confirmPopUp: ConfirmationPopUpService,
-    private _dropdown: DropdownsService
+    private _dropdown: DropdownsService,
+    private _datePipe: DatePipe
   ) { }
 
   ngOnInit(): void {
     this.cols = [
-      { field: "date", header: "Date" },
+      {
+        field: "date", header: "Date", body: (row: any) => {
+          return this._datePipe.transform(row.date, 'dd-mm-yyyy')
+        }
+      },
       { field: "reference_number", header: "Refrence Number" },
       {
         field: "recurring_details", header: "Recurring Details", body: (row: any) => {

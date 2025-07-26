@@ -29,6 +29,45 @@ export class AddEditExpensesComponent {
   suppliers: any[] = [];
   customers: any[] = [];
 
+  recurringTypes = [
+    { name: "Days", value: "days" },
+    { name: "Months", value: "months" }
+  ];
+
+  monthlyIntervalDays = [
+    { name: '1st', value: 1 },
+    { name: '2nd', value: 2 },
+    { name: '3rd', value: 3 },
+    { name: '4th', value: 4 },
+    { name: '5th', value: 5 },
+    { name: '6th', value: 6 },
+    { name: '7th', value: 7 },
+    { name: '8th', value: 8 },
+    { name: '9th', value: 9 },
+    { name: '10th', value: 10 },
+    { name: '11th', value: 11 },
+    { name: '12th', value: 12 },
+    { name: '13th', value: 13 },
+    { name: '14th', value: 14 },
+    { name: '15th', value: 15 },
+    { name: '16th', value: 16 },
+    { name: '17th', value: 17 },
+    { name: '18th', value: 18 },
+    { name: '19th', value: 19 },
+    { name: '20th', value: 20 },
+    { name: '21st', value: 21 },
+    { name: '22nd', value: 22 },
+    { name: '23rd', value: 23 },
+    { name: '24th', value: 24 },
+    { name: '25th', value: 25 },
+    { name: '26th', value: 26 },
+    { name: '27th', value: 27 },
+    { name: '28th', value: 28 },
+    { name: '29th', value: 29 },
+    { name: '30th', value: 30 },
+    { name: '31st', value: 31 }
+  ]
+
 
   constructor(
     private _accService: AccService,
@@ -121,6 +160,10 @@ export class AddEditExpensesComponent {
     }
   }
 
+  onRecurringIntervalTypeChange(type: string) {
+    this.addEditExpenseForm.get("recurring_interval")?.reset();
+  }
+
   onUserChange(userid: number) {
     if (userid) {
       // Clear other contact selections and both invoice and purchase
@@ -164,8 +207,8 @@ export class AddEditExpensesComponent {
       purchase_order: [null],
       reference_number: [null],
       is_recurring: [false],
-      recurring_interval: [null],
       recurring_interval_type: ['days'],
+      recurring_interval: [null],
       total_amount: [null, Validators.required],
       number_of_recurring_payments: [null],
       sub_category: [null],
@@ -176,6 +219,27 @@ export class AddEditExpensesComponent {
         paid_on: [new Date()],
       })
     });
+
+    this.addEditExpenseForm.get("is_recurring")?.valueChanges.subscribe(val => {
+
+      let intervalTypeControl = this.addEditExpenseForm.get("recurring_interval_type");
+      let recurringIntervalControl = this.addEditExpenseForm.get("recurring_interval")
+      let numberOfRecurringPaymentsControl = this.addEditExpenseForm.get("number_of_recurring_payments")
+
+      if (val) {
+        intervalTypeControl?.setValidators(Validators.required);
+        recurringIntervalControl?.setValidators([Validators.required, Validators.min(1)])
+        numberOfRecurringPaymentsControl?.setValidators([Validators.required, Validators.min(1)])
+      } else {
+        intervalTypeControl?.clearValidators();
+        recurringIntervalControl?.clearValidators();
+        numberOfRecurringPaymentsControl?.clearValidators();
+      }
+
+      intervalTypeControl?.updateValueAndValidity();
+      recurringIntervalControl?.updateValueAndValidity();
+      numberOfRecurringPaymentsControl?.updateValueAndValidity();
+    })
   }
 
   onBranchChange(branchId: number) {

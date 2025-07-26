@@ -1,0 +1,18 @@
+.refresh-btn {
+  position: absolute;
+  top: 62%;
+  right: 25px;
+  background-color: transparent;
+  border: none;
+  color: #6c757d;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  opacity: 0.5;
+}
+
+.refresh-btn:hover {
+  color: #000;
+  opacity: 1;
+}

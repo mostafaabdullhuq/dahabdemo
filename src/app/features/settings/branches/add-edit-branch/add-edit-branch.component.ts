@@ -5,6 +5,9 @@ import { SettingsService } from '../../@services/settings.service';
 import { SharedModule } from '../../../../shared/shared.module';
 import { DropdownsService } from '../../../../core/services/dropdowns.service';
 import { ToasterMsgService } from '../../../../core/services/toaster-msg.service';
+import { LiveGoldRatesService } from '../../../../shared/services/live-gold-rates.service';
+import { take } from 'rxjs/internal/operators/take';
+import { filter, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-add-edit-branch',
@@ -15,7 +18,7 @@ import { ToasterMsgService } from '../../../../core/services/toaster-msg.service
 export class AddEditBranchComponent implements OnInit {
   addEditBranchForm!: FormGroup;
   isEditMode = false;
-  brandId: string | number = '';
+  branchId: string | number = '';
   currenciesList: any[] = [];
   countries: any[] = [];
   paymentMethods: any[] = [];
@@ -32,19 +35,21 @@ export class AddEditBranchComponent implements OnInit {
     private _activeRoute: ActivatedRoute,
     private _dropdownService: DropdownsService,
     private _router: Router,
-    private _toasterService: ToasterMsgService
+    private _toasterService: ToasterMsgService,
+    private _liveRateService: LiveGoldRatesService
   ) { }
   customFieldsNames: any = [];
 
   ngOnInit(): void {
     const brandId = this._activeRoute.snapshot.paramMap.get('id');
     if (brandId) {
-      this.brandId = brandId;
+      this.branchId = brandId;
     }
 
     this.initForm();
-    if (this.brandId) {
-      this.loadBrandsData(this.brandId);
+
+    if (this.branchId) {
+      this.loadBrandsData(this.branchId);
       this.isEditMode = true
     }
 
@@ -72,12 +77,13 @@ export class AddEditBranchComponent implements OnInit {
       this.customFieldsNames = res;
 
       if (this.isEditMode) {
-        this.loadBrandsData(this.brandId);
+        this.loadBrandsData(this.branchId);
       } else {
         this.loadCustomFields();
       }
     });
   }
+
   private initForm(): void {
     this.addEditBranchForm = this._formBuilder.group({
       name: ['', [Validators.required]],
@@ -96,6 +102,17 @@ export class AddEditBranchComponent implements OnInit {
       cr_number: [""]
     });
     this.addCurrency(true);
+  }
+
+  getLiveRateGoldPrice() {
+    this._liveRateService.currentPrices$
+      .pipe(
+        filter(value => value.price_gram_24k !== null), // 🧹 Ignore nulls
+        take(1)
+      )
+      .subscribe(prices => {
+        this.addEditBranchForm.get("manual_gold_price")?.setValue(prices.price_gram_24k);
+      })
   }
 
   private loadBrandsData(brandId: number | string): void {
@@ -244,8 +261,8 @@ export class AddEditBranchComponent implements OnInit {
 
     // delete formattedData.logo
 
-    if (this.isEditMode && this.brandId) {
-      this._sttingService.updateBranch(this.brandId, formData).subscribe({
+    if (this.isEditMode && this.branchId) {
+      this._sttingService.updateBranch(this.branchId, formData).subscribe({
         next: res => this._router.navigate([`setting/branch`]),
         error: err => this._toasterService.showError(err.error?.message ?? 'Unexpected error happend.', "Failed to update branch settings")
       });

@@ -250,7 +250,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       gold_price: newPrice,
       metal_value: metalValue,
       amount: totalValue,
-      vat_amount: vatAmount
+      vat_id: order.selectedVatId ?? this.selectedVatId
     }
 
     this._posService.updateOrderValues(order.id, updatedPrices).subscribe(res => {
@@ -315,7 +315,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     const updatedPrices = {
       amount: +newTotalPrice,
-      vat_amount: +vatAmount,
+      vat_id: order.selectedVatId ?? this.selectedVatId,
     }
 
     this._posService.updateOrderValues(order.id, updatedPrices).subscribe({
@@ -369,7 +369,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
 
     const updatedPrices = {
       making_charge: +newRetailMakingCharge,
-      vat_amount: +vatAmount,
+      vat_id: order.selectedVatId ?? this.selectedVatId,
     }
 
     this._posService.updateOrderValues(order.id, updatedPrices).subscribe({
@@ -485,7 +485,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       // second time or more, send to backend
       const pId = group?.id;
       const form = this._formBuilder.group({
-        vat_amount: [vatAmount]
+        vat_id: vatId
       });
 
       this._posService.updateProductItem(pId, form.value).subscribe(result => {
@@ -567,7 +567,7 @@ export class SalesPosComponent implements OnInit, OnDestroy {
       const payload = {
         product: selectedProduct.id,
         amount: +selectedProduct.price || totalPrice,
-        vat_amount: vatAmount,
+        vat_id: this.selectedVatId,
         metal_value: metalValue,
         gold_price: selectedProduct.gold_price
       };

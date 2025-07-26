@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject, Subscription, EMPTY, timer } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, EMPTY, timer, Observable } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { catchError, delayWhen, retryWhen, tap, map } from 'rxjs/operators';
+import { catchError, delayWhen, retryWhen, tap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { environment } from '../../../environments/environment.development';
 
@@ -30,9 +30,10 @@ export class LiveGoldRatesService {
     price_gram_22k: null,
     price_gram_24k: null
   });
+
   public messages$ = this.messagesSubject.asObservable();
   public connectionStatus$ = this.connectionStatusSubject.asObservable();
-  public currentPrices$ = this.currentPricesSubject.asObservable();
+  public currentPrices$: Observable<GoldPrices> = this.currentPricesSubject.asObservable();
 
   private timer: any;
   private isConnected = false;

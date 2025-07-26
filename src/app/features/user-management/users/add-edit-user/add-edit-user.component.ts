@@ -39,16 +39,12 @@ export class AddEditUserComponent implements OnInit {
       this.loadUserData(this.userId);
       this.isEditMode = true
     }
+
     this._dropdownService.getBranches().subscribe(data => {
       this.branches = data?.results;
     });
     this._dropdownService.getRoles().subscribe(data => {
       this.roles = data?.results;
-    });
-  }
-  loadBranches(nextPageUrl: string): void {
-    this._dropdownService.getBranches(nextPageUrl).subscribe((response) => {
-      this.branches = [...this.branches, ...response.results];
     });
   }
 
@@ -62,6 +58,21 @@ export class AddEditUserComponent implements OnInit {
       role: ['', [Validators.required]],
       branches: new FormControl<any[] | null>([])
     });
+
+    let branchesControl = this.addEditUserForm.get("branches");
+
+    this.addEditUserForm.get('role')?.valueChanges.subscribe(roleId => {
+
+      if (roleId === 1) {
+        branchesControl?.disable();
+        branchesControl?.clearAsyncValidators();
+      } else {
+        branchesControl?.enable();
+        branchesControl?.setValidators(Validators.required)
+      }
+
+      branchesControl?.updateValueAndValidity();
+    })
   }
 
   private loadUserData(userId: number | string): void {

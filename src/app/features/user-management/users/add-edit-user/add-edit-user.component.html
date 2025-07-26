@@ -1,93 +1,93 @@
 <section class="form-container">
-    <div class="header-container">
-        <h3>{{isEditMode ? 'Edit' : 'Add'}} User</h3>
-        <hr />
-    </div>
+  <div class="header-container">
+    <h3>{{isEditMode ? 'Edit' : 'Add'}} User</h3>
+    <hr />
+  </div>
 
-    <div class="add-form">
-        <form [formGroup]="addEditUserForm" class="container" (ngSubmit)="onSubmit()">
-            <section class="form-section">
-                <h6 class="section-form-header">User Info</h6>
-                <div class="container section-form">
-                    <div class="row">
+  <div class="add-form">
+    <form [formGroup]="addEditUserForm" class="container" (ngSubmit)="onSubmit()">
+      <section class="form-section">
+        <h6 class="section-form-header">User Info</h6>
+        <div class="container section-form">
+          <div class="row">
 
-                        <div class="col-md-4">
-                            <app-input-text formControlName="username" inputName="Username" [required]="true"
-                                placeholder="Enter your username">
-                                @if ((addEditUserForm.get('username')?.errors?.['required'] &&
-                                addEditUserForm.get('username')?.touched)) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>User name is required</small>
-                                </div>
-                                }
-                            </app-input-text>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-input-text formControlName="password" inputName="Password" type="password"
-                                placeholder="Enter your password">
-                            </app-input-text>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-input-text formControlName="phone_number" inputName="Phone Number"
-                                placeholder="Enter your phone number">
-                            </app-input-text>
-                        </div>
-                        <div class="col-md-4">
-                            <app-input-text formControlName="email" inputName="Email" type="email" [required]="true"
-                                placeholder="Enter your email">
-                                @if ((addEditUserForm.get('email')?.errors?.['required'] &&
-                                addEditUserForm.get('email')?.touched)) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>Email is required</small>
-                                </div>
-                                }
-                            </app-input-text>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-input-text formControlName="address" inputName="Address"
-                                placeholder="Enter your address">
-                            </app-input-text>
-                        </div>
-
-                        <div class="col-md-4">
-                            <app-dropdowns label="Select Role" [required]="true" id="role" formControlName="role"
-                                [options]="roles" optionLabel="name" optionValue="id" placeholder="Select a role">
-                                @if ((addEditUserForm.get('role')?.errors?.['required'] &&
-                                addEditUserForm.get('role')?.touched)) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>Role is required</small>
-                                </div>
-                                }
-                            </app-dropdowns>
-                        </div>
-
-                        <div class="col-md-12">
-                            <app-multi-select label="Select branches" [options]="branches" [required]="true"
-                                [(ngModel)]="selectedBranches" optionValue="id" formControlName="branches"
-                                [placeholder]="'Select branches...'" [optionLabel]="'name'">
-                                @if ((addEditUserForm.get('branches')?.errors?.['required'] &&
-                                addEditUserForm.get('branches')?.touched)) {
-                                <div class="text-danger mt-1">
-                                    <small><i class="text-danger pi pi-times-circle px-2"
-                                            style="font-size: 0.8rem"></i>branches is required</small>
-                                </div>
-                                }
-                            </app-multi-select>
-                        </div>
-                    </div>
+            <div class="col-md-4">
+              <app-input-text formControlName="username" inputName="Username" [required]="true"
+                placeholder="Enter your username">
+                @if ((addEditUserForm.get('username')?.errors?.['required'] &&
+                addEditUserForm.get('username')?.touched)) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>User name is
+                    required</small>
                 </div>
-            </section>
-
-            <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn" [disabled]="addEditUserForm.invalid">{{isEditMode?
-                    'Update' : 'Submit'}}</button>
+                }
+              </app-input-text>
             </div>
-        </form>
-    </div>
+
+            <div class="col-md-4">
+              <app-input-text formControlName="password" inputName="Password" type="password"
+                placeholder="Enter your password">
+              </app-input-text>
+            </div>
+
+            <div class="col-md-4">
+              <app-input-text formControlName="phone_number" inputName="Phone Number" [required]="true"
+                placeholder="Enter your phone number">
+              </app-input-text>
+            </div>
+            <div class="col-md-4">
+              <app-input-text formControlName="email" inputName="Email" type="email" [required]="true"
+                placeholder="Enter your email">
+                @if ((addEditUserForm.get('email')?.errors?.['required'] &&
+                addEditUserForm.get('email')?.touched)) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>Email is
+                    required</small>
+                </div>
+                }
+              </app-input-text>
+            </div>
+
+            <div class="col-md-4">
+              <app-input-text formControlName="address" inputName="Address" placeholder="Enter your address">
+              </app-input-text>
+            </div>
+
+            <div class="col-md-4">
+              <app-dropdowns label="Select Role" [required]="true" id="role" formControlName="role" [options]="roles"
+                optionLabel="name" optionValue="id" placeholder="Select a role">
+                @if ((addEditUserForm.get('role')?.errors?.['required'] &&
+                addEditUserForm.get('role')?.touched)) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>Role is
+                    required</small>
+                </div>
+                }
+              </app-dropdowns>
+            </div>
+
+            <div class="col-md-12" *ngIf="this.addEditUserForm.get('role')?.value !== 1">
+              <app-multi-select label="Select Branches" [options]="branches"
+                [required]="this.addEditUserForm.get('role')?.value !== 1" [(ngModel)]="selectedBranches"
+                optionValue="id" formControlName="branches" [placeholder]="'Select Branches'" [optionLabel]="'name'">
+
+                @if ((addEditUserForm.get('branches')?.errors?.['required'] &&
+                addEditUserForm.get('branches')?.touched)) {
+                <div class="text-danger mt-1">
+                  <small><i class="text-danger pi pi-times-circle px-2" style="font-size: 0.8rem"></i>Branches is
+                    required</small>
+                </div>
+                }
+              </app-multi-select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="btns-group">
+        <button type="submit" class="my-4 submit-btn" [disabled]="addEditUserForm.invalid">{{isEditMode?
+          'Update' : 'Submit'}}</button>
+      </div>
+    </form>
+  </div>
 </section>

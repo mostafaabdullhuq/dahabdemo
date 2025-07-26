@@ -17,48 +17,63 @@
         <h6 class="section-form-header">branch Info</h6>
         <div class="container section-form">
           <div class="row">
+
             <div class="col-md-4">
               <app-input-text formControlName="name" inputName="name" [required]="true" placeholder="Enter name">
               </app-input-text>
             </div>
+
             <div class="col-md-4">
               <app-input-text formControlName=mobile inputName="mobile" placeholder="Enter mobile">
               </app-input-text>
             </div>
+
             <div class="col-md-4">
               <app-input-text formControlName="email" inputName="email" [required]="true" placeholder="Enter email">
               </app-input-text>
             </div>
+
             <div class="col-md-4">
               <app-input-text formControlName="landline" inputName="landline" placeholder="Enter landline">
               </app-input-text>
             </div>
+
             <div class="col-md-4">
               <app-input-text formControlName="address_line" inputName="address line" placeholder="Enter address line">
               </app-input-text>
             </div>
-            <div class="col-md-4">
-              <app-input-text formControlName="manual_gold_price" inputName="manual_gold_price"
-                placeholder="Enter manual_gold_price">
+
+            <div class="col-md-4 position-relative">
+              <app-input-text formControlName="manual_gold_price" inputName="manual Gold Price"
+                placeholder="Enter manual Gold Price">
               </app-input-text>
+              <button type="button" [title]="'Get live rate gold price'" class="btn btn-sm refresh-btn"
+                (click)="getLiveRateGoldPrice()">
+                <i class="pi pi-sync"></i>
+              </button>
             </div>
+
             <div class="col-md-4">
               <app-dropdowns label="country" [required]="true" id="country" formControlName="country"
                 [options]="countries" optionLabel="name" optionValue="name" placeholder="Select a country">
               </app-dropdowns>
             </div>
+
             <div class="col-md-4">
               <app-input-text formControlName="vat_number" inputName="Vat Number" placeholder="Enter VAT Number">
               </app-input-text>
             </div>
+
             <div class="col-md-4">
               <app-input-text formControlName="cr_number" inputName="CR Number" placeholder="Enter CR Number">
               </app-input-text>
             </div>
+
             <div class="col-md-12">
               <label class="">Logo</label>
               <app-upload-input formControlName="logo" label="Upload Image"></app-upload-input>
             </div>
+
           </div>
         </div>
 
@@ -101,7 +116,7 @@
         </div>
 
 
-        <h6 class="section-form-header">Financial Info</h6>
+        <h6 class="section-form-header mt-3">Financial Info</h6>
         <div class="container section-form">
           <div class="row">
             <div class="col-md-6">
@@ -117,7 +132,7 @@
           </div>
         </div>
 
-        <h6 class="section-form-header">Custom Fields</h6>
+        <h6 class="section-form-header mt-3">Custom Fields</h6>
         <div class="container section-form" formArrayName="custom_fields">
           <div *ngFor="let group of customFieldsArray.controls; let i = index" [formGroupName]="i">
             <div class="col-md-4 mt-2">

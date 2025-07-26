@@ -76,24 +76,33 @@
         <!-- 🔹 VAT & Refund Details Included -->
         <div class="container section-form">
           <div class="row">
-            <div class="col-md-2">
+            <div class="col-12">
               <app-check-box formControlName="is_recurring" inputId="is_refund" label="Is Recurring?"></app-check-box>
             </div>
             <!-- 🔹 recurring payment -->
             @if (addEditExpenseForm.get('is_recurring')?.value == true) {
-            <div class="col-md-5">
+            <div class="col-md-4">
               <app-input-text formControlName="number_of_recurring_payments" inputName="No. of Repetitions"
-                placeholder="Enter No. of Repetitions">
+                type="number" placeholder="Enter No. of Repetitions">
               </app-input-text>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-4">
+              <app-dropdowns label="Interval Type" formControlName="recurring_interval_type" [options]="recurringTypes"
+                (ngModelChange)="onRecurringIntervalTypeChange($event)" optionLabel="name" optionValue="value"
+                placeholder="Select Type" [showClear]="true"></app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              @if(addEditExpenseForm.get('recurring_interval_type')?.value == 'days') {
               <app-input-text formControlName="recurring_interval" inputName="Recurring interval"
-                placeholder="Enter recurring interval">
+                placeholder="Enter Interval" type="number">
               </app-input-text>
+              } @else {
+              <app-dropdowns label="Recurring interval" formControlName="recurring_interval"
+                [options]="monthlyIntervalDays" optionLabel="name" optionValue="value" placeholder="Select Interval"
+                [showClear]="true"></app-dropdowns>
+              }
             </div>
             }
-
-
           </div>
         </div>
 

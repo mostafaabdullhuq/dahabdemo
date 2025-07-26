@@ -28,7 +28,7 @@
   </div>
 
   <div class="table-container">
-    <app-data-table [contextMenuItems]="BranchesMenuItems" (rowSelected)="selectedProduct = $event" [data]="Branches"
+    <app-data-table [contextMenuItems]="branchMenuItems" (rowSelected)="selectedProduct = $event" [data]="branches"
       [cols]="cols" [totalRecords]="totalRecords" [first]="first" [rows]="pageSize" (pageChange)="loadBranches($event)">
     </app-data-table>
   </div>
