@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { InventoryService } from '../@services/inventory.service';
 import { Router } from '@angular/router';
 import { ConfirmationPopUpService } from '../../../shared/services/confirmation-pop-up.service';
@@ -26,7 +26,6 @@ export class CountDownComponent implements OnInit, OnDestroy {
   categories: any[] = [];
   filterForm!: FormGroup;
   scanningProductForm!: FormGroup;
-  isInitialized = false;
   currentStockTakingId: string | null = null;
   currentItemId: string | null = null;
   totalItems = 0;
@@ -36,6 +35,9 @@ export class CountDownComponent implements OnInit, OnDestroy {
   statusMessage: { type: string, text: string } | null = null;
   selectedQuantity: number | null = null;
 
+  private requestTimer: any = null;
+  private requestInProgress = false;
+  private lastHandledMessageId: string | null = null;
   private websocketSubscription!: Subscription;
   private connectionSubscription!: Subscription;
   private scanSubscription!: Subscription;
@@ -45,28 +47,25 @@ export class CountDownComponent implements OnInit, OnDestroy {
     private dropdownService: DropdownsService,
     private formBuilder: FormBuilder,
     private stockTakingService: StockTakingService,
-    private websocketService: StockTakingWebsocketService,
+    private stockTakingWebsocketService: StockTakingWebsocketService,
     private _confirmPopUp: ConfirmationPopUpService,
-    // private modalService: NgbModal,
     private cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
     this.initForms();
+    this.handleFormSubscriptions();
     this.loadDropdowns();
     this.setupWebSocket();
-    this.setupScanning();
   }
 
   selectProduct(productId: string): void {
     const selected = this.multipleProducts.find(p => p.id === productId);
     if (selected) {
       this.scanningProductForm.get('product')?.patchValue(selected?.tag_number)
-      //this.handleScanSuccess({ item: selected }); // Reuse the existing logic
       this.statusMessage = { type: 'success', text: 'Product selected from multiple matches' };
     }
   }
-
 
   ngOnDestroy(): void {
     this.websocketSubscription?.unsubscribe();
@@ -77,7 +76,7 @@ export class CountDownComponent implements OnInit, OnDestroy {
 
   private initForms(): void {
     this.filterForm = this.formBuilder.group({
-      branch: '',
+      branch: ['', Validators.required],
       category: '',
       stockpoint: ''
     });
@@ -85,21 +84,33 @@ export class CountDownComponent implements OnInit, OnDestroy {
     this.scanningProductForm = this.formBuilder.group({
       product: ''
     });
+  }
 
+  handleFormSubscriptions() {
     this.branchChangeSubscription = this.filterForm.get('branch')?.valueChanges.subscribe(branchId => {
       if (branchId) {
         this.checkActiveStockTaking();
         this.loadCategories(branchId);
         this.loadStockPoints(branchId);
         this.tagInput.nativeElement.disabled = false;
+        this.requestActiveItems();
         setTimeout(() => this.tagInput.nativeElement.focus(), 0);
-
-        // Add this
-        this.requestActiveItems(); // ✅ trigger WebSocket call after branch selection
       } else {
         this.categories = [];
         this.stockPoints = [];
         this.tagInput.nativeElement.disabled = true;
+      }
+    }) || new Subscription();
+
+    this.scanSubscription = this.scanningProductForm.get('product')?.valueChanges.pipe(
+      debounceTime(600),
+      distinctUntilChanged()
+    ).subscribe(tagNumber => {
+      if (tagNumber && tagNumber.length >= 2) {
+        this.statusMessage = { type: 'info', text: 'Searching...' };
+        this.scanProduct(tagNumber);
+      } else if (!tagNumber || tagNumber.length === 0) {
+        this.statusMessage = null;
       }
     }) || new Subscription();
   }
@@ -119,7 +130,7 @@ export class CountDownComponent implements OnInit, OnDestroy {
   }
 
   private setupWebSocket(): void {
-    this.connectionSubscription = this.websocketService.connectionStatus$.subscribe(
+    this.connectionSubscription = this.stockTakingWebsocketService.connectionStatus$.subscribe(
       isConnected => {
         this.isConnected = isConnected;
         if (isConnected) {
@@ -131,46 +142,10 @@ export class CountDownComponent implements OnInit, OnDestroy {
       }
     );
 
-    this.websocketSubscription = this.websocketService.messages$.subscribe(
+    this.websocketSubscription = this.stockTakingWebsocketService.messages$.subscribe(
       message => this.handleWebSocketMessage(message)
     );
   }
-
-  private setupScanning(): void {
-    this.scanSubscription = this.scanningProductForm.get('product')?.valueChanges.pipe(
-      debounceTime(600),
-      distinctUntilChanged()
-    ).subscribe(tagNumber => {
-      if (tagNumber && tagNumber.length >= 2) {
-        this.statusMessage = { type: 'info', text: 'Searching...' };
-        this.scanProduct(tagNumber);
-      } else if (!tagNumber || tagNumber.length === 0) {
-        this.statusMessage = null;
-      }
-    }) || new Subscription();
-  }
-
-  // private handleWebSocketMessage(message: any): void {
-  //   if (message.status === 'success') {
-  //     if (message.action === 'scan') {
-  //       this.statusMessage = { type: 'success', text: 'Item scanned successfully' };
-  //       this.handleScanSuccess(message.data);
-  //     } else if (message.action === 'get_active_items') {
-  //       this.handleActiveItems(message.data);
-  //     } else if (message.action === 'update_quantity') {
-  //       this.statusMessage = { type: 'success', text: 'Quantity updated successfully' };
-  //       this.handleQuantityUpdate(message.data);
-  //     }
-  //   } else if (message.status === 'multiple_products') {
-  //     this.showMultipleProducts(message.products);
-  //   } else {
-  //     this.statusMessage = { type: 'danger', text: message.message || 'WebSocket error occurred' };
-  //   }
-
-  //   console.log(message);
-
-  // }
-  private lastHandledMessageId: string | null = null;
 
   private handleWebSocketMessage(message: any): void {
     // Avoid duplicates by message id
@@ -194,8 +169,6 @@ export class CountDownComponent implements OnInit, OnDestroy {
     } else {
       this.statusMessage = { type: 'danger', text: message.message || 'WebSocket error occurred' };
     }
-
-    console.log('[WebSocket Received]:', message);
   }
 
   private handleScanSuccess(data: any): void {
@@ -240,8 +213,6 @@ export class CountDownComponent implements OnInit, OnDestroy {
 
     // Optional: force update
     this.cdRef.detectChanges(); // Inject ChangeDetectorRef if needed
-
-    console.log('Multiple products found:', products);
   }
 
   private updateStatistics(): void {
@@ -250,84 +221,51 @@ export class CountDownComponent implements OnInit, OnDestroy {
     this.totalDifference = this.products.reduce((sum, p) => sum + p.difference, 0);
   }
 
-  // private requestActiveItems(): void {
-  //   const branchId = this.filterForm.get('branch')?.value;
-  //   const categoryId = this.filterForm.get('category')?.value;
-  //   const stockPointId = this.filterForm.get('stockpoint')?.value;
-
-  //   if (branchId) {
-  //     const message: any = {
-  //       action: 'get_active_items',
-  //       branch_id: branchId
-  //     };
-
-  //     if (categoryId) message.category = categoryId;
-  //     if (stockPointId) message.stock_point = stockPointId;
-  //     this.websocketService.sendMessage(message);
-
-  //     console.log(message);
-
-  //   }
-  // }
-  private requestTimer: any = null;
-  private requestInProgress = false;
-
   private requestActiveItems(): void {
     if (this.requestInProgress) return;
 
     this.requestInProgress = true;
 
     clearTimeout(this.requestTimer);
-    this.requestTimer = setTimeout(() => {
-      const branchId = this.filterForm.get('branch')?.value;
-      const categoryId = this.filterForm.get('category')?.value;
-      const stockPointId = this.filterForm.get('stockpoint')?.value;
 
-      if (branchId) {
+    this.requestTimer = setTimeout(() => {
+      if (this.currentBranch && this.isInitialized) {
         const message: any = {
           action: 'get_active_items',
-          branch_id: branchId
+          branch_id: this.currentBranch
         };
 
-        if (categoryId) message.category = categoryId;
-        if (stockPointId) message.stock_point = stockPointId;
+        if (this.currentCategory) message.category = this.currentCategory;
+        if (this.currentStockpoint) message.stock_point = this.currentStockpoint;
 
-        this.websocketService.sendMessage(message);
+        this.stockTakingWebsocketService.sendMessage(message);
       }
 
       this.requestInProgress = false;
     }, 800); // Delay sending by 700ms
   }
-  private scanProduct(tagNumber: string): void {
-    const branchId = this.filterForm.get('branch')?.value;
-    const categoryId = this.filterForm.get('category')?.value;
-    const stockPointId = this.filterForm.get('stockpoint')?.value;
 
-    if (branchId) {
+  private scanProduct(tagNumber: string): void {
+    if (this.currentBranch) {
       const message: any = {
         action: 'scan',
         tag_number: tagNumber,
-        branch_id: branchId
+        branch_id: this.currentBranch
       };
 
-      if (categoryId) message.category = categoryId;
-      if (stockPointId) message.stock_point = stockPointId;
+      if (this.currentCategory) message.category = this.currentCategory;
+      if (this.currentStockpoint) message.stock_point = this.currentStockpoint;
 
-      this.websocketService.sendMessage(message);
+      this.stockTakingWebsocketService.sendMessage(message);
     } else {
       this.statusMessage = { type: 'warning', text: 'Please select a branch first' };
     }
   }
 
   private checkActiveStockTaking(): void {
-    const branchId = this.filterForm.get('branch')?.value;
-    const categoryId = this.filterForm.get('category')?.value;
-    const stockPointId = this.filterForm.get('stockpoint')?.value;
-
-    if (branchId) {
-      this.stockTakingService.getActiveStockTaking(branchId, categoryId, stockPointId)
+    if (this.currentBranch) {
+      this.stockTakingService.getActiveStockTaking(this.currentBranch, this.currentCategory, this.currentStockpoint)
         .subscribe(res => {
-          this.isInitialized = !!res?.data;
           this.currentStockTakingId = res?.data?.id || null;
         });
     }
@@ -347,6 +285,7 @@ export class CountDownComponent implements OnInit, OnDestroy {
 
   initializeStockTaking(): void {
     const formValue = this.filterForm.value;
+
     if (!formValue.branch) {
       this.statusMessage = { type: 'warning', text: 'Please select a branch first' };
       return;
@@ -354,7 +293,6 @@ export class CountDownComponent implements OnInit, OnDestroy {
 
     this.stockTakingService.initializeStockTaking(formValue).subscribe(res => {
       if (res?.status === 'in_progress') {
-        this.isInitialized = true;
         this.currentStockTakingId = res.id;
         this.statusMessage = { type: 'success', text: 'Stock taking session initialized' };
         this.requestActiveItems();
@@ -372,9 +310,9 @@ export class CountDownComponent implements OnInit, OnDestroy {
       this.statusMessage = { type: 'warning', text: 'No active stock taking session' };
       return;
     }
+
     this.stockTakingService.completeStockTaking(this.currentStockTakingId!).subscribe(res => {
       if (res?.status === 'success') {
-        this.isInitialized = false;
         this.currentStockTakingId = null;
         this.statusMessage = { type: 'success', text: 'Stock taking completed successfully' };
         this.requestActiveItems();
@@ -425,7 +363,7 @@ export class CountDownComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.websocketService.sendMessage({
+    this.stockTakingWebsocketService.sendMessage({
       action: 'update_quantity',
       item_id: this.currentItemId,
       quantity: quantity
@@ -434,17 +372,34 @@ export class CountDownComponent implements OnInit, OnDestroy {
     this.checkActiveStockTaking();
   }
 
+  get isInitialized() {
+    return !!this.currentStockTakingId
+  }
+
+  get currentBranch() {
+    return this.filterForm.get('branch')?.value || null;
+  }
+
+  get currentCategory() {
+    return this.filterForm.get('category')?.value;
+  }
+
+  get currentStockpoint() {
+    return this.filterForm.get('stockpoint')?.value;
+  }
+
   updateQuantity(): void {
     if (!this.currentItemId || this.selectedQuantity === null) {
       this.statusMessage = { type: 'danger', text: 'No item selected for update' };
       return;
     }
 
-    this.websocketService.sendMessage({
+    this.stockTakingWebsocketService.sendMessage({
       action: 'update_quantity',
       item_id: this.currentItemId,
       quantity: this.selectedQuantity
     });
+
     this.visible = false;
     this.checkActiveStockTaking();
   }

@@ -13,8 +13,22 @@ export class StockTakingService {
   constructor(private http: SingletonService) { }
 
   getActiveStockTaking(branch: string = '', category: string = '', stockpoint: string = ''): Observable<any> {
+    let params = "?"
+
+    if (branch) {
+      params += `branch=${branch}`
+    }
+
+    if (category) {
+      params += `category=${category}`
+    }
+
+    if (stockpoint) {
+      params += `stock_point=${stockpoint}`
+    }
+
     return this.http.getRequest(
-      `${environment.api_url}product/stock-taking/active/?branch=${branch}&category=${category}&stock_point=${stockpoint}`
+      `${environment.api_url}product/stock-taking/active/${params}`
     );
   }
 

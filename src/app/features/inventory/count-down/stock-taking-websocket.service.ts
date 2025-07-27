@@ -1,8 +1,8 @@
 // stock-taking-websocket.service.ts
 import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { Observable, Subject, timer, EMPTY } from 'rxjs';
-import { catchError, tap, retryWhen, delayWhen, switchMap } from 'rxjs/operators';
+import { Subject, timer, EMPTY } from 'rxjs';
+import { catchError, tap, retryWhen, delayWhen } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment.development';
 

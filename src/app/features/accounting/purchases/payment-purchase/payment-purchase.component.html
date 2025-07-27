@@ -20,6 +20,16 @@
             <strong>CR Number : </strong>
             {{paymentBranch?.cr_number ?? '-' }}
           </p>
+
+          <p class=" d-flex flex-column">
+            <strong>Advance Amount : </strong>
+            {{supplierAdvanceValues?.amount_advance_balance ?? '-' }}
+          </p>
+          <p class=" d-flex flex-column">
+            <strong>Advance Weight : </strong>
+            {{supplierAdvanceValues?.weight_advance_balance ?? '-' }}
+          </p>
+
           <div class="go-corner">
             <div class="go-arrow">
               →
@@ -153,6 +163,10 @@
               <!-- Amount -->
               <app-dropdowns *ngSwitchCase="'Amount'" formControlName="value" [options]="paymentMethod"
                 optionLabel="name" optionValue="id" placeholder="Select Method"></app-dropdowns>
+
+              <!-- Advance -->
+              <app-dropdowns *ngSwitchCase="'Advance'" formControlName="value" [options]="advanceTypeOptions"
+                optionLabel="name" optionValue="value" placeholder="Select Type"></app-dropdowns>
 
               <!-- Fallback (TTB or other types) -->
               <app-input-text *ngSwitchDefault formControlName="value" placeholder="Value"></app-input-text>

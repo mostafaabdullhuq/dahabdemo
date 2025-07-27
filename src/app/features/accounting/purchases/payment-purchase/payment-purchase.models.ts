@@ -16,7 +16,7 @@ export interface PurchasePayment {
 export interface PurchasePaymentItem {
   id: number;
   purchase_payment: number;
-  type: "TTB" | "Amount" | "Scrap" | "Tag No";
+  type: "TTB" | "Amount" | "Scrap" | "Tag No" | "Advance";
   is_fixed: boolean;
   amount: string;
   description: string;

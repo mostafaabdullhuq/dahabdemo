@@ -40,6 +40,15 @@
       border-color: #dc2626ca !important;
     }
   }
+
+  .delete-btn:disabled {
+    background-color: #dc2626ca !important;
+    border-color: #dc2626 !important;
+    color: $text-inverse !important;
+    transition: $transition-base;
+    padding: 5px 15px;
+    border-radius: 15px;
+  }
 }
 
 .submit-btn {
@@ -75,4 +84,13 @@
     background-color: #dc2626ca !important;
     border-color: #dc2626ca !important;
   }
+}
+
+.delete-btn:disabled {
+  background-color: #dc2626ca !important;
+  border-color: #dc2626 !important;
+  color: $text-inverse !important;
+  transition: $transition-base;
+  padding: 5px 15px;
+  border-radius: 15px;
 }

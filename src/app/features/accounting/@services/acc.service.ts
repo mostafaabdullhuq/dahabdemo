@@ -4,6 +4,7 @@ import { environment } from '../../../../environments/environment.development';
 import { Observable } from 'rxjs';
 import { FormGroup } from '@angular/forms';
 import { PurchasePayment } from '../purchases/payment-purchase/payment-purchase.models';
+import { SupplierAdvanceBalance } from '../purchases/payment-purchase/payment-purchase.component';
 
 @Injectable({
   providedIn: 'root'
@@ -206,5 +207,9 @@ export class AccService {
 
   importPurchase(file: any) {
     return this._http.postRequest(`${environment.api_url}purchases/import/`, file);
+  }
+
+  getSupplierAdvanceValues(supplierId: number) {
+    return this._http.getRequest<SupplierAdvanceBalance>(`${environment.api_url}purchases/supplier/${supplierId}/`)
   }
 }

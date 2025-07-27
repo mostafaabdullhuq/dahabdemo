@@ -19,32 +19,29 @@
           Initialization
         </div>
         <div class="col-md-4">
-          <label for="branchSelect" class="form-label">Branch</label>
-          <select id="branchSelect" formControlName="branch" class="form-select">
-            <option value="">Select a branch...</option>
-            <option *ngFor="let branch of branches" [value]="branch.id">{{branch.name}}</option>
-          </select>
+          <app-dropdowns label="Branch" id="branch" formControlName="branch" [options]="branches" optionLabel="name"
+            optionValue="id" placeholder="Select a branch" [disabled]="isInitialized">
+          </app-dropdowns>
         </div>
+
         <div class="col-md-4">
-          <label for="categorySelect" class="form-label">Category</label>
-          <select id="categorySelect" formControlName="category" class="form-select">
-            <option value="">All Categories</option>
-            <option *ngFor="let category of categories" [value]="category.id">{{category.name}}</option>
-          </select>
+          <app-dropdowns label="Category" id="category" formControlName="category" [options]="categories"
+            optionLabel="name" optionValue="id" placeholder="Select a category" [disabled]="isInitialized">
+          </app-dropdowns>
         </div>
+
         <div class="col-md-4">
-          <label for="stockPointSelect" class="form-label">Stock Point</label>
-          <select id="stockPointSelect" formControlName="stockpoint" class="form-select">
-            <option value="">All Stock Points</option>
-            <option *ngFor="let stockPoint of stockPoints" [value]="stockPoint.id">{{stockPoint.name}}
-            </option>
-          </select>
+          <app-dropdowns label="Stock Point" id="stockpoint" formControlName="stockpoint" [options]="stockPoints"
+            optionLabel="name" optionValue="id" placeholder="Select a stock point" [disabled]="isInitialized">
+          </app-dropdowns>
         </div>
+
         <div class="col-md-12 btns-group d-flex align-items-end justify-content-end">
           <a href="excels/stock_taking.csv" class="submit-btn me-2 text-center" title="download template">
             <i class="pi pi-download px-2 py-1 text-white"></i>
           </a>
-          <button type="button" class="submit-btn me-2" (click)="initializeStockTaking()" [disabled]="isInitialized">
+          <button type="button" class="submit-btn me-2" (click)="initializeStockTaking()"
+            [disabled]="isInitialized || filterForm.invalid">
             Initialize
           </button>
         </div>
@@ -52,14 +49,17 @@
       </div>
     </form>
     <hr>
+
     <div class="btns-group ">
-      <button type="button" class="btn add-btn" (click)="getStockTakingReport()" [disabled]="!currentStockTakingId">
+      <button type="button" class="btn submit-btn me-2" (click)="getStockTakingReport()"
+        [disabled]="!currentStockTakingId">
         Show Report
       </button>
       <button type="button" class="delete-btn me-2" (click)="completeStockTaking()" [disabled]="!isInitialized">
         Complete
       </button>
     </div>
+
   </div>
 
   <!-- Scanning Form -->

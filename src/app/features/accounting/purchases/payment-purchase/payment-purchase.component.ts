@@ -7,6 +7,16 @@ import { BehaviorSubject, filter, Subscription, take, forkJoin, of } from 'rxjs'
 import { SettingsService } from '../../../settings/@services/settings.service';
 import { PurchasePayment, PurchasePaymentItem } from './payment-purchase.models';
 
+
+export interface SupplierAdvanceBalance {
+  id: number;
+  name: number;
+  amount_advance_balance: number;
+  weight_advance_balance: number;
+
+}
+
+
 @Component({
   selector: 'app-payment-purchase',
   imports: [SharedModule],
@@ -30,18 +40,24 @@ export class PaymentPurchaseComponent implements OnInit {
     { id: 'TTB', name: 'TTB' },
     { id: 'Amount', name: 'Amount' },
     { id: 'Scrap', name: 'Scrap' },
+    { id: "Advance", name: "Advance" }
   ];
 
   weightPaidOptions = [
     { name: 'All', value: false },
-    // { name: 'MC & Tax', value: false },
     { name: 'Weight', value: true },
-  ]
+  ];
+
+  advanceTypeOptions = [
+    { name: 'Weight', value: "weight" },
+    { name: 'Amount', value: "amount" },
+  ];
 
   purchaseOrderId!: number;
 
   paymentId?: number;
   editMode: boolean = false;
+  supplierAdvanceValues?: SupplierAdvanceBalance;
 
   visibility = new BehaviorSubject<boolean>(false);
   visibility$ = this.visibility.asObservable();
@@ -97,6 +113,12 @@ export class PaymentPurchaseComponent implements OnInit {
       });
     }
 
+    if (this.purchaseData?.supplier) {
+      this._accService.getSupplierAdvanceValues(+this.purchaseData.supplier).subscribe((res: SupplierAdvanceBalance) => {
+        this.supplierAdvanceValues = res;
+      })
+    }
+
     this._dropdownService.getBranches().subscribe(res => {
       this.branches = res?.results;
     });
@@ -124,6 +146,9 @@ export class PaymentPurchaseComponent implements OnInit {
   }
 
   calculateGroupAmount(group: any) {
+
+    if (group?.get("type")?.value === "Advance") return;
+
     const baseRate = +(this.paymentForm.get("gold_price")?.value ?? this.manualGoldPrice);
 
     const purity = group.get('purity')?.value;
@@ -204,7 +229,7 @@ export class PaymentPurchaseComponent implements OnInit {
         purity: product?.purity ?? 0,
         purity_rate: product?.purity_value ?? 0,
         purity_name: product?.purity_name ?? null,
-        value: item.type === "Amount" ? item.payment_method : (product?.id || null)
+        value: item.type === "Amount" ? item.payment_method : item.type === "Advance" ? null : (product?.id || null)
       }
 
       const group = this.createItem();
@@ -230,11 +255,13 @@ export class PaymentPurchaseComponent implements OnInit {
 
       if (item.type === "TTB") {
         quantityControl?.setValidators([Validators.min(0), Validators.max(+this.selectedProduct?.stock_quantity || 0)]);
-        quantityControl?.updateValueAndValidity();
+      } else if (item.type === "Advance") {
+        quantityControl?.setValidators(Validators.min(0));
       } else {
         quantityControl?.setValidators(Validators.min(1));
-        quantityControl?.updateValueAndValidity();
       }
+
+      quantityControl?.updateValueAndValidity();
 
       group.patchValue(itemData, { emitEvent: false });
 
@@ -245,7 +272,7 @@ export class PaymentPurchaseComponent implements OnInit {
   }
 
   getPurityRate(purity: number): number {
-    const baseRate = 1; // or fetch from settings
+    const baseRate = 1.000; // or fetch from settings
     return purity ? purity * baseRate : 0;
   }
 
@@ -322,11 +349,16 @@ export class PaymentPurchaseComponent implements OnInit {
           group.get("purity")?.setValue(0);
           group.get("purity_rate")?.setValue(0);
           group.get("weight")?.setValue('0');
-
           amountSubscription = group.get("amount")?.valueChanges.pipe().subscribe(res => {
             let pureWeight = ((+(res ?? 0)) / +(this.paymentForm.get("gold_price")?.value ?? 1)).toFixed(3);
             group.get("pure_weight")?.setValue(pureWeight, { emitEvent: false })
           }) || null;
+          break;
+        case "Advance":
+          group.get("amount")?.disable();
+          group.get("weight")?.disable();
+          group.get("quantity")?.disable();
+          group.get("value")?.disable();
           break;
         default:
           group.get("quantity")?.disable();
@@ -347,11 +379,10 @@ export class PaymentPurchaseComponent implements OnInit {
       this.updateSingleAmount(group);
       group?.get("purity_name")?.setValue(this.selectedProduct?.purity_name ?? '-')
     });
-
   }
 
   updateSingleAmount(group: FormGroup) {
-    if (!this.manualGoldPrice) return;
+    if (!this.manualGoldPrice || group?.get("type")?.value === "Advance") return;
 
     const baseRate = +(this.paymentForm.get("gold_price")?.value ?? this.manualGoldPrice);
     const purity = group.get('purity')?.value;
@@ -373,37 +404,25 @@ export class PaymentPurchaseComponent implements OnInit {
   }
 
   attachValueListener(group: FormGroup, type: string): void {
-
     const quantityControl = group.get("quantity");
 
-    group.get('value')?.valueChanges?.subscribe((selectedId: number) => {
+    let amountSubscription: Subscription | null = null;
+    let weightSubscription: Subscription | null = null;
+
+    group.get('value')?.valueChanges?.subscribe((selectedId: number | string) => {
+      amountSubscription?.unsubscribe();
+      weightSubscription?.unsubscribe();
+
       if (type === 'Tag No') {
-        this.selectedProduct = this.products.find((p: { id: number; }) => p.id === selectedId);
-        group.patchValue({
-          product_id: this.selectedProduct?.id || 0,
-          weight: this.selectedProduct?.weight || '0',
-          purity_rate: this.selectedProduct?.purity_value || 0,
-        });
+        this.handleTagNoListener(selectedId, group);
       } else if (type === 'TTB') {
-        this.selectedProduct = this.ttbs.find((p: { id: number; }) => p.id === selectedId);
-        group.patchValue({
-          product_id: this.selectedProduct?.id || 0,
-          weight: this.selectedProduct?.total_weight || '0',
-          purity_rate: this.selectedProduct?.purity_value || 0,
-          quantity: this.selectedProduct?.stock_quantity || 0,
-        })
+        this.handleTTBListener(selectedId, group);
       } else if (type === 'Scrap') {
-        this.selectedProduct = this.scrap.find((s: { id: number; }) => s.id === selectedId);
-        group.patchValue({
-          product_id: this.selectedProduct?.id || 0,
-          weight: this.selectedProduct?.weight || '0',
-          purity_rate: this.selectedProduct?.purity_value || 0,
-        });
+        this.handleScrapListener(selectedId, group);
       } else if (type === 'Amount') {
-        group.patchValue({
-          payment_method: selectedId
-        });
-        this.selectedProduct = "amount";
+        this.handleAmountListener(group, selectedId);
+      } else if (type === "Advance") {
+        ({ weightSubscription, amountSubscription } = this.handleAdvanceListener(group, selectedId, weightSubscription, amountSubscription));
       } else {
         this.selectedProduct = null;
       }
@@ -416,11 +435,13 @@ export class PaymentPurchaseComponent implements OnInit {
 
       if (type === "TTB") {
         quantityControl?.setValidators([Validators.min(0), Validators.max(+this.selectedProduct?.stock_quantity || 0)]);
-        quantityControl?.updateValueAndValidity();
+      } else if (type === "Advance") {
+        quantityControl?.setValidators(Validators.min(0))
       } else {
         quantityControl?.setValidators(Validators.min(1));
-        quantityControl?.updateValueAndValidity();
       }
+
+      quantityControl?.updateValueAndValidity();
     });
 
     quantityControl?.valueChanges.pipe(filter(value => group.get("type")?.value === "TTB")).subscribe(value => {
@@ -428,6 +449,100 @@ export class PaymentPurchaseComponent implements OnInit {
         weight: +this.selectedProduct?.weight * +value || 0
       })
     });
+  }
+
+  private handleAmountListener(group: FormGroup<any>, selectedId: string | number) {
+    group.get("amount")?.enable();
+    group.get("weight")?.disable();
+    group.get("quantity")?.disable();
+
+    group.patchValue({
+      payment_method: selectedId
+    });
+    this.selectedProduct = "amount";
+  }
+
+  private handleScrapListener(selectedId: string | number, group: FormGroup<any>) {
+    group.get("weight")?.enable();
+    group.get("amount")?.disable();
+    group.get("quantity")?.disable();
+
+    this.selectedProduct = this.scrap.find((s: { id: number; }) => s.id === selectedId);
+    group.patchValue({
+      product_id: this.selectedProduct?.id || 0,
+      weight: this.selectedProduct?.weight || '0',
+      purity_rate: this.selectedProduct?.purity_value || 0,
+    });
+  }
+
+  private handleTTBListener(selectedId: string | number, group: FormGroup<any>) {
+    group.get("quantity")?.enable();
+    group.get("weight")?.disable();
+    group.get("amount")?.disable();
+
+    this.selectedProduct = this.ttbs.find((p: { id: number; }) => p.id === selectedId);
+    group.patchValue({
+      product_id: this.selectedProduct?.id || 0,
+      weight: this.selectedProduct?.total_weight || '0',
+      purity_rate: this.selectedProduct?.purity_value || 0,
+      quantity: this.selectedProduct?.stock_quantity || 0,
+    });
+  }
+
+  private handleTagNoListener(selectedId: string | number, group: FormGroup<any>) {
+    group.get("quantity")?.disable();
+    group.get("weight")?.disable();
+    group.get("amount")?.disable();
+
+    this.selectedProduct = this.products.find((p: { id: number; }) => p.id === selectedId);
+    group.patchValue({
+      product_id: this.selectedProduct?.id || 0,
+      weight: this.selectedProduct?.weight || '0',
+      purity_rate: this.selectedProduct?.purity_value || 0,
+    });
+  }
+
+  private handleAdvanceListener(group: FormGroup<any>, selectedId: string | number, weightSubscription: Subscription | null, amountSubscription: Subscription | null) {
+    const amountControl = group.get("amount"), weightControl = group.get("weight");
+    if (selectedId === "weight") {
+      amountControl?.disable();
+      weightControl?.enable();
+      weightControl?.setValue(this.supplierAdvanceValues?.weight_advance_balance);
+      // weightControl?.setValidators([Validators.min(0), Validators.max(this.supplierAdvanceValues?.weight_advance_balance ?? 0)]);
+      amountControl?.clearValidators();
+      amountControl?.setValue(0);
+      weightSubscription = group.get("weight")?.valueChanges.pipe().subscribe(res => {
+        group.get("pure_weight")?.setValue(res, { emitEvent: false });
+      }) || null;
+      amountSubscription?.unsubscribe();
+    } else if (selectedId === "amount") {
+      amountControl?.enable();
+      weightControl?.disable();
+      weightControl?.setValue(this.supplierAdvanceValues?.weight_advance_balance);
+      // amountControl?.setValidators([Validators.min(0), Validators.max(this.supplierAdvanceValues?.amount_advance_balance ?? 0)])
+      weightControl?.clearValidators();
+      amountControl?.setValue(0);
+      amountSubscription = group.get("amount")?.valueChanges.pipe().subscribe(res => {
+        let pureWeight = ((+(res ?? 0)) / +(this.paymentForm.get("gold_price")?.value ?? 1)).toFixed(3);
+        group.get("pure_weight")?.setValue(pureWeight, { emitEvent: false });
+      }) || null;
+      weightSubscription?.unsubscribe();
+    } else {
+      amountControl?.disable();
+      weightControl?.disable();
+      amountControl?.setValue(0);
+      weightControl?.setValue(0);
+      amountControl?.clearValidators();
+      weightControl?.clearValidators();
+      weightSubscription?.unsubscribe();
+      amountSubscription?.unsubscribe();
+    }
+
+    amountControl?.updateValueAndValidity();
+    weightControl?.updateValueAndValidity();
+
+    this.selectedProduct = null;
+    return { weightSubscription, amountSubscription };
   }
 
   calculatePureWeight(group: FormGroup) {
@@ -439,7 +554,7 @@ export class PaymentPurchaseComponent implements OnInit {
 
     let pureWeight = (weight * purityRate);
 
-    pureWeight = (type === "Scrap") ? (pureWeight - (pureWeight * 1 / 100)) : pureWeight
+    pureWeight = (type === "Scrap") ? (pureWeight - (pureWeight * 1 / 100)) : pureWeight;
 
     group.get('pure_weight')!.setValue(pureWeight.toFixed(3), { emitEvent: false });
 
@@ -517,6 +632,11 @@ export class PaymentPurchaseComponent implements OnInit {
           return {
             ...base,
             product_id: item.value
+          };
+        } else if (item.type === "Advance") {
+          return {
+            ...base,
+            advance_type: item.value,
           };
         } else if (item.type === 'Amount') {
           return {
