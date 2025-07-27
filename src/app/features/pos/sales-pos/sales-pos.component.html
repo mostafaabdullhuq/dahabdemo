@@ -73,7 +73,7 @@
                   </td>
                   <td>{{ group.discount }}</td>
                   <td>{{ group.max_discount }}</td>
-                  <td>{{ calcMetalValueAccordingToPurity(group) }}</td>
+                  <td>{{ group.metal_value }}</td>
                   <td>
                     <input style="font-size: 14px; min-width: 100px;" type="number" class="form-control"
                       [(ngModel)]="group.amount" (focus)="storeLastValidAmount(group)"

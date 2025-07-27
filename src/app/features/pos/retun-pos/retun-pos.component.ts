@@ -238,7 +238,7 @@ export class RetunPosComponent implements OnInit, OnDestroy {
     const discountAmount = (discountPercentage / 100) * makingCharge;
 
     // Share the discount amount with the service
-    this._posSharedService.setDiscountAmount(discountAmount);
+    this._posSharedService.setReturnDiscountAmount(discountAmount);
 
     const discountedMakingCharge = makingCharge - discountAmount;
 

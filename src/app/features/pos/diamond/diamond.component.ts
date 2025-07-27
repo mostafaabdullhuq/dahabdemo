@@ -140,7 +140,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
           this._posSharedService.setDiamondTax(0);
           this._posSharedService.setDiamondTotalGrand(0);
           this._posSharedService.setDiamondTotalPrice(0);
-          this._posSharedService.setDiscountAmount(0);
+          this._posSharedService.setDiamondDiscountAmount(0);
         }
       });
 
@@ -187,7 +187,7 @@ export class DiamondComponent implements OnInit, OnDestroy {
     const discountAmount = (discountPercentage / 100) * makingCharge;
 
     // Share the discount amount with the service
-    this._posSharedService.setDiscountAmount(discountAmount);
+    this._posSharedService.setDiamondDiscountAmount(discountAmount);
 
     const discountedMakingCharge = makingCharge - discountAmount;
 

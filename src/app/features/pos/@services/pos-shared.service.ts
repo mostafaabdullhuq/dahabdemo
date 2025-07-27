@@ -28,6 +28,10 @@ export class PosSharedService {
   private metalValueSubject = new BehaviorSubject<number>(0);
   private totalPriceSubject = new BehaviorSubject<number>(0);
   private discountAmountSubject = new BehaviorSubject<number>(0);
+  private diamondDiscountAmountSubject = new BehaviorSubject<number>(0);
+  private salesDiscountAmountSubject = new BehaviorSubject<number>(0);
+  private returnDiscountAmountSubject = new BehaviorSubject<number>(0);
+  private silverDiscountAmountSubject = new BehaviorSubject<number>(0);
   private grandTotalWithVatSubject = new BehaviorSubject<number>(0);
   private vatValue = new BehaviorSubject<number>(0);
   private salesTotalGrandSubject = new BehaviorSubject<number>(0);
@@ -56,6 +60,10 @@ export class PosSharedService {
   metalValue$ = this.metalValueSubject.asObservable();
   totalPrice$ = this.totalPriceSubject.asObservable();
   discountAmount$ = this.discountAmountSubject.asObservable();
+  diamondDiscountAmount$ = this.diamondDiscountAmountSubject.asObservable();
+  salesDiscountAmount$ = this.salesDiscountAmountSubject.asObservable();
+  silverDiscountAmount$ = this.silverDiscountAmountSubject.asObservable();
+  returnDiscountAmount$ = this.returnDiscountAmountSubject.asObservable();
   grandTotalWithVat$ = this.grandTotalWithVatSubject.asObservable();
   vat$ = this.vatValue.asObservable();
   salesTotalGrand$ = this.salesTotalGrandSubject.asObservable();
@@ -80,25 +88,6 @@ export class PosSharedService {
   diamondTotalTax$ = this.diamondTotalTaxSubject.asObservable();
 
   constructor() {
-    combineLatest([
-      this.salesTotalGrand$,
-      this.purchaseTotalGrand$,
-      this.repairTotalGrand$,
-      this.goldReceiptTotalGrand$,
-      this.returnTotalGrand$,
-      this.silverTotalGrand$,
-      this.diamondTotalGrand$,
-    ]).subscribe(([sales, purchase, repair, goldReceipt, ret, silver, diamond]) => {
-      const positiveTotal = sales + repair + goldReceipt + silver + diamond;
-      let grandTotal = positiveTotal - purchase - ret;
-
-      if (positiveTotal === 0 && (purchase > 0 || ret > 0)) {
-        grandTotal = -Math.abs(purchase + ret); // Only return or purchase exists
-      }
-
-      this.grandTotalWithVatSubject.next(+(+grandTotal * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
-    });
-
     combineLatest([
       this.salesTotalPrice$,
       this.purchaseTotalPrice$,
@@ -130,6 +119,36 @@ export class PosSharedService {
       const totalVat = (salesTotalTax + repairTotalTax + goldReceiptTotalTax + silverTotalTax + diamondTotalTax) - returnTotalTax;
       this.vatValue.next(+(+totalVat * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
     });
+
+    combineLatest([
+      this.salesTotalGrand$,
+      this.purchaseTotalGrand$,
+      this.repairTotalGrand$,
+      this.goldReceiptTotalGrand$,
+      this.returnTotalGrand$,
+      this.silverTotalGrand$,
+      this.diamondTotalGrand$,
+    ]).subscribe(([sales, purchase, repair, goldReceipt, ret, silver, diamond]) => {
+      const positiveTotal = sales + repair + goldReceipt + silver + diamond;
+      let grandTotal = positiveTotal - purchase - ret;
+
+      if (positiveTotal === 0 && (purchase > 0 || ret > 0)) {
+        grandTotal = -Math.abs(purchase + ret); // Only return or purchase exists
+      }
+
+      this.grandTotalWithVatSubject.next(+(+grandTotal * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
+    });
+
+    combineLatest([
+      this.salesDiscountAmount$,
+      this.diamondDiscountAmount$,
+      this.silverDiscountAmount$,
+      this.returnDiscountAmount$
+    ])
+      .subscribe(([salesDiscount, diamondDiscount, silverDiscount, returnDiscount]) => {
+        const totalDiscount = +salesDiscount + +diamondDiscount + +silverDiscount - +returnDiscount;
+        this.discountAmountSubject.next(+(+totalDiscount * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
+      });
   }
 
   notifyOrderPlaced() {
@@ -153,8 +172,24 @@ export class PosSharedService {
     this.totalPriceSubject.next(price);
   }
 
-  setDiscountAmount(value: number): void {
+  setTotalDiscountAmount(value: number): void {
     this.discountAmountSubject.next(+(+value * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
+  }
+
+  setDiamondDiscountAmount(value: number): void {
+    this.diamondDiscountAmountSubject.next(+(+value * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
+  }
+
+  setSalesDiscountAmount(value: number): void {
+    this.salesDiscountAmountSubject.next(+(+value * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
+  }
+
+  setReturnDiscountAmount(value: number): void {
+    this.returnDiscountAmountSubject.next(+(+value * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
+  }
+
+  setSilverDiscountAmount(value: number): void {
+    this.silverDiscountAmountSubject.next(+(+value * this.selectedCurrencyExchangeRate).toFixed(this.selectedCurrencyDecimalPlaces));
   }
 
   setGrandTotalWithVat(value: number): void {

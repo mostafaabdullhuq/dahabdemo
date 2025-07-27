@@ -139,7 +139,7 @@ export class SilverComponent implements OnInit, OnDestroy {
           this._posSharedService.setSilverTax(0);
           this._posSharedService.setSilverTotalGrand(0);
           this._posSharedService.setSilverTotalPrice(0);
-          this._posSharedService.setDiscountAmount(0);
+          this._posSharedService.setSilverDiscountAmount(0);
         }
       });
 
@@ -191,7 +191,7 @@ export class SilverComponent implements OnInit, OnDestroy {
     const discountAmount = (discountPercentage / 100) * makingCharge;
 
     // Share the discount amount with the service
-    this._posSharedService.setDiscountAmount(discountAmount);
+    this._posSharedService.setSilverDiscountAmount(discountAmount);
 
     const discountedMakingCharge = makingCharge - discountAmount;
 

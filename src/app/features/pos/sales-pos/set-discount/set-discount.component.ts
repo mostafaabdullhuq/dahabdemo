@@ -49,9 +49,6 @@ export class SetDiscountComponent implements OnInit {
       amount: amount
     }
 
-    console.log("data: ", postData);
-
-
     this._posService.updateProductItem(this.selectedRow.id, postData).subscribe(res => {
       this.visible = false;
 
@@ -71,7 +68,7 @@ export class SetDiscountComponent implements OnInit {
     }, (error) => {
       let errorMsg = error?.error?.errors?.amount
       this._toasterService.showError(errorMsg || "Unexpected Error Happened")
-    })
+    });
   }
 
   calculateAmountAfterDiscount() {
@@ -91,9 +88,9 @@ export class SetDiscountComponent implements OnInit {
         break;
       default:
         discountSourceValue = 0;
-        0;
+        break;
     }
 
-    return (originalAmount - (discountSourceValue * (discountValue / 100))).toFixed(3);
+    return (originalAmount - (discountSourceValue * (discountValue / 100.000))).toFixed(3);
   }
 }

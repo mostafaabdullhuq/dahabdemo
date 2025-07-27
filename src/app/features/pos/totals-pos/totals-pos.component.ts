@@ -79,10 +79,14 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
           amount: this.totalWithVat
         })
       ])
-    });
+    }, { validators: [this.amountBiggerThanZero] });
 
     this.setupFormSubscriptions();
     this.setupServiceSubscriptions();
+  }
+
+  private amountBiggerThanZero(form: FormGroup) {
+    return form.get("amount")?.value > 0 ? null : { biggerThanZero: true };
   }
 
   private setupFormSubscriptions(): void {
