@@ -33,7 +33,6 @@
               <h6 class="card-title text-primary fw-bold">Customer</h6>
               <p class="mb-1"><strong>{{ invoiceData?.customer_name }}</strong></p>
               <p class="mb-1"><strong>CPR no.:</strong> {{invoiceData?.customer_cpr}}</p>
-              <!-- <p class="mb-1">{{ invoiceData?.address }}</p> -->
               <p class="mb-0">{{ invoiceData?.customer_phone }}</p>
             </div>
           </div>
@@ -62,6 +61,15 @@
                 number:'1.3-3'}}{{' ' + invoiceData?.currency}}</p>
               <p class="mb-0"><strong>Payment date:</strong> {{ invoiceData?.payment_date |
                 date:'dd-mm-yyyy'}}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12" *ngIf="invoiceData?.notes">
+          <div class="card h-100 shadow-sm border-0 rounded-4">
+            <div class="card-body">
+              <h6 class="card-title text-primary fw-bold">Notes</h6>
+              <p class="mb-0">{{ invoiceData?.notes }}</p>
             </div>
           </div>
         </div>
@@ -107,21 +115,21 @@
     </div>
     <div class="container-fluid">
       <div class="row  justify-content-end totals">
-        <div class="col-md-4 fw-bold border border-1 rounded-3">
-          <ul class="list-unstyled">
+        <div class="col-md-5 fw-bold border border-1 rounded-3">
+          <ul class="list-unstyled m-0 p-2">
             <li class="d-flex justify-content-between">
-              <strong>Subtotal (exc vat) </strong> :
+              <strong>Subtotal (exc vat): </strong>
               <span class="text-end">{{invoiceData?.sub_total|
                 number:'1.3-3'}}{{invoiceData?.currency}}</span>
             </li>
-            <li class="d-flex justify-content-between"><strong>Discount </strong> :
+            <li class="d-flex justify-content-between"><strong>Discount: </strong>
               <span class="text-end">{{invoiceData?.discount| number:'1.3-3'}}</span>
             </li>
-            <li class="d-flex justify-content-between"><strong>Vat (10%) </strong> :
+            <li class="d-flex justify-content-between"><strong>Vat (10%): </strong>
               <span class="text-end"> {{invoiceData?.tax | number:'1.3-3' }}
                 {{invoiceData?.currency}}</span>
             </li>
-            <li class="d-flex justify-content-between"><strong>Net Amount (inc vat) </strong> :
+            <li class="d-flex justify-content-between"><strong>Net Amount (inc vat): </strong>
               <span class="text-end"> {{invoiceData?.total_amount| number:'1.3-3'}}
                 {{invoiceData?.currency}}</span>
             </li>
@@ -130,12 +138,11 @@
       </div>
     </div>
 
-    <div class="mt-5 text-center text-muted">
-      <!-- Thank you for your business! -->
-    </div>
+    <div class="mt-5 text-center text-muted"></div>
   </div>
   <div class="d-flex justify-content-end gap-2">
     <p-button label="Cancel" severity="secondary" (click)="visible = false" />
     <p-button label="Print" (click)="printInvoice()" />
   </div>
+
 </p-dialog>
