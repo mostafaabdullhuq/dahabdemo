@@ -24,7 +24,7 @@ export class StockTakingWebsocketService {
   }
 
   private getWebSocketUrl(): string {
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const protocol = window.location.protocol === 'ws';
     const token = this.authService.getAccessToken(); // Get token from your auth service
     return `${protocol}://${environment.api_web_socket}ws/stock-taking/?token=${token}`;
   }
