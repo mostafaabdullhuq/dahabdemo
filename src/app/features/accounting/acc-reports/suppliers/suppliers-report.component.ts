@@ -32,26 +32,26 @@ export class SuppliersReportComponent implements OnInit {
   };
   tableOptions: DataTableOptions = new DataTableOptions();
   columns: DataTableColumn<SuppliersReportItem>[] = [
-    { field: "name", header: "Supplier Name", body: (row: SuppliersReportItem) => row.name || '-' },
-    { field: "referene_number", header: "Reference No.", body: (row: SuppliersReportItem) => row.referene_number || '-' },
-    { field: "total_due_weight", header: "Total Due Weight", body: (row: SuppliersReportItem) => row.total_due_weight || '-' },
-    { field: "total_due_amount", header: "Total Due Amount", body: (row: SuppliersReportItem) => row.total_due_amount || '-' },
-    { field: "amount_advance_balance", header: "Amount Advance Balance", body: (row: SuppliersReportItem) => row.amount_advance_balance || '-' },
-    { field: "weight_advance_balance", header: "Weight Advance Balance", body: (row: SuppliersReportItem) => row.weight_advance_balance || '-' }
+    { field: "name", header: "Supplier Name", body: (row: SuppliersReportItem) => row.name ?? '-' },
+    { field: "id", header: "Reference No.", body: (row: SuppliersReportItem) => row.id?.toString() ?? '-' },
+    { field: "total_due_weight", header: "Total Due Weight", body: (row: SuppliersReportItem) => row.total_due_weight ?? '-' },
+    { field: "total_due_amount", header: "Total Due Amount", body: (row: SuppliersReportItem) => row.total_due_amount ?? '-' },
+    { field: "advance_amount_balance", header: "Advance Amount Balance", body: (row: SuppliersReportItem) => row.advance_amount_balance ?? '-' },
+    { field: "advance_weight_balance", header: "Advance Weight Balance", body: (row: SuppliersReportItem) => row.advance_weight_balance ?? '-' }
   ];
   currentFilter: any = {}; // Store current filter to avoid recalculation on pagination
 
   reportTotals: {
     total_due_weight: number,
     total_due_amount: number,
-    amount_advance_balance: number,
-    weight_advance_balance: number
+    advance_amount_balance: number,
+    advance_weight_balance: number
 
   } = {
       total_due_amount: 0,
       total_due_weight: 0,
-      amount_advance_balance: 0,
-      weight_advance_balance: 0
+      advance_amount_balance: 0,
+      advance_weight_balance: 0
     }
 
   exportItems = [
@@ -241,20 +241,20 @@ export class SuppliersReportComponent implements OnInit {
     this.reportTotals = {
       total_due_weight: data.reduce((acc: number, item: SuppliersReportItem) => acc + (+item.total_due_weight || 0), 0),
       total_due_amount: data.reduce((acc: number, item: SuppliersReportItem) => acc + (+item.total_due_amount || 0), 0),
-      amount_advance_balance: data.reduce((acc: number, item: SuppliersReportItem) => acc + (+item.amount_advance_balance || 0), 0),
-      weight_advance_balance: data.reduce((acc: number, item: SuppliersReportItem) => acc + (+item.weight_advance_balance || 0), 0)
+      advance_amount_balance: data.reduce((acc: number, item: SuppliersReportItem) => acc + (+item.advance_amount_balance || 0), 0),
+      advance_weight_balance: data.reduce((acc: number, item: SuppliersReportItem) => acc + (+item.advance_weight_balance || 0), 0)
     };
   }
 
   // Create report configuration for the export service
   private getReportConfig(): ReportConfig {
     const reportColumns: ReportColumn[] = [
-      { field: "name", header: "Supplier Name", body: (row: SuppliersReportItem) => row.name || '-' },
-      { field: "referene_number", header: "Reference No.", body: (row: SuppliersReportItem) => row.referene_number || '-' },
-      { field: "total_due_weight", header: "Total Due Weight", body: (row: SuppliersReportItem) => row.total_due_weight || '-' },
-      { field: "total_due_amount", header: "Total Due Amount", body: (row: SuppliersReportItem) => row.total_due_amount || '-' },
-      { field: "amount_advance_balance", header: "Amount Advance Balance", body: (row: SuppliersReportItem) => row.amount_advance_balance || '-' },
-      { field: "weight_advance_balance", header: "Weight Advance Balance", body: (row: SuppliersReportItem) => row.weight_advance_balance || '-' }
+      { field: "name", header: "Supplier Name", body: (row: SuppliersReportItem) => row.name ?? '-' },
+      { field: "id", header: "Reference No.", body: (row: SuppliersReportItem) => row.id?.toString() ?? '-' },
+      { field: "total_due_weight", header: "Total Due Weight", body: (row: SuppliersReportItem) => row.total_due_weight ?? '-' },
+      { field: "total_due_amount", header: "Total Due Amount", body: (row: SuppliersReportItem) => row.total_due_amount ?? '-' },
+      { field: "advance_amount_balance", header: "Advance Amount Balance", body: (row: SuppliersReportItem) => row.advance_amount_balance ?? '-' },
+      { field: "advance_weight_balance", header: "Advance Weight Balance", body: (row: SuppliersReportItem) => row.advance_weight_balance ?? '-' }
     ];
 
     return {
@@ -264,8 +264,8 @@ export class SuppliersReportComponent implements OnInit {
       totals: {
         total_due_weight: this.reportTotals.total_due_weight,
         total_due_amount: this.reportTotals.total_due_amount,
-        amount_advance_balance: this.reportTotals.amount_advance_balance,
-        weight_advance_balance: this.reportTotals.weight_advance_balance
+        advance_amount_balance: this.reportTotals.advance_amount_balance,
+        advance_weight_balance: this.reportTotals.advance_weight_balance
       },
       filterForm: this.filterForm,
       businessName: this.shopName,

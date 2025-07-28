@@ -7,10 +7,10 @@ export interface SuppliersReportResponse extends BaseReportResponse {
 }
 
 export interface SuppliersReportItem {
+  id: number;
   name: string;
-  referene_number: string;
   total_due_weight: string;
   total_due_amount: string;
-  amount_advance_balance: string;
-  weight_advance_balance: string;
+  advance_amount_balance: string;
+  advance_weight_balance: string;
 }
