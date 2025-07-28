@@ -37,22 +37,29 @@
       </button>
     </div>
     <div class="content d-flex flex-column justify-content-between h-100">
-      <div formArrayName="payments" class="form-content">
-        <div *ngFor="let payment of payments.controls; let i = index" [formGroupName]="i" class="mb-3">
-          <div class="items-center">
-            <app-input-text formControlName="amount" placeholder="Amount" type="number"
-              inputName="Amount"></app-input-text>
+      <div class="form-content">
+        <div formArrayName="payments" class="form-content">
+          <div *ngFor="let payment of payments.controls; let i = index" [formGroupName]="i" class="mb-3">
+            <div class="items-center">
+              <app-input-text formControlName="amount" placeholder="Amount" type="number"
+                inputName="Amount"></app-input-text>
+            </div>
+            <div class="items-center mb-2">
+              <app-dropdowns label="Payment Method" formControlName="payment_method" [options]="paymentMethods"
+                optionLabel="name" optionValue="id" placeholder="Select a method"></app-dropdowns>
+            </div>
+            <div class="header-btns d-flex justify-content-end">
+              <button type="button" (click)="removePayment(i)" class="delete-btn" *ngIf="payments.length > 1">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+            <hr *ngIf="i < payments.length - 1">
           </div>
-          <div class="items-center mb-2">
-            <app-dropdowns label="Payment Method" formControlName="payment_method" [options]="paymentMethods"
-              optionLabel="name" optionValue="id" placeholder="Select a method"></app-dropdowns>
-          </div>
-          <div class="header-btns d-flex justify-content-end">
-            <button type="button" (click)="removePayment(i)" class="delete-btn" *ngIf="payments.length > 1">
-              <i class="pi pi-trash"></i>
-            </button>
-          </div>
-          <hr *ngIf="i < payments.length - 1">
+        </div>
+
+        <div>
+          <label class="mt-0 pt-0" for="notes">Notes</label>
+          <textarea class="form-control" formControlName="notes" placeholder="Notes" type="text" rows="5"></textarea>
         </div>
       </div>
 

@@ -29,7 +29,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   componentRef!: ComponentRef<any>;
-  paymentsFromPopup: any[] = []
 
   totalForm!: FormGroup;
   customers: Customer[] = [];
@@ -73,6 +72,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
       amount: [0, Validators.required],
       discount: [this.discountAmount || 0],
       tax: [this.totalVat],
+      notes: [""],
       payments: this._formBuilder.array([
         this._formBuilder.group({
           payment_method: ['', Validators.required],
@@ -318,17 +318,22 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
     this.componentRef.instance.visible = true;
     this.componentRef.instance.typeOfPayment = type;
     this.componentRef.instance.paymentMethods = this.paymnetMethods;
-    this.componentRef.instance.onSubmitPayments.subscribe((payments: any[]) => {
-      this.paymentsFromPopup = payments;
+    this.componentRef.instance.onSubmitPayments.subscribe((paymentFormValues: { payments: any[], notes: string }) => {
+      let multiplePayments = paymentFormValues?.payments;
 
       const paymentFormArray = this.totalForm.get('payments') as FormArray;
+
       paymentFormArray.clear();
 
-      payments.forEach(payment => {
+      multiplePayments.forEach(payment => {
         paymentFormArray.push(this._formBuilder.group({
           payment_method: [payment.payment_method, Validators.required],
           amount: [payment.amount, Validators.required]
         }));
+      });
+
+      this.totalForm.patchValue({
+        notes: paymentFormValues.notes || ""
       });
 
       this.onPlaceOrder(this.totalForm.value, true);
@@ -365,7 +370,7 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
 
     this.totalForm.get('currency')?.patchValue(this.selectedCurrency?.pk ? parseInt(this.selectedCurrency.pk.toString()) : null);
 
-    if (isPopup === false) {
+    if (!isPopup) {
       const paymentMethodId = form?.payment_method || this.totalForm?.value.payments[0].payment_method;
       const fallbackPayment = [{
         payment_method: paymentMethodId,
@@ -387,9 +392,6 @@ export class TotalsPosComponent implements OnInit, OnDestroy {
         if (this.totalForm.get("discount")?.value == null) {
           this.totalForm.get("discount")?.setValue(0);
         }
-
-        console.log("form value: ", this.totalForm.value);
-
 
         this._posService.addOrder(res.order_id, form ?? this.totalForm.value).subscribe({
           next: res => {

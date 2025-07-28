@@ -24,7 +24,8 @@ export class PaymentMethodsPopupComponent {
 
   ngOnInit(): void {
     this.registerPosForm = this._formBuilder.group({
-      payments: this._formBuilder.array([this.createPaymentFormGroup()])
+      payments: this._formBuilder.array([this.createPaymentFormGroup()]),
+      notes: [""]
     });
 
     this._posSharedService.grandTotalWithVat$.subscribe(vat => {
@@ -89,7 +90,7 @@ export class PaymentMethodsPopupComponent {
     if (form.valid) {
       console.log(form.value.payments);
 
-      this.onSubmitPayments.emit(form.value.payments);
+      this.onSubmitPayments.emit(form.value);
       this.visible = false;
     }
   }
