@@ -13,7 +13,7 @@ import { ToasterMsgService } from '../../../../../core/services/toaster-msg.serv
 })
 export class PaymentsComponent {
   transData: any = [];
-  @Input() customerId: any = '';
+  @Input() supplierId: any = '';
   cols: any[] = [];
   totalRecords: number = 0;
   pageSize: number = 10;
@@ -26,8 +26,8 @@ export class PaymentsComponent {
   ) { }
 
   ngOnInit(): void {
-    if (this.customerId) {
-      this.getPayments(this.customerId)
+    if (this.supplierId) {
+      this.getPayments(this.supplierId)
     }
     this.cols = [
       { field: "payment_date", header: "Payment Date" },
@@ -43,7 +43,7 @@ export class PaymentsComponent {
       created_at__gte: '',
       created_at__lte: '',
     });
-    this.getPayments(this.customerId);
+    this.getPayments(this.supplierId);
 
   }
   getPayments(id: any, search: string = '', page: number = 1, pageSize: number = 10) {
@@ -59,7 +59,7 @@ export class PaymentsComponent {
 
     this.first = event.first;
     this.pageSize = pageSize;
-    this._contactService.getsupplierPayments(this.customerId, this.getQueryParams(), page, pageSize)?.subscribe((res: any) => {
+    this._contactService.getsupplierPayments(this.supplierId, this.getQueryParams(), page, pageSize)?.subscribe((res: any) => {
       this.transData = res.results || [];;
       this.totalRecords = res.count;
     })
@@ -106,7 +106,7 @@ export class PaymentsComponent {
 
 
   onSearch(): void {
-    this.getPayments(this.customerId, this.getQueryParams(), 1, this.pageSize);
+    this.getPayments(this.supplierId, this.getQueryParams(), 1, this.pageSize);
   }
 
   getQueryParams() {

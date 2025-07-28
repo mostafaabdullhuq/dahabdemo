@@ -12,7 +12,7 @@ import { SharedModule } from '../../../../../shared/shared.module';
 })
 export class TransactionsComponent {
   transData: any = [];
-  @Input() customerId: any = '';
+  @Input() supplierId: any = '';
   cols: any[] = [];
   totalRecords: number = 0;
   pageSize: number = 10;
@@ -41,8 +41,8 @@ export class TransactionsComponent {
 
   constructor(private _contactService: ContactService, private _formBuilder: FormBuilder) { }
   ngOnInit(): void {
-    if (this.customerId) {
-      this.getTransactions(this.customerId)
+    if (this.supplierId) {
+      this.getTransactions(this.supplierId)
     }
     this.cols = [
       {
@@ -156,7 +156,7 @@ export class TransactionsComponent {
       created_at__gte: '',
       created_at__lte: '',
     });
-    this.getTransactions(this.customerId);
+    this.getTransactions(this.supplierId);
 
   }
   getTransactions(id: any, search: string = '', page: number = 1, pageSize: number = 10) {
@@ -172,7 +172,7 @@ export class TransactionsComponent {
 
     this.first = event.first;
     this.pageSize = pageSize;
-    this._contactService.getSupplierInventory(this.customerId, this.getQueryParams(), page, pageSize)?.subscribe((res: any) => {
+    this._contactService.getSupplierInventory(this.supplierId, this.getQueryParams(), page, pageSize)?.subscribe((res: any) => {
       this.transData = res.results || [];;
       this.totalRecords = res.count;
     })
@@ -199,7 +199,7 @@ export class TransactionsComponent {
   ];
 
   onSearch(): void {
-    this.getTransactions(this.customerId, this.getQueryParams(), 1, this.pageSize);
+    this.getTransactions(this.supplierId, this.getQueryParams(), 1, this.pageSize);
   }
 
   getQueryParams() {

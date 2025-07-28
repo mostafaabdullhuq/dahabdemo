@@ -3,6 +3,8 @@ import { SingletonService } from '../../../core/services/singleton.service';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
 import { FormGroup } from '@angular/forms';
+import { SupplierSummaryRes } from '../suppliers/suppliers.models';
+
 
 @Injectable({
   providedIn: 'root'
@@ -126,6 +128,10 @@ export class ContactService {
 
   getSupplierById(id: number | string) {
     return this._http.getRequest(`${environment.api_url}suppliers/${id}`);
+  }
+
+  getSupplierSummaryById(id: number) {
+    return this._http.get<SupplierSummaryRes>(`suppliers/ledger/${id}/summary/`)
   }
 
   updateSupplier(id: number | string, editForm: FormGroup | FormData) {

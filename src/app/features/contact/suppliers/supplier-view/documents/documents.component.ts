@@ -13,7 +13,7 @@ import { SharedModule } from '../../../../../shared/shared.module';
 })
 export class DocumentsComponent {
   transData: any = [];
-  @Input() customerId: any = '';
+  @Input() supplierId: any = '';
   cols: any[] = [];
   totalRecords: number = 0;
   pageSize: number = 10;
@@ -45,8 +45,8 @@ export class DocumentsComponent {
   constructor(private _contactService: ContactService, private _formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
-    if (this.customerId) {
-      this.getDocs(this.customerId)
+    if (this.supplierId) {
+      this.getDocs(this.supplierId)
     }
     this.cols = [
       { field: "attachment", header: "Attachment" },
@@ -58,7 +58,7 @@ export class DocumentsComponent {
       created_at__gte: '',
       created_at__lte: '',
     });
-    this.getDocs(this.customerId);
+    this.getDocs(this.supplierId);
 
   }
 
@@ -77,7 +77,7 @@ export class DocumentsComponent {
     this.first = event.first;
     this.pageSize = pageSize;
 
-    this._contactService.getSupplierDocuments(this.customerId, this.getQueryParams(), page, pageSize)?.subscribe((res: any) => {
+    this._contactService.getSupplierDocuments(this.supplierId, this.getQueryParams(), page, pageSize)?.subscribe((res: any) => {
       this.transData = res?.order_docs?.results || [];
       this.attachedDocs = res?.supplier_attachments || [];
       this.totalRecords = res?.order_docs?.count;
@@ -87,11 +87,11 @@ export class DocumentsComponent {
   addAttachment() {
     const ref = this.container.createComponent(AttachedDocsComponent);
     ref.instance.visible = true;
-    ref.instance.customerId = this.customerId;
+    ref.instance.customerId = this.supplierId;
     ref.instance.attachmentList = this.attachedDocs;
   }
   onSearch(): void {
-    this.getDocs(this.customerId, this.getQueryParams(), 1, this.pageSize);
+    this.getDocs(this.supplierId, this.getQueryParams(), 1, this.pageSize);
   }
 
   getQueryParams() {

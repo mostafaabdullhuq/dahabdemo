@@ -3,7 +3,68 @@
     <h3>Supplier Info</h3>
     <hr>
   </div>
-  <div class="">
+
+  <div class="d-flex flex-column gap-3">
+
+    @if(supplierSummary) {
+    <!-- Supplier summary card -->
+    <div class="card shadow-sm rounded-4">
+      <div class="card-body p-4">
+        <h5 class="card-title text-primary fw-bold mb-1">Supplier Summary</h5>
+        <hr class="mb-3">
+        <!-- two side by side -->
+        <div class="d-flex flex-row gap-8">
+
+          <div class="d-flex flex-column">
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Due Amount: </span>
+              <span class="text-muted">{{ supplierSummary.total_due_amount }}</span>
+            </p>
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Due Weight: </span>
+              <span class="text-muted">{{ supplierSummary.total_due_weight }}</span>
+            </p>
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Purchase Amount: </span>
+              <span class="text-muted">{{ supplierSummary.total_purchase_amount }}</span>
+            </p>
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Purchase Weight: </span>
+              <span class="text-muted">{{ supplierSummary.total_purchase_weight }}</span>
+            </p>
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Paid Amount: </span>
+              <span class="text-muted">{{ supplierSummary.total_paid_amount }}</span>
+            </p>
+          </div>
+
+          <div class="d-flex flex-column">
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Paid Weight: </span>
+              <span class="text-muted">{{ supplierSummary.total_paid_weight }}</span>
+            </p>
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Advance Amount: </span>
+              <span class="text-muted">{{ supplierSummary.advance_amount_balance }}</span>
+            </p>
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Advance Weight: </span>
+              <span class="text-muted">{{ supplierSummary.advance_weight_balance }}</span>
+            </p>
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Opening Balance Amount: </span>
+              <span class="text-muted">{{ supplierSummary.opening_balance_amount }}</span>
+            </p>
+            <p class="card-text p-0 m-0">
+              <span class="fw-bold">Total Opening Balance Weight: </span>
+              <span class="text-muted">{{ supplierSummary.opening_balance_weight }}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
     <div class="table-container">
       <app-data-table [paginator]="false" [data]="[customerData]" [cols]="cols">
       </app-data-table>
@@ -21,19 +82,19 @@
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel value="0">
-          <app-suppliers-ledger [customerId]="customerId" />
+          <app-suppliers-ledger [supplierId]="supplierId" />
         </p-tabpanel>
         <p-tabpanel value="1">
-          <app-inventory [customerId]="customerId" />
+          <app-inventory [supplierId]="supplierId" />
         </p-tabpanel>
         <p-tabpanel value="2">
-          <app-payments [customerId]="customerId" />
+          <app-payments [supplierId]="supplierId" />
         </p-tabpanel>
         <p-tabpanel value="3">
-          <app-documents [customerId]="customerId" />
+          <app-documents [supplierId]="supplierId" />
         </p-tabpanel>
         <p-tabpanel value="4">
-          <app-parchases [customerId]="customerId" />
+          <app-parchases [supplierId]="supplierId" />
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
