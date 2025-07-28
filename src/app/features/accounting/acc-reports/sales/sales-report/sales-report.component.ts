@@ -33,7 +33,7 @@ export class SalesReportComponent implements OnInit {
   };
   tableOptions: DataTableOptions = new DataTableOptions();
   columns: DataTableColumn<SalesReportItem>[] = [
-    { field: "created_at", header: "Date", body: this.getRowCreateDate },
+    { field: "created_at", header: "Date" },
     { field: "reference_number", header: "Invoice Number", body: (row: SalesReportItem) => row.reference_number || '-' },
     { field: "customer_name", header: "Customer Name", body: (row: SalesReportItem) => row.customer_name || '-' },
     { field: "phone", header: "Phone Number", body: (row: SalesReportItem) => row.phone || '-' },
@@ -145,12 +145,6 @@ export class SalesReportComponent implements OnInit {
 
   getTaxAmount(row: SalesReportItem) {
     return this.getAmount(row.tax_amount, this.searchResults?.currency || '');
-  }
-
-  private getRowCreateDate(row: SalesReportItem) {
-    if (!row?.created_at || isNaN(Date.parse(row.created_at))) return '-';
-    const date = new Date(row.created_at);
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   }
 
   getPaginatedRows(data: { first: number, rows: number }) {
@@ -274,7 +268,7 @@ export class SalesReportComponent implements OnInit {
   // Create report configuration for the export service
   private getReportConfig(): ReportConfig {
     const reportColumns: ReportColumn[] = [
-      { field: 'created_at', header: 'Date', body: (row: SalesReportItem) => this.getRowCreateDate(row) },
+      { field: 'created_at', header: 'Date' },
       { field: 'reference_number', header: 'Invoice Number' },
       { field: 'customer_name', header: 'Customer Name' },
       { field: 'phone', header: 'Phone' },
