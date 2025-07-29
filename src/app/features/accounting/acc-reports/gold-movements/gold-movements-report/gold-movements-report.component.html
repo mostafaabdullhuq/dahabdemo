@@ -1,0 +1,103 @@
+<section>
+  <!-- Control buttons -->
+  <div class="header-container">
+    <div class="header-btns">
+      <p-splitButton label="Export" icon="pi pi-file-export" [model]="exportItems">
+      </p-splitButton>
+      <button class="add-btn text-center px-4 py-2" (click)="printReport()">
+        <i class="pi pi-print pr-2"></i>Print
+      </button>
+    </div>
+  </div>
+
+  <!-- filter collapse form -->
+  <div class="filter-container container">
+    <app-filter-collapse>
+      <form class="container" [formGroup]="filterForm">
+        <div class="row">
+          <div class="col-md-4">
+            <app-input-text formControlName="search" placeholder="Search..." type="text"
+              inputName="Search"></app-input-text>
+          </div>
+          <div class="col-md-4">
+            <app-dropdowns label="Branch" id="branch" formControlName="branch" [options]="branches" optionLabel="name"
+              optionValue="id" placeholder="Select a Branch">
+            </app-dropdowns>
+          </div>
+          <div class="col-md-4 d-flex flex-column">
+            <label for="date_range">Date Range</label>
+            <p-datepicker id="date_range" [size]="'small'" formControlName="date_range" selectionMode="range"
+              styleClass="w-100" [readonlyInput]="false" [showButtonBar]="true" [showClear]="true" />
+          </div>
+        </div>
+        <div class="btns-group mt-3">
+          <button class="submit-btn" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </app-filter-collapse>
+  </div>
+
+  <!-- report table -->
+  <div class="table-container">
+    <app-data-table [data]="goldMovementsData.results" [cols]="columns" [totalRecords]="tableOptions.totalRecords"
+      [hasContext]="false" [paginator]="false">
+
+      <!-- <ng-container table-footer *ngIf="tableOptions.totalRecords > 0 && goldMovementsData.results.length > 0">
+        <tr>
+          <td *ngFor="let column of columns">
+            <ng-container class="fw-bold" [ngSwitch]="column.field">
+              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'ref_no'">TOTAL</span>
+              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'gold_wt'">
+                {{formatNumber(reportTotals.total_gold_in)}}
+              </span>
+              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'gold_in'">
+                {{formatNumber(reportTotals.total_gold_in)}}
+              </span>
+              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'gold_out'">
+                {{formatNumber(reportTotals.total_gold_out)}}
+              </span>
+              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'total_balance'">
+                {{formatNumber(reportTotals.final_balance)}}
+              </span>
+              <span class="fw-bold" style="font-size:14px" *ngSwitchDefault>-</span>
+            </ng-container>
+          </td>
+        </tr>
+      </ng-container> -->
+
+      <ng-container table-empty-message
+        *ngIf="goldMovementsData.results.length === 0 && tableOptions.totalRecords === 0">
+        No gold movements data found for the selected criteria. Try adjusting your filter options.
+      </ng-container>
+    </app-data-table>
+  </div>
+
+  <div class="summary-container mt-3">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="summary-card">
+          <h6>Total Records</h6>
+          <p>{{ reportTotals.total_records }}</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="summary-card">
+          <h6>Total Gold In</h6>
+          <p>{{ formatNumber(reportTotals.total_gold_in) }}</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="summary-card">
+          <h6>Total Gold Out</h6>
+          <p>{{ formatNumber(reportTotals.total_gold_out) }}</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="summary-card">
+          <h6>Final Balance</h6>
+          <p>{{ formatNumber(reportTotals.final_balance) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

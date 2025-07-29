@@ -32,6 +32,10 @@ export interface ReportConfig {
   businessLogoURL?: string;
   filename?: string;
   extraHeaderData?: { key: string; value: string }[];
+  // New configurable options
+  headerFontSize?: number;
+  rowFontSize?: number;
+  orientation?: 'portrait' | 'landscape';
 }
 
 @Injectable({
@@ -244,7 +248,9 @@ export class ReportExportService {
       return;
     }
 
-    const doc = new jsPDF();
+    // Create PDF with specified orientation or default to portrait
+    const orientation = config.orientation || 'portrait';
+    const doc = new jsPDF(orientation);
     await this.configurePDFForArabic(doc, config);
 
     // Check if we should skip logo due to CORS issues in development
@@ -342,6 +348,10 @@ export class ReportExportService {
     const normalFont = this.getArabicFont(doc, 'normal');
     const boldFont = this.getArabicFont(doc, 'bold');
 
+    // Get configurable font sizes with fallback defaults
+    const headerFontSize = config.headerFontSize || 10;
+    const rowFontSize = config.rowFontSize || 9;
+
     // Prepare table data
     const tableColumns = config.columns.map(col => col.header);
     const tableRows = config.data.map(item =>
@@ -370,7 +380,7 @@ export class ReportExportService {
       body: tableRows,
       startY: startY,
       styles: {
-        fontSize: 9,
+        fontSize: rowFontSize,
         cellPadding: 3,
         lineColor: [44, 62, 80],
         lineWidth: 0.1,
@@ -381,7 +391,7 @@ export class ReportExportService {
         fillColor: [52, 152, 219],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 10,
+        fontSize: headerFontSize,
         font: boldFont
       },
       alternateRowStyles: {

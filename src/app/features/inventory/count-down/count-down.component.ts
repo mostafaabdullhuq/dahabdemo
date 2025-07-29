@@ -321,6 +321,7 @@ export class CountDownComponent implements OnInit, OnDestroy {
       }
     });
   }
+
   showConfirmDelete(color: any) {
     this._confirmPopUp.confirm({
       message: 'Do you want to delete this item?',
@@ -331,6 +332,7 @@ export class CountDownComponent implements OnInit, OnDestroy {
       target: color?.id
     });
   }
+
   getStockTakingReport(): void {
     if (!this.currentStockTakingId) {
       this.statusMessage = { type: 'warning', text: 'No stock taking session selected' };

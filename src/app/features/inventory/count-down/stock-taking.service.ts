@@ -47,8 +47,6 @@ export class StockTakingService {
   }
 
   getStockTakingReport(stockTakingId: string): Observable<any> {
-    return this.http.getRequest(
-      `${environment.api_url}product/stock-taking/${stockTakingId}/report/`
-    );
+    return this.http.get(`product/stock-taking/${stockTakingId}/report/`);
   }
 }

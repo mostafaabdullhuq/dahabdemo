@@ -85,6 +85,7 @@ import { CashFlowReportsComponent } from '../accounting/acc-reports/cash-flow/ca
 import { ProfitAndLossReportsComponent } from '../accounting/acc-reports/profit-and-loss/profit-and-loss-reports.component';
 import { TrialBalanceReportsComponent } from '../accounting/acc-reports/trial-balance/trial-balance-reports.component';
 import { SuppliersReportComponent } from '../accounting/acc-reports/suppliers/suppliers-report.component';
+import { GoldMovementsReportsComponent } from '../accounting/acc-reports/gold-movements/gold-movements-reports.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -219,6 +220,7 @@ export const routes: Routes = [
           { path: 'profit-and-loss', component: ProfitAndLossReportsComponent },
           { path: 'trial-balance', component: TrialBalanceReportsComponent },
           { path: 'suppliers', component: SuppliersReportComponent },
+          { path: 'gold-movements', component: GoldMovementsReportsComponent },
         ]
       },
     ]
