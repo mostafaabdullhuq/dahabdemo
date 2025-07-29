@@ -82,7 +82,6 @@ export class GoldMovementsReportComponent implements OnInit {
     private _formBuilder: FormBuilder,
     private _reportsService: ReportsService,
     private _dropdownService: DropdownsService,
-    private _authService: AuthService,
     private toaster: ToasterMsgService,
     private reportExportService: ReportExportService
   ) { }

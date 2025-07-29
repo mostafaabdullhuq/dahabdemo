@@ -51,7 +51,7 @@ export class ReportsService {
     profitAndLoss: "reporting/profit-and-loss",
     trialBalance: "reporting/trail-balance",
     suppliers: "reporting/suppliers",
-    goldMovements: "reporting/gold-movements",
+    goldMovements: "reporting/gold-movement",
   }
 
   constructor(private _http: SingletonService) {
@@ -281,133 +281,135 @@ export class ReportsService {
 
   getGoldMovementsReport(filter: SearchFilter = {}) {
 
-    return of(JSON.parse(
-      `
-      {
-  "id": 2,
-  "name": "DAMAS",
-  "logo": "https://dahabproject.s3.amazonaws.com/business_logos/PROFILE-2.png",
-  "date": "2025-07-29",
-  "report_data": [
-    {
-      "ref_no": "POS-20250729-260",
-      "supplier": "",
-      "customer": "mark",
-      "date": "2025-07-29",
-      "description": "ttb sale",
-      "type": "TTB",
-      "gold_wt": 5,
-      "gold_in": 0,
-      "gold_out": 4.9995,
-      "total_balance": -4.9995
-    },
-    {
-      "ref_no": "POS-20250729-261",
-      "supplier": "",
-      "customer": "mark",
-      "date": "2025-07-29",
-      "description": "ttb sale",
-      "type": "Scrap-18K",
-      "gold_wt": 5,
-      "gold_in": 0,
-      "gold_out": 3.75,
-      "total_balance": -3.75
-    },
-    {
-      "ref_no": "POS-20250729-262",
-      "supplier": "",
-      "customer": "mark",
-      "date": "2025-07-29",
-      "description": "ttb sale",
-      "type": "Scrap-18K",
-      "gold_wt": 5,
-      "gold_in": 0,
-      "gold_out": 3.75,
-      "total_balance": -7.5
-    },
-    {
-      "ref_no": "POS-20250729-263",
-      "supplier": "",
-      "customer": "mark",
-      "date": "2025-07-29",
-      "description": "24 sale",
-      "type": "24K",
-      "gold_wt": 5,
-      "gold_in": 0,
-      "gold_out": 4.9995,
-      "total_balance": -4.9995
-    },
-    {
-      "ref_no": "POS-20250729-264",
-      "supplier": "",
-      "customer": "mark",
-      "date": "2025-07-29",
-      "description": "24 sale",
-      "type": "24K",
-      "gold_wt": 5,
-      "gold_in": 0,
-      "gold_out": 4.9995,
-      "total_balance": -9.999
-    },
-    {
-      "ref_no": "POS-20250729-265",
-      "supplier": "",
-      "customer": "mark",
-      "date": "2025-07-29",
-      "description": "24 sale",
-      "type": "18K",
-      "gold_wt": 5,
-      "gold_in": 0,
-      "gold_out": 3.75,
-      "total_balance": -3.75
-    },
-    {
-      "ref_no": "POS-20250729-266",
-      "supplier": "",
-      "customer": "mark",
-      "date": "2025-07-29",
-      "description": "24 sale",
-      "type": "18K",
-      "gold_wt": 5,
-      "gold_in": 0,
-      "gold_out": 3.75,
-      "total_balance": -7.5
-    },
-    {
-      "ref_no": "POS-20250729-267",
-      "supplier": "",
-      "customer": "mark",
-      "date": "2025-07-29",
-      "description": "18 sale",
-      "type": "18K",
-      "gold_wt": 5,
-      "gold_in": 0,
-      "gold_out": 3.75,
-      "total_balance": -11.25
-    },
-    {
-      "ref_no": "POS-20250829-268",
-      "supplier": "",
-      "customer": "mark",
-      "date": "2025-08-29",
-      "description": "18 sale",
-      "type": "18K",
-      "gold_wt": 5,
-      "gold_in": 0,
-      "gold_out": 3.75,
-      "total_balance": -15
-    }
-  ],
-  "summary": {
-    "total_records": 9,
-    "total_gold_in": 0,
-    "total_gold_out": 45,
-    "final_balance": -45
-  }
-}
-      `
-    ));
+    // UNCOMMENT if you want to use dummy response
 
-    // return this._http.get<GoldMovementsReportResponse>(this.endpoints.goldMovements, filter);
+    //     return of(JSON.parse(
+    //       `
+    //       {
+    //   "id": 2,
+    //   "name": "DAMAS",
+    //   "logo": "https://dahabproject.s3.amazonaws.com/business_logos/PROFILE-2.png",
+    //   "date": "2025-07-29",
+    //   "report_data": [
+    //     {
+    //       "ref_no": "POS-20250729-260",
+    //       "supplier": "",
+    //       "customer": "mark",
+    //       "date": "2025-07-29",
+    //       "description": "ttb sale",
+    //       "type": "TTB",
+    //       "gold_wt": 5,
+    //       "gold_in": 0,
+    //       "gold_out": 4.9995,
+    //       "total_balance": -4.9995
+    //     },
+    //     {
+    //       "ref_no": "POS-20250729-261",
+    //       "supplier": "",
+    //       "customer": "mark",
+    //       "date": "2025-07-29",
+    //       "description": "ttb sale",
+    //       "type": "Scrap-18K",
+    //       "gold_wt": 5,
+    //       "gold_in": 0,
+    //       "gold_out": 3.75,
+    //       "total_balance": -3.75
+    //     },
+    //     {
+    //       "ref_no": "POS-20250729-262",
+    //       "supplier": "",
+    //       "customer": "mark",
+    //       "date": "2025-07-29",
+    //       "description": "ttb sale",
+    //       "type": "Scrap-18K",
+    //       "gold_wt": 5,
+    //       "gold_in": 0,
+    //       "gold_out": 3.75,
+    //       "total_balance": -7.5
+    //     },
+    //     {
+    //       "ref_no": "POS-20250729-263",
+    //       "supplier": "",
+    //       "customer": "mark",
+    //       "date": "2025-07-29",
+    //       "description": "24 sale",
+    //       "type": "24K",
+    //       "gold_wt": 5,
+    //       "gold_in": 0,
+    //       "gold_out": 4.9995,
+    //       "total_balance": -4.9995
+    //     },
+    //     {
+    //       "ref_no": "POS-20250729-264",
+    //       "supplier": "",
+    //       "customer": "mark",
+    //       "date": "2025-07-29",
+    //       "description": "24 sale",
+    //       "type": "24K",
+    //       "gold_wt": 5,
+    //       "gold_in": 0,
+    //       "gold_out": 4.9995,
+    //       "total_balance": -9.999
+    //     },
+    //     {
+    //       "ref_no": "POS-20250729-265",
+    //       "supplier": "",
+    //       "customer": "mark",
+    //       "date": "2025-07-29",
+    //       "description": "24 sale",
+    //       "type": "18K",
+    //       "gold_wt": 5,
+    //       "gold_in": 0,
+    //       "gold_out": 3.75,
+    //       "total_balance": -3.75
+    //     },
+    //     {
+    //       "ref_no": "POS-20250729-266",
+    //       "supplier": "",
+    //       "customer": "mark",
+    //       "date": "2025-07-29",
+    //       "description": "24 sale",
+    //       "type": "18K",
+    //       "gold_wt": 5,
+    //       "gold_in": 0,
+    //       "gold_out": 3.75,
+    //       "total_balance": -7.5
+    //     },
+    //     {
+    //       "ref_no": "POS-20250729-267",
+    //       "supplier": "",
+    //       "customer": "mark",
+    //       "date": "2025-07-29",
+    //       "description": "18 sale",
+    //       "type": "18K",
+    //       "gold_wt": 5,
+    //       "gold_in": 0,
+    //       "gold_out": 3.75,
+    //       "total_balance": -11.25
+    //     },
+    //     {
+    //       "ref_no": "POS-20250829-268",
+    //       "supplier": "",
+    //       "customer": "mark",
+    //       "date": "2025-08-29",
+    //       "description": "18 sale",
+    //       "type": "18K",
+    //       "gold_wt": 5,
+    //       "gold_in": 0,
+    //       "gold_out": 3.75,
+    //       "total_balance": -15
+    //     }
+    //   ],
+    //   "summary": {
+    //     "total_records": 9,
+    //     "total_gold_in": 0,
+    //     "total_gold_out": 45,
+    //     "final_balance": -45
+    //   }
+    // }
+    //       `
+    //     ));
+
+    return this._http.get<GoldMovementsReportResponse>(this.endpoints.goldMovements, filter);
   }
 }
