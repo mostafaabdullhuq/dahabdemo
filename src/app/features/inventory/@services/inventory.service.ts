@@ -286,4 +286,8 @@ export class InventoryService {
   importProducts(file: any) {
     return this._http.postRequest(`${environment.api_url}product/import/`, file);
   }
+
+  syncProductPrices() {
+    return this._http.post(`product/sync-prices/`);
+  }
 }

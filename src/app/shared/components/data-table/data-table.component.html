@@ -1,7 +1,8 @@
 <p-table [columns]="cols" [value]="data" [paginator]="paginator" [totalRecords]="totalRecords" [first]="first"
   [rows]="rows" [lazy]="true" dataKey="id" stripedRows [size]="'small'" [tableStyle]="tableStyle"
   (onPage)="onPageChange($event)" [showCurrentPageReport]="true" [rowsPerPageOptions]="rowsPerPageOptions"
-  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [scrollable]="true"
+  [scrollHeight]="'400px'">
 
   <ng-template pTemplate="header" let-columns>
     <tr>

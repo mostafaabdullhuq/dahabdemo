@@ -54,7 +54,7 @@ export class SingletonService {
     return this._httpClient.get<T>(this.getEndpointUrl(endpoint), { params: _params });
   }
 
-  post<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
+  post<T>(endpoint: string, body: any = null, headers?: HttpHeaders): Observable<T> {
     let httpOptions: { headers?: HttpHeaders };
 
     if (body instanceof FormData) {

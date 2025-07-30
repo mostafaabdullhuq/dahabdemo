@@ -1,106 +1,104 @@
 <ng-template #labelContainer></ng-template>
 
 <section class="form-container">
-    <div class="header-container">
-        <h3>Product Labels</h3>
-        <hr />
-    </div>
+  <div class="header-container">
+    <h3>Product Labels</h3>
+    <hr />
+  </div>
 
-    <div class="add-form">
-        <form [formGroup]="labelForm" (ngSubmit)="onSubmit()" class="container">
-            <section class="form-section">
-                <h6 class="section-form-header">Label Info</h6>
-                <div class="container section-form">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <app-dropdowns label="Product" formControlName="selected_product" [options]="products"
-                                (selectionChange)="addProduct()" optionLabel="name" optionValue="id"
-                                placeholder="Select a product">
-                            </app-dropdowns>
-                        </div>
-                        <div class="col-md-4">
-                            <app-input-text inputName="printer name"  formControlName="printer_name"
-                                    placeholder="Enter printer name"></app-input-text>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  <div class="add-form">
+    <form [formGroup]="labelForm" (ngSubmit)="onSubmit()" class="container">
+      <section class="form-section">
+        <h6 class="section-form-header">Label Info</h6>
+        <div class="container section-form">
+          <div class="row">
+            <div class="col-md-8">
+              <app-dropdowns label="Product" formControlName="selected_product" [options]="products"
+                (selectionChange)="addProduct()" optionLabel="name" optionValue="id" placeholder="Select a product">
+              </app-dropdowns>
+            </div>
+            <div class="col-md-4">
+              <app-input-text inputName="printer name" formControlName="printer_name"
+                placeholder="Enter printer name"></app-input-text>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <section class="mt-4">
-                <table class="table table-bordered" *ngIf="productArray.length > 0">
-                    <thead>
-                        <tr>
-                            <th>Tag Number</th>
-                            <th>Product Name</th>
-                            <th>No. of Labels</th>
-                            <!-- <th>Lot Number</th>
+      <section class="mt-4">
+        <table class="table table-bordered" *ngIf="productArray.length > 0">
+          <thead>
+            <tr>
+              <th>Tag Number</th>
+              <th>Product Name</th>
+              <th>No. of Labels</th>
+              <!-- <th>Lot Number</th>
                             <th>EXP Date</th>
                             <th>Packing Date</th> -->
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody formArrayName="products">
-                        <tr *ngFor="let product of productArray.controls; let i = index" [formGroupName]="i">
-                            <td>{{ product.get('tag_number')?.value }}</td>
-                            <td>{{ product.get('name')?.value }}</td>
-                            <td><app-input-text formControlName="label_count"
-                                    placeholder="Enter label count"></app-input-text></td>
-                            <!-- <td><app-input-text formControlName="lot_number"
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="products">
+            <tr *ngFor="let product of productArray.controls; let i = index" [formGroupName]="i">
+              <td>{{ product.get('tag_number')?.value }}</td>
+              <td>{{ product.get('name')?.value }}</td>
+              <td><app-input-text formControlName="label_count" placeholder="Enter label count"></app-input-text></td>
+              <!-- <td><app-input-text formControlName="lot_number"
                                     placeholder="Enter lot number"></app-input-text></td>
                             <td><app-input-date formControlName="exp_date" placeholder="Enter date">
                                 </app-input-date></td>
                             <td><app-input-date formControlName="packing_date" placeholder="Enter date">
                                 </app-input-date></td> -->
-                            <td><button type="button" class="btn btn-danger text-end delete-btn btn-sm"
-                                    (click)="removeProduct(i)">
-                                    <i class="pi pi-trash"></i>
-                                </button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-            <h6 class="section-form-header">display Info</h6>
-            <div class="container section-form">
-                <div class="row">
-                    <div class="col-md-4">
-                        <app-dropdowns label="show price" formControlName="show_price" [options]="showPrice"
-                            optionLabel="name" optionValue="name" placeholder="Select">
-                        </app-dropdowns>
-                    </div>
-                    <div class="col-md-4">
-                        <app-dropdowns label="barcode type" formControlName="barcode_type" [options]="barcodeType"
-                            optionLabel="name" optionValue="name" placeholder="Select">
-                        </app-dropdowns>
-                    </div>
-                </div>
-            <hr>
-                <div class="row">
-                    <div class="col-md-3">
-                        <app-check-box formControlName="color" inputId="color" label="Color"></app-check-box>
-                    </div>
-                    <div class="col-md-3">
-                        <app-check-box formControlName="category" inputId="category" label="Category"></app-check-box>
-                    </div>
-                    <div class="col-md-3">
-                        <app-check-box formControlName="weight" inputId="weight" label="Weight"></app-check-box>
-                    </div>
-                    <div class="col-md-3">
-                        <app-check-box formControlName="brand" inputId="brand" label="Brand"></app-check-box>
-                    </div>
-                    <div class="col-md-3">
-                        <app-check-box formControlName="designer" inputId="designer" label="Designer"></app-check-box>
-                    </div>
-                    <div class="col-md-3">
-                        <app-check-box formControlName="size" inputId="size" label="Size"></app-check-box>
-                    </div>
-                    <div class="col-md-3">
-                        <app-check-box formControlName="purity" inputId="purity" label="Purity"></app-check-box>
-                    </div>
-                </div>
-                </div>
-            <div class="btns-group">
-                <button type="submit" class="my-4 submit-btn">Print Label</button>
-            </div>
-        </form>
-    </div>
+              <td><button type="button" class="btn btn-danger text-end delete-btn btn-sm" (click)="removeProduct(i)">
+                  <i class="pi pi-trash"></i>
+                </button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <h6 class="section-form-header mt-3">Display Info</h6>
+      <div class="container section-form">
+        <div class="row">
+          <div class="col-md-4">
+            <app-dropdowns label="show price" formControlName="show_price" [options]="showPrice" optionLabel="name"
+              optionValue="name" placeholder="Select">
+            </app-dropdowns>
+          </div>
+
+          <div class="col-md-4">
+            <app-dropdowns label="barcode type" formControlName="barcode_type" [options]="barcodeType"
+              optionLabel="name" optionValue="name" placeholder="Select">
+            </app-dropdowns>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-md-3">
+            <app-check-box formControlName="color" inputId="color" label="Color"></app-check-box>
+          </div>
+          <div class="col-md-3">
+            <app-check-box formControlName="category" inputId="category" label="Category"></app-check-box>
+          </div>
+          <div class="col-md-3">
+            <app-check-box formControlName="weight" inputId="weight" label="Weight"></app-check-box>
+          </div>
+          <div class="col-md-3">
+            <app-check-box formControlName="brand" inputId="brand" label="Brand"></app-check-box>
+          </div>
+          <div class="col-md-3">
+            <app-check-box formControlName="designer" inputId="designer" label="Designer"></app-check-box>
+          </div>
+          <div class="col-md-3">
+            <app-check-box formControlName="size" inputId="size" label="Size"></app-check-box>
+          </div>
+          <div class="col-md-3">
+            <app-check-box formControlName="purity" inputId="purity" label="Purity"></app-check-box>
+          </div>
+        </div>
+      </div>
+      <div class="btns-group">
+        <button type="submit" class="my-4 submit-btn" [disabled]="labelForm.invalid">Print Label</button>
+      </div>
+    </form>
+  </div>
 </section>

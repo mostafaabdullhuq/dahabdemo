@@ -5,6 +5,7 @@
   <div class="header-container">
     <h3>Products</h3>
     <hr>
+
     <div class="header-btns">
       <a href="excels/products.csv" class="add-btn rounded-3 text-center" title="download template">
         <i class="pi pi-download px-2 py-1"></i>
@@ -18,7 +19,7 @@
     </div>
 
   </div>
-  <div class="filter-container container">
+  <div class="filter-container container d-flex flex-column justify-content-end">
     <app-filter-collapse>
       <form class="container" [formGroup]="filterForm">
         <div class="row">
@@ -75,6 +76,15 @@
       </form>
     </app-filter-collapse>
   </div>
+
+  <div class="header-container pt-0 pb-0">
+    <div class="header-btns">
+      <button class="add-btn text-center mb-3" (click)="syncProductPrices()">
+        <i class="pi pi-sync px-2"></i>Sync Products Prices
+      </button>
+    </div>
+  </div>
+
 
   <div class="table-container">
     <app-data-table [contextMenuItems]="productMenuItems" [rowsPerPageOptions]="rowsPerPageOptions"

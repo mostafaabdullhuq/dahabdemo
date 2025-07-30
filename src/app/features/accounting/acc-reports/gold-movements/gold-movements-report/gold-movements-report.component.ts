@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SharedModule } from '../../../../../shared/shared.module';
 import { ReportsService } from '../../../@services/reports.service';
 import { DropdownsService } from '../../../../../core/services/dropdowns.service';
@@ -87,22 +87,27 @@ export class GoldMovementsReportComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
     this.prepareFilterForm();
 
     this._dropdownService.getBranches().subscribe(res => {
       this.branches = res.results;
+      this.filterForm.patchValue({
+        branch: this.branches?.length ? this.branches[0]?.id : null
+      })
+
+      // Load initial data with default current month filter
+      const initialFilter = this.getFilterObject();
+      this.getData(initialFilter);
     });
 
-    // Load initial data with default current month filter
-    const initialFilter = this.getFilterObject();
-    this.getData(initialFilter);
   }
 
   prepareFilterForm() {
     this.filterForm = this._formBuilder.group({
       search: [''],
-      branch: [''],
-      date_range: ['']
+      branch: ['', Validators.required],
+      date_range: ['', Validators.required]
     }, { validators: this.dateRangeValidator });
 
     // Set default date range to current month
@@ -111,7 +116,7 @@ export class GoldMovementsReportComponent implements OnInit {
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
     this.filterForm.patchValue({
-      date_range: [startOfMonth, endOfMonth]
+      date_range: [startOfMonth, endOfMonth],
     });
   }
 
@@ -124,6 +129,7 @@ export class GoldMovementsReportComponent implements OnInit {
         return { invalidDateRange: true };
       }
     }
+
     return null;
   }
 
@@ -263,8 +269,7 @@ export class GoldMovementsReportComponent implements OnInit {
         return date.toISOString().split('T')[0];
       };
 
-      filter.date_from = formatDateForBackend(formValue.date_range[0]);
-      filter.date_to = formatDateForBackend(formValue.date_range[1]);
+      filter.created_at__range = `${formatDateForBackend(formValue.date_range[0])},${formatDateForBackend(formValue.date_range[1])}`;
     }
 
     return filter;

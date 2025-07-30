@@ -22,7 +22,6 @@ export class DataTableComponent implements OnInit {
   @Input() tableStyle: any = { 'width': '100%', 'max-height': '10rem', 'min-height': '10rem' }
   selectedRow: any;
   @Output() rowSelected = new EventEmitter<any>();
-
   @Input() getRowData?: (row: any) => MenuItem[]; // Optional function if parent wants dynamic rows
 
   getActions(rowData: any): MenuItem[] {

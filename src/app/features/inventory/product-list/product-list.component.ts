@@ -23,6 +23,13 @@ export class ProductListComponent {
   totalRecords: number = 0;
   pageSize: number = 10;
   first: number = 0;
+  searchQuery = ''; // Holds the current query string
+  selectedProduct: any;
+
+  componentRef!: ComponentRef<any>;
+  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  rowsPerPageOptions: any[] = [10, 25, 50]; // initially
 
   stockPoints: any[] = [];
   units: any[] = [];
@@ -162,7 +169,6 @@ export class ProductListComponent {
       // Ensure the total count is updated
     });
   }
-  searchQuery = ''; // Holds the current query string
 
   onSearch(): void {
     const formValues = this.filterForm.value;
@@ -207,7 +213,6 @@ export class ProductListComponent {
         this.updateRowsPerPageOptions(res?.count)
       });
   }
-  selectedProduct: any;
 
   productMenuItems: MenuItem[] = [
     {
@@ -258,17 +263,12 @@ export class ProductListComponent {
     });
   }
 
-  componentRef!: ComponentRef<any>;
-  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
-
   openStockHistory(product: any) {
     this.container.clear();
     this.componentRef = this.container.createComponent(ProductStockHistoryComponent);
     this.componentRef.instance.visible = true;
     this.componentRef.instance.productId = product?.id;
   }
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -296,9 +296,15 @@ export class ProductListComponent {
       },
     });
   }
-  rowsPerPageOptions: any[] = [10, 25, 50]; // initially
 
   updateRowsPerPageOptions(total: number): void {
     this.rowsPerPageOptions = [10, 25, 50, total];
+  }
+
+  syncProductPrices() {
+    this._inventoryService.syncProductPrices().subscribe(res => {
+      this._toaster.showSuccess("Products prices synced succeessfully");
+      this.getProducts();
+    })
   }
 }

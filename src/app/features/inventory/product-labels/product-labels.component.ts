@@ -1,6 +1,6 @@
 import { Component, ComponentRef, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { LabelPrintComponent } from './label-print/label-print.component';
 import { Dialog } from '@angular/cdk/dialog'; // or your dialog/modal system
@@ -42,7 +42,7 @@ export class ProductLabelsComponent implements OnInit {
     this.labelForm = this._formBuilder.group({
       selected_product: [''],
       show_price: ['Inc. Tax'],
-      barcode_type: [''],
+      barcode_type: ['', Validators.required],
       color: [false],
       category: [true],
       weight: [true],

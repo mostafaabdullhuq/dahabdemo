@@ -27,7 +27,7 @@
           <div class="col-md-4 d-flex flex-column">
             <label for="date_range">Date Range</label>
             <p-datepicker id="date_range" [size]="'small'" formControlName="date_range" selectionMode="range"
-              styleClass="w-100" [readonlyInput]="false" [showButtonBar]="true" [showClear]="true" />
+              styleClass="w-100" [readonlyInput]="false" />
           </div>
         </div>
         <div class="btns-group mt-3">
@@ -41,29 +41,6 @@
   <div class="table-container">
     <app-data-table [data]="goldMovementsData.results" [cols]="columns" [totalRecords]="tableOptions.totalRecords"
       [hasContext]="false" [paginator]="false">
-
-      <!-- <ng-container table-footer *ngIf="tableOptions.totalRecords > 0 && goldMovementsData.results.length > 0">
-        <tr>
-          <td *ngFor="let column of columns">
-            <ng-container class="fw-bold" [ngSwitch]="column.field">
-              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'ref_no'">TOTAL</span>
-              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'gold_wt'">
-                {{formatNumber(reportTotals.total_gold_in)}}
-              </span>
-              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'gold_in'">
-                {{formatNumber(reportTotals.total_gold_in)}}
-              </span>
-              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'gold_out'">
-                {{formatNumber(reportTotals.total_gold_out)}}
-              </span>
-              <span class="fw-bold" style="font-size:14px" *ngSwitchCase="'total_balance'">
-                {{formatNumber(reportTotals.final_balance)}}
-              </span>
-              <span class="fw-bold" style="font-size:14px" *ngSwitchDefault>-</span>
-            </ng-container>
-          </td>
-        </tr>
-      </ng-container> -->
 
       <ng-container table-empty-message
         *ngIf="goldMovementsData.results.length === 0 && tableOptions.totalRecords === 0">
