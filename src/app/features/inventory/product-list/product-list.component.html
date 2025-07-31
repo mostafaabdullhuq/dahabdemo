@@ -17,15 +17,20 @@
       <button [routerLink]="['/inventory/product/add']" class="add-btn text-center"><i class="pi pi-plus  px-2"></i>Add
         product</button>
     </div>
-
   </div>
+
   <div class="filter-container container d-flex flex-column justify-content-end">
     <app-filter-collapse>
       <form class="container" [formGroup]="filterForm">
         <div class="row">
           <div class="col-md-12">
-            <app-input-text formControlName="search" placeholder="Global Search" type="text"
-              inputName="Search"></app-input-text>
+            <div class="d-flex flex-column">
+              <label for="search">Search</label>
+              <div class="input-group">
+                <input type="text" formControlName="search" class="form-control" placeholder="Search..." id="search" />
+                <span class="input-group-text"><i class="pi pi-barcode"></i></span>
+              </div>
+            </div>
           </div>
           <div class="col-md-4">
             <app-input-text formControlName="name__icontains" placeholder="Enter product name" type="name"

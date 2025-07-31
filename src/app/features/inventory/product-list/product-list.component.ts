@@ -1,4 +1,4 @@
-import { Component, ComponentRef, ElementRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, ElementRef, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { InventoryService } from '../@services/inventory.service';
 import { Router, RouterLink } from '@angular/router';
@@ -8,6 +8,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { ProductStockHistoryComponent } from '../product-stock-history/product-stock-history.component';
 import { ToasterMsgService } from '../../../core/services/toaster-msg.service';
+import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
@@ -15,7 +16,7 @@ import { ToasterMsgService } from '../../../core/services/toaster-msg.service';
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
 })
-export class ProductListComponent {
+export class ProductListComponent implements OnDestroy {
   products: any[] = [];
   cols: any[] = [];
 
@@ -30,6 +31,7 @@ export class ProductListComponent {
   @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   rowsPerPageOptions: any[] = [10, 25, 50]; // initially
+  searchSubscription!: Subscription
 
   stockPoints: any[] = [];
   units: any[] = [];
@@ -105,21 +107,41 @@ export class ProductListComponent {
         }
       },
     ];
+
+    this.initForm();
+    this.handleFormSubscriptions();
+    this.getProducts();
+    this.getLookupItems();
+  }
+
+  private initForm() {
     this.filterForm = this._formBuilder.group({
-      search: '',
-      description: [''],
-      designer: [''],
-      brand: [''],
-      category: [''],
-      name__icontains: [''],
-      branch: [''],
-      purity: [''],
-      size: [''],
+      search: [null],
+      description: [null],
+      designer: [null],
+      brand: [null],
+      category: [null],
+      name__icontains: [null],
+      branch: [null],
+      purity: [null],
+      size: [null],
       price_from: [null],
       price_to: [null]
     }, { validators: this.pricesCorrect });
+  }
 
-    this.getProducts();
+  private handleFormSubscriptions() {
+    this.searchSubscription = this.filterForm.get("search")?.valueChanges
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged()
+      )
+      .subscribe(search => {
+        this.onSearch();
+      }) || new Subscription();
+  }
+
+  private getLookupItems() {
     this._dropdownService.getBrands().subscribe(data => {
       this.brands = data?.results;
     });
@@ -306,5 +328,9 @@ export class ProductListComponent {
       this._toaster.showSuccess("Products prices synced succeessfully");
       this.getProducts();
     })
+  }
+
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe()
   }
 }
