@@ -9,6 +9,7 @@ import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { ProductStockHistoryComponent } from '../product-stock-history/product-stock-history.component';
 import { ToasterMsgService } from '../../../core/services/toaster-msg.service';
 import { debounceTime, distinctUntilChanged, filter, Subscription } from 'rxjs';
+import { ProductSearchWebsocketService } from './product-search-websocket.service';
 
 @Component({
   selector: 'app-product-list',
@@ -49,7 +50,8 @@ export class ProductListComponent implements OnDestroy {
     private _router: Router,
     private _confirmPopUp: ConfirmationPopUpService,
     private _dropdownService: DropdownsService,
-    private _toaster: ToasterMsgService
+    private _toaster: ToasterMsgService,
+    private _productSearchWebsocketService: ProductSearchWebsocketService
   ) { }
 
   ngOnInit(): void {
@@ -138,8 +140,40 @@ export class ProductListComponent implements OnDestroy {
         filter(value => !value?.length || value?.length >= 3)
       )
       .subscribe(search => {
-        this.onSearch();
+        this._productSearchWebsocketService.sendMessage({
+          tag_number: search
+        })
       }) || new Subscription();
+
+    this._productSearchWebsocketService.messages$.subscribe(products => {
+      switch (this.checkType(products)) {
+        case "object":
+          this.products = [products]
+          this.totalRecords = 1;
+          this.updateRowsPerPageOptions(1);
+          break;
+        case "array":
+          this.products = products;
+          this.totalRecords = products.length;
+          this.updateRowsPerPageOptions(products.length);
+          break;
+        default:
+          this.products = [];
+          this.totalRecords = 0;
+          this.updateRowsPerPageOptions(0);
+          break;
+      }
+    })
+  }
+
+  checkType(variable: any) {
+    if (Array.isArray(variable)) {
+      return "array";
+    } else if (typeof variable === 'object' && variable !== null) {
+      return "object";
+    } else {
+      return "unknown";
+    }
   }
 
   private getLookupItems() {
