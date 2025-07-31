@@ -8,7 +8,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import { DropdownsService } from '../../../core/services/dropdowns.service';
 import { ProductStockHistoryComponent } from '../product-stock-history/product-stock-history.component';
 import { ToasterMsgService } from '../../../core/services/toaster-msg.service';
-import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
@@ -134,7 +134,8 @@ export class ProductListComponent implements OnDestroy {
     this.searchSubscription = this.filterForm.get("search")?.valueChanges
       .pipe(
         debounceTime(500),
-        distinctUntilChanged()
+        distinctUntilChanged(),
+        filter(value => value?.length >= 3)
       )
       .subscribe(search => {
         this.onSearch();
@@ -216,7 +217,6 @@ export class ProductListComponent implements OnDestroy {
     }
 
     this.searchQuery = queryParts.join('&');
-    console.log("search query: ", this.searchQuery);
 
     this.loadProducts({ first: 0, rows: this.pageSize }); // reset to first page
   }

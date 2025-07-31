@@ -31,6 +31,7 @@ export class DropdownsComponent implements ControlValueAccessor, OnChanges {
   @Output() valueCleared = new EventEmitter<void>();
   @Input() filterByFields: string[] = [];
   @Input() style: any = {};
+  @Input() dropdownIcon: string = ""
 
   selectedValue: any = '';
 

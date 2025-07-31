@@ -13,6 +13,6 @@
     [(ngModel)]="selectedValue" [optionLabel]="optionLabel" [ngModel]="selectedValue"
     [optionValue]="optionValue ?? optionLabel" [required]="required" [placeholder]="placeholder"
     (onChange)="onSelectionChange($event)" (onClear)="onClear()" [filterFields]="filterByFields"
-    (blur)="onBlur()"></p-select>
+    [dropdownIcon]="dropdownIcon" (blur)="onBlur()"></p-select>
   <ng-content></ng-content>
 </div>
