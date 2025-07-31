@@ -135,7 +135,7 @@ export class ProductListComponent implements OnDestroy {
       .pipe(
         debounceTime(500),
         distinctUntilChanged(),
-        filter(value => value?.length >= 3)
+        filter(value => !value?.length || value?.length >= 3)
       )
       .subscribe(search => {
         this.onSearch();
